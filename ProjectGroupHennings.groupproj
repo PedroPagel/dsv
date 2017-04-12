@@ -1,0 +1,84 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{420A1773-E8E0-4D7C-A388-C78C09F27D0D}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Hennings.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="HennCustom.dproj">
+            <Dependencies>Hennings.dproj</Dependencies>
+        </Projects>
+        <Projects Include="ConsultaDDA.dproj">
+            <Dependencies>Hennings.dproj;HennCustom.dproj</Dependencies>
+        </Projects>
+        <Projects Include="ProcessoDDA.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="ControleLocacao.dproj">
+            <Dependencies>Hennings.dproj</Dependencies>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Hennings">
+        <MSBuild Projects="Hennings.dproj"/>
+    </Target>
+    <Target Name="Hennings:Clean">
+        <MSBuild Projects="Hennings.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Hennings:Make">
+        <MSBuild Projects="Hennings.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="HennCustom" DependsOnTargets="Hennings">
+        <MSBuild Projects="HennCustom.dproj"/>
+    </Target>
+    <Target Name="HennCustom:Clean" DependsOnTargets="Hennings:Clean">
+        <MSBuild Projects="HennCustom.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HennCustom:Make" DependsOnTargets="Hennings:Make">
+        <MSBuild Projects="HennCustom.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ConsultaDDA" DependsOnTargets="Hennings;HennCustom">
+        <MSBuild Projects="ConsultaDDA.dproj"/>
+    </Target>
+    <Target Name="ConsultaDDA:Clean" DependsOnTargets="Hennings:Clean;HennCustom:Clean">
+        <MSBuild Projects="ConsultaDDA.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ConsultaDDA:Make" DependsOnTargets="Hennings:Make;HennCustom:Make">
+        <MSBuild Projects="ConsultaDDA.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ProcessoDDA">
+        <MSBuild Projects="ProcessoDDA.dproj"/>
+    </Target>
+    <Target Name="ProcessoDDA:Clean">
+        <MSBuild Projects="ProcessoDDA.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ProcessoDDA:Make">
+        <MSBuild Projects="ProcessoDDA.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="ControleLocacao" DependsOnTargets="Hennings">
+        <MSBuild Projects="ControleLocacao.dproj"/>
+    </Target>
+    <Target Name="ControleLocacao:Clean" DependsOnTargets="Hennings:Clean">
+        <MSBuild Projects="ControleLocacao.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ControleLocacao:Make" DependsOnTargets="Hennings:Make">
+        <MSBuild Projects="ControleLocacao.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Hennings;HennCustom;ConsultaDDA;ProcessoDDA;ControleLocacao"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Hennings:Clean;HennCustom:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Hennings:Make;HennCustom:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
