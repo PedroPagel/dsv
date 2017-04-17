@@ -263,6 +263,8 @@ type
     function Carregado: Boolean;
     function Titulo: TTituloDDA;
     procedure ConsultarTitulo();
+    procedure Alterar();
+    procedure Excluir(const pID: Integer);
 
     property IdArm: Integer read GetIdArm write SetIdArm;
     property CodEmp: Integer read GetCodEmp write SetCodEmp;
@@ -516,7 +518,41 @@ type
     property USU_DatFin: TDate read GetDatFin write SetDatFin;
     property USU_UsuAlt: Integer read GetUsuAlt write SetUsuAlt;
     property USU_DatAlt: TDate read GetDatAlt write SetDatAlt;
-    property USU_UsuResp: Integer read GetUsuRes write SetUsuRes;
+    property USU_UsuRes: Integer read GetUsuRes write SetUsuRes;
+  end;
+
+  T510CAD = class(TTabela)
+  private
+    FCodEmp: Integer;
+    FCodPor: string;
+    FCodUsu: Integer;
+    FFimVig: TDate;
+    FIniVig: TDate;
+    FPerExc: Char;
+
+    function GetCodEmp: Integer;
+    function GetCodPor: string;
+    function GetCodUsu: Integer;
+    function GetFimVig: TDate;
+    function GetIniVig: TDate;
+    function GetPerExc: Char;
+
+    procedure SetCodEmp(const Value: Integer);
+    procedure SetCodPor(const Value: string);
+    procedure SetCodUsu(const Value: Integer);
+    procedure SetFimVig(const Value: TDate);
+    procedure SetIniVig(const Value: TDate);
+    procedure SetPerExc(const Value: Char);
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    property USU_CodEmp: Integer read GetCodEmp Write SetCodEmp;
+    property USU_CodPor: string read GetCodPor Write SetCodPor;
+    property USU_CodUsu: Integer read GetCodUsu Write SetCodUsu;
+    property USU_IniVig: TDate read GetIniVig Write SetIniVig;
+    property USU_FimVig: TDate read GetFimVig Write SetFimVig;
+    property USU_PerExc: Char read GetPerExc Write SetPerExc;
   end;
 
 implementation
@@ -525,6 +561,13 @@ uses
   System.Variants;
 
 { T510TIT }
+
+procedure T510TIT.Alterar;
+begin
+  FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT']);
+  FTituloDDA.DefinirCampoUpdate(['CODBAR']);
+  FTituloDDA.Executar(estUpdate);
+end;
 
 function T510TIT.Carregado: Boolean;
 begin
@@ -587,6 +630,13 @@ end;
 destructor T510TIT.Destroy;
 begin
   inherited;
+end;
+
+procedure T510TIT.Excluir(const pID: Integer);
+begin
+  Self.IdArm := pID;
+  Self.DefinirSelecaoPropriedade(['ID','IDARM']);
+  Self.Executar(estDelete);
 end;
 
 function T510TIT.GetCodEmp: Integer;
@@ -2072,6 +2122,78 @@ end;
 procedure T090IND.SetVlrInd(const Value: Extended);
 begin
   FVlrInd := Value;
+end;
+
+{ T510CAD }
+
+constructor T510CAD.Create;
+begin
+  inherited Create('USU_T510CAD');
+end;
+
+destructor T510CAD.Destroy;
+begin
+  inherited;
+end;
+
+function T510CAD.GetCodEmp: Integer;
+begin
+  Result := FCodEmp;
+end;
+
+function T510CAD.GetCodPor: string;
+begin
+  Result := FCodPor;
+end;
+
+function T510CAD.GetCodUsu: Integer;
+begin
+  Result := FCodUsu;
+end;
+
+function T510CAD.GetFimVig: TDate;
+begin
+  Result := FFimVig;
+end;
+
+function T510CAD.GetIniVig: TDate;
+begin
+  Result := FIniVig;
+end;
+
+function T510CAD.GetPerExc: Char;
+begin
+  Result := FPerExc;
+end;
+
+procedure T510CAD.SetCodEmp(const Value: Integer);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T510CAD.SetCodPor(const Value: string);
+begin
+  FCodPor := Value;
+end;
+
+procedure T510CAD.SetCodUsu(const Value: Integer);
+begin
+  FCodUsu := Value;
+end;
+
+procedure T510CAD.SetFimVig(const Value: TDate);
+begin
+  FFimVig := Value;
+end;
+
+procedure T510CAD.SetIniVig(const Value: TDate);
+begin
+  FIniVig := Value;
+end;
+
+procedure T510CAD.SetPerExc(const Value: Char);
+begin
+  FPerExc := Value;
 end;
 
 end.
