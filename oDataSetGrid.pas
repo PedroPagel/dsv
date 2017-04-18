@@ -60,6 +60,7 @@ type
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
     procedure CallCheck();
+    procedure CreateFieldOrder(const pIndexFields: string);
   public
     procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
     procedure Init(const pTable: string; const pUsu: Boolean; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
@@ -112,7 +113,6 @@ begin
 
   FTable := pTable;
   FForm := pForm;
-  FIndexFields := pIndexFields;
   FUser := pUsu;
 
   FFiedList := EmptyStr;
@@ -131,6 +131,8 @@ begin
   Self.OnExit := ExitGrid;
   Self.OnKeyPress := GridKeyPress;
   Self.OnColEnter := EnterCol;
+
+  CreateFieldOrder(pIndexFields);
 end;
 
 function TDataSetGrid.Line: Integer;
@@ -154,11 +156,21 @@ begin
 end;
 
 procedure TDataSetGrid.EnterGrid(Sender: TObject);
+var
+  i: Integer;
 begin
   FFieldState := gsOnEnter;
   FOldLine := 0;
   FOldColumn := 0;
   FOldEnterLine := FClientDataSet.RecNo;
+
+  for i := 0 to pred(FCheckList.Count) do
+  begin
+    if (Self.SelectedField.FieldName = FCheckList[i]) then
+      Self.Options := Self.Options - [dgEditing]
+    else
+      Self.Options := Self.Options + [dgEditing];
+  end;
 end;
 
 procedure TDataSetGrid.Post;
@@ -234,12 +246,22 @@ begin
 end;
 
 procedure TDataSetGrid.EnterCol(Sender: TObject);
+var
+  i: Integer;
 begin
   if (FOldColumn <> Col) and (FFieldState = gsNewValue) then
     CallCheck();
 
   if (FFieldState = gsOnEnter) or (FFieldState = gsNewValue) then
     FOldValue := Self.Columns[pred(Col)].Field.Value;
+
+  for i := 0 to pred(FCheckList.Count) do
+  begin
+    if (Self.SelectedField.FieldName = FCheckList[i]) then
+      Self.Options := Self.Options - [dgEditing]
+    else
+      Self.Options := Self.Options + [dgEditing];
+  end;
 end;
 
 procedure TDataSetGrid.ExitGrid(Sender: TObject);
@@ -331,6 +353,9 @@ end;
 procedure TDataSetGrid.GridKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if ((Shift = [ssCtrl]) and (Key = VK_DELETE)) then
+    Abort;
+
   if (Key in [VK_DOWN]) then
     if not(FAllowNewLine) and (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
       Abort;
@@ -359,6 +384,8 @@ begin
 end;
 
 procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
+var
+  xNextCol: Boolean;
 
   procedure NewValue();
   var
@@ -367,7 +394,7 @@ procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
     Self.Refresh;
     xReadOnly := Self.Columns[pred(Col)].ReadOnly;
 
-    if not(xReadOnly) then
+    if not(xReadOnly) and not(xNextCol) then
       FOldValue := Self.Columns[pred(Col)].Field.Value;
 
     FOldColumn := Col;
@@ -376,10 +403,12 @@ procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
   end;
 
 begin
+  xNextCol := (Key = #13);
+
   if (FClientDataSet.FieldDefs[Col].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
     ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
   begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) then
+    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
     begin
       key := #0;
       FFieldState := gsBrowse;
@@ -390,7 +419,7 @@ begin
   else
   if (FClientDataSet.FieldDefs[Col].DataType in [ftFixedChar, ftString, ftWideString]) then
   begin
-    if not(CharInSet(key, ['A'..'Z','a'..'z'])) then
+    if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
     begin
         Key := #0;
         FFieldState := gsBrowse;
@@ -401,13 +430,33 @@ begin
   else
   if (FClientDataSet.FieldDefs[Col].DataType in [ftDate, ftDateTime]) then
   begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) then
+    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
     begin
       key := #0;
       FFieldState := gsBrowse;
     end
     else
       NewValue();
+  end;
+
+  if (xNextCol) then
+  begin
+    if (Self.Col < pred(ColCount)) then
+      Self.Col := Self.Col + 1
+    else
+    if not(FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+    begin
+      FClientDataSet.RecNo := FClientDataSet.RecNo + 1;
+      Col := 1;
+    end
+    else
+    if (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+    begin
+      FClientDataSet.RecNo := 1;
+      Col := 1;
+    end;
+
+    EnterCol(Self);
   end;
 end;
 
@@ -432,11 +481,11 @@ begin
       if AnsiSameText(Column.FieldName,FCheckList[i]) then
       begin
         Self.Canvas.FillRect(Rect);
-        xCheck := iff(FClientDataSet.FieldByName(Column.FieldName).AsInteger = 1, DFCS_CHECKED, 0);
+        xCheck := iff(FClientDataSet.FieldByName(Column.FieldName).AsInteger = 1, DFCS_CHECKED, DFCS_BUTTONCHECK);
 
         xRec := Rect;
         InflateRect(xRec,-2,-2);
-        DrawFrameControl(Self.Canvas.Handle,xRec,DFC_BUTTON, DFCS_BUTTONCHECK or xCheck);
+        DrawFrameControl(Self.Canvas.Handle, xRec, DFC_BUTTON, DFCS_BUTTONCHECK or xCheck);
       end;
     end;
   end;
@@ -468,8 +517,6 @@ begin
     Self.Post();
     Self.Next
   end;
-
-  Self.First;
 end;
 
 procedure TDataSetGrid.CheckMethod(const pField: string; const pCheckMethod: TCheckMethod);
@@ -546,7 +593,7 @@ begin
                       'OWNER = :BASE AND ' +
                       'R998FLD.TBLNAM = TABLE_NAME AND ' +
                       'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME ' +
-                      ' ORDER BY ALL_TAB_COLUMNS.COLUMN_ID ';
+                      ' ORDER BY '+ FIndexFields + ' ALL_TAB_COLUMNS.COLUMN_ID ';
 
   xQuery.ParamByName('TABELA').Value := FTable;
   xQuery.ParamByName('BASE').Value := 'SENIOR52';
@@ -573,9 +620,30 @@ begin
   UltimoCaracter(FFiedList, ',');
 
   FClientDataSet.CreateDataSet;
-  FClientDataSet.IndexFieldNames := FIndexFields;
   Self.DataSource.DataSet := FClientDataSet;
   Self.DataSource.OnDataChange := ChangeData;
+end;
+
+procedure TDataSetGrid.CreateFieldOrder(const pIndexFields: string);
+var
+  i: Integer;
+  xCampo: string;
+begin
+  xCampo := EmptyStr;
+  FIndexFields := EmptyStr;
+
+  if not(IsNull(pIndexFields)) then
+    for i := 1 to High(pIndexFields) do
+    begin
+      if not(AnsiSameText(pIndexFields[i], ';')) then
+        xCampo := xCampo + pIndexFields[i];
+
+      if (AnsiSameText(pIndexFields[i], ';')) or (i = Length(pIndexFields)) then
+      begin
+        FIndexFields := FIndexFields + 'CASE WHEN R998FLD.FLDNAM = '''+ xCampo +''' THEN 1 ELSE 2 END,';
+        xCampo := EmptyStr;
+      end;
+    end;
 end;
 
 function TDataSetGrid.Selected(const pField: string): Variant;

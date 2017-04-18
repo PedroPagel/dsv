@@ -1,11 +1,11 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{C180EFC5-228B-41A0-9854-48DCF8B97807}</ProjectGuid>
-        <MainSource>HennCustom.dpk</MainSource>
+        <MainSource>HBaseComponente.dpk</MainSource>
         <ProjectVersion>14.6</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
@@ -45,6 +45,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_Locale>1046</VerInfo_Locale>
         <AppFileExt>bpl</AppFileExt>
         <DCC_UnitSearchPath>C:\Users\user\Documents\RAD Studio\Projects;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <GenDll>true</GenDll>
@@ -110,8 +111,10 @@
         <DCCReference Include="uPesHen.pas">
             <Form>FPesHen</Form>
         </DCCReference>
+        <DCCReference Include="oMensagem.pas"/>
         <DCCReference Include="oButtonedEdit.pas"/>
         <DCCReference Include="oDataSetGrid.pas"/>
+        <DCCReference Include="oHButton.pas"/>
         <RcItem Include="..\..\..\Downloads\lupa.bmp">
             <ResourceType>RCDATA</ResourceType>
             <ResourceId>lupa</ResourceId>
@@ -134,7 +137,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">HennCustom.dpk</Source>
+                    <Source Name="MainSource">HBaseComponente.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
@@ -177,6 +180,12 @@
                     <VersionInfoKeys Name="CFBundleInfoDictionaryVersion"/>
                     <VersionInfoKeys Name="CFBundleDevelopmentRegion"/>
                 </VersionInfoKeys>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k180.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp180.bpl">Embarcadero C++Builder Office XP Servers Package</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k180.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp180.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment/>
             <Platforms>
