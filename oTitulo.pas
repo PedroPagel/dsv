@@ -48,9 +48,6 @@ type
     procedure SetVlrAbe(const Value: Extended);
     procedure SetVlrDsc(const Value: Extended);
   public
-    constructor Create(const pTabela: string);
-    destructor Destroy(); override;
-
     property CodEmp: Word read GetCodEmp write SetCodEmp;
     property CodFil: Word read GetCodFil write SetCodFil;
     property CodTpt: string read GetCodTpt write SetCodTpt;
@@ -167,6 +164,7 @@ type
     FCodBar: string;
     FNumCtr: Integer;
     FIDCLP: Integer;
+    FCheck: Byte;
 
     function GetCodFor: Word;
     procedure SetCodFor(const pCodFor: Word);
@@ -206,10 +204,13 @@ type
     procedure SetNumCtr(const Value: Integer);
     function GetIDCLP: Integer;
     procedure SetIDCLP(const Value: Integer);
+    function GetCheck: Byte;
+    procedure SetCheck(const Value: Byte);
   public
     constructor Create();
     destructor Destroy(); override;
 
+    property Check: Byte read GetCheck write SetCheck;
     property USU_IDCLP: Integer read GetIDCLP write SetIDCLP;
     property CodPor: string read GetCodPor write SetCodPor;
     property CodFor: Word read GetCodFor write SetCodFor;
@@ -265,17 +266,6 @@ uses
   System.SysUtils;
 
 { TTitulo }
-
-constructor TTitulo.Create(const pTabela: string);
-begin
-  inherited Create(pTabela);
-  DefinirCampoNegado(['Check']);
-end;
-
-destructor TTitulo.Destroy;
-begin
-  inherited;
-end;
 
 function TTitulo.GetCodCrt: string;
 begin
@@ -411,7 +401,7 @@ constructor T501TCP.Create;
 begin
   inherited Create('E501TCP');
 
-  DefinirCampoNegado(['ID']);
+  DefinirCampoNegado(['ID','Check']);
 end;
 
 destructor T501TCP.Destroy;
@@ -422,6 +412,11 @@ end;
 function T501TCP.GetAntDsc: Char;
 begin
   Result := FAntDsc;
+end;
+
+function T501TCP.GetCheck: Byte;
+begin
+  Result := FCheck;
 end;
 
 function T501TCP.GetCodBar: string;
@@ -517,6 +512,11 @@ end;
 procedure T501TCP.SetAntDsc(const Value: Char);
 begin
   FAntDsc := Value;
+end;
+
+procedure T501TCP.SetCheck(const Value: Byte);
+begin
+  FCheck := Value;
 end;
 
 procedure T501TCP.SetCodBar(const Value: string);

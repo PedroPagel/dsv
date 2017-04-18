@@ -103,6 +103,7 @@ type
 
     function TotalOriginal: Extended;
     function TotalAjustado: Extended;
+    function Selecao(): Boolean;
 
     property FiltraContrato: string write FFiltraContrato;
     property FiltraTitulo: string write FFiltraTitulo;
@@ -354,7 +355,7 @@ begin
   F090IND := T090IND.Create('USU_T090IND');
   F090IND.DefinirCampoNegado(['ID']);
 
-  F090IND.USU_CodEmp := FLogEmp;
+  F090IND.USU_CodEmp := 1; //FLogEmp;
   F090IND.DefinirSelecaoPropriedade(['USU_CODEMP']);
   F090IND.Executar(estSelect);
   FTitulo := tTContasReceber;
@@ -386,27 +387,20 @@ begin
       Break;
     end;
 
-  StartTransaction;
-  try
-    for i := pred(Self.Despesas.Count) downto 0 do
+  for i := pred(Self.Despesas.Count) downto 0 do
+  begin
+    x501TCP := T501TCP(Self.Despesas[i]);
+
+    if (x501TCP.Check = 1) then
     begin
-      x501TCP := T501TCP(Self.Despesas[i]);
+      x501TCP.USU_IDCLP := xControle.USU_ID;
+      x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
+      x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
+      x501TCP.Executar(estUpdate);
 
-      if (x501TCP.Check = 1) then
-      begin
-        x501TCP.USU_IDCLP := xControle.USU_ID;
-        x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
-        x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
-        x501TCP.Executar(estUpdate);
-
-        xControle.Titulo.IterarAdd(x501TCP, T501TCP.Create);
-        Self.Despesas.Delete(i);
-      end;
+      xControle.Titulo.IterarAdd(x501TCP, T501TCP.Create);
+      Self.Despesas.Delete(i);
     end;
-
-    Commit;
-  except
-    RollBack;
   end;
 end;
 
@@ -499,48 +493,38 @@ begin
   xServico := Getsapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr();
   xEntrada := alteratituloscrAlteraTitulosCRIn.Create;
 
-  StartTransaction;
-  try
-    for i := 0 to pred(Self.Count) do
+  for i := 0 to pred(Self.Count) do
+  begin
+    if (TControle(Self[i]).Check = 1) then
     begin
-      if (TControle(Self[i]).Check = 1) then
+      for l := 0 to pred(TControle(Self[i]).Ajuste.Count) do
       begin
-        for l := 0 to pred(TControle(Self[i]).Ajuste.Count) do
-        begin
-          x301tcr := T301TCR(TControle(Self[i]).Ajuste[l]);
+        x301tcr := T301TCR(TControle(Self[i]).Ajuste[l]);
 
-          if (x301tcr.Check = 1) then
-          begin
-            j := Length(xTitulos);
-            Inc(j);
-            SetLength(xTitulos, j);
-            xTitulos[pred(j)] := alteratituloscrAlteraTitulosCRInGridTitulosAlterar.Create;
-            xTitulos[pred(j)].CodFil := x301tcr.CodFil;
-            xTitulos[pred(j)].CodTpt := x301tcr.CodTpt;
-            xTitulos[pred(j)].NumTit := x301tcr.NumTit;
-            xTitulos[pred(j)].codCli := x301tcr.CodCli;
-            xTitulos[pred(j)].vlrOri := x301tcr.VlrOri;
-          end;
-        end;
+        j := Length(xTitulos);
+        Inc(j);
+        SetLength(xTitulos, j);
+        xTitulos[pred(j)] := alteratituloscrAlteraTitulosCRInGridTitulosAlterar.Create;
+        xTitulos[pred(j)].CodFil := x301tcr.CodFil;
+        xTitulos[pred(j)].CodTpt := x301tcr.CodTpt;
+        xTitulos[pred(j)].NumTit := x301tcr.NumTit;
+        xTitulos[pred(j)].codCli := x301tcr.CodCli;
+        xTitulos[pred(j)].vlrOri := x301tcr.VlrOri;
       end;
     end;
+  end;
 
-    if (j > 0) then
-    begin
-      Self.RemoverContrato();
+  if (j > 0) then
+  begin
+    Self.RemoverContrato();
 
-      xEntrada.gridTitulosAlterar := xTitulos;
-      xEntrada.codEmp := FLogEmp;
-      xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
-      xRetorno := xSaida.erroExecucao;
-      xRetorno := xSaida.resultado;
+    xEntrada.gridTitulosAlterar := xTitulos;
+    xEntrada.codEmp := 1; //FLogEmp;
+    xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
+    xRetorno := xSaida.erroExecucao;
+    xRetorno := xSaida.resultado;
 
-      Self.InserirContrato();
-    end;
-
-    Commit;
-  except
-    RollBack;
+    Self.InserirContrato();
   end;
 end;
 
@@ -573,32 +557,39 @@ var
   i,j: Integer;
   x501TCP: T501TCP;
 begin
-
-  StartTransaction;
-  try
-    for i := 0 to pred(Self.Count) do
-      if (TControle(Self[i]).Check = 1) then
+  for i := 0 to pred(Self.Count) do
+    if (TControle(Self[i]).Check = 1) then
+    begin
+      for j := pred(TControle(Self[i]).Titulo.Count) downto 0 do
       begin
-        for j := pred(TControle(Self[i]).Titulo.Count) downto 0 do
+        x501TCP := T501TCP(TControle(Self[i]).Titulo[j]);
+        if (x501TCP.Check = 1) then
         begin
-          x501TCP := T501TCP(TControle(Self[i]).Titulo[j]);
-          if (x501TCP.Check = 1) then
-          begin
-            x501TCP.USU_IDCLP := 0;
-            x501TCP.Check := 0;
-            x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
-            x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
-            x501TCP.Executar(estUpdate);
+          x501TCP.USU_IDCLP := 0;
+          x501TCP.Check := 0;
+          x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
+          x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
+          x501TCP.Executar(estUpdate);
 
-            Self.Despesas.IterarAdd(x501TCP, T501TCP.Create);
-            TControle(Self[i]).Titulo.Delete(j);
-          end;
+          Self.Despesas.IterarAdd(x501TCP, T501TCP.Create);
+          TControle(Self[i]).Titulo.Delete(j);
         end;
       end;
+    end;
+end;
 
-    Commit;
-  except
-    RollBack;
+function TIteradorControle.Selecao: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+
+  for i := 0 to pred(Self.Count) do
+  begin
+    Result := (TControle(Self[i]).Check = 1);
+
+    if (Result) then
+      Break;
   end;
 end;
 
@@ -640,11 +631,19 @@ begin
 end;
 
 function TIteradorControle.SelecaoDespesa: tSelecaoCheck;
+var
+  i: Integer;
 begin
   Result := iff(FListaDespesas.Count = 0, scSemDados, scSomaDespesa);
 
-  if (FListaDespesas.Selecionados) then
-    Result := scDespesa;
+  for i := 0 to pred(FListaDespesas.Count) do
+  begin
+    if (T501TCP(FListaDespesas[i]).Check = 1) then
+    begin
+      Result := scDespesa;
+      Break;
+    end;
+  end;
 end;
 
 procedure TIteradorControle.SetDespesas(const Value: TIterador);

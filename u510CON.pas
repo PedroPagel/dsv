@@ -3,11 +3,10 @@ unit u510CON;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
-  Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, oButtonedEdit,
-  oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs, Vcl.Mask, Vcl.DBCtrls,
-  Vcl.Menus, oMensagem;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
+  Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
+  Vcl.Mask, Vcl.DBCtrls, Vcl.Menus;
 
 type
   TF510CON = class(TForm)
@@ -20,7 +19,9 @@ type
     Panel7: TPanel;
     Panel4: TPanel;
     Splitter1: TSplitter;
+    Splitter3: TSplitter;
     Panel8: TPanel;
+    Panel9: TPanel;
     FGridArm: TDataSetGrid;
     FGridTit: TDataSetGrid;
     FGridAss: TDataSetGrid;
@@ -59,11 +60,6 @@ type
     DFinFim: TDateTimePicker;
     Label13: TLabel;
     DBLookupComboBox1: TDBLookupComboBox;
-    Excluir: TButton;
-    Marcar: TButton;
-    Desmarcar: TButton;
-    Panel9: TPanel;
-    ExcluirTit: TButton;
     procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
     procedure BECodEmpRightButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -113,22 +109,12 @@ type
     procedure BECodForExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure cbSituacaoArmChange(Sender: TObject);
-    procedure ExcluirClick(Sender: TObject);
-    procedure MarcarClick(Sender: TObject);
-    procedure DesmarcarClick(Sender: TObject);
-    procedure ExcluirTitClick(Sender: TObject);
   private
-    FControle: T510CON;
+    FConsulta: T510CON;
     FString: string;
     FOldDate: TDateTime;
 
-    procedure MarcarDesmarcar(const pValue: Byte);
-    function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String;
-      const pEspaco, pDecimal: Integer): String;
-  published
-    procedure FGridAssCodBarChange();
-    procedure FGridArmCheckClick();
-    procedure FGridTitCheckClick();
+    function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String; const pEspaco,pDecimal: Integer): String;
   end;
 
 var
@@ -151,11 +137,11 @@ end;
 procedure TF510CON.BECodEmpKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodEmp.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
+    key := #0;
 end;
 
 procedure TF510CON.BECodEmpRightButtonClick(Sender: TObject);
@@ -173,11 +159,11 @@ end;
 procedure TF510CON.BECodFilKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodFil.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
+    key := #0;
 end;
 
 procedure TF510CON.BECodFilRightButtonClick(Sender: TObject);
@@ -195,11 +181,11 @@ end;
 procedure TF510CON.BECodForKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodFor.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
+    key := #0;
 end;
 
 procedure TF510CON.BECodForRightButtonClick(Sender: TObject);
@@ -217,10 +203,10 @@ end;
 procedure TF510CON.BECodPorKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodPor.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
     Key := #0;
 end;
 
@@ -234,28 +220,27 @@ var
   xVlrIni: Double;
   xVlrFim: Double;
 begin
-  xVlrIni := StrToFloat(StringReplace(BEVlrIni.Text, '.', '', [rfReplaceAll]));
+  xVlrini := StrToFloat(StringReplace(BEVlrIni.Text, '.', '', [rfReplaceAll]));
   xVlrFim := StrToFloat(StringReplace(BEVlrFim.Text, '.', '', [rfReplaceAll]));
 
   if (xVlrFim > 0) then
-    if (xVlrFim < xVlrIni) then
+    if (xVlrFim < xVlrini) then
     begin
       BEVlrFim.SetFocus;
-      CMessage('Valor Final não poder ser menor que o Valor Inicial!',
-        mtWarning);
+      CMessage('Valor Final não poder ser menor que o Valor Inicial!', mtWarning);
     end;
 end;
 
 procedure TF510CON.BEVlrFimKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BEVlrFim.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
+    key := #0;
 
-  Valor(BEVlrFim, BEVlrFim.Text, Key, 50, 2);
+  Valor(BEVlrFim,BEVlrFim.Text,key,50,2);
 end;
 
 procedure TF510CON.BEVlrIniExit(Sender: TObject);
@@ -263,10 +248,10 @@ var
   xVlrIni: Double;
   xVlrFim: Double;
 begin
-  xVlrIni := StrToFloat(StringReplace(BEVlrIni.Text, '.', '', [rfReplaceAll]));
+  xVlrini := StrToFloat(StringReplace(BEVlrIni.Text, '.', '', [rfReplaceAll]));
   xVlrFim := StrToFloat(StringReplace(BEVlrFim.Text, '.', '', [rfReplaceAll]));
 
-  if (xVlrFim > 0) and (xVlrIni > xVlrFim) then
+  if (xVlrFim > 0) and (xVlrini > xVlrFim) then
   begin
     BEVlrFim.SetFocus;
     CMessage('Valor Inicial não poder ser menor que o Valor Final!', mtWarning);
@@ -276,22 +261,19 @@ end;
 procedure TF510CON.BEVlrIniKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BEVlrIni.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
+  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
     Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
+  else
+  if not(CharInSet(key, ['0'..'9',',',#8])) then
+    key := #0;
 
-  Valor(BEVlrIni, BEVlrIni.Text, Key, 50, 2);
+  Valor(BEVlrIni,BEVlrIni.Text,key,50,2);
 end;
 
 procedure TF510CON.SairClick(Sender: TObject);
 begin
-  if (FGridArm.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
-  begin
-    CancelarClick(Self);
-    Self.Close;
-  end;
+  CancelarClick(Self);
+  Self.Close;
 end;
 
 procedure TF510CON.CancelarClick(Sender: TObject);
@@ -321,7 +303,7 @@ begin
   FGridArm.Clear;
   FGridTit.Clear;
   FGridAss.Clear;
-  FControle.ListaArm.Clear;
+  FConsulta.ListaArm.Clear;
   BECodPor.SetFocus;
 end;
 
@@ -361,7 +343,8 @@ begin
     DDatFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
   end
-  else if (DDatFim.Date = 1) then
+  else
+  if (DDatFim.Date = 1) then
     DDatFim.Format := '00/00/0000';
 end;
 
@@ -395,13 +378,9 @@ begin
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
   end
-  else if (DDatIni.Date = 1) then
-    DDatIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DesmarcarClick(Sender: TObject);
-begin
-  MarcarDesmarcar(0);
+  else
+  if (DDatIni.Date = 1) then
+    DDatIni.Format :=  '00/00/0000';
 end;
 
 procedure TF510CON.DFinFimChange(Sender: TObject);
@@ -429,7 +408,8 @@ begin
     DFinFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
   end
-  else if (DFinFim.Date = 1) then
+  else
+  if (DFinFim.Date = 1) then
     DFinFim.Format := '00/00/0000';
 end;
 
@@ -461,7 +441,8 @@ begin
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
   end
-  else if (DFinIni.Date = 1) then
+  else
+  if (DFinIni.Date = 1) then
     DFinIni.Format := '00/00/0000';
 end;
 
@@ -490,7 +471,8 @@ begin
     DVenFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
   end
-  else if (DVenFim.Date = 1) then
+  else
+  if (DVenFim.Date = 1) then
     DVenFim.Format := '00/00/0000';
 end;
 
@@ -522,50 +504,9 @@ begin
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
   end
-  else if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.ExcluirClick(Sender: TObject);
-begin
-  if (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
-  begin
-    FControle.Excluir;
-
-    CMessage('Registro(s) excluído(s) com sucesso!', mtInformation);
-    CancelarClick(Self);
-  end;
-end;
-
-procedure TF510CON.ExcluirTitClick(Sender: TObject);
-var
-  x510CON: T510CON;
-begin
-  x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
-  x510CON.Excluir(pred(FGridTit.Line));
-  FControle.ConsistirDelete(x510CON);
-
-  if (FControle.ListaArm.Count = 0) then
-  begin
-    CancelarClick(Self);
-    CMessage('Não há informações a listar!', mtErrorInform)
-  end
   else
-    FGridArmEnterLine(Self);
-end;
-
-procedure TF510CON.MarcarClick(Sender: TObject);
-begin
-  MarcarDesmarcar(1);
-end;
-
-procedure TF510CON.MarcarDesmarcar(const pValue: Byte);
-begin
-  FGridArm.CheckFields('Check', pValue);
-  FGridTit.CheckFields('Check', pValue);
-
-  FControle.MarcarDesmarcar(pValue);
-  Excluir.Enabled := FControle.ListaArm.Selecionados
+  if (DVenIni.Date = 1) then
+    DVenIni.Format := '00/00/0000';
 end;
 
 procedure TF510CON.MostrarClick(Sender: TObject);
@@ -587,22 +528,21 @@ var
       Result := Result + Format(' AND USU_CODFOR IN (%s) ', [BECodFor.Text]);
 
     if not(DVenIni.Date = 1) then
-      Result := Result + Format(' AND USU_VCTORI >= %s ',
-        [DateTimeFormatDB(DVenIni.DateTime)]);
+      Result := Result + Format(' AND USU_VCTORI >= %s ', [DateTimeFormatDB(DVenIni.DateTime)]);
 
     if not(DVenFim.Date = 1) then
-      Result := Result + Format(' AND USU_VCTORI <= %s ',
-        [DateTimeFormatDB(DVenFim.DateTime)]);
+      Result := Result + Format(' AND USU_VCTORI <= %s ', [DateTimeFormatDB(DVenFim.DateTime)]);
 
     if (TextToFloat(BEVlrIni.Text) > 0) then
-      Result := Result + ' AND USU_VLRORI >= ' + ValueToDB(BEVlrIni.Text);
+      Result := Result + ' AND USU_VLRORI >= '+ ValueToDB(BEVlrIni.Text);
 
     if (TextToFloat(BEVlrFim.Text) > 0) then
-      Result := Result + ' AND USU_VLRORI <= ' + ValueToDB(BEVlrFim.Text);
+      Result := Result + ' AND USU_VLRORI <= '+ ValueToDB(BEVlrFim.Text);
 
     if (cbSituacaoTit.ItemIndex = 0) then
       Result := Result + ' AND USU_SITARM = ''S'' '
-    else if (cbSituacaoTit.ItemIndex = 1) then
+    else
+    if (cbSituacaoTit.ItemIndex = 1) then
       Result := Result + ' AND USU_SITARM = ''N'' ';
   end;
 
@@ -614,24 +554,21 @@ var
       Result := Format(' USU_CODPOR IN (%s) AND ', [BECodPor.Text]);
 
     if not(DDatIni.Date = 1) then
-      Result := Result + Format(' USU_DATGER >= %s AND ',
-        [DateTimeFormatDB(DDatIni.DateTime)]);
+      Result := Result + Format(' USU_DATGER >= %s AND ', [DateTimeFormatDB(DDatIni.DateTime)]);
 
     if not(DDatFim.Date = 1) then
-      Result := Result + Format(' USU_DATGER <= %s AND ',
-        [DateTimeFormatDB(DDatFim.DateTime)]);
+      Result := Result + Format(' USU_DATGER <= %s AND ', [DateTimeFormatDB(DDatFim.DateTime)]);
 
     if not(DFinIni.Date = 1) then
-      Result := Result + Format(' USU_DATFIN >= %s AND ',
-        [DateTimeFormatDB(DFinIni.DateTime)]);
+      Result := Result + Format(' USU_DATFIN >= %s AND ', [DateTimeFormatDB(DFinIni.DateTime)]);
 
     if not(DFinFim.Date = 1) then
-      Result := Result + Format(' USU_DATFIN <= %s AND ',
-        [DateTimeFormatDB(DFinFim.DateTime)]);
+      Result := Result + Format(' USU_DATFIN <= %s AND ', [DateTimeFormatDB(DFinFim.DateTime)]);
 
     if (cbSituacaoArm.ItemIndex = 0) then
       Result := Result + ' USU_SITARM = ''S'' '
-    else if (cbSituacaoArm.ItemIndex = 1) then
+    else
+    if (cbSituacaoArm.ItemIndex = 1) then
       Result := Result + ' USU_SITARM = ''N'' ';
 
     UltimoCaracter(Result, 'AND ', True, 4);
@@ -642,44 +579,25 @@ begin
   FGridTit.Clear;
   FGridAss.Clear;
 
-  FGridArm.Enabled := True;
-  FGridTit.Enabled := True;
-  FGridAss.Enabled := True;
+  FConsulta.Iniciar;
+  FConsulta.AdicionarCondicao(FiltroPortadorArmazenamento);
+  FConsulta.Consultar(MontaCondicaoTitulos);
 
-  FControle.Iniciar;
-  FControle.AdicionarCondicao(FiltroPortadorArmazenamento);
-  FControle.Consultar(MontaCondicaoTitulos);
-
-  for i := 0 to pred(FControle.ListaArm.Count) do
+  for i := 0 to pred(FConsulta.ListaArm.Count) do
   begin
-    x510ARM := T510CON(FControle.ListaArm[i]);
+    x510ARM := T510CON(FConsulta.ListaArm[i]);
 
     FGridArm.Add;
     FGridArm.AddFields(x510ARM);
   end;
 
-  if (FControle.ListaArm.Count = 0) then
-    CMessage('Não houve informações a listar!', mtErrorInform)
+  if (FConsulta.ListaArm.Count = 0) then
+    CMessage('Não houve informações a listar!', mtError)
   else
   begin
     FGridArm.First;
     FGridArmEnterLine(Self);
   end;
-end;
-
-procedure TF510CON.FGridArmCheckClick;
-var
-  i: Integer;
-  x510CON: T510CON;
-begin
-  x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
-  x510CON.Check := iff(x510CON.Check = 1, 0, 1);
-
-  for i := 0 to pred(x510CON.ListaTit.Count) do
-    T510TIT(x510CON.ListaTit).Check := x510CON.Check;
-
-  FGridTit.CheckFields('Check', x510CON.Check);
-  Excluir.Enabled := FControle.ListaArm.Selecionados
 end;
 
 procedure TF510CON.FGridArmEnterLine(Sender: TObject);
@@ -689,9 +607,9 @@ var
   x510TIT: T510TIT;
 begin
   FGridTit.Clear;
-  if (FControle.ListaArm.Count > 0) then
+  if (FConsulta.ListaArm.Count > 0) then
   begin
-    x510ARM := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
+    x510ARM := T510CON(FConsulta.ListaArm[pred(FGridArm.Line)]);
     for i := 0 to pred(x510ARM.ListaTit.Count) do
     begin
       x510TIT := T510TIT(x510ARM.ListaTit[i]);
@@ -704,65 +622,12 @@ begin
   end;
 end;
 
-procedure TF510CON.FGridAssCodBarChange;
-var
-  x510TIT: T510TIT;
-begin
-  x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
-  if (x510TIT.Titulo <> nil) then
-    if not(AnsiSameText(x510TIT.Titulo.CodBar, FGridAss.FindField('CodBar').AsString)) then
-      if (CMessage('Deseja realmente alterar o código de barra?', mtConfirmationYesNo)) then
-      begin
-        x510TIT.Titulo.CodBar := FGridAss.FindField('CodBar').AsString;
-        x510TIT.Alterar;
-      end
-      else
-        FGridAss.FindField('CodBar').AsString := x510TIT.Titulo.CodBar;
-end;
-
-procedure TF510CON.FGridTitCheckClick;
-var
-  i,j: Integer;
-  x510TIT: T510TIT;
-  x510CON: T510CON;
-
-  function BuscarArmazenamento(): T510CON;
-  var
-    y: Integer;
-  begin
-    for y := 0 to pred(FControle.ListaArm.Count) do
-    if (T510CON(FControle.ListaArm[y]).Id = x510TIT.IdArm) then
-    begin
-      Result := T510CON(FControle.ListaArm[y]);
-      Break;
-    end;
-  end;
-
-begin
-  x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
-  x510TIT.Check := iff(x510TIT.Check = 1, 0, 1);
-
-  j := 0;
-  x510CON := T510CON(FControle.ListaArm[y])
-  for i := 0 to pred(x510CON.ListaTit.Count) do
-  begin
-    if (T510TIT(x510CON.ListaTit[i]).Check = x510TIT.Check) then
-      Inc(j);
-  end;
-
-  if (j = x510CON.ListaTit.Count) then
-  begin
-    x510CON.Check := x510TIT.Check;
-    FGridArm.FindField('Check').AsInteger := x510TIT.Check;
-  end;
-end;
-
 procedure TF510CON.FGridTitEnterLine(Sender: TObject);
 var
   x510TIT: T510TIT;
 begin
   FGridAss.Clear;
-  x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
+  x510TIT := T510TIT(T510CON(FConsulta.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   if (x510TIT.Titulo <> nil) then
   begin
     FGridAss.Add;
@@ -771,17 +636,17 @@ begin
   FGridAss.First;
 end;
 
-function TF510CON.Valor(const pObj: THButtonedEdit; const pTexto, pKey: String;
-  const pEspaco, pDecimal: Integer): String;
+function TF510CON.Valor(const pObj: THButtonedEdit; const  pTexto, pKey: String; const pEspaco,
+  pDecimal: Integer): String;
 var
-  xChar, xDiv: String;
+  xChar, xDiv : String;
   i: Integer;
 begin
   xDiv := '1';
   for i := 1 to pDecimal do
     xDiv := xDiv + '0';
 
-  xChar := iff(pKey = #8, copy(pTexto, 1, Length(pTexto) - 1), pTexto + pKey);
+  xChar := iff(pKey = #8, copy(pTexto, 1, length(pTexto) -1), pTexto + pKey);
 
   While (pos(',', xChar) > 0) or (pos('.', xChar) > 0) do
   begin
@@ -790,15 +655,14 @@ begin
   end;
 
   pObj.MaxLength := pred(pEspaco);
-  pObj.Text := Format('%*.*n', [pEspaco, pDecimal,
-    StrToFloat(xChar) / StrToInt(xDiv)]);
-  pObj.SelStart := Length(pObj.Text) + 1;
+  pObj.Text := Format('%*.*n',[pEspaco,pDecimal,StrToFloat(xChar)/StrToInt(xDiv)]);
+  pObj.SelStart := length(pObj.text)+1;
 end;
 
 procedure TF510CON.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FControle.ListaArm.Clear;
-  FreeAndNil(FControle);
+  FConsulta.ListaArm.Clear;
+  FreeAndNil(FConsulta);
 
   FGridArm.Clear;
   FGridTit.Clear;
@@ -807,41 +671,19 @@ end;
 
 procedure TF510CON.FormCreate(Sender: TObject);
 begin
-  if (System.ParamCount > 0) then
-  begin
-    FLogEmp := StrToInt(ParamStr(0));
-    FLogUsu := StrToInt(ParamStr(1));
-  end
-  else
-  begin
-    FLogEmp := 1;
-    FLogUsu := 1403;
-  end;
-
   BECodEmp.CreateLookup();
   BECodFil.CreateLookup();
   BECodPor.CreateLookup();
   BECodFor.CreateLookup();
 
-  FGridArm.Enabled := False;
-  FGridTit.Enabled := False;
-  FGridAss.Enabled := False;
-
-  FGridArm.Init('USU_T510ARM', True, Self, 'USU_CodPor;USU_NomArq');
-  FGridArm.AddColumn('Check', 'Sel.', ftInteger, 0, True);
+  FGridArm.Init('USU_T510ARM', True, Self);
   FGridArm.CreateDataSet;
-
   FGridTit.Init('USU_T510TIT', True, Self);
-  FGridTit.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridTit.CreateDataSet;
-
-  FGridAss.Init('E501TCP', False, Self, 'CodBar');
+  FGridAss.Init('E501TCP', False, Self);
   FGridAss.CreateDataSet;
 
-  FControle := T510CON.Create;
-  FGridAss.ReadOnly('CodBar', False);
-
-  Excluir.Enabled := False;
+  FConsulta := T510CON.Create;
 end;
 
 procedure TF510CON.FormShow(Sender: TObject);
@@ -850,3 +692,8 @@ begin
 end;
 
 end.
+
+
+
+
+
