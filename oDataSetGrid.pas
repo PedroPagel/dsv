@@ -26,7 +26,6 @@ type
     FCount: Integer;
     FAllowNewLine: Boolean;
     FColumn: Integer;
-    FUser: Boolean;
     FOldLine: Integer;
     FOldEnterLine: Integer;
     FOldColumn: Integer;
@@ -63,7 +62,7 @@ type
     procedure CreateFieldOrder(const pIndexFields: string);
   public
     procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
-    procedure Init(const pTable: string; const pUsu: Boolean; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
+    procedure Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
     procedure Finalize();
 
     procedure CreateDataSet();
@@ -104,7 +103,7 @@ end;
 
 { TDataSetGrid }
 
-procedure TDataSetGrid.Init(const pTable: string; const pUsu: Boolean; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
+procedure TDataSetGrid.Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
 begin
   FQueryField := THQuery.CreatePersonalizado();
   FClientDataSet := TClientDataSet.Create(nil);
@@ -113,7 +112,6 @@ begin
 
   FTable := pTable;
   FForm := pForm;
-  FUser := pUsu;
 
   FFiedList := EmptyStr;
   FFilter := pFilter;
@@ -282,8 +280,8 @@ begin
       begin
         FGridState := gsInsert;
 
-        if (Assigned(FClientDataSet.FindField(iff(FUser, 'USU_', EmptyStr) + xProperty.Name))) then
-          FClientDataSet.FindField(iff(FUser, 'USU_', EmptyStr) + xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;
+        if (Assigned(FClientDataSet.FindField(xProperty.Name))) then
+          FClientDataSet.FindField(xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;
       end;
 
   FGridState := gsInsert;

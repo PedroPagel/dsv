@@ -40,8 +40,10 @@ var
   var
     i: Integer;
     xEnter: Integer;
+    xCont: Integer;
   begin
     xEnter := 0;
+    xCont := 0;
 
     for i := 0 to High(pMessage) do
     begin
@@ -49,7 +51,8 @@ var
 
       if ((xEnter >= 40) and (IsNull(pMessage[i]))) then
       begin
-        xMensagem := Copy(pMessage, (i - xEnter), xEnter -1) + #13 + Copy(pMessage, i, (Length(pMessage) - (i - 1)));
+        xCont := xCont + xEnter;
+        xMensagem := Copy(pMessage, (i - xCont), xCont -1) + #13 + Copy(pMessage, i, (Length(pMessage) - (i - 1)));
         xEnter := 0;
       end;
     end;

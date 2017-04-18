@@ -14,9 +14,11 @@ type
     FListaTit: TIterador;
     F510CAD: T510CAD;
     FLOG: string;
+    FArmazenado: Boolean;
 
     function BuscarArmazenados(const pCondicao: string): Boolean;
     procedure Deletar();
+    procedure RemoverAssociados();
     procedure Consistir(const p510CON: T510CON);
   public
     constructor Create();
@@ -37,18 +39,21 @@ implementation
 { T510CON }
 
 procedure T510CON.Consistir(const p510CON: T510CON);
+var
+  i: Integer;
 begin
-  F510CAD.USU_CodPor := p510CON.CodPor;
+  F510CAD.Iniciar;
+  F510CAD.USU_CodPor := p510CON.USU_CodPor;
   F510CAD.DefinirSelecaoPropriedade(['USU_CodEmp', 'USU_CodUsu','USU_CodPor'], True);
 
   if (F510CAD.Executar(estSelect)) then
   begin
-    if (F510CAD.USU_IniVig <= p510CON.DatGer) and (F510CAD.USU_FimVig >= p510CON.DatGer) then
+    if (F510CAD.USU_IniVig <= p510CON.USU_DatGer) and (F510CAD.USU_FimVig >= p510CON.USU_DatGer) then
     begin
       if not(IsNull(FLOG)) then
         FLOG := FLOG + ' ';
 
-      FLOG := FLOG + Format('O armazenamento: %s, não pode ser excluído, ainda está dentro do período de vigência!', [p510CON.NomArq]);
+      FLOG := FLOG + Format('O armazenamento: %s, não pode ser excluído, ainda está dentro do período de vigência!', [p510CON.USU_NomArq]);
     end;
   end
   else
@@ -57,8 +62,18 @@ begin
       FLOG := FLOG + ' ';
 
     FLOG := FLOG + Format('O armazenamento: %s, não possui ligação com o Usuário: %s, da Empresa: %s e Portador: %s',
-      [p510CON.NomArq, IntToStr(FLogEmp), IntToStr(FLogUsu) , p510CON.CodPor]);
+      [p510CON.USU_NomArq, IntToStr(FLogEmp), IntToStr(FLogUsu) , p510CON.USU_CodPor]);
   end;
+
+  if not(FArmazenado) then
+    for i := 0 to pred(p510CON.ListaTit.Count) do
+    begin
+      if (AnsiSameText(T510TIT(p510CON.ListaTit[i]).USU_SitArm, 'S')) then
+      begin
+        FArmazenado := True;
+        Break;
+      end;
+    end;
 end;
 
 procedure T510CON.ConsistirDelete(const p510CON: T510CON);
@@ -78,7 +93,6 @@ var
 begin
   FListaArm.Clear;
   FListaTit.Clear;
-
   Self.Executar(estSelectLoop);
 
   while Self.Proximo() do
@@ -94,13 +108,13 @@ end;
 constructor T510CON.Create;
 begin
   inherited Create('USU_T510ARM');
-  Self.DefinirTipoTabela(True);
 
   FQuery := THQuery.CreatePersonalizado();
   FListaArm := TIterador.Create();
   FListaTit := TIterador.Create();
-
   F510CAD := T510CAD.Create();
+
+  FArmazenado := False;
 end;
 
 procedure T510CON.Deletar;
@@ -109,12 +123,14 @@ var
 begin
   x510TIT := T510TIT.Create('USU_T510TIT');
   try
-    x510TIT.IdArm := Self.Id;
-    x510TIT.DefinirSelecaoPropriedade(['IDARM']);
+    x510TIT.USU_IdArm := Self.USU_ID;
+    x510TIT.DefinirSelecaoPropriedade(['USU_IDARM']);
     x510TIT.Executar(estDelete);
 
-    Self.DefinirSelecaoPropriedade(['ID']);
+    Self.DefinirSelecaoPropriedade(['USU_ID']);
     Self.Executar(estDelete);
+
+    Self.RemoverArquivo(False);
   finally
     FreeAndNil(x510TIT);
   end;
@@ -148,7 +164,7 @@ begin
     if (Self.ListaTit.Count > 1) then
     begin
       x510TIT := T510TIT(Self.ListaTit[pLine]);
-      x510TIT.Excluir(Self.Id);
+      x510TIT.Excluir(Self.USU_ID);
       i := Self.ListaTit.IndexOf(x510TIT);
       Self.ListaTit.Delete(i);
     end
@@ -169,6 +185,18 @@ procedure T510CON.Excluir;
 var
   i, j: Integer;
   x510CON: T510CON;
+
+  procedure Remover();
+  var
+    y: Integer;
+  begin
+    for y := 0 to pred(FListaArm.Count) do
+      if (T510CON(FListaArm[y]).Check = 1) then
+        T510CON(FListaArm[y]).Deletar;
+
+    Commit;
+  end;
+
 begin
   j := 0;
   FLOG := EmptyStr;
@@ -188,22 +216,28 @@ begin
     end;
   end;
 
-  if (j = 0) then
-    CMessage('Nenhum Arquivo Selecionado!', mtErrorInform);
+  StartTransaction;
+  try
+    if (j = 0) then
+      CMessage('Nenhum Arquivo Selecionado!', mtExceptError);
 
-  if not(IsNull(FLOG)) then
-    CMessage('Erro(s) ao excluir, consulte o botão detalhe(s)', mtErrorInform, True, FLOG)
-  else
-  begin
-    StartTransaction;
-    try
-      for i := 0 to pred(FListaArm.Count) do
-        T510CON(FListaArm[i]).Deletar;
+    if not(IsNull(FLOG)) then
+      CMessage('Erro(s) ao excluir, consulte o botão detalhe(s)', mtExceptError, True, FLOG);
 
-      Commit;
-    except
-      RollBack;
-    end;
+    if (FArmazenado) then
+    begin
+      if (CMessage('Associações serão removidas para excluir armazenamento(s), deseja continuar?', mtConfirmationYesNo)) then
+      begin
+        RemoverAssociados();
+        Remover();
+      end
+      else
+        Abort;
+    end
+    else
+      Remover();
+  except
+    RollBack;
   end;
 end;
 
@@ -236,14 +270,40 @@ begin
   end;
 end;
 
+procedure T510CON.RemoverAssociados;
+var
+  i,j: Integer;
+  x510CON: T510CON;
+  x501TCP: T501TCP;
+begin
+  x501TCP := T501TCP.Create();
+
+  for i := 0 to pred(FListaArm.Count) do
+  begin
+    if (T510CON(FListaArm[i]).Check = 1) then
+    begin
+      for j := 0 to pred(T510CON(FListaArm[i]).ListaTit.Count) do
+      begin
+        x510CON := T510CON(T510CON(FListaArm[i]).ListaTit[j]);
+
+        x501TCP.Iniciar;
+        x501TCP.USU_IDTIT := 0;
+        x501TCP.AdicionarCondicao(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]));
+        x501TCP.DefinirCampoUpdate(['USU_IDTIT']);
+        x501TCP.Executar(estUpdate);
+      end;
+    end;
+  end;
+end;
+
 function T510CON.BuscarArmazenados(const pCondicao: string): Boolean;
 var
   x510TCP: T510TIT;
   x510TIT: T510TIT;
 begin
   x510TIT := T510TIT.CreateCarregado(True);
-  x510TIT.IdArm := Self.Id;
-  x510TIT.DefinirSelecaoPropriedade(['IDARM'], True);
+  x510TIT.USU_IdArm := Self.USU_ID;
+  x510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
   x510TIT.AdicionarCondicao(pCondicao);
   Result := x510TIT.Executar(estSelectLoop);
 

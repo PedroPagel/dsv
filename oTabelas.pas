@@ -10,7 +10,7 @@ type
   T510TIT = class;
   T510AGE = class;
 
-  T030ETC = class(TTabela)
+  T030ETC = class(TTabelaPadrao)
   private
     FCodBan: string;
     FCodTpt: string;
@@ -45,7 +45,7 @@ type
     property CodBan: string read GetCodBan write SetCodBan;
   end;
 
-  THistorico = class(TTabela)
+  THistorico = class(TTabelaPadrao)
   private
     FCodEmp: Integer;
     FCodFil: Integer;
@@ -141,17 +141,13 @@ type
     F510TIT: T510TIT;
     FListaHistorico: TIterador;
     FFilial: TFilial;
-    FUSU_IDTIT: Integer;
     FNomArq: string;
     FIteradorHistoricoFornecedor: TIteradorHistoricoFornecedor;
 
-    function GetUSU_IDTIT: Integer;
     function GetFilial: TFilial;
     function VerificarCodigoDeBarras(): Boolean;
     function VerificarTituloArmazenado(): Boolean;
     function VerificarContabilizacao(): Boolean;
-
-    procedure SetUSU_IDTIT(const pUSU_IDTIT: Integer);
     procedure SetFilial(const pFilial: TFilial);
   public
     constructor Create();
@@ -166,7 +162,6 @@ type
     procedure Anexar(const p510TIT: T510TIT);
 
     property Filial: TFilial read GetFilial write SetFilial;
-    property USU_IDTIT: Integer read GetUSU_IDTIT write SetUSU_IDTIT;
   end;
 
   TIteradorTitulos = class(TIterador)
@@ -191,7 +186,7 @@ type
     procedure Criar();
   end;
 
-  T510TIT = class(TTabela)
+  T510TIT = class(TTabelaUsuario)
   private
     FIdArm: Integer;
     FCodEmp: Integer;
@@ -266,27 +261,27 @@ type
     procedure Alterar();
     procedure Excluir(const pID: Integer);
 
-    property IdArm: Integer read GetIdArm write SetIdArm;
-    property CodEmp: Integer read GetCodEmp write SetCodEmp;
-    property CodFil: Integer read GetCodFil write SetCodFil;
-    property CgcCpf: Double read GetCgcCpf write SetCgcCpf;
-    property CodTpt: string read GetCodTpt write SetCodTpt;
-    property NumTit: string read GetNumTit write SetNumTit;
-    property CodBar: string read GetCodBar write SetCodBar;
-    property SitTit: string read GetSitTit write SetSitTit;
-    property VlrOri: Currency read GetVlrOri write SetVlrOri;
-    property VlrJrs: Currency read GetVlrJrs write SetVlrJrs;
-    property VlrDsc: Currency read GetVlrDsc write SetVlrDsc;
-    property VctOri: TDate read GetVctOri write SetVctOri;
-    property DatDsc: TDate read GetDatDsc write SetDatDsc;
-    property TipFor: string read GetTipFor write SetTipFor;
-    property CodFor: Integer read GetCodFor write SetCodFor;
-    property SitArm: string read GerSitArm write SetSitArm;
-    property DatEmi: TDate read GetDatEmi write SetDatEmi;
-    property LogTit: string read GetLogTit write SetLogTit;
+    property USU_IdArm: Integer read GetIdArm write SetIdArm;
+    property USU_CodEmp: Integer read GetCodEmp write SetCodEmp;
+    property USU_CodFil: Integer read GetCodFil write SetCodFil;
+    property USU_CgcCpf: Double read GetCgcCpf write SetCgcCpf;
+    property USU_CodTpt: string read GetCodTpt write SetCodTpt;
+    property USU_NumTit: string read GetNumTit write SetNumTit;
+    property USU_CodBar: string read GetCodBar write SetCodBar;
+    property USU_SitTit: string read GetSitTit write SetSitTit;
+    property USU_VlrOri: Currency read GetVlrOri write SetVlrOri;
+    property USU_VlrJrs: Currency read GetVlrJrs write SetVlrJrs;
+    property USU_VlrDsc: Currency read GetVlrDsc write SetVlrDsc;
+    property USU_VctOri: TDate read GetVctOri write SetVctOri;
+    property USU_DatDsc: TDate read GetDatDsc write SetDatDsc;
+    property USU_TipFor: string read GetTipFor write SetTipFor;
+    property USU_CodFor: Integer read GetCodFor write SetCodFor;
+    property USU_SitArm: string read GerSitArm write SetSitArm;
+    property USU_DatEmi: TDate read GetDatEmi write SetDatEmi;
+    property USU_LogTit: string read GetLogTit write SetLogTit;
   end;
 
-  T510AGE = class(TTabela)
+  T510AGE = class(TTabelaUsuario)
   private
     FEmpFil: Byte;
     FCodPra: Integer;
@@ -318,18 +313,18 @@ type
     function SetEmpGer: Integer;
     function SetFilGer: Integer;
   public
-    property EmpFil: Byte read SetEmpFil write GetEmpFil;
-    property CodPra: Integer read SetCodPra write GetCodPra;
-    property DirArq: string read SetDirArq write GetDirArq;
-    property GerPre: string read SetGerPre write GetGerPre;
-    property RaiCnp: string read SetRaiCnp write GetRaiCnp;
-    property CodPor: string read SetCodPor write GetCodPor;
-    property BkpDir: string read SetBkpDir write GetBkpDir;
-    property EmpGer: Integer read SetEmpGer write GetEmpGer;
-    property FilGer: Integer read SetFilGer write GetFilGer;
+    property USU_EmpFil: Byte read SetEmpFil write GetEmpFil;
+    property USU_CodPra: Integer read SetCodPra write GetCodPra;
+    property USU_DirArq: string read SetDirArq write GetDirArq;
+    property USU_GerPre: string read SetGerPre write GetGerPre;
+    property USU_RaiCnp: string read SetRaiCnp write GetRaiCnp;
+    property USU_CodPor: string read SetCodPor write GetCodPor;
+    property USU_BkpDir: string read SetBkpDir write GetBkpDir;
+    property USU_EmpGer: Integer read SetEmpGer write GetEmpGer;
+    property USU_FilGer: Integer read SetFilGer write GetFilGer;
   end;
 
-  T510ARM = class(TTabela)
+  T510ARM = class(TTabelaUsuario)
   private
     FCodPor: string;
     FDirArm: string;
@@ -361,14 +356,15 @@ type
 
     function ArquivoExiste(): Boolean;
     function Armazenado(): Boolean;
+    procedure RemoverArquivo(const pAtualizar: Boolean = True);
 
-    property CodPor: string read GetCodPor write SetCodPor;
-    property DirArm: string read GetDirArm write SetDirArm;
-    property DatMov: TDate read GetDatMov write SetDatMov;
-    property DatGer: TDate read GetDatGer write SetDatGer;
-    property DatFin: TDate read GetDatFin write SetDatFin;
-    property NomArq: string read GetNomArq write SetNomArq;
-    property SitArm: Char read GetSitArm write SetSitArm;
+    property USU_CodPor: string read GetCodPor write SetCodPor;
+    property USU_DirArm: string read GetDirArm write SetDirArm;
+    property USU_DatMov: TDate read GetDatMov write SetDatMov;
+    property USU_DatGer: TDate read GetDatGer write SetDatGer;
+    property USU_DatFin: TDate read GetDatFin write SetDatFin;
+    property USU_NomArq: string read GetNomArq write SetNomArq;
+    property USU_SitArm: Char read GetSitArm write SetSitArm;
   end;
 
   T095FOR = class(TIterador)
@@ -397,7 +393,7 @@ type
   end;
 
   //controle de locação pelo contrato
-  T160CLP = class(TTabela)
+  T160CLP = class(TTabelaUsuario)
   private
     FDatIni: TDate;
     FDatFin: TDate;
@@ -471,7 +467,7 @@ type
     property USU_IDLIC: Integer read GetIDLIC write SetIDLIC;
   end;
 
-  T090IND = class(TTabela)
+  T090IND = class(TTabelaUsuario)
   private
     FIndFin: string;
     FCodEmp: Word;
@@ -521,7 +517,7 @@ type
     property USU_UsuRes: Integer read GetUsuRes write SetUsuRes;
   end;
 
-  T510CAD = class(TTabela)
+  T510CAD = class(TTabelaUsuario)
   private
     FCodEmp: Integer;
     FCodPor: string;
@@ -558,7 +554,7 @@ type
 implementation
 
 uses
-  System.Variants;
+  System.Variants, Winapi.Windows;
 
 { T510TIT }
 
@@ -579,7 +575,7 @@ begin
   if AnsiSameText(FSitArm,'S') then
   begin
     FTituloDDA := TTituloDDA.Create;
-    FTituloDDA.USU_IDTIT := Self.Id;
+    FTituloDDA.USU_IDTIT := Self.USU_ID;
     FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT'], True);
     FTituloDDA.Executar(estSelect);
   end;
@@ -592,8 +588,7 @@ begin
   inherited Create('USU_T510TIT');
 
   FCarregado := False;
-  DefinirTipoTabela(True);
-  DefinirCampoNegado(['USU_IDARM']);
+  //DefinirCampoNegado(['USU_IDARM']);
 
   FillChar(xCodReg, SizeOf(xCodReg), 0);
   xCodReg.Posicao := 14;
@@ -602,17 +597,17 @@ begin
   xCodReg.Registro1 := 'G';
 
   FLayout := TLayout.Create(xCodReg);
-  FLayout.AdicionarCampos('TipFor', 62,1);
-  FLayout.AdicionarCampos('CgcCpf', 63, 15);
-  FLayout.AdicionarCampos('VctOri', 108, 8);
-  FLayout.AdicionarCampos('VlrOri', 116, 15);
-  FLayout.AdicionarCampos('NumTit', 148, 15);
-  FLayout.AdicionarCampos('DatEmi', 182, 8);
-  FLayout.AdicionarCampos('Codbar', 18, 44);
-  FLayout.AdicionarCampos('DatDsc', 206, 8);
-  FLayout.AdicionarCampos('VlrDsc', 214, 15);
-  FLayout.AdicionarCampos('Vlrjrs', 190, 15);
-  FLayout.AdicionarCampos('CodTpt', 180, 2);
+  FLayout.AdicionarCampos('USU_TipFor', 62,1);
+  FLayout.AdicionarCampos('USU_CgcCpf', 63, 15);
+  FLayout.AdicionarCampos('USU_VctOri', 108, 8);
+  FLayout.AdicionarCampos('USU_VlrOri', 116, 15);
+  FLayout.AdicionarCampos('USU_NumTit', 148, 15);
+  FLayout.AdicionarCampos('USU_DatEmi', 182, 8);
+  FLayout.AdicionarCampos('USU_Codbar', 18, 44);
+  FLayout.AdicionarCampos('USU_DatDsc', 206, 8);
+  FLayout.AdicionarCampos('USU_VlrDsc', 214, 15);
+  FLayout.AdicionarCampos('USU_Vlrjrs', 190, 15);
+  FLayout.AdicionarCampos('USU_CodTpt', 180, 2);
   FLinhaValida := FLayout.AdicionarLinhas(pLinha, Self);
 end;
 
@@ -621,7 +616,6 @@ begin
   inherited Create('USU_T510TIT');
 
   FCarregado := True;
-  DefinirTipoTabela(True);
 
   if not(pUsaID) then
     DefinirCampoNegado(['USU_IDARM']);
@@ -634,8 +628,8 @@ end;
 
 procedure T510TIT.Excluir(const pID: Integer);
 begin
-  Self.IdArm := pID;
-  Self.DefinirSelecaoPropriedade(['ID','IDARM']);
+  Self.USU_IdArm := pID;
+  Self.DefinirSelecaoPropriedade(['USU_ID','USU_IDARM']);
   Self.Executar(estDelete);
 end;
 
@@ -833,7 +827,7 @@ end;
 
 function T510ARM.Armazenado: Boolean;
 begin
-  Result := (AnsiSameText(Self.SitArm, 'S'));
+  Result := (AnsiSameText(Self.USU_SitArm, 'S'));
 end;
 
 function T510ARM.ArquivoExiste: Boolean;
@@ -846,22 +840,19 @@ var
   x510ARM: T510ARM;
 begin
   inherited Create('USU_T510ARM');
-  Self.DefinirCampoNegado(['ID']);
-  Self.DefinirTipoTabela(True);
 
   x510ARM := T510ARM.Create('USU_T510ARM');
-  x510ARM.CodPor := pDados.CodPor;
-  x510ARM.DirArm := pDados.DirArq;
-  x510ARM.NomArq := pArquivo;
-  x510ARM.DatGer := Date;
-  x510ARM.DefinirTipoTabela(True);
-  x510ARM.DefinirSelecaoPropriedade(['NOMARQ'], True);
+  x510ARM.USU_CodPor := pDados.USU_CodPor;
+  x510ARM.USU_DirArm := pDados.USU_DirArq;
+  x510ARM.USU_NomArq := pArquivo;
+  x510ARM.USU_DatGer := Date;
+  x510ARM.DefinirSelecaoPropriedade(['USU_NOMARQ'], True);
 
   FArquivoExiste := x510ARM.Executar(estSelect);
 
   if not(FArquivoExiste) then
   begin
-    x510ARM.SitArm := 'N';
+    x510ARM.USU_SitArm := 'N';
     x510ARM.Executar(estInsert);
   end;
 
@@ -906,6 +897,23 @@ end;
 function T510ARM.GetSitArm: Char;
 begin
   Result := FSitArm;
+end;
+
+procedure T510ARM.RemoverArquivo(const pAtualizar: Boolean = True);
+begin
+  if (pAtualizar) then
+  begin
+    Self.USU_SitArm := 'S';
+    Self.USU_DatFin := Date;
+    Self.DefinirSelecaoPropriedade(['USU_ID']);
+    Self.Executar(estUpdate);
+  end;
+
+  if not(DirectoryExists(Self.USU_DirArm + 'DDA_BKP\')) then
+    CreateDir(Self.USU_DirArm + 'DDA_BKP\');
+
+  CopyFile(PWideChar(Self.USU_DirArm + Self.USU_NomArq), PWideChar(Self.USU_DirArm + 'DDA_BKP\' + Self.USU_NomArq), False);
+  DeleteFile(PWideChar(Self.USU_DirArm + Self.USU_NomArq));
 end;
 
 procedure T510ARM.SetCodPor(const pCodPor: string);
@@ -1048,7 +1056,7 @@ begin
 
   for i := 0 to pred(Self.Count) do
   begin
-    if (pTitulo.CgcCpf = (T095FOR(Self[i]).CgcCpf)) then
+    if (pTitulo.USU_CgcCpf = (T095FOR(Self[i]).CgcCpf)) then
     begin
       xAchou := True;
       x095FOR := T095FOR(Self[i]);
@@ -1058,12 +1066,12 @@ begin
 
   if not(xAchou) then
   begin
-    x095FOR := T095FOR.CreatePersonalizado(pTitulo.CgcCpf);
+    x095FOR := T095FOR.CreatePersonalizado(pTitulo.USU_CgcCpf);
     x095FOR.CarregarFornecedores;
     Self.Add(x095FOR);
   end;
 
-  pTitulo.CodFor := x095FOR.CodFor;
+  pTitulo.USU_CodFor := x095FOR.CodFor;
 end;
 
 function T095FOR.BuscarPorCNPJ(const pCNPJ: Double): string;
@@ -1158,7 +1166,7 @@ end;
 
 procedure TTituloDDA.AddLog(const pLog: string);
 begin
-  F510TIT.LogTit := pLog;
+  F510TIT.USU_LogTit := pLog;
 end;
 
 procedure TTituloDDA.Anexar(const p510TIT: T510TIT);
@@ -1175,7 +1183,7 @@ procedure TTituloDDA.Consistir;
 var
   xHistorico: THistorico;
 begin
-  F510TIT.LogTit := EmptyStr; //Limpa caso ja tenha sido consistido
+  F510TIT.USU_LogTit := EmptyStr; //Limpa caso ja tenha sido consistido
 
   if (BuscarString(Self.SitTit, ['AI','LQ','LP','LX','LI','LM','LS','PE','LC','LO','LV'])) then
       Self.AddLog(Format('Alteração não permitida. Título com situação igual a %s não pode ser alterado.', [Self.SitTit]));
@@ -1202,7 +1210,7 @@ begin
   if (AnsiSameText(Self.CodPor, xHistorico.CodPor) and AnsiSameText(Self.CodPor, FFilial.RecPor)) then
     Self.AddLog('Alteração não permitida. Título não está em Portador Empresa ou Portador Fornecedor.');
 
-  if IsNull(F510TIT.LogTit) then
+  if IsNull(F510TIT.USU_LogTit) then
     Self.AddLog('Ok');
 end;
 
@@ -1227,20 +1235,15 @@ end;
 
 procedure TTituloDDA.GerarLog;
 begin
-  F510TIT.SitArm := 'N';
-  F510TIT.DefinirSelecaoPropriedade(['ID']);
-  F510TIT.DefinirCampoUpdate(['SITARM', 'LOGTIT']);
+  F510TIT.USU_SitArm := 'N';
+  F510TIT.DefinirSelecaoPropriedade(['USU_ID']);
+  F510TIT.DefinirCampoUpdate(['USU_SITARM', 'USU_LOGTIT']);
   F510TIT.Executar(estUpdate);
 end;
 
 function TTituloDDA.GetFilial: TFilial;
 begin
   Result := FFilial;
-end;
-
-function TTituloDDA.GetUSU_IDTIT: Integer;
-begin
-  Result := FUSU_IDTIT;
 end;
 
 procedure TTituloDDA.Preparar;
@@ -1271,23 +1274,24 @@ end;
 
 procedure TTituloDDA.Processar;
 begin
-  if (AnsiSameText(F510TIT.LogTit,'Ok')) then
+  if (AnsiSameText(F510TIT.USU_LogTit,'Ok')) then
   begin
-    Self.USU_IDTIT := F510TIT.Id;
-    Self.CodBar := F510TIT.CodBar;
+    Self.Iniciar;
+    Self.USU_IDTIT := F510TIT.USU_ID;
+    Self.CodBar := F510TIT.USU_CodBar;
     Self.DefinirSelecaoPropriedade(['CODEMP','CODFIL','CODFOR','NUMTIT','CODTPT'], True);
     Self.DefinirCampoUpdate(['CODBAR', 'USU_IDTIT']);
     Self.Executar(estUpdate);
 
-    F510TIT.CodEmp := Self.CodEmp;
-    F510TIT.CodFil := Self.CodFil;
-    F510TIT.NumTit := Self.NumTit;
-    F510TIT.CodFor := Self.CodFor;
-    F510TIT.CodTpt := Self.CodTpt;
-    F510TIT.SitTit := Self.SitTit;
-    F510TIT.SitArm := 'S';
-    F510TIT.DefinirSelecaoPropriedade(['ID']);
-    F510TIT.DefinirCampoUpdate(['CODEMP','CODFIL','SITARM','LOGTIT']);
+    F510TIT.USU_CodEmp := Self.CodEmp;
+    F510TIT.USU_CodFil := Self.CodFil;
+    F510TIT.USU_NumTit := Self.NumTit;
+    F510TIT.USU_CodFor := Self.CodFor;
+    F510TIT.USU_CodTpt := Self.CodTpt;
+    F510TIT.USU_SitTit := Self.SitTit;
+    F510TIT.USU_SitArm := 'S';
+    F510TIT.DefinirSelecaoPropriedade(['USU_ID']);
+    F510TIT.DefinirCampoUpdate(['USU_CODEMP','USU_CODFIL','USU_SITARM','USU_LOGTIT']);
     F510TIT.Executar(estUpdate);
   end
   else
@@ -1301,11 +1305,6 @@ begin
   xIterar := TIterador.Create;
   xIterar.Iterar(pFilial, FFilial);
   FreeAndNil(xIterar);
-end;
-
-procedure TTituloDDA.SetUSU_IDTIT(const pUSU_IDTIT: Integer);
-begin
-  FUSU_IDTIT := pUSU_IDTIT;
 end;
 
 function TTituloDDA.VerificarCodigoDeBarras: Boolean;
@@ -1371,24 +1370,23 @@ function TTituloDDA.VerificarTituloArmazenado: Boolean;
 var
   x510ARM: T510ARM;
 begin
-  F510TIT.CodEmp := Self.CodEmp;
-  F510TIT.CodFil := Self.CodFil;
-  F510TIT.NumTit := Self.NumTit;
-  F510TIT.CodFor := Self.CodFor;
-  F510TIT.CodTpt := Self.CodTpt;
-  F510TIT.SitArm := 'S';
-  F510TIT.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODFOR'], True);
-  F510TIT.AdicionarCondicao(Format(' AND USU_ID <> %d ', [Self.Id]));
+  F510TIT.USU_CodEmp := Self.CodEmp;
+  F510TIT.USU_CodFil := Self.CodFil;
+  F510TIT.USU_NumTit := Self.NumTit;
+  F510TIT.USU_CodFor := Self.CodFor;
+  F510TIT.USU_CodTpt := Self.CodTpt;
+  F510TIT.USU_SitArm := 'S';
+  F510TIT.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
+  F510TIT.AdicionarCondicao(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]));
   Result := F510TIT.Executar(estSelect);
 
   if (Result) then
   begin
     x510ARM := T510ARM.Create('USU_T510ARM');
-    x510ARM.Id := F510TIT.IdArm;
-    x510ARM.DefinirTipoTabela(True);
-    x510ARM.DefinirSelecaoPropriedade(['ID']);
+    x510ARM.USU_ID := F510TIT.USU_IdArm;
+    x510ARM.DefinirSelecaoPropriedade(['USU_ID']);
     x510ARM.Executar(estSelect);
-    FNomArq := x510ARM.NomArq;
+    FNomArq := x510ARM.USU_NomArq;
   end;
 end;
 
@@ -1397,8 +1395,6 @@ end;
 constructor THistorico.Create;
 begin
   inherited Create('E095HFO');
-
-  Self.DefinirCampoNegado(['ID']);
 end;
 
 destructor THistorico.Destroy;
@@ -1698,8 +1694,6 @@ end;
 constructor T030ETC.Create;
 begin
   inherited Create('E030ETC');
-
-  DefinirCampoNegado(['ID']);
 end;
 
 function T030ETC.GetCodBan: string;
@@ -1773,12 +1767,12 @@ var
 begin
   inherited Create();
 
-  FCodPor := p510AGE.CodPor;
+  FCodPor := p510AGE.USU_CodPor;
 
   xQuery := THQuery.CreatePersonalizado;
   try
     xQuery.Command := 'SELECT CODBAN FROM E039POR WHERE CODEMP = :CODEMP AND CODPOR = :CODPOR ';
-    xQuery.ParamByName('CODEMP').Value := p510AGE.EmpGer;
+    xQuery.ParamByName('CODEMP').Value := p510AGE.USU_EmpGer;
     xQuery.ParamByName('CODPOR').Value := FCodPor;
     xQuery.Open;
     if not(xQuery.IsEmpty) then
@@ -1844,7 +1838,6 @@ end;
 constructor T160CLP.Create;
 begin
   inherited Create('USU_T160CLP');
-  DefinirCampoNegado(['ID','ChkRea']);
 end;
 
 destructor T160CLP.Destroy;
@@ -2129,6 +2122,8 @@ end;
 constructor T510CAD.Create;
 begin
   inherited Create('USU_T510CAD');
+
+  Self.DefinirCampoNegado(['USU_ID']);
 end;
 
 destructor T510CAD.Destroy;

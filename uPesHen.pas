@@ -66,7 +66,7 @@ procedure TFPesHen.ShowData(const pTable, pField, pIndexFields, pFilter: string)
 begin
   FField := pField;
   FRetorno := EmptyStr;
-  FGridPes.Init(pTable, False, Self, pIndexFields, pFilter);
+  FGridPes.Init(pTable, Self, pIndexFields, pFilter);
   FGridPes.CreateDataSet;
   FGridPes.ShowSearch();
 

@@ -7,7 +7,7 @@ uses
 
 type
 
-  TTitulo = class(TTabela)
+  TTitulo = class(TTabelaPadrao)
   private
     FCodEmp: Word;
     FCodFil: Word;
@@ -167,6 +167,7 @@ type
     FCodBar: string;
     FNumCtr: Integer;
     FIDCLP: Integer;
+    FIDTIT: Integer;
 
     function GetCodFor: Word;
     procedure SetCodFor(const pCodFor: Word);
@@ -206,11 +207,14 @@ type
     procedure SetNumCtr(const Value: Integer);
     function GetIDCLP: Integer;
     procedure SetIDCLP(const Value: Integer);
+    function GetIDTIT: Integer;
+    procedure SetIDTIT(const Value: Integer);
   public
     constructor Create();
     destructor Destroy(); override;
 
     property USU_IDCLP: Integer read GetIDCLP write SetIDCLP;
+    property USU_IDTIT: Integer read GetIDTIT write SetIDTIT;
     property CodPor: string read GetCodPor write SetCodPor;
     property CodFor: Word read GetCodFor write SetCodFor;
     property CodCrp: string read GetCodCrp write SetCodCrp;
@@ -269,7 +273,6 @@ uses
 constructor TTitulo.Create(const pTabela: string);
 begin
   inherited Create(pTabela);
-  DefinirCampoNegado(['Check']);
 end;
 
 destructor TTitulo.Destroy;
@@ -410,8 +413,6 @@ end;
 constructor T501TCP.Create;
 begin
   inherited Create('E501TCP');
-
-  DefinirCampoNegado(['ID']);
 end;
 
 destructor T501TCP.Destroy;
@@ -457,6 +458,11 @@ end;
 function T501TCP.GetIDCLP: Integer;
 begin
   Result := FIDCLP;
+end;
+
+function T501TCP.GetIDTIT: Integer;
+begin
+  Result := FIDTIT;
 end;
 
 function T501TCP.GetJrsDia: Extended;
@@ -554,6 +560,11 @@ begin
   FIDCLP := Value;
 end;
 
+procedure T501TCP.SetIDTIT(const Value: Integer);
+begin
+  FIDTIT := Value;
+end;
+
 procedure T501TCP.SetJrsDia(const Value: Extended);
 begin
   FJrsDia := Value;
@@ -614,8 +625,6 @@ end;
 constructor T501MCP.Create;
 begin
   inherited Create('E501MCP');
-
-  Self.DefinirCampoNegado(['ID']);
 end;
 
 function T501MCP.GetCodFor: Word;
@@ -673,8 +682,6 @@ end;
 constructor T301TCR.Create;
 begin
   inherited Create('E301TCR');
-
-  DefinirCampoNegado(['ID']);
 end;
 
 destructor T301TCR.Destroy;

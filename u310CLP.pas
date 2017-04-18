@@ -983,12 +983,12 @@ begin
   Remover.Hint := 'Remove a ligação do(s) título(s) selecionado(s) ao contrato.';
   Remover.ShowHint := True;
 
-  FGridCon.Init('USU_T160CLP', False, F310CLP);
-  FGridClp.Init('USU_T160CLP', False, F310CLP);
-  FGridRea.Init('E301TCR', False, F310CLP);
-  FGridTit.Init('E301TCR', False, F310CLP);
-  FGridLig.Init('E501TCP', False, F310CLP);
-  FGridDes.Init('E501TCP', False, F310CLP);
+  FGridCon.Init('USU_T160CLP', F310CLP);
+  FGridClp.Init('USU_T160CLP', F310CLP);
+  FGridRea.Init('E301TCR', F310CLP);
+  FGridTit.Init('E301TCR', F310CLP);
+  FGridLig.Init('E501TCP', F310CLP);
+  FGridDes.Init('E501TCP', F310CLP);
 
   FGridLig.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridLig.AddColumn('PosClp', 'POSCLP.', ftInteger, 0, True);

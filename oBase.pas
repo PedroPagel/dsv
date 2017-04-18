@@ -14,10 +14,8 @@ type
 
   TTabela = class
   private
-    FId: Integer;
     FQuery: THQuery;
     FTabela: string;
-    FTabelaUsuario: Boolean;
     FValoresInsert: string;
     FListaCampos: array of string;
     FCamposLimite: array of string;
@@ -29,10 +27,7 @@ type
     FType: TRttiType;
     FCheck: Byte;
 
-    procedure SetId(const pId: Integer);
     procedure SetCheck(const Value: Byte);
-
-    function GetId: Integer;
     function GetCheck: Byte;
 
     procedure Insert();
@@ -45,8 +40,6 @@ type
     procedure AtribuirValoresSelect();
 
     function Select(): Boolean;
-    function GerarID(): Integer;
-    function RetonarTipoTabela(): string;
     function MontarEstadoUpdate(): string;
     function MontarEstadoSelect(): Boolean;
     function MontarComandoSelect(): string;
@@ -66,13 +59,35 @@ type
     procedure DefinirSelecaoPropriedade(const pCampo: array of string; const pAND: Boolean = False);
     procedure DefinirCampoUpdate(const pCampo: array of string);
     procedure DefinirSelecao(const pCampo: array of string; const pValor: array of string; const pAND: Boolean = False);
-    procedure DefinirTipoTabela(const pTabelaUsuario: Boolean);
 
     function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function Proximo(): Boolean;
+    function GerarIdentidade(): Integer; virtual; abstract;
   public
-    property Id: Integer read GetId write SetId;
     property Check: Byte read GetCheck write SetCheck;
+  end;
+
+  TTabelaPadrao = class(TTabela)
+  public
+    constructor Create(const pTabela: string);
+    destructor Destroy(); override;
+
+    function GerarIdentidade(): Integer; override;
+  end;
+
+  TTabelaUsuario = class(TTabela)
+  private
+    FID: Integer;
+
+    function GetId: Integer;
+    procedure SetId(const pId: Integer);
+  public
+    constructor Create(const pTabela: string);
+    destructor Destroy(); override;
+
+    function GerarIdentidade(): Integer; override;
+
+    property USU_ID: Integer read GetId write SetId;
   end;
 
   TOracleConnection = class
@@ -95,7 +110,7 @@ type
     class procedure Repassar(const pObjEntrada: TObject; const pObjeSaida: TObject);
   end;
 
-  TFilial = class(TTabela)
+  TFilial = class(TTabelaPadrao)
   private
     FPagMul: Double;
     FPagDtm: Word;
@@ -201,7 +216,7 @@ end;
 procedure RollBack;
 begin
   FOracleConnection.RollbackTrans;
-  Exit;
+  Abort;
 end;
 
 function iff(const pTernario: Boolean; const pParametro1, pParametro2: Variant): Variant;
@@ -334,15 +349,15 @@ begin
     begin
       case xProperty.PropertyType.TypeKind of
         tkInteger:
-          xProperty.SetValue(Self, FQuery.FindField(RetonarTipoTabela + xProperty.Name).AsInteger);
+          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsInteger);
 
         tkFloat:
           if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-            xProperty.SetValue(Self, DataNull(FQuery.FindField(RetonarTipoTabela + xProperty.Name).AsDateTime))
+            xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name).AsDateTime))
           else
-            xProperty.SetValue(Self, FQuery.FindField(RetonarTipoTabela + xProperty.Name).AsFloat);
+            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
       else
-        xProperty.SetValue(Self, FQuery.FindField(RetonarTipoTabela + xProperty.Name).AsString);
+        xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
       end;
     end;
   end;
@@ -360,7 +375,7 @@ begin
   FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
-  DefinirCampoNegado(['ID','USU_Check','Check']);
+  DefinirCampoNegado(['USU_Check','Check']);
 end;
 
 procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
@@ -406,7 +421,7 @@ begin
     SetLength(FListaCampos, j);
     FListaCampos[pred(j)] := pCampo[i];
 
-    FCondicao := FCondicao + RetonarTipoTabela + pCampo[i] + iff(FUsaParametro, ' = :', ' = ') + pCampo[i] +
+    FCondicao := FCondicao + pCampo[i] + iff(FUsaParametro, ' = :', ' = ') + pCampo[i] +
       iff(pAND, ' AND ', ',');
   end;
 
@@ -470,11 +485,6 @@ begin
     FTabelasExtras := FTabelasExtras + pTabelas[i] + ',';
 
   UltimoCaracter(FTabelasExtras, ',');
-end;
-
-procedure TTabela.DefinirTipoTabela(const pTabelaUsuario: Boolean);
-begin
-  FTabelaUsuario := pTabelaUsuario;
 end;
 
 procedure TTabela.Delete();
@@ -542,39 +552,16 @@ begin
   FreeAndNil(FQuery);
 end;
 
-function TTabela.GerarID(): Integer;
-var
-  xQuery: THQuery;
-  xCampoId: string;
-begin
-  Result := 1;
-  xCampoId := RetonarTipoTabela + 'ID';
-
-  xQuery := THQuery.CreatePersonalizado;
-  try
-    xQuery.SQL.Clear;
-    xQuery.SQL.Add('SELECT MAX('+ xCampoId +') AS IDREG FROM '+ FTabela);
-    xQuery.Open;
-    if not(xQuery.IsEmpty) then
-      Result := xQuery.FindField('IDREG').AsInteger + 1;
-    xQuery.Close;
-  finally
-    FreeAndNil(xQuery);
-  end;
-end;
-
 function TTabela.GetCheck: Byte;
 begin
   Result := FCheck;
 end;
 
-function TTabela.GetId: Integer;
-begin
-  Result := FId;
-end;
-
 procedure TTabela.Iniciar;
 begin
+  FillChar(FListaCampos, sizeOf(FListaCampos), 0);
+  FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
+
   FCondicao := EmptyStr;
 end;
 
@@ -613,7 +600,6 @@ end;
 procedure TTabela.Limpar;
 begin
   FillChar(FListaCampos, sizeOf(FListaCampos), 0);
-  //FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
   FCondicao := EmptyStr;
@@ -626,8 +612,11 @@ var
 begin
   for xProperty in FType.GetProperties do
   begin
-    xCampos := xCampos + RetonarTipoTabela + xProperty.Name +  ',';
-    xValores := xValores +  ':' + RetonarTipoTabela + xProperty.Name +  ',';
+    if NegarCampo(xProperty.Name) then
+    begin
+      xCampos := xCampos + xProperty.Name +  ',';
+      xValores := xValores +  ':' + xProperty.Name +  ',';
+    end;
   end;
 
   UltimoCaracter(xCampos, ',');
@@ -638,25 +627,25 @@ begin
 
   for xProperty in FType.GetProperties do
   begin
-    if (AnsiSameText(UpperCase(RetonarTipoTabela + xProperty.Name), RetonarTipoTabela + 'ID')) then
+    if NegarCampo(xProperty.Name) then
     begin
-      Self.Id := GerarID();
-      FQuery.ParamByName(RetonarTipoTabela + xProperty.Name).Value := Self.Id;
-    end
-    else
-    case xProperty.PropertyType.TypeKind of
-      tkInteger:
-        FQuery.ParamByName(RetonarTipoTabela + xProperty.Name).Value := xProperty.GetValue(Self).AsInteger;
+      if (AnsiSameText(UpperCase(xProperty.Name), 'USU_ID')) then
+        FQuery.ParamByName(xProperty.Name).Value := GerarIdentidade
+      else
+      case xProperty.PropertyType.TypeKind of
+        tkInteger:
+          FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsInteger;
 
-      tkFloat:
-      begin
-        if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-          FQuery.ParamByName(RetonarTipoTabela + xProperty.Name).Value := FloatToDateTime((xProperty.GetValue(Self).AsExtended))
-        else
-          FQuery.ParamByName(RetonarTipoTabela + xProperty.Name).Value := xProperty.GetValue(Self).AsExtended;
-      end
-    else
-      FQuery.ParamByName(RetonarTipoTabela + xProperty.Name).Value := xProperty.GetValue(Self).ToString;
+        tkFloat:
+        begin
+          if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+            FQuery.ParamByName(xProperty.Name).Value := FloatToDateTime((xProperty.GetValue(Self).AsExtended))
+          else
+            FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsExtended;
+        end
+      else
+        FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).ToString;
+      end;
     end;
   end;
 end;
@@ -680,7 +669,7 @@ var
 begin
   for xProperty in FType.GetProperties do
     if NegarCampo(xProperty.Name) then
-      xCampos := xCampos + FTabela + '.' + RetonarTipoTabela + xProperty.Name + ',';
+      xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
 
   UltimoCaracter(xCampos, ',');
 
@@ -701,7 +690,7 @@ begin
 
   for xProperty in FType.GetProperties do
     if LimitarCampos(xProperty.Name) then
-      Result := Result + RetonarTipoTabela + xProperty.Name +' = :'+ xProperty.Name + ',';
+      Result := Result + xProperty.Name +' = :'+ xProperty.Name + ',';
 
   UltimoCaracter(Result, ',');
   FQuery.Command := Result + ' WHERE '+ FCondicao;
@@ -735,7 +724,7 @@ begin
 
   for i := 0 to High(FlistaNegacao) do
   begin
-    if (AnsiSameText(FlistaNegacao[i], RetonarTipoTabela + pNome)) then
+    if (AnsiSameText(FlistaNegacao[i], pNome)) then
     begin
       Result := False;
       Break;
@@ -756,11 +745,6 @@ begin
     FQuery.Close;
 end;
 
-function TTabela.RetonarTipoTabela: string;
-begin
-  Result := iff(FTabelaUsuario, 'USU_', EmptyStr);
-end;
-
 function TTabela.Select: Boolean;
 begin
   FQuery.SQL.Clear;
@@ -771,11 +755,6 @@ end;
 procedure TTabela.SetCheck(const Value: Byte);
 begin
   FCheck := Value;
-end;
-
-procedure TTabela.SetId(const pId: Integer);
-begin
-  FId := pId;
 end;
 
 procedure TTabela.Update();
@@ -878,8 +857,6 @@ end;
 constructor TFilial.Create;
 begin
   inherited Create('E070FIL');
-
-  Self.DefinirCampoNegado(['ID']);
 end;
 
 destructor TFilial.Destroy;
@@ -1068,6 +1045,69 @@ end;
 destructor TListaFilial.Destroy;
 begin
   inherited;
+end;
+
+{ TTabelaPadrao }
+
+constructor TTabelaPadrao.Create(const pTabela: string);
+begin
+  inherited Create(pTabela);
+
+  DefinirCampoNegado(['ID','USU_ID']);
+end;
+
+destructor TTabelaPadrao.Destroy;
+begin
+  inherited;
+end;
+
+function TTabelaPadrao.GerarIdentidade: Integer;
+begin
+  Result := 0;
+end;
+
+{ TTabelaUsuario }
+
+constructor TTabelaUsuario.Create(const pTabela: string);
+begin
+  inherited Create(pTabela);
+end;
+
+destructor TTabelaUsuario.Destroy;
+begin
+  inherited;
+end;
+
+function TTabelaUsuario.GerarIdentidade: Integer;
+var
+  xQuery: THQuery;
+  xCampoId: string;
+begin
+  Result := 1;
+  xCampoId := 'USU_ID';
+
+  xQuery := THQuery.CreatePersonalizado;
+  try
+    xQuery.SQL.Clear;
+    xQuery.SQL.Add('SELECT MAX('+ xCampoId +') AS IDREG FROM '+ FTabela);
+    xQuery.Open;
+    if not(xQuery.IsEmpty) then
+      Result := xQuery.FindField('IDREG').AsInteger + 1;
+    xQuery.Close;
+  finally
+    FreeAndNil(xQuery);
+  end;
+  Self.USU_ID := Result;
+end;
+
+function TTabelaUsuario.GetId: Integer;
+begin
+  Result := FID;
+end;
+
+procedure TTabelaUsuario.SetId(const pId: Integer);
+begin
+  FID := pId;
 end;
 
 end.

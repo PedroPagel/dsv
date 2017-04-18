@@ -96,9 +96,8 @@ begin
   begin
     inherited AddTitulo();
 
-    Self.C510TIT.SitArm := 'N';
-    Self.C510TIT.IdArm := p510ARM.Id;
-    Self.C510TIT.DefinirTipoTabela(True);
+    Self.C510TIT.USU_SitArm := 'N';
+    Self.C510TIT.USU_IdArm := p510ARM.USU_ID;
     Self.C510TIT.Executar(estInsert);
   end
   else
@@ -108,8 +107,8 @@ end;
 procedure TArmazenamento.AddTitulo(const p510ARM: T510ARM);
 begin
   F510TIT.Iniciar;
-  F510TIT.IdArm := p510ARM.Id;
-  F510TIT.DefinirSelecaoPropriedade(['IDARM'], True);
+  F510TIT.USU_IdArm := p510ARM.USU_ID;
+  F510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
   F510TIT.AdicionarCondicao(' AND USU_SITARM <>  ''S''');
   F510TIT.Executar(estSelectLoop);
 
@@ -132,18 +131,18 @@ begin
   F510TIT := T510TIT.CreateCarregado(True);
   FIterador := TIterador.Create;
 
-  xArqSai := Self.C510AGE.DirArq;
+  xArqSai := Self.C510AGE.USU_DirArq;
 
   Self.MontaFiliais;
   Self.MontaBuscaPadraoEmpFil;
 
   if not(UltimoCaracter(xArqSai, '\', False)) then
-    Self.C510AGE.DirArq := Self.C510AGE.DirArq + '\';
+    Self.C510AGE.USU_DirArq := Self.C510AGE.USU_DirArq + '\';
 
-  i := FindFirst(Self.C510AGE.DirArq + '*.RET', faAnyFile, FDiretorio);
+  i := FindFirst(Self.C510AGE.USU_DirArq + '*.RET', faAnyFile, FDiretorio);
   while i = 0 do
   begin
-    AssignFile(xFile, Self.C510AGE.DirArq + FDiretorio.Name);
+    AssignFile(xFile, Self.C510AGE.USU_DirArq + FDiretorio.Name);
     Self.GerarArmazenamento(FDiretorio.Name);
 
     if not(C510ARM.ArquivoExiste) then
@@ -187,13 +186,13 @@ begin
   if not(F510TIT.Carregado) then
     F095FOR.AdicionarFonecedor(F510TIT);
 
-  if (F510TIT.CodFor > 0) then
+  if (F510TIT.USU_CodFor > 0) then
     FListaTituloGeral.Add(F510TIT)
   else
   begin
-    F510TIT.LogTit := Format('Fornecedor com o CNPJ: "%s" não existe!', [FloatToStr(F510TIT.CgcCpf)]);
+    F510TIT.USU_LogTit := Format('Fornecedor com o CNPJ: "%s" não existe!', [FloatToStr(F510TIT.USU_CgcCpf)]);
 
-    if (F510TIT.Id > 0) then
+    if (F510TIT.USU_ID > 0) then
     begin
       xTitulo := TTituloDDA.Create();
       xTitulo.Anexar(F510TIT);
@@ -218,22 +217,13 @@ begin
   for i := 0 to pred(FListaArmazenamento.Count) do
   begin
     x510TIT := T510TIT.CreateCarregado;
-    x510TIT.IdArm := T510ARM(FListaArmazenamento[i]).Id;
-    x510TIT.SitArm := 'N';
-    x510TIT.DefinirSelecaoPropriedade(['IDARM','SITARM'], True);
+    x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
+    x510TIT.USU_SitArm := 'N';
+    x510TIT.DefinirSelecaoPropriedade(['USU_IDARM','USU_SITARM'], True);
     if not(x510TIT.Executar(estSelect)) then
     begin
       x510ARM := T510ARM(FListaArmazenamento[i]);
-      x510ARM.SitArm := 'S';
-      x510ARM.DatFin := Date;
-      x510ARM.DefinirSelecaoPropriedade(['ID']);
-      x510ARM.Executar(estUpdate);
-
-      if not(DirectoryExists(x510ARM.DirArm + 'DDA_BKP\')) then
-        CreateDir(x510ARM.DirArm + 'DDA_BKP\');
-
-      CopyFile(PWideChar(x510ARM.DirArm + x510ARM.NomArq), PWideChar(x510ARM.DirArm + 'DDA_BKP\' + x510ARM.NomArq), False);
-      DeleteFile(PWideChar(x510ARM.DirArm + x510ARM.NomArq));
+      x510ARM.RemoverArquivo();
     end;
   end;
 end;
@@ -252,16 +242,16 @@ begin
   for i := 0 to pred(FListaTituloGeral.Count) do
   begin
     x510Tit := T510TIT(FListaTituloGeral[i]);
-    F095FOR.CgcCpf := x510Tit.CgcCpf;
+    F095FOR.CgcCpf := x510Tit.USU_CgcCpf;
 
     xTitulo := TTituloDDA.Create();
-    FListaTituloGeral.Iterar(x510Tit, xTitulo);
-    xTitulo.CodFor := iff(x510Tit.CodFor = 0, F095FOR.CodigoDoFornecedor, x510Tit.CodFor);
-    xTitulo.CodEmp := F510AGE.EmpGer;
-    xTitulo.CodFil := F510AGE.FilGer;
-    xTitulo.CodTpt := FListaEspecieTitulo.CarregarEspecie(x510Tit.CodTpt);
-    xTitulo.CodPor := F510AGE.CodPor;
-
+    xTitulo.CodEmp := F510AGE.USU_EmpGer;
+    xTitulo.CodFil := F510AGE.USU_FilGer;
+    xTitulo.CodTpt := FListaEspecieTitulo.CarregarEspecie(x510Tit.USU_CodTpt);
+    xTitulo.CodFor := iff(x510Tit.USU_CodFor = 0, F095FOR.CodigoDoFornecedor, x510Tit.USU_CodFor);
+    xTitulo.VctOri := x510Tit.USU_VctOri;
+    xTitulo.VlrOri := x510Tit.USU_VlrOri;
+    xTitulo.CodPor := F510AGE.USU_CodPor;
     xTitulo.Anexar(x510Tit);
     xTitulo.DefinirSelecaoPropriedade(FCamposBuscaEmpFil, True);
 
@@ -269,7 +259,7 @@ begin
       FListaTituloBanco.Add(xTitulo)
     else
     begin
-      x510Tit.LogTit := 'Títlo não encontrado!';
+      x510Tit.USU_LogTit := 'Títlo não encontrado!';
       xTitulo.Anexar(x510Tit);
       xTitulo.GerarLog();
 
@@ -293,7 +283,6 @@ begin
 
   F095FOR := T095FOR.Create();
   F510AGE := T510AGE.Create('USU_T510AGE');
-  F510AGE.DefinirTipoTabela(True);
   F510AGE.DesativarUsoParametro();
   F510AGE.DefinirSelecao(['USU_ID'], ['(SELECT USU_IDAGE FROM E000AGE WHERE CODPRA = 2447)']);
   F510AGE.Executar(estSelect);
@@ -344,7 +333,7 @@ end;
 
 procedure TBaseTitulos.MontaBuscaPadraoEmpFil;
 begin
-  case (F510AGE.EmpFil) of
+  case (F510AGE.USU_EmpFil) of
     1:
     begin
       SetLength(FCamposBuscaEmpFil, 5);
@@ -378,9 +367,9 @@ end;
 
 procedure TBaseTitulos.MontaFiliais;
 begin
-  case (F510AGE.EmpFil) of
-    1: FListaFilial.AddEmpresaLogada(F510AGE.EmpGer);
-    2: FListaFilial.AddEmpresaFilialLogada(F510AGE.EmpGer, F510AGE.FilGer);
+  case (F510AGE.USU_EmpFil) of
+    1: FListaFilial.AddEmpresaLogada(F510AGE.USU_EmpGer);
+    2: FListaFilial.AddEmpresaFilialLogada(F510AGE.USU_EmpGer, F510AGE.USU_FilGer);
     3: FListaFilial.AddTodas();
   end;
 end;

@@ -289,8 +289,12 @@ procedure TF510CON.SairClick(Sender: TObject);
 begin
   if (FGridArm.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
   begin
-    CancelarClick(Self);
-    Self.Close;
+    try
+      CancelarClick(Self);
+      Self.Close;
+    except
+      Self.Close;
+    end;
   end;
 end;
 
@@ -323,6 +327,9 @@ begin
   FGridAss.Clear;
   FControle.ListaArm.Clear;
   BECodPor.SetFocus;
+
+  Excluir.Enabled := False;
+  ExcluirTit.Enabled := False;
 end;
 
 procedure TF510CON.cbSituacaoArmChange(Sender: TObject);
@@ -530,10 +537,15 @@ procedure TF510CON.ExcluirClick(Sender: TObject);
 begin
   if (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
   begin
-    FControle.Excluir;
+    try
+      FControle.Excluir;
 
-    CMessage('Registro(s) excluído(s) com sucesso!', mtInformation);
-    CancelarClick(Self);
+      CMessage('Registro(s) excluído(s) com sucesso!', mtInformation);
+      CancelarClick(Self);
+    except
+      on E: THMessage do
+        Abort;
+    end;
   end;
 end;
 
@@ -542,16 +554,20 @@ var
   x510CON: T510CON;
 begin
   x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
-  x510CON.Excluir(pred(FGridTit.Line));
-  FControle.ConsistirDelete(x510CON);
 
-  if (FControle.ListaArm.Count = 0) then
+  if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
   begin
-    CancelarClick(Self);
-    CMessage('Não há informações a listar!', mtErrorInform)
-  end
-  else
-    FGridArmEnterLine(Self);
+    x510CON.Excluir(pred(FGridTit.Line));
+    FControle.ConsistirDelete(x510CON);
+
+    if (FControle.ListaArm.Count = 0) then
+    begin
+      CancelarClick(Self);
+      CMessage('Não há informações a listar!', mtErrorInform)
+    end
+    else
+      FGridArmEnterLine(Self);
+  end;
 end;
 
 procedure TF510CON.MarcarClick(Sender: TObject);
@@ -565,7 +581,9 @@ begin
   FGridTit.CheckFields('Check', pValue);
 
   FControle.MarcarDesmarcar(pValue);
-  Excluir.Enabled := FControle.ListaArm.Selecionados
+
+  Excluir.Enabled := FControle.ListaArm.Selecionados;
+  ExcluirTit.Enabled := T510CON(FControle.ListaArm[Pred(FGridArm.Line)]).ListaTit.Selecionados;
 end;
 
 procedure TF510CON.MostrarClick(Sender: TObject);
@@ -676,10 +694,12 @@ begin
   x510CON.Check := iff(x510CON.Check = 1, 0, 1);
 
   for i := 0 to pred(x510CON.ListaTit.Count) do
-    T510TIT(x510CON.ListaTit).Check := x510CON.Check;
+    T510TIT(x510CON.ListaTit[i]).Check := x510CON.Check;
 
   FGridTit.CheckFields('Check', x510CON.Check);
-  Excluir.Enabled := FControle.ListaArm.Selecionados
+
+  Excluir.Enabled := FControle.ListaArm.Selecionados;
+  ExcluirTit.Enabled := x510CON.ListaTit.Selecionados;
 end;
 
 procedure TF510CON.FGridArmEnterLine(Sender: TObject);
@@ -702,6 +722,9 @@ begin
     FGridTit.First;
     FGridTitEnterLine(Self);
   end;
+
+  Excluir.Enabled := FControle.ListaArm.Selecionados;
+  ExcluirTit.Enabled := T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit.Selecionados;
 end;
 
 procedure TF510CON.FGridAssCodBarChange;
@@ -725,25 +748,12 @@ var
   i,j: Integer;
   x510TIT: T510TIT;
   x510CON: T510CON;
-
-  function BuscarArmazenamento(): T510CON;
-  var
-    y: Integer;
-  begin
-    for y := 0 to pred(FControle.ListaArm.Count) do
-    if (T510CON(FControle.ListaArm[y]).Id = x510TIT.IdArm) then
-    begin
-      Result := T510CON(FControle.ListaArm[y]);
-      Break;
-    end;
-  end;
-
 begin
   x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   x510TIT.Check := iff(x510TIT.Check = 1, 0, 1);
 
   j := 0;
-  x510CON := T510CON(FControle.ListaArm[y])
+  x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
   for i := 0 to pred(x510CON.ListaTit.Count) do
   begin
     if (T510TIT(x510CON.ListaTit[i]).Check = x510TIT.Check) then
@@ -755,6 +765,8 @@ begin
     x510CON.Check := x510TIT.Check;
     FGridArm.FindField('Check').AsInteger := x510TIT.Check;
   end;
+
+  ExcluirTit.Enabled := x510CON.ListaTit.Selecionados;
 end;
 
 procedure TF510CON.FGridTitEnterLine(Sender: TObject);
@@ -827,21 +839,19 @@ begin
   FGridTit.Enabled := False;
   FGridAss.Enabled := False;
 
-  FGridArm.Init('USU_T510ARM', True, Self, 'USU_CodPor;USU_NomArq');
+  FGridArm.Init('USU_T510ARM', Self, 'USU_CodPor;USU_NomArq');
   FGridArm.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridArm.CreateDataSet;
 
-  FGridTit.Init('USU_T510TIT', True, Self);
+  FGridTit.Init('USU_T510TIT', Self);
   FGridTit.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridTit.CreateDataSet;
 
-  FGridAss.Init('E501TCP', False, Self, 'CodBar');
+  FGridAss.Init('E501TCP', Self, 'CodBar');
   FGridAss.CreateDataSet;
 
   FControle := T510CON.Create;
   FGridAss.ReadOnly('CodBar', False);
-
-  Excluir.Enabled := False;
 end;
 
 procedure TF510CON.FormShow(Sender: TObject);
