@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
   Vcl.Mask, Vcl.DBCtrls, Vcl.Menus, CommCtrl, o310clp, Winapi.Windows, Data.DB,
-  Vcl.Tabs, Vcl.DockTabSet;
+  Vcl.Tabs, Vcl.DockTabSet, oMensagem;
 
 CONST
   CGRIDLIG = 1;
@@ -176,6 +176,7 @@ type
     procedure FGridClpCheckClick();
     procedure FGridDesCheckClick();
     procedure FGridLigCheckClick();
+    procedure FGridReaCheckClick();
     procedure BloquearCamposTitulo(const pValue: Boolean);
   end;
 
@@ -763,7 +764,7 @@ begin
     FGridClpEnterLine(Self);
   end
   else
-    CMessage('Nenhum Contrato Selecionado!', mtError);
+    CMessage('Nenhum Contrato Selecionado!', mtErrorInform);
 end;
 
 procedure TF310CLP.MostrarReajuste();
@@ -800,7 +801,7 @@ begin
     FGridConEnterLine(Self);
   end
   else
-    CMessage('Nenhum Contrato Selecionado!', mtError);
+    CMessage('Nenhum Contrato Selecionado!', mtErrorInform);
 end;
 
 procedure TF310CLP.NaoLigadoClick(Sender: TObject);
@@ -821,8 +822,8 @@ end;
 
 procedure TF310CLP.ProcessarClick(Sender: TObject);
 begin
-  if not(FIteradorReajuste.Selecao) then
-    CMessage('Não há registros selecionados!', mtError)
+  if not(FIteradorReajuste.Selecionados) then
+    CMessage('Não há registros selecionados!', mtErrorInform)
   else
   if (CMessage('Deseja realmente processar?', mtConfirmationYesNo)) then
   begin
@@ -958,20 +959,22 @@ end;
 procedure TF310CLP.FormCreate(Sender: TObject);
 begin
   if (System.ParamCount > 0) then
-  begin
-    FLogEmp := StrToInt(ParamStr(0));
-    FLogFil := StrToInt(ParamStr(1));
-    FLogUsu := StrToInt(ParamStr(2));
-  end
+    FLogEmp := StrToInt(ParamStr(0))
   else
-    //Self.Close;
+    FLogEmp := 1;
 
   FIteradorReajuste := TIteradorControle.Create();
   FIteradorLigacao := TIteradorControle.Create();
 
+  //Contrato
   BECodCli.CreateLookup();
   BECodFil.CreateLookup();
   BENumCtr.CreateLookup();
+
+  //Titulo
+  BECodEmp.CreateLookup();
+  BETitFil.CreateLookup();
+  BECodFor.CreateLookup();
 
   BECodFil.Filter := Format('CODEMP = %d', [1]);
   BENumCtr.Filter := 'TIPCTR = 3 AND (NUMCTR IN (SELECT USU_NUMCTR FROM USU_T160CLP))';
@@ -992,9 +995,11 @@ begin
   FGridCon.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridClp.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridDes.AddColumn('Check', 'Sel.', ftInteger, 0, True);
+  FGridRea.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
   FGridRea.AddColumn('IndRea', '% Índice Atual', ftFloat);
   FGridRea.AddColumn('IndNov', '% Índice Reajuste', ftFloat);
+  FGridRea.AddColumn('LocDsc', 'Desconto do Locatário', ftFloat);
 
   FGridRea.CreateDataSet;
   FGridCon.CreateDataSet;
@@ -1080,6 +1085,16 @@ end;
 procedure TF310CLP.FGridConCheckClick;
 begin
   TControle(FIteradorReajuste[pred(FGridCon.Line)]).Check := iff(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Check = 1, 0, 1);
+end;
+
+procedure TF310CLP.FGridReaCheckClick;
+var
+  xControle: TControle;
+  x301tcr: T301TCR;
+begin
+  xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
+  x301tcr := T301TCR(xControle.Ajuste[pred(FGridRea.Line)]);
+  x301tcr.Check := iff(x301tcr.Check = 1, 0, 1);
 end;
 
 procedure TF310CLP.FGridReaIndNovChange;

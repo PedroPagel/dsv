@@ -1,0 +1,9 @@
+*.identcache
+*.dproj.local
+__history/
+Win32/
+*.vlb
+*.dcu
+*.tvsconfig
+*.res
+*.exe

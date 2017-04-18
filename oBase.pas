@@ -5,13 +5,12 @@ interface
 uses
   Data.SqlExpr, oQuery, System.Rtti, System.SysUtils, Data.DBXOracle,
   System.Contnrs, System.Variants, Data.DBXCommon, Data.Db, Data.DBCommon,
-  Data.Win.ADODB, System.Classes, System.TypInfo, Vcl.Dialogs;
+  Data.Win.ADODB, System.Classes, System.TypInfo;
 
 type
   TEstadoTabela = (estInsert, estUpdate, estDelete, estSelect, estSelectLoop, estNenhum);
   TArrayOfString = array of string;
   tTitulo = (tTContasPagar, tTContasReceber);
-  tMessageType = (mtWarning, mtError,mtInformation, mtConfirmationAll, mtConfirmationYesNo, mtConfirmationCancel);
 
   TTabela = class
   private
@@ -28,9 +27,13 @@ type
     FUsaParametro: Boolean;
     FContext: TRttiContext;
     FType: TRttiType;
+    FCheck: Byte;
 
     procedure SetId(const pId: Integer);
+    procedure SetCheck(const Value: Byte);
+
     function GetId: Integer;
+    function GetCheck: Byte;
 
     procedure Insert();
     procedure Update();
@@ -69,6 +72,7 @@ type
     function Proximo(): Boolean;
   public
     property Id: Integer read GetId write SetId;
+    property Check: Byte read GetCheck write SetCheck;
   end;
 
   TOracleConnection = class
@@ -83,8 +87,11 @@ type
 
   TIterador = class(TObjectList)
   public
+    function Selecionados(): Boolean;
+
     procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
     procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
+
     class procedure Repassar(const pObjEntrada: TObject; const pObjeSaida: TObject);
   end;
 
@@ -158,7 +165,6 @@ type
   procedure Commit();
   procedure RollBack;
 
-  function CMessage(const pMessage: string; const pMessageType: tMessageType): Boolean;
   function iff(const pTernario: Boolean; const pParametro1, pParametro2: Variant): Variant;
   function UltimoCaracter(var pString: string; pCaracter: string; pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
   function DataNull(pData: TDate): TDateTime;
@@ -175,7 +181,7 @@ var
   FListaFilial: TListaFilial;
   FLogEmp: Integer;
   FLogFil: Integer;
-  FlogUsu: Integer;
+  FLogUsu: Integer;
 
 implementation
 
@@ -196,130 +202,6 @@ procedure RollBack;
 begin
   FOracleConnection.RollbackTrans;
   Exit;
-end;
-
-function CMessage(const pMessage: string; const pMessageType: tMessageType): Boolean;
-var
-  i,j: Integer;
-  xForm: TForm;
-  xCaptionIndex: Integer;
-  xMensagem: string;
-  xCaption: array of string;
-  xMessageType: TMsgDlgType;
-
-  procedure FixMessage();
-  var
-    i: Integer;
-    xEnter: Integer;
-  begin
-    xEnter := 0;
-
-    for i := 0 to High(pMessage) do
-    begin
-       Inc(xEnter);
-
-      if ((xEnter >= 40) and (IsNull(pMessage[i]))) then
-      begin
-        xMensagem := Copy(pMessage, (i - xEnter), xEnter -1) + #13 + Copy(pMessage, i, (Length(pMessage) - (i - 1)));
-        xEnter := 0;
-      end;
-    end;
-  end;
-
-  procedure AddCaption(const pCaption: string);
-  begin
-     j := Length(xCaption);
-     Inc(j);
-     SetLength(xCaption, j);
-     xCaption[pred(j)] := pCaption;
-  end;
-
-  function TryMessageType(): TMsgDlgButtons;
-  begin
-    Result := [];
-
-    case (pMessageType) of
-      mtConfirmationAll:
-      begin
-        xMessageType := mtConfirmation;
-        Result := [mbAll];
-        AddCaption('&Ambos');
-      end;
-
-      mtConfirmationYesNo:
-      begin
-        xMessageType := mtConfirmation;
-        Result := Result + [mbYes];
-        AddCaption('&Sim');
-
-
-        Result := Result + [mbNo];
-        AddCaption('&Não');
-      end;
-
-      mtConfirmationCancel:
-      begin
-        xMessageType := mtConfirmation;
-        Result := Result + [mbCancel];
-        AddCaption('&Cancelar');
-      end;
-
-      mtWarning:
-      begin
-        Result := [mbOK];
-        xMessageType := TMsgDlgType(0);
-      end;
-
-      mtError:
-      begin
-        Result := [mbOK];
-        xMessageType := TMsgDlgType(1);
-      end;
-
-      mtInformation:
-      begin
-        Result := [mbOK];
-        xMessageType := TMsgDlgType(2);
-      end;
-    end;
-  end;
-
-begin
-  Result := True;
-  xMensagem := pMessage;
-  xCaptionIndex := 0;
-
-  FixMessage();
-  xForm := CreateMessageDialog(xMensagem, xMessageType, TryMessageType);
-  try
-    for i := 0 to pred(xForm.ComponentCount) do
-    begin
-      if (Length(xCaption) > 0) then
-        if (xForm.Components[i] is TButton) then
-        begin
-          if xCaptionIndex > High(xCaption) then
-             Break;
-
-          TButton(xForm.Components[i]).Caption := xCaption[xCaptionIndex];
-          Inc(xCaptionIndex);
-        end;
-    end;
-
-    case (xMessageType) of
-      TMsgDlgType(0): xForm.Caption := 'Aviso';
-      TMsgDlgType(1): xForm.Caption := 'Erro';
-      TMsgDlgType(2): xForm.Caption := 'Informação';
-      TMsgDlgType(3): xForm.Caption := 'Confirmação';
-    end;
-
-    xForm.ShowModal;
-
-    if (xMessageType = TMsgDlgType(3)) then
-      if xForm.ModalResult = mrNo then
-        Result := False;
-  finally
-    FreeAndNil(xForm);
-  end;
 end;
 
 function iff(const pTernario: Boolean; const pParametro1, pParametro2: Variant): Variant;
@@ -477,6 +359,8 @@ begin
   FillChar(FListaCampos, sizeOf(FListaCampos), 0);
   FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
+
+  DefinirCampoNegado(['ID','USU_Check','Check']);
 end;
 
 procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
@@ -613,7 +497,10 @@ end;
 
 procedure TTabela.MontarEstadoDelete;
 begin
-  FQuery.Command := 'DELETE FROM '+ FTabela + ' WHERE ID = '+ IntToStr(FId);
+  FQuery.Command := 'DELETE FROM '+ FTabela + ' WHERE '+ FCondicao;
+
+  if (FUsaParametro) then
+    DefinirParametros();
 end;
 
 function TTabela.Executar(const pEstadoTabela: TEstadoTabela): Boolean;
@@ -638,7 +525,7 @@ begin
       Delete();
   end;
 
-  if (pEstadoTabela in [estInsert, estUpdate]) then
+  if (pEstadoTabela in [estInsert, estUpdate, estDelete]) then
     FQuery.ExecSQL();
 
   if (pEstadoTabela <> estSelectLoop) then
@@ -674,6 +561,11 @@ begin
   finally
     FreeAndNil(xQuery);
   end;
+end;
+
+function TTabela.GetCheck: Byte;
+begin
+  Result := FCheck;
 end;
 
 function TTabela.GetId: Integer;
@@ -721,7 +613,7 @@ end;
 procedure TTabela.Limpar;
 begin
   FillChar(FListaCampos, sizeOf(FListaCampos), 0);
-  FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
+  //FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
   FCondicao := EmptyStr;
@@ -876,6 +768,11 @@ begin
   Result :=  MontarEstadoSelect();
 end;
 
+procedure TTabela.SetCheck(const Value: Byte);
+begin
+  FCheck := Value;
+end;
+
 procedure TTabela.SetId(const pId: Integer);
 begin
   FId := pId;
@@ -958,6 +855,21 @@ begin
   finally
     xContextEntrada.Free;
     xContextSaida.Free;
+  end;
+end;
+
+function TIterador.Selecionados: Boolean;
+var
+  i: Integer;
+begin
+  Result := False;
+
+  for i := 0 to pred(Self.Count) do
+  begin
+    Result := (TTabela(Self[i]).Check = 1);
+
+    if (Result) then
+      Break;
   end;
 end;
 
