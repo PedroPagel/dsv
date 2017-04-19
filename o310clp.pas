@@ -169,9 +169,12 @@ begin
     xTituloReajuste.IndRea := pT090IND.USU_VlrInd;
     xTituloReajuste.IndFin := pT090IND.USU_IndFin;
 
-    FTotOri := (FTotOri + xTituloReajuste.VlrOri);
-    xTituloReajuste.VlrOri := ((xTituloReajuste.VlrOri * (pT090IND.USU_VlrInd * 0.01)) + xTituloReajuste.VlrOri);
-    FTotRea := (FTotRea + xTituloReajuste.VlrOri);
+    if not(AnsiSameText(UpperCase(Copy(xTituloReajuste.SitTit, 0, 1)), 'L')) then
+    begin
+      FTotOri := (FTotOri + xTituloReajuste.VlrOri);
+      xTituloReajuste.VlrOri := ((xTituloReajuste.VlrOri * (pT090IND.USU_VlrInd * 0.01)) + xTituloReajuste.VlrOri);
+      FTotRea := (FTotRea + xTituloReajuste.VlrOri);
+    end;
   end;
 end;
 

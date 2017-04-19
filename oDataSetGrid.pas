@@ -638,7 +638,7 @@ begin
 
       if (AnsiSameText(pIndexFields[i], ';')) or (i = Length(pIndexFields)) then
       begin
-        FIndexFields := FIndexFields + 'CASE WHEN R998FLD.FLDNAM = '''+ xCampo +''' THEN 1 ELSE 2 END,';
+        FIndexFields := FIndexFields + 'CASE WHEN UPPER(R998FLD.FLDNAM) = '''+ UpperCase(xCampo) +''' THEN 1 ELSE 2 END,';
         xCampo := EmptyStr;
       end;
     end;

@@ -887,9 +887,13 @@ begin
       FGridTit.Add;
       FGridTit.AddFields(T301TCR(xControle.Titulo[i]));
 
-      FGridRea.Add;
-      FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
-      FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
+
+      if not(AnsiSameText(UpperCase(Copy(T301TCR(xControle.Ajuste[i]).SitTit, 0, 1)), 'L')) then
+      begin
+        FGridRea.Add;
+        FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
+        FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
+      end;
     end;
 
     FGridTit.First;
@@ -985,7 +989,7 @@ begin
 
   FGridCon.Init('USU_T160CLP', F310CLP);
   FGridClp.Init('USU_T160CLP', F310CLP);
-  FGridRea.Init('E301TCR', F310CLP);
+  FGridRea.Init('E301TCR', F310CLP, 'VlrOri;VlrAbe');
   FGridTit.Init('E301TCR', F310CLP);
   FGridLig.Init('E501TCP', F310CLP);
   FGridDes.Init('E501TCP', F310CLP);
