@@ -485,6 +485,10 @@ begin
   FGridClp.Enabled := False;
   Ligar.Enabled := False;
   Remover.Enabled := False;
+  Marcar.Enabled := False;
+  Desmarcar.Enabled := False;
+  MarcarGrids.Enabled := False;
+  DesmarcarGrids.Enabled := False;
 
   DDatIni.DateTime := 1;
   DDatIni.Format := '00/00/0000';
@@ -684,26 +688,32 @@ begin
 
   if (pGrid = CGRIDLIG) then
   begin
-     FGridClp.First();
-     while not(FGridClp.Eof) do
-     begin
-       if (TControle(FIteradorLigacao[pred(FGridClp.Line)]).Titulo.Count > 0) then
-        FGridClp.FindField('Check').AsInteger := xCheck;
+    if (FGridClp.Count > 0) then
+    begin
+      FGridClp.First();
+      while not(FGridClp.Eof) do
+      begin
+        if (TControle(FIteradorLigacao[pred(FGridClp.Line)]).Titulo.Count > 0) then
+         FGridClp.FindField('Check').AsInteger := xCheck;
 
-       FGridClp.Post();
-       FGridClp.Next
-     end;
+        FGridClp.Post();
+        FGridClp.Next
+      end;
 
-    FIteradorLigacao.MarcarDesmarcarLigacoes(xCheck);
-    FGridClp.First;
-    ValidarSelecao();
+     FIteradorLigacao.MarcarDesmarcarLigacoes(xCheck);
+     FGridClp.First;
+     ValidarSelecao();
+    end;
   end
   else
   begin
-    FGridDes.CheckFields('Check', xCheck);
-    FIteradorLigacao.MarcarDesmarcarDespesas(xCheck);
-    FGridLigCheckClick();
-    ValidarSelecao();
+    if (FGridDes.Count > 0) then
+    begin
+      FGridDes.CheckFields('Check', xCheck);
+      FIteradorLigacao.MarcarDesmarcarDespesas(xCheck);
+      FGridLigCheckClick();
+      ValidarSelecao();
+    end;
   end;
 end;
 
@@ -719,6 +729,9 @@ begin
     MostrarReajuste()
   else
     MostrarLigacao();
+
+  Marcar.Enabled := True;
+  Desmarcar.Enabled := True;
 end;
 
 procedure TF310CLP.MostrarLigacao();
@@ -762,6 +775,9 @@ begin
     FGridDes.First;
     FGridClp.First;
     FGridClpEnterLine(Self);
+
+    MarcarGrids.Enabled := True;
+    DesmarcarGrids.Enabled := True;
   end
   else
     CMessage('Nenhum Contrato Selecionado!', mtErrorInform);
@@ -812,6 +828,9 @@ end;
 procedure TF310CLP.PGControlChange(Sender: TObject);
 begin
   BloquearCamposTitulo(iff(PGControl.TabIndex = 0, False, True));
+
+  Marcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
+  Desmarcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
 end;
 
 procedure TF310CLP.PGControlDrawTab(Control: TCustomTabControl;
@@ -830,9 +849,14 @@ begin
     FGridCon.Enabled := False;
     FGridTit.Enabled := False;
     FGridRea.Enabled := False;
-    FIteradorReajuste.Processar;
-    CMessage('Processado com sucesso!', mtInformation);
 
+    StartTransaction;
+    try
+      FIteradorReajuste.Processar;
+    except
+      RollBack;
+    end;
+    CMessage('Processado com sucesso!', mtInformation);
     CancelarClick(Self);
   end;
 end;
@@ -886,14 +910,13 @@ begin
     begin
       FGridTit.Add;
       FGridTit.AddFields(T301TCR(xControle.Titulo[i]));
+    end;
 
-
-      if not(AnsiSameText(UpperCase(Copy(T301TCR(xControle.Ajuste[i]).SitTit, 0, 1)), 'L')) then
-      begin
-        FGridRea.Add;
-        FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
-        FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
-      end;
+    for i := 0 to pred(xControle.Ajuste.Count) do
+    begin
+      FGridRea.Add;
+      FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
+      FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
     end;
 
     FGridTit.First;
@@ -995,7 +1018,7 @@ begin
   FGridDes.Init('E501TCP', F310CLP);
 
   FGridLig.AddColumn('Check', 'Sel.', ftInteger, 0, True);
-  FGridLig.AddColumn('PosClp', 'POSCLP.', ftInteger, 0, True);
+  FGridLig.AddColumn('PosClp', 'POSCLP.', ftInteger);
   FGridCon.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridClp.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridDes.AddColumn('Check', 'Sel.', ftInteger, 0, True);
@@ -1021,6 +1044,7 @@ begin
   FGridDes.NumericField('VlrOri', '###,###,##0.00');
   FGridDes.NumericField('VlrAbe', '###,###,##0.00');
   FGridRea.NumericField('IndNov', '###,###,##0.00');
+  FGridRea.NumericField('LocDsc', '###,###,##0.00');
   FGridRea.NumericField('VlrOri', '###,###,##0.00');
   FGridRea.NumericField('VlrAbe', '###,###,##0.00');
 
@@ -1087,8 +1111,13 @@ begin
 end;
 
 procedure TF310CLP.FGridConCheckClick;
+var
+  xControle: TControle;
 begin
-  TControle(FIteradorReajuste[pred(FGridCon.Line)]).Check := iff(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Check = 1, 0, 1);
+  xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
+  xControle.Check := iff(xControle.Check = 1, 0, 1);
+  FIteradorReajuste.MarcarDesmarcarReajuste(xControle, xControle.Check);
+  FGridConEnterLine(Self);
 end;
 
 procedure TF310CLP.FGridReaCheckClick;
@@ -1099,6 +1128,17 @@ begin
   xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
   x301tcr := T301TCR(xControle.Ajuste[pred(FGridRea.Line)]);
   x301tcr.Check := iff(x301tcr.Check = 1, 0, 1);
+
+  if not(xControle.Ajuste.Selecionados) then
+  begin
+    TControle(FIteradorReajuste[Pred(FGridCon.Line)]).Check := 0;
+    FGridCon.FindField('Check').AsInteger := 0;
+  end
+  else
+  begin
+    FGridCon.FindField('Check').AsInteger := 1;
+    TControle(FIteradorReajuste[Pred(FGridCon.Line)]).Check := 1;
+  end;
 end;
 
 procedure TF310CLP.FGridReaIndNovChange;

@@ -16,7 +16,6 @@ type
     FLigacao: TIterador;
     FTotOri: Extended;
     FTotRea: Extended;
-    FCheck: Integer;
 
     function GetTitulo: TIterador;
     procedure SetTitulo(const Value: TIterador);
@@ -28,19 +27,16 @@ type
     procedure SetTotOri(const Value: Extended);
     function GetLigacao: TIterador;
     procedure SetLigacao(const Value: TIterador);
-    function GetCheck: Integer;
-    procedure SetCheck(const Value: Integer);
   public
     constructor Create();
     destructor Destroy(); override;
 
-    procedure InserirContrato();
+    procedure InserirContrato(const pNumCtr: Integer);
     procedure RemoverContrato();
     procedure AdicionarTitulosReajuste();
     procedure AdicionarTitulosLigados();
     procedure CalcularAjustes(const pT090IND: T090IND);
 
-    property Check: Integer read GetCheck write SetCheck;
     property Titulo: TIterador read GetTitulo write SetTitulo;
     property Ligacao: TIterador read GetLigacao write SetLigacao;
     property Ajuste: TIterador read GetAjuste write SetAjuste;
@@ -98,6 +94,7 @@ type
     procedure MarcarDesmarcarLigacoes(const pValue: Byte); overload;
     procedure MarcarDesmarcarLigacoes(const pValue: Byte; const pPos: Integer); overload;
     procedure MarcarDesmarcarDespesas(const pValue: Byte);
+    procedure MarcarDesmarcarReajuste(const pReajusteIterado: TControle; const pValue: Byte);
     procedure MarcarDesmarcar(const pValue: Byte; const pLigacoes: Boolean = False);
     procedure RecalcularAjustes(const pIndNov: Double; const pContrato: Integer; const pTitulo: Integer);
 
@@ -110,10 +107,17 @@ type
     property Titulo: tTitulo read GetTitulo write SetTitulo;
   end;
 
+  function SituacaoTitulo(const pSitTit: string): Boolean;
+
 implementation
 
 uses
   wsCRAlterar;
+
+function SituacaoTitulo(const pSitTit: string): Boolean;
+begin
+  Result := not(AnsiSameText(UpperCase(Copy(pSitTit, 0, 1)), 'L'));
+end;
 
 { TControle }
 
@@ -151,7 +155,9 @@ begin
     while (xQueryTitulo.Proximo) do
     begin
       FTitulo.IterarAdd(xQueryTitulo, T301TCR.Create());
-      FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create());
+
+      if (SituacaoTitulo(xQueryTitulo.SitTit)) then
+        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create());
     end;
   finally
     FreeAndNil(xQueryTitulo);
@@ -169,7 +175,7 @@ begin
     xTituloReajuste.IndRea := pT090IND.USU_VlrInd;
     xTituloReajuste.IndFin := pT090IND.USU_IndFin;
 
-    if not(AnsiSameText(UpperCase(Copy(xTituloReajuste.SitTit, 0, 1)), 'L')) then
+    if (SituacaoTitulo(xTituloReajuste.SitTit)) then
     begin
       FTotOri := (FTotOri + xTituloReajuste.VlrOri);
       xTituloReajuste.VlrOri := ((xTituloReajuste.VlrOri * (pT090IND.USU_VlrInd * 0.01)) + xTituloReajuste.VlrOri);
@@ -206,11 +212,6 @@ begin
   Result := FAjuste;
 end;
 
-function TControle.GetCheck: Integer;
-begin
-  Result := FCheck;
-end;
-
 function TControle.GetLigacao: TIterador;
 begin
   Result := FLigacao;
@@ -231,7 +232,7 @@ begin
   Result := FTotRea;
 end;
 
-procedure TControle.InserirContrato;
+procedure TControle.InserirContrato(const pNumCtr: Integer);
 var
   i: Integer;
   x301tcr: T301TCR;
@@ -239,9 +240,14 @@ begin
   for i := 0 to pred(FAjuste.Count) do
   begin
     x301tcr := T301TCR(FAjuste[i]);
-    x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
-    x301tcr.DefinirCampoUpdate(['NUMCTR']);
-    x301tcr.Executar(estUpdate)
+
+    if (x301tcr.Check = 1) then
+    begin
+      x301tcr.NumCtr := pNumCtr;
+      x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
+      x301tcr.DefinirCampoUpdate(['NUMCTR']);
+      x301tcr.Executar(estUpdate)
+    end;
   end;
 end;
 
@@ -250,25 +256,23 @@ var
   i: Integer;
   x301tcr: T301TCR;
 begin
-  for i := 0 to pred(FTitulo.Count) do
+  for i := 0 to pred(FAjuste.Count) do
   begin
-    x301tcr := T301TCR(FTitulo[i]);
+    x301tcr := T301TCR(FAjuste[i]);
 
-    x301tcr.NumCtr := 0;
-    x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
-    x301tcr.DefinirCampoUpdate(['NUMCTR']);
-    x301tcr.Executar(estUpdate)
+    if (x301tcr.Check = 1) then
+    begin
+      x301tcr.NumCtr := 0;
+      x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
+      x301tcr.DefinirCampoUpdate(['NUMCTR']);
+      x301tcr.Executar(estUpdate)
+    end;
   end;
 end;
 
 procedure TControle.SetAjuste(const Value: TIterador);
 begin
   FAjuste := Value;
-end;
-
-procedure TControle.SetCheck(const Value: Integer);
-begin
-  FCheck := Value;
 end;
 
 procedure TControle.SetLigacao(const Value: TIterador);
@@ -427,8 +431,15 @@ procedure TIteradorControle.InserirContrato;
 var
   i: Integer;
 begin
-  for i := 0 to pred(Self.Count) do
-    TControle(Self[i]).InserirContrato();
+  StartTransaction;
+  try
+    for i := 0 to pred(Self.Count) do
+      TControle(Self[i]).InserirContrato(TControle(Self[i]).USU_NumCtr);
+
+    Commit;
+  except
+    RollBack;
+  end;
 end;
 
 procedure TIteradorControle.Limpar;
@@ -488,6 +499,17 @@ begin
     T501TCP(TControle(Self[pPos]).Titulo[i]).Check := pValue;
 end;
 
+procedure TIteradorControle.MarcarDesmarcarReajuste(const pReajusteIterado: TControle; const pValue: Byte);
+var
+  i: Integer;
+begin
+  for i := 0 to pred(pReajusteIterado.Ajuste.Count) do
+  begin
+    if (SituacaoTitulo(T301TCR(pReajusteIterado.Ajuste[i]).SitTit)) then
+      T301TCR(pReajusteIterado.Ajuste[i]).Check := pValue;
+  end;
+end;
+
 procedure TIteradorControle.Processar;
 var
   i, j, l: Integer;
@@ -502,48 +524,41 @@ begin
   xServico := Getsapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr();
   xEntrada := alteratituloscrAlteraTitulosCRIn.Create;
 
-  StartTransaction;
-  try
-    for i := 0 to pred(Self.Count) do
+  for i := 0 to pred(Self.Count) do
+  begin
+    if (TControle(Self[i]).Check = 1) then
     begin
-      if (TControle(Self[i]).Check = 1) then
+      for l := 0 to pred(TControle(Self[i]).Ajuste.Count) do
       begin
-        for l := 0 to pred(TControle(Self[i]).Ajuste.Count) do
-        begin
-          x301tcr := T301TCR(TControle(Self[i]).Ajuste[l]);
+        x301tcr := T301TCR(TControle(Self[i]).Ajuste[l]);
 
-          if (x301tcr.Check = 1) then
-          begin
-            j := Length(xTitulos);
-            Inc(j);
-            SetLength(xTitulos, j);
-            xTitulos[pred(j)] := alteratituloscrAlteraTitulosCRInGridTitulosAlterar.Create;
-            xTitulos[pred(j)].CodFil := x301tcr.CodFil;
-            xTitulos[pred(j)].CodTpt := x301tcr.CodTpt;
-            xTitulos[pred(j)].NumTit := x301tcr.NumTit;
-            xTitulos[pred(j)].codCli := x301tcr.CodCli;
-            xTitulos[pred(j)].vlrOri := x301tcr.VlrOri;
-          end;
+        if (x301tcr.Check = 1) then
+        begin
+          j := Length(xTitulos);
+          Inc(j);
+          SetLength(xTitulos, j);
+          xTitulos[pred(j)] := alteratituloscrAlteraTitulosCRInGridTitulosAlterar.Create;
+          xTitulos[pred(j)].CodFil := x301tcr.CodFil;
+          xTitulos[pred(j)].CodTpt := x301tcr.CodTpt;
+          xTitulos[pred(j)].NumTit := x301tcr.NumTit;
+          xTitulos[pred(j)].codCli := x301tcr.CodCli;
+          xTitulos[pred(j)].vlrOri := x301tcr.VlrOri;
         end;
       end;
     end;
+  end;
 
-    if (j > 0) then
-    begin
-      Self.RemoverContrato();
+  if (j > 0) then
+  begin
+    Self.RemoverContrato();
 
-      xEntrada.gridTitulosAlterar := xTitulos;
-      xEntrada.codEmp := FLogEmp;
-      xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
-      xRetorno := xSaida.erroExecucao;
-      xRetorno := xSaida.resultado;
+    xEntrada.gridTitulosAlterar := xTitulos;
+    xEntrada.codEmp := FLogEmp;
+    xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
+    xRetorno := xSaida.erroExecucao;
+    xRetorno := xSaida.resultado;
 
-      Self.InserirContrato();
-    end;
-
-    Commit;
-  except
-    RollBack;
+    Self.InserirContrato();
   end;
 end;
 
@@ -567,8 +582,15 @@ procedure TIteradorControle.RemoverContrato;
 var
   i: Integer;
 begin
-  for i := 0 to pred(Self.Count) do
-    TControle(Self[i]).RemoverContrato();
+  StartTransaction;
+  try
+    for i := 0 to pred(Self.Count) do
+      TControle(Self[i]).RemoverContrato();
+
+    Commit;
+  except
+    RollBack;
+  end;
 end;
 
 procedure TIteradorControle.RemoverLigacao;

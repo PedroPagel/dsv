@@ -17,7 +17,7 @@ begin
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.CreateForm(TF510ARM, F510ARM);
-  Application.Terminate;
+    Application.Terminate;
     TIniciarConexao.Finalizar();
   except
     on E: Exception do

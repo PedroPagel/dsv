@@ -38,6 +38,7 @@ type
     FClientDataSet: TClientDataSet;
     FContext: TRttiContext;
     FCheckList: TStringList;
+    FReadOnlyList: TStringList;
 
     FGridState: TGridState;
     FFieldState: TGridState;
@@ -94,7 +95,7 @@ procedure Register;
 implementation
 
 uses
-  oBase;
+  oBase, oMensagem;
 
 procedure Register;
 begin
@@ -108,6 +109,7 @@ begin
   FQueryField := THQuery.CreatePersonalizado();
   FClientDataSet := TClientDataSet.Create(nil);
   FCheckList := TStringList.Create;
+  FReadOnlyList := TStringList.Create;
   FContext := TRttiContext.Create;
 
   FTable := pTable;
@@ -162,12 +164,12 @@ begin
   FOldColumn := 0;
   FOldEnterLine := FClientDataSet.RecNo;
 
-  for i := 0 to pred(FCheckList.Count) do
+  for i := 0 to pred(FReadOnlyList.Count) do
   begin
-    if (Self.SelectedField.FieldName = FCheckList[i]) then
-      Self.Options := Self.Options - [dgEditing]
+    if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
+      Self.Options := Self.Options + [dgEditing]
     else
-      Self.Options := Self.Options + [dgEditing];
+      Self.Options := Self.Options - [dgEditing];
   end;
 end;
 
@@ -185,6 +187,13 @@ begin
     if AnsiSameText(Self.Columns[i].FieldName, pField) then
     begin
       Self.Columns[i].ReadOnly := pValue;
+
+      if (AnsiSameText(UpperCase(pField), 'CHECK')) then
+        CMessage('Campo tipo CHECK não pode ser definido como ReadOnly', mtExceptError);
+
+      if (pValue = False) then
+        FReadOnlyList.Add(pField);
+
       Break;
     end;
   end;
@@ -253,17 +262,20 @@ begin
   if (FFieldState = gsOnEnter) or (FFieldState = gsNewValue) then
     FOldValue := Self.Columns[pred(Col)].Field.Value;
 
-  for i := 0 to pred(FCheckList.Count) do
+  for i := 0 to pred(FReadOnlyList.Count) do
   begin
-    if (Self.SelectedField.FieldName = FCheckList[i]) then
-      Self.Options := Self.Options - [dgEditing]
+    if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
+      Self.Options := Self.Options + [dgEditing]
     else
-      Self.Options := Self.Options + [dgEditing];
+      Self.Options := Self.Options - [dgEditing];
   end;
 end;
 
 procedure TDataSetGrid.ExitGrid(Sender: TObject);
 begin
+  if (FFieldState = gsNewValue) then
+    CallCheck();
+
   FFieldState := gsOnExit;
 end;
 
@@ -336,6 +348,7 @@ begin
   FContext.Free;
   FreeAndNil(FQueryField);
   FreeAndNil(FCheckList);
+  FreeAndNil(FReadOnlyList);
 end;
 
 procedure TDataSetGrid.First;

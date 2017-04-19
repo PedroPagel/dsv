@@ -205,17 +205,24 @@ uses
 
 procedure StartTransaction();
 begin
+  TIniciarConexao.Executar;
   FOracleConnection.BeginTrans;
 end;
 
 procedure Commit();
 begin
   FOracleConnection.CommitTrans;
+  TIniciarConexao.Finalizar;
 end;
 
 procedure RollBack;
 begin
-  FOracleConnection.RollbackTrans;
+  if (FOracleConnection.InTransaction) then
+  begin
+    FOracleConnection.RollbackTrans;
+    TIniciarConexao.Finalizar;
+  end;
+
   Abort;
 end;
 

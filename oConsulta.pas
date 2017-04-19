@@ -27,8 +27,7 @@ type
     procedure Consultar(const pCondicao: string);
     procedure MarcarDesmarcar(const pValue: Byte);
     procedure Excluir(); overload;
-    procedure Excluir(const pLine: Integer); overload;
-    procedure ConsistirDelete(const p510CON: T510CON);
+    procedure Excluir(const pLine: Integer; const pOrigem: T510CON); overload;
 
     function ListaTit: TIterador;
     function ListaArm: TIterador;
@@ -74,17 +73,6 @@ begin
         Break;
       end;
     end;
-end;
-
-procedure T510CON.ConsistirDelete(const p510CON: T510CON);
-var
-  i: Integer;
-begin
-  if (p510CON.ListaTit.Count = 0) then
-  begin
-    i := FListaArm.IndexOf(p510CON);
-    FListaArm.Delete(i);
-  end;
 end;
 
 procedure T510CON.Consultar(const pCondicao: string);
@@ -145,7 +133,7 @@ begin
   inherited;
 end;
 
-procedure T510CON.Excluir(const pLine: Integer);
+procedure T510CON.Excluir(const pLine: Integer; const pOrigem: T510CON);
 var
   x510TIT: T510TIT;
   i: Integer;
@@ -153,6 +141,7 @@ begin
   StartTransaction;
   try
     FLOG := EmptyStr;
+    FArmazenado := False;
     F510CAD.USU_CodEmp := FLogEmp;
     F510CAD.USU_CodUsu := FlogUsu;
 
@@ -161,21 +150,23 @@ begin
     if not(IsNull(FLOG)) then
       CMessage('Erro(s) ao excluir, consulte o botão detalhe(s)', mtExceptError, True, FLOG);
 
+    if (FArmazenado) then
+      if (CMessage('Para remover este registro, será removida sua associação, deseja continuar?', mtConfirmationYesNo)) then
+        pOrigem.RemoverAssociados()
+      else
+        Abort;
+
     if (Self.ListaTit.Count > 1) then
     begin
       x510TIT := T510TIT(Self.ListaTit[pLine]);
       x510TIT.Excluir(Self.USU_ID);
       i := Self.ListaTit.IndexOf(x510TIT);
       Self.ListaTit.Delete(i);
+      Commit;
     end
     else
     if (Self.ListaTit.Count = 1) then
-    begin
-      Self.Check := 1;
-      Self.Excluir();
-    end;
-
-    Commit;
+      pOrigem.Excluir();
   except
     RollBack;
   end;
@@ -190,9 +181,14 @@ var
   var
     y: Integer;
   begin
-    for y := 0 to pred(FListaArm.Count) do
+    for y := pred(FListaArm.Count) downto 0 do
+    begin
       if (T510CON(FListaArm[y]).Check = 1) then
+      begin
         T510CON(FListaArm[y]).Deletar;
+        FListaArm.Delete(FListaArm.IndexOf(T510CON(FListaArm[y])));
+      end;
+    end;
 
     Commit;
   end;
@@ -286,11 +282,14 @@ begin
       begin
         x510CON := T510CON(T510CON(FListaArm[i]).ListaTit[j]);
 
-        x501TCP.Iniciar;
-        x501TCP.USU_IDTIT := 0;
-        x501TCP.AdicionarCondicao(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]));
-        x501TCP.DefinirCampoUpdate(['USU_IDTIT']);
-        x501TCP.Executar(estUpdate);
+        if (x510CON.Check = 1) then
+        begin
+          x501TCP.Iniciar;
+          x501TCP.USU_IDTIT := 0;
+          x501TCP.AdicionarCondicao(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]));
+          x501TCP.DefinirCampoUpdate(['USU_IDTIT']);
+          x501TCP.Executar(estUpdate);
+        end;
       end;
     end;
   end;

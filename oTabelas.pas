@@ -628,8 +628,9 @@ end;
 
 procedure T510TIT.Excluir(const pID: Integer);
 begin
+  Self.Iniciar;
   Self.USU_IdArm := pID;
-  Self.DefinirSelecaoPropriedade(['USU_ID','USU_IDARM']);
+  Self.DefinirSelecaoPropriedade(['USU_ID','USU_IDARM'], True);
   Self.Executar(estDelete);
 end;
 

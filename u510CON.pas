@@ -552,13 +552,14 @@ end;
 procedure TF510CON.ExcluirTitClick(Sender: TObject);
 var
   x510CON: T510CON;
+  x510ARM: T510ARM;
+  i: Integer;
 begin
   x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
 
   if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
   begin
-    x510CON.Excluir(pred(FGridTit.Line));
-    FControle.ConsistirDelete(x510CON);
+    x510CON.Excluir(pred(FGridTit.Line), FControle);
 
     if (FControle.ListaArm.Count = 0) then
     begin
@@ -566,8 +567,21 @@ begin
       CMessage('Não há informações a listar!', mtErrorInform)
     end
     else
+    begin
+      FGridArm.Clear;
+      for i := 0 to pred(FControle.ListaArm.Count) do
+      begin
+        x510ARM := T510CON(FControle.ListaArm[i]);
+
+        FGridArm.Add;
+        FGridArm.AddFields(x510ARM);
+      end;
+
       FGridArmEnterLine(Self);
-  end;
+    end;
+  end
+  else
+    Abort;
 end;
 
 procedure TF510CON.MarcarClick(Sender: TObject);
@@ -699,7 +713,7 @@ begin
   FGridTit.CheckFields('Check', x510CON.Check);
 
   Excluir.Enabled := FControle.ListaArm.Selecionados;
-  ExcluirTit.Enabled := x510CON.ListaTit.Selecionados;
+  ExcluirTit.Enabled := False;
 end;
 
 procedure TF510CON.FGridArmEnterLine(Sender: TObject);
@@ -748,6 +762,28 @@ var
   i,j: Integer;
   x510TIT: T510TIT;
   x510CON: T510CON;
+
+  function QuantidadeSelecionada(): Boolean;
+  var
+    y: Integer;
+    xCont: Integer;
+  begin
+    xCont := 0;
+    Result := True;
+
+    for y := 0 to pred(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit.Count) do
+      if (T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[y]).Check = 1) then
+      begin
+        Inc(xCont);
+
+        if (xCont > 1) then
+        begin
+          Result := False;
+          Break;
+        end;
+      end;
+  end;
+
 begin
   x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   x510TIT.Check := iff(x510TIT.Check = 1, 0, 1);
@@ -766,7 +802,7 @@ begin
     FGridArm.FindField('Check').AsInteger := x510TIT.Check;
   end;
 
-  ExcluirTit.Enabled := x510CON.ListaTit.Selecionados;
+  ExcluirTit.Enabled := (x510CON.ListaTit.Selecionados and (QuantidadeSelecionada));
 end;
 
 procedure TF510CON.FGridTitEnterLine(Sender: TObject);
