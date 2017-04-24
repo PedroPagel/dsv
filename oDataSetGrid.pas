@@ -32,6 +32,7 @@ type
     FOldValue: Variant;
     FNewLine: Integer;
     FChangeLine: Boolean;
+    FBackSpace: Boolean;
 
     FForm: TForm;
     FQueryField: THQuery;
@@ -59,8 +60,11 @@ type
     procedure EnterGrid(Sender: TObject);
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
+    procedure ExitCol(Sender: TObject);
     procedure CallCheck();
     procedure CreateFieldOrder(const pIndexFields: string);
+  protected
+    procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
   public
     procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
     procedure Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
@@ -95,7 +99,7 @@ procedure Register;
 implementation
 
 uses
-  oBase, oMensagem;
+  oBase, oMensagem, System.Variants;
 
 procedure Register;
 begin
@@ -120,6 +124,7 @@ begin
   FColumn := 0;
   FCount := 0;
   FChangeLine := False;
+  FBackSpace := False;
 
   FClientDataSet.Close;
   FClientDataSet.FieldDefs.Clear;
@@ -131,6 +136,7 @@ begin
   Self.OnExit := ExitGrid;
   Self.OnKeyPress := GridKeyPress;
   Self.OnColEnter := EnterCol;
+  Self.OnColExit := ExitCol;
 
   CreateFieldOrder(pIndexFields);
 end;
@@ -237,6 +243,13 @@ begin
       FClientDataSet.RecNo := FOldLine;
     end;
 
+
+    if (FBackSpace) and (FOldLine <> FClientDataSet.RecNo) then
+    begin
+      FChangeLine := True;
+      ExitCol(Self);
+    end;
+
     if (FFieldState = gsCallCheck) then
       CallCheck();
   end;
@@ -268,6 +281,28 @@ begin
       Self.Options := Self.Options + [dgEditing]
     else
       Self.Options := Self.Options - [dgEditing];
+  end;
+end;
+
+procedure TDataSetGrid.ExitCol(Sender: TObject);
+begin
+  if (FBackSpace) then
+  begin
+    FBackSpace := False;
+
+    if (VarIsNull(Self.Columns[FOldColumn].Field.Value)) or (FChangeLine) then
+      if (FOldLine <> FClientDataSet.RecNo) then
+      begin
+        FChangeLine := False;
+        FNewLine := FClientDataSet.RecNo;
+        FClientDataSet.RecNo := FOldLine;
+
+        FClientDataSet.Edit;
+        Self.Columns[FOldColumn].Field.Value := FOldValue;
+        FClientDataSet.RecNo := FNewLine;
+      end
+      else
+        Self.Columns[FOldColumn].Field.Value := FOldValue;
   end;
 end;
 
@@ -371,32 +406,14 @@ begin
     if not(FAllowNewLine) and (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
       Abort;
 
-  if (Key = 9) then
-  begin
+  if (key = 9) then
     Abort;
-
-    if (Col = pred(ColCount)) and (Row < pred(RowCount)) then
-    begin
-      if (pred(RowCount) >= 1) then
-      begin
-        Row := Row + 1;
-        Col := 1;
-      end
-      else
-        Abort;
-    end
-    else
-    if (Col < pred(ColCount)) then
-      Col := Col + 1;
-
-    if (Row = pred(RowCount)) and (Col = pred(ColCount)) then
-      Abort;
-  end;
 end;
 
 procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
 var
   xNextCol: Boolean;
+  xSpacePress: Boolean;
 
   procedure NewValue();
   var
@@ -413,61 +430,102 @@ var
     FFieldState := iff(xReadOnly, gsBrowse, gsNewValue);
   end;
 
-begin
-  xNextCol := (Key = #13);
-
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
-    ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
+  procedure SpacePress();
+  var
+    i: Integer;
   begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+    if (Assigned(FCheckList)) then
     begin
-      key := #0;
-      FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
-  end
-  else
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftFixedChar, ftString, ftWideString]) then
-  begin
-    if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
-    begin
-        Key := #0;
-        FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
-  end
-  else
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftDate, ftDateTime]) then
-  begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
-    begin
-      key := #0;
-      FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
+      for i := 0 to pred(FCheckList.Count) do
+      begin
+        if AnsiSameText(Self.Columns[pred(Col)].FieldName,FCheckList[i]) then
+        begin
+          Self.FindField(Self.Columns[pred(Col)].FieldName).AsInteger := iff(Self.FindField(Self.Columns[pred(Col)].FieldName).AsInteger = 0, 1, 0);
+          CheckMethod(Self.Columns[pred(Col)].FieldName, cmClick);
+          Break;
+        end;
+      end;
+    end;
   end;
 
-  if (xNextCol) then
+begin
+  FFieldState := iff(AnsiSameText(Key, #13) and (FFieldState = gsNewValue), gsNewValue, gsBrowse);
+
+  if not(AnsiSameText(Key, #9)) then
   begin
-    if (Self.Col < pred(ColCount)) then
-      Self.Col := Self.Col + 1
-    else
-    if not(FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+    xNextCol := AnsiSameText(Key, #13);
+    xSpacePress := AnsiSameText(Key, #32);
+    FBackSpace := iff((AnsiSameText(Key,#8) or ((xNextCol) and
+      VarIsNull(Self.Columns[FOldColumn].Field.Value) and FBackSpace)), True, False);
+
+    if (xSpacePress) then
+      SpacePress();
+
+    if not(xNextCol or xSpacePress) and not(FBackSpace) then
+      if (FClientDataSet.FieldDefs[Pred(Col)].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
+        ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
+      begin
+        if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+        begin
+          key := #0;
+          FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end
+      else
+      if (FClientDataSet.FieldDefs[Pred(Col)].DataType in [ftFixedChar, ftString, ftWideString]) then
+      begin
+        if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
+        begin
+            Key := #0;
+            FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end
+      else
+      if (FClientDataSet.FieldDefs[Pred(Col)].DataType in [ftDate, ftDateTime]) then
+      begin
+        if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+        begin
+          key := #0;
+          FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end;
+
+    if (FBackSpace) then
     begin
-      FClientDataSet.RecNo := FClientDataSet.RecNo + 1;
-      Col := 1;
-    end
-    else
-    if (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
-    begin
-      FClientDataSet.RecNo := 1;
-      Col := 1;
+      if not(xNextCol) then
+      begin
+        FOldColumn := pred(Col);
+        FOldLine := FClientDataSet.RecNo;
+        FOldValue := Self.Columns[pred(Col)].Field.Value;
+      end;
     end;
 
-    EnterCol(Self);
+    if (xNextCol) then
+    begin
+      if (Self.Col < pred(ColCount)) then
+        Self.Col := Self.Col + 1
+      else
+      if not(FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+      begin
+        FClientDataSet.RecNo := FClientDataSet.RecNo + 1;
+        Col := 1;
+      end
+      else
+      if (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+      begin
+        FClientDataSet.RecNo := 1;
+        Col := 1;
+      end;
+
+      ExitCol(Self);
+      EnterCol(Self);
+    end;
   end;
 end;
 
@@ -492,7 +550,7 @@ begin
       if AnsiSameText(Column.FieldName,FCheckList[i]) then
       begin
         Self.Canvas.FillRect(Rect);
-        xCheck := iff(FClientDataSet.FieldByName(Column.FieldName).AsInteger = 1, DFCS_CHECKED, DFCS_BUTTONCHECK);
+        xCheck := iff((FClientDataSet.FieldByName(Column.FieldName).AsInteger = 1), DFCS_CHECKED, DFCS_BUTTONCHECK);
 
         xRec := Rect;
         InflateRect(xRec,-2,-2);
@@ -710,6 +768,11 @@ begin
       Break;
     end;
   end;
+end;
+
+procedure TDataSetGrid.ActionChange(Sender: TObject; CheckDefaults: Boolean);
+begin
+  inherited;
 end;
 
 procedure TDataSetGrid.Add;

@@ -557,7 +557,7 @@ var
 begin
   x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
 
-  if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
+  if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o registro selecionado?', mtConfirmationYesNo)) then
   begin
     x510CON.Excluir(pred(FGridTit.Line), FControle);
 

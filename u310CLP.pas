@@ -168,6 +168,7 @@ type
     procedure MostrarReajuste();
     procedure MostrarLigacao();
     procedure ValidarSelecao();
+    procedure CalcularReajuste(const pIndice: Double);
 
     function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String; const pEspaco,pDecimal: Integer): String;
   published
@@ -468,6 +469,32 @@ begin
   pObj.SelStart := length(pObj.text)+1;
 end;
 
+procedure TF310CLP.CalcularReajuste(const pIndice: Double);
+var
+  xControle: TControle;
+begin
+  FIteradorReajuste.IndexCtr := pred(FGridCon.Line);
+  FIteradorReajuste.IndexTit := pred(FGridRea.Line);
+  FIteradorReajuste.ValorIndice := pIndice;
+  FIteradorReajuste.CalcularAjustes();
+
+  if (pIndice = 0) then
+  begin
+    FGridRea.FindField('Check').AsInteger := 0;
+    xControle := TControle(FIteradorReajuste[FIteradorReajuste.IndexCtr]);
+
+    if not(xControle.Ajuste.Selecionados) then
+    begin
+      FGridCon.FindField('Check').AsInteger := 0;
+      xControle.Check := 0;
+    end;
+  end;
+
+  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
+  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
+  LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
+end;
+
 procedure TF310CLP.CancelarClick(Sender: TObject);
 begin
   BECodFil.Text := EmptyStr;
@@ -671,6 +698,14 @@ begin
   begin
     FGridCon.CheckFields('Check', pValue);
     FIteradorReajuste.MarcarDesmarcar(pValue);
+    FGridConEnterLine(Self);
+
+    if (pValue = 0) then
+    begin
+      LTotOri.Caption := '0.00';
+      LTotRea.Caption := '0.00';
+      LDifRea.Caption := '0.00';
+    end;
   end
   else
   begin
@@ -702,6 +737,7 @@ begin
 
      FIteradorLigacao.MarcarDesmarcarLigacoes(xCheck);
      FGridClp.First;
+     FGridClpEnterLine(Self);
      ValidarSelecao();
     end;
   end
@@ -711,7 +747,6 @@ begin
     begin
       FGridDes.CheckFields('Check', xCheck);
       FIteradorLigacao.MarcarDesmarcarDespesas(xCheck);
-      FGridLigCheckClick();
       ValidarSelecao();
     end;
   end;
@@ -1024,9 +1059,8 @@ begin
   FGridDes.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
-  FGridRea.AddColumn('IndRea', '% Índice Atual', ftFloat);
-  FGridRea.AddColumn('IndNov', '% Índice Reajuste', ftFloat);
-  FGridRea.AddColumn('LocDsc', 'Desconto do Locatário', ftFloat);
+  FGridRea.AddColumn('IndRea', '% Índice Cadastro', ftFloat);
+  FGridRea.AddColumn('IndNov', '% Índice Manual', ftFloat);
 
   FGridRea.CreateDataSet;
   FGridCon.CreateDataSet;
@@ -1044,7 +1078,6 @@ begin
   FGridDes.NumericField('VlrOri', '###,###,##0.00');
   FGridDes.NumericField('VlrAbe', '###,###,##0.00');
   FGridRea.NumericField('IndNov', '###,###,##0.00');
-  FGridRea.NumericField('LocDsc', '###,###,##0.00');
   FGridRea.NumericField('VlrOri', '###,###,##0.00');
   FGridRea.NumericField('VlrAbe', '###,###,##0.00');
 
@@ -1128,6 +1161,11 @@ begin
   xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
   x301tcr := T301TCR(xControle.Ajuste[pred(FGridRea.Line)]);
   x301tcr.Check := iff(x301tcr.Check = 1, 0, 1);
+  FGridRea.FindField('Check').AsInteger := x301tcr.Check;
+
+  FIteradorReajuste.RemoverCalculos := (x301tcr.Check = 0);
+  CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
+    FGridRea.FindField('IndNov').AsFloat));
 
   if not(xControle.Ajuste.Selecionados) then
   begin
@@ -1143,11 +1181,12 @@ end;
 
 procedure TF310CLP.FGridReaIndNovChange;
 begin
-  FIteradorReajuste.RecalcularAjustes(FGridRea.FindField('IndNov').AsFloat, pred(FGridCon.Line), pred(FGridRea.Line));
-  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
-
-  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
-  LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
+  if (FGridRea.FindField('Check').AsInteger = 1) then
+  begin
+    CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
+      FGridRea.FindField('IndNov').AsFloat));
+    FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
+  end;
 end;
 
 function TF310CLP.FiltroContrato: string;
