@@ -23,7 +23,7 @@ type
     Processar: TButton;
     Marcar: TButton;
     Desmarcar: TButton;
-    GroupBox2: TGroupBox;
+    GBContrato: TGroupBox;
     Label2: TLabel;
     Label10: TLabel;
     Label13: TLabel;
@@ -69,7 +69,7 @@ type
     Panel20: TPanel;
     Panel21: TPanel;
     FGridDes: TDataSetGrid;
-    GroupBox1: TGroupBox;
+    GBTitulo: TGroupBox;
     Label8: TLabel;
     Label7: TLabel;
     Label5: TLabel;
@@ -91,11 +91,31 @@ type
     ListarGrids: TPopupMenu;
     Ligado: TMenuItem;
     NaoLigado: TMenuItem;
+    LigacaoBem: TTabSheet;
+    Panel15: TPanel;
+    Splitter5: TSplitter;
+    Splitter6: TSplitter;
+    Panel18: TPanel;
+    Panel22: TPanel;
+    FGridBem: TDataSetGrid;
+    Panel23: TPanel;
+    Panel24: TPanel;
+    FGridBlg: TDataSetGrid;
+    Panel25: TPanel;
+    Panel26: TPanel;
+    Panel27: TPanel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    FGridBnl: TDataSetGrid;
+    GBBem: TGroupBox;
+    BEEmpBem: THButtonedEdit;
+    BECodBem: THButtonedEdit;
+    Label9: TLabel;
+    Label14: TLabel;
 
     procedure FormCreate(Sender: TObject);
-    procedure BECodFilRightButtonClick(Sender: TObject);
-    procedure BENumCtrRightButtonClick(Sender: TObject);
-    procedure BECodCliRightButtonClick(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CancelarClick(Sender: TObject);
@@ -121,12 +141,9 @@ type
     procedure PGControlDrawTab(Control: TCustomTabControl; TabIndex: Integer;
       const Rect: TRect; Active: Boolean);
     procedure PGControlChange(Sender: TObject);
-    procedure BECodEmpRightButtonClick(Sender: TObject);
     procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
-    procedure BETitFilRightButtonClick(Sender: TObject);
     procedure BETitFilKeyPress(Sender: TObject; var Key: Char);
     procedure BETitFilExit(Sender: TObject);
-    procedure BECodForRightButtonClick(Sender: TObject);
     procedure BECodForKeyPress(Sender: TObject; var Key: Char);
     procedure BECodForExit(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
@@ -208,11 +225,6 @@ begin
     key := #0;
 end;
 
-procedure TF310CLP.BECodFilRightButtonClick(Sender: TObject);
-begin
-  BECodFil.LookupData;
-end;
-
 procedure TF310CLP.BECodForExit(Sender: TObject);
 begin
   FString := BECodFor.Text;
@@ -228,11 +240,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BECodForRightButtonClick(Sender: TObject);
-begin
-  BECodFor.LookupData;
 end;
 
 procedure TF310CLP.BECodCliExit(Sender: TObject);
@@ -252,11 +259,6 @@ begin
     key := #0;
 end;
 
-procedure TF310CLP.BECodCliRightButtonClick(Sender: TObject);
-begin
-  BECodCli.LookupData;
-end;
-
 procedure TF310CLP.BECodEmpKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodEmp.Text;
@@ -265,11 +267,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BECodEmpRightButtonClick(Sender: TObject);
-begin
-  BECodEmp.LookupData;
 end;
 
 procedure TF310CLP.BENumCtrExit(Sender: TObject);
@@ -289,11 +286,6 @@ begin
     Key := #0;
 end;
 
-procedure TF310CLP.BENumCtrRightButtonClick(Sender: TObject);
-begin
-  BENumCtr.LookupData;
-end;
-
 procedure TF310CLP.BETitFilExit(Sender: TObject);
 begin
   FString := BECodFil.Text;
@@ -309,11 +301,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BETitFilRightButtonClick(Sender: TObject);
-begin
-  BETitFil.LookupData;
 end;
 
 procedure TF310CLP.BEVlrFimChange(Sender: TObject);
@@ -425,8 +412,18 @@ begin
     end;
   end
   else
+  if (PGControl.TabIndex = 1) then
   begin
     if (FGridClp.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
+    begin
+      CancelarClick(Self);
+      Self.Close;
+    end;
+  end
+  else
+  if (PGControl.TabIndex = 2) then
+  begin
+    if (FGridBem.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
     begin
       CancelarClick(Self);
       Self.Close;
@@ -543,8 +540,11 @@ begin
   FGridLig.Clear;
   FGridDes.Clear;
   FGridClp.Clear;
-  BECodFil.SetFocus;
+
   PGControl.TabIndex := 0;
+  PGControlChange(Self);
+
+  BECodFil.SetFocus;
   BloquearCamposTitulo(False);
 end;
 
@@ -866,6 +866,22 @@ begin
 
   Marcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
   Desmarcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
+
+  if (PGControl.TabIndex in [0,1]) then
+  begin
+    GBBem.Visible := False;
+    GBContrato.Visible := True;
+    GBTitulo.Visible := True;
+    GBContrato.Align := alLeft;
+    GBTitulo.Align := alClient;
+  end
+  else
+  begin
+    GBBem.Align := alClient;
+    GBBem.Visible := True;
+    GBContrato.Visible := False;
+    GBTitulo.Visible := False;
+  end;
 end;
 
 procedure TF310CLP.PGControlDrawTab(Control: TCustomTabControl;
@@ -1038,6 +1054,11 @@ begin
   BETitFil.CreateLookup();
   BECodFor.CreateLookup();
 
+  //Bem
+  BEEmpBem.CreateLookup();
+  BECodBem.CreateLookup();
+  BECodBem.AddFilterLookup(BEEmpBem);
+
   BECodFil.Filter := Format('CODEMP = %d', [1]);
   BENumCtr.Filter := 'TIPCTR = 3 AND (NUMCTR IN (SELECT USU_NUMCTR FROM USU_T160CLP))';
   Ligar.Hint := 'Liga o(s) título(s) selecionado(s) ao contrato.';
@@ -1088,6 +1109,11 @@ begin
 
   PGControl.OwnerDraw := True;
   PGControl.TabIndex := 0;
+  GBBem.Visible := False;
+  GBContrato.Align := alLeft;
+  GBTitulo.Align := alClient;
+
+  Self.ClientWidth := 989;
   BloquearCamposTitulo(False);
 end;
 

@@ -5,7 +5,7 @@ object F310CLP: TF310CLP
   BorderStyle = bsSingle
   Caption = '  Controle de Loca'#231#227'o de Patrim'#244'nio'
   ClientHeight = 692
-  ClientWidth = 989
+  ClientWidth = 1143
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,19 +22,19 @@ object F310CLP: TF310CLP
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 989
+    Width = 1143
     Height = 692
     Align = alClient
     TabOrder = 0
     object Panel2: TPanel
       Left = 1
       Top = 1
-      Width = 987
+      Width = 1141
       Height = 155
       Align = alTop
       TabOrder = 0
       object Panel10: TPanel
-        Left = 810
+        Left = 964
         Top = 1
         Width = 176
         Height = 153
@@ -131,10 +131,10 @@ object F310CLP: TF310CLP
           OnClick = DesmarcarClick
         end
       end
-      object GroupBox2: TGroupBox
+      object GBContrato: TGroupBox
         Left = 1
         Top = 1
-        Width = 400
+        Width = 332
         Height = 153
         Align = alLeft
         Caption = 'Contrato(s)'
@@ -220,11 +220,11 @@ object F310CLP: TF310CLP
           TabOrder = 2
           OnExit = BENumCtrExit
           OnKeyPress = BENumCtrKeyPress
-          OnRightButtonClick = BENumCtrRightButtonClick
           IndexFields = 'CODEMP;CODFIL;NUMCTR'
           Table = 'E160CTR'
           Lookup = True
           Field = 'NUMCTR'
+          AvoidSelections = False
         end
         object DDatIni: TDateTimePicker
           Left = 90
@@ -279,11 +279,11 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 0
-          OnRightButtonClick = BECodFilRightButtonClick
           IndexFields = 'CODEMP;CODFIL;NOMFIL'
           Table = 'E070FIL'
           Lookup = True
           Field = 'CODFIL'
+          AvoidSelections = False
         end
         object BECodCli: THButtonedEdit
           Left = 89
@@ -301,19 +301,19 @@ object F310CLP: TF310CLP
           TabOrder = 1
           OnExit = BECodCliExit
           OnKeyPress = BECodCliKeyPress
-          OnRightButtonClick = BECodCliRightButtonClick
           IndexFields = 'CODCLI'
           Table = 'E085CLI'
           Lookup = True
           Field = 'CODCLI'
+          AvoidSelections = False
         end
       end
-      object GroupBox1: TGroupBox
-        Left = 406
+      object GBTitulo: TGroupBox
+        Left = 333
         Top = 1
-        Width = 404
+        Width = 324
         Height = 153
-        Align = alRight
+        Align = alLeft
         Caption = 'T'#237'tulo(s) - N'#227'o Ligado(s)'
         TabOrder = 2
         object Label8: TLabel
@@ -442,6 +442,7 @@ object F310CLP: TF310CLP
           OnExit = BEVlrFimExit
           OnKeyPress = BEVlrFimKeyPress
           Lookup = False
+          AvoidSelections = False
         end
         object DVenIni: TDateTimePicker
           Left = 78
@@ -480,6 +481,7 @@ object F310CLP: TF310CLP
           OnExit = BEVlrIniExit
           OnKeyPress = BEVlrIniKeyPress
           Lookup = False
+          AvoidSelections = False
         end
         object BECodFor: THButtonedEdit
           Left = 78
@@ -497,11 +499,11 @@ object F310CLP: TF310CLP
           TabOrder = 2
           OnExit = BECodForExit
           OnKeyPress = BECodForKeyPress
-          OnRightButtonClick = BECodForRightButtonClick
           IndexFields = 'CODFOR;NOMFOR'
           Table = 'E095FOR'
           Lookup = True
           Field = 'CODFOR'
+          AvoidSelections = False
         end
         object BETitFil: THButtonedEdit
           Left = 78
@@ -519,11 +521,11 @@ object F310CLP: TF310CLP
           TabOrder = 1
           OnExit = BETitFilExit
           OnKeyPress = BETitFilKeyPress
-          OnRightButtonClick = BETitFilRightButtonClick
           IndexFields = 'CODEMP;CODFIL;NOMFIL'
           Table = 'E070FIL'
           Lookup = True
           Field = 'CODFIL'
+          AvoidSelections = False
         end
         object BECodEmp: THButtonedEdit
           Left = 78
@@ -540,20 +542,90 @@ object F310CLP: TF310CLP
           RightButton.Visible = True
           TabOrder = 0
           OnKeyPress = BECodEmpKeyPress
-          OnRightButtonClick = BECodEmpRightButtonClick
           IndexFields = 'CODEMP;NOMEMP'
           Table = 'E070EMP'
           Lookup = True
           Field = 'CODEMP'
+          AvoidSelections = False
+        end
+      end
+      object GBBem: TGroupBox
+        Left = 663
+        Top = 0
+        Width = 288
+        Height = 153
+        Caption = 'Patrim'#244'nio'
+        TabOrder = 3
+        object Label9: TLabel
+          Left = 29
+          Top = 35
+          Width = 45
+          Height = 13
+          Caption = 'Empresa:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object Label14: TLabel
+          Left = 20
+          Top = 62
+          Width = 54
+          Height = 13
+          Caption = 'Patrim'#244'nio:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object BEEmpBem: THButtonedEdit
+          Left = 80
+          Top = 32
+          Width = 68
+          Height = 21
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          IndexFields = 'CODEMP;NOMEMP'
+          Table = 'E070EMP'
+          Lookup = True
+          Field = 'CODEMP'
+          AvoidSelections = True
+        end
+        object BECodBem: THButtonedEdit
+          Left = 80
+          Top = 59
+          Width = 199
+          Height = 21
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          IndexFields = 'CODEMP;CODBEM'
+          Table = 'E670BEM'
+          Lookup = True
+          Field = 'CODBEM'
+          AvoidSelections = True
         end
       end
     end
     object PGControl: TPageControl
       Left = 1
       Top = 156
-      Width = 987
+      Width = 1141
       Height = 535
-      ActivePage = Reajuste
+      ActivePage = LigacaoBem
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -575,7 +647,7 @@ object F310CLP: TF310CLP
         object Panel6: TPanel
           Left = 0
           Top = 0
-          Width = 979
+          Width = 1133
           Height = 507
           Align = alClient
           ParentBackground = False
@@ -583,7 +655,7 @@ object F310CLP: TF310CLP
           object Splitter1: TSplitter
             Left = 1
             Top = 147
-            Width = 977
+            Width = 1131
             Height = 2
             Cursor = crVSplit
             Align = alTop
@@ -593,7 +665,7 @@ object F310CLP: TF310CLP
           object Splitter3: TSplitter
             Left = 1
             Top = 292
-            Width = 977
+            Width = 1131
             Height = 2
             Cursor = crVSplit
             Align = alTop
@@ -603,14 +675,14 @@ object F310CLP: TF310CLP
           object Panel7: TPanel
             Left = 1
             Top = 1
-            Width = 977
+            Width = 1131
             Height = 146
             Align = alTop
             TabOrder = 0
             object Panel4: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 16
               Align = alTop
               Caption = 'Contrato(s)'
@@ -625,7 +697,7 @@ object F310CLP: TF310CLP
             object FGridCon: TDataSetGrid
               Left = 1
               Top = 17
-              Width = 975
+              Width = 1129
               Height = 128
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -649,7 +721,7 @@ object F310CLP: TF310CLP
           object Panel8: TPanel
             Left = 1
             Top = 149
-            Width = 977
+            Width = 1131
             Height = 143
             Align = alTop
             Caption = 'Panel5'
@@ -657,7 +729,7 @@ object F310CLP: TF310CLP
             object Panel12: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 16
               Align = alTop
               Caption = 'T'#237'tulo(s) - Valor Sem Reajuste'
@@ -672,7 +744,7 @@ object F310CLP: TF310CLP
             object FGridTit: TDataSetGrid
               Left = 1
               Top = 17
-              Width = 975
+              Width = 1129
               Height = 125
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -695,14 +767,14 @@ object F310CLP: TF310CLP
           object Panel13: TPanel
             Left = 1
             Top = 294
-            Width = 977
+            Width = 1131
             Height = 165
             Align = alClient
             TabOrder = 2
             object Panel9: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 22
               Align = alTop
               Caption = 'T'#237'tulo(s) - Valor Com Reajuste'
@@ -711,7 +783,7 @@ object F310CLP: TF310CLP
             object FGridRea: TDataSetGrid
               Left = 1
               Top = 23
-              Width = 975
+              Width = 1129
               Height = 141
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -733,7 +805,7 @@ object F310CLP: TF310CLP
           object Panel3: TPanel
             Left = 1
             Top = 459
-            Width = 977
+            Width = 1131
             Height = 47
             Align = alBottom
             TabOrder = 3
@@ -785,14 +857,10 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
-          Width = 979
+          Width = 1133
           Height = 507
           Align = alClient
           ParentBackground = False
@@ -800,7 +868,7 @@ object F310CLP: TF310CLP
           object Splitter2: TSplitter
             Left = 1
             Top = 156
-            Width = 977
+            Width = 1131
             Height = 3
             Cursor = crVSplit
             Align = alTop
@@ -811,7 +879,7 @@ object F310CLP: TF310CLP
           object Splitter4: TSplitter
             Left = 1
             Top = 319
-            Width = 977
+            Width = 1131
             Height = 3
             Cursor = crVSplit
             Align = alTop
@@ -821,14 +889,14 @@ object F310CLP: TF310CLP
           object Panel5: TPanel
             Left = 1
             Top = 1
-            Width = 977
+            Width = 1131
             Height = 155
             Align = alTop
             TabOrder = 0
             object Panel14: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 16
               Align = alTop
               Caption = 'Contrato(s)'
@@ -843,7 +911,7 @@ object F310CLP: TF310CLP
             object FGridClp: TDataSetGrid
               Left = 1
               Top = 17
-              Width = 975
+              Width = 1129
               Height = 137
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -866,14 +934,14 @@ object F310CLP: TF310CLP
           object Panel16: TPanel
             Left = 1
             Top = 159
-            Width = 977
+            Width = 1131
             Height = 160
             Align = alTop
             TabOrder = 1
             object Panel17: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 16
               Align = alTop
               Caption = 'T'#237'tulo(s) - Ligado(s)'
@@ -882,7 +950,7 @@ object F310CLP: TF310CLP
             object FGridLig: TDataSetGrid
               Left = 1
               Top = 17
-              Width = 975
+              Width = 1129
               Height = 142
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
@@ -904,14 +972,14 @@ object F310CLP: TF310CLP
           object Panel19: TPanel
             Left = 1
             Top = 322
-            Width = 977
+            Width = 1131
             Height = 184
             Align = alClient
             TabOrder = 2
             object Panel20: TPanel
               Left = 1
               Top = 1
-              Width = 975
+              Width = 1129
               Height = 16
               Align = alTop
               Caption = 'T'#237'tulo(s) - N'#227'o Ligado(s)'
@@ -920,7 +988,7 @@ object F310CLP: TF310CLP
             object Panel21: TPanel
               Left = 1
               Top = 142
-              Width = 975
+              Width = 1129
               Height = 41
               Align = alBottom
               TabOrder = 1
@@ -990,7 +1058,232 @@ object F310CLP: TF310CLP
             object FGridDes: TDataSetGrid
               Left = 1
               Top = 17
-              Width = 975
+              Width = 1129
+              Height = 125
+              Align = alClient
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+              ParentFont = False
+              TabOrder = 2
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -11
+              TitleFont.Name = 'Tahoma'
+              TitleFont.Style = []
+              AllowNewLine = False
+            end
+          end
+        end
+      end
+      object LigacaoBem: TTabSheet
+        Caption = 'Liga'#231#227'o Bem x Bem'
+        ImageIndex = 2
+        object Panel15: TPanel
+          Left = 0
+          Top = 0
+          Width = 1133
+          Height = 507
+          Align = alClient
+          ParentBackground = False
+          TabOrder = 0
+          object Splitter5: TSplitter
+            Left = 1
+            Top = 156
+            Width = 1131
+            Height = 3
+            Cursor = crVSplit
+            Align = alTop
+            ExplicitLeft = 905
+            ExplicitTop = 273
+            ExplicitWidth = 240
+          end
+          object Splitter6: TSplitter
+            Left = 1
+            Top = 319
+            Width = 1131
+            Height = 3
+            Cursor = crVSplit
+            Align = alTop
+            ExplicitTop = 359
+            ExplicitWidth = 154
+          end
+          object Panel18: TPanel
+            Left = 1
+            Top = 1
+            Width = 1131
+            Height = 155
+            Align = alTop
+            TabOrder = 0
+            object Panel22: TPanel
+              Left = 1
+              Top = 1
+              Width = 1129
+              Height = 16
+              Align = alTop
+              Caption = 'Patrim'#244'nio Mestre'
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = [fsBold]
+              ParentFont = False
+              TabOrder = 0
+            end
+            object FGridBem: TDataSetGrid
+              Left = 1
+              Top = 17
+              Width = 1129
+              Height = 137
+              Align = alClient
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+              ParentFont = False
+              TabOrder = 1
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -11
+              TitleFont.Name = 'Tahoma'
+              TitleFont.Style = []
+              OnEnterLine = FGridClpEnterLine
+              AllowNewLine = False
+            end
+          end
+          object Panel23: TPanel
+            Left = 1
+            Top = 159
+            Width = 1131
+            Height = 160
+            Align = alTop
+            TabOrder = 1
+            object Panel24: TPanel
+              Left = 1
+              Top = 1
+              Width = 1129
+              Height = 16
+              Align = alTop
+              Caption = 'Patrim'#244'nio(s) - Ligado(s)'
+              TabOrder = 0
+            end
+            object FGridBlg: TDataSetGrid
+              Left = 1
+              Top = 17
+              Width = 1129
+              Height = 142
+              Align = alClient
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clBlack
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+              ParentFont = False
+              TabOrder = 1
+              TitleFont.Charset = DEFAULT_CHARSET
+              TitleFont.Color = clBlack
+              TitleFont.Height = -11
+              TitleFont.Name = 'Tahoma'
+              TitleFont.Style = []
+              AllowNewLine = False
+            end
+          end
+          object Panel25: TPanel
+            Left = 1
+            Top = 322
+            Width = 1131
+            Height = 184
+            Align = alClient
+            TabOrder = 2
+            object Panel26: TPanel
+              Left = 1
+              Top = 1
+              Width = 1129
+              Height = 16
+              Align = alTop
+              Caption = 'Patrim'#244'nio(s) - N'#227'o Ligado(s)'
+              TabOrder = 0
+            end
+            object Panel27: TPanel
+              Left = 1
+              Top = 142
+              Width = 1129
+              Height = 41
+              Align = alBottom
+              TabOrder = 1
+              object Button1: TButton
+                Left = 17
+                Top = 6
+                Width = 75
+                Height = 25
+                Caption = '&Ligar'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 0
+                OnClick = LigarClick
+              end
+              object Button2: TButton
+                Left = 98
+                Top = 6
+                Width = 75
+                Height = 25
+                Caption = '&Remover'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clWindowText
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                TabOrder = 1
+                OnClick = RemoverClick
+              end
+              object Button3: TButton
+                Left = 179
+                Top = 6
+                Width = 75
+                Height = 25
+                Caption = 'Marcar (&1)'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                PopupMenu = ListarGrids
+                TabOrder = 2
+                OnClick = MarcarGridsClick
+              end
+              object Button4: TButton
+                Left = 260
+                Top = 6
+                Width = 75
+                Height = 25
+                Caption = 'Desmarcar (&2)'
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                PopupMenu = ListarGrids
+                TabOrder = 3
+                OnClick = DesmarcarGridsClick
+              end
+            end
+            object FGridBnl: TDataSetGrid
+              Left = 1
+              Top = 17
+              Width = 1129
               Height = 125
               Align = alClient
               Font.Charset = DEFAULT_CHARSET

@@ -266,18 +266,19 @@ object F510CON: TF510CON
           Top = 79
           Width = 145
           Height = 21
+          Style = csDropDownList
+          BiDiMode = bdRightToLeftReadingOnly
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
-          ItemIndex = 2
+          ParentBiDiMode = False
           ParentFont = False
           TabOrder = 4
-          Text = 'Todos'
           Items.Strings = (
-            'Associado(s)'
-            'N'#227'o Associado(s)'
+            'Associados'
+            'N'#227'o Associados'
             'Todos')
         end
         object DVenFim: TDateTimePicker
@@ -368,7 +369,6 @@ object F510CON: TF510CON
           TabOrder = 8
           OnExit = BECodForExit
           OnKeyPress = BECodForKeyPress
-          OnRightButtonClick = BECodForRightButtonClick
           IndexFields = 'CODFOR;NOMFOR'
           Table = 'E095FOR'
           Lookup = True
@@ -390,7 +390,6 @@ object F510CON: TF510CON
           TabOrder = 1
           OnExit = BECodFilExit
           OnKeyPress = BECodFilKeyPress
-          OnRightButtonClick = BECodFilRightButtonClick
           IndexFields = 'CODEMP;CODFIL;NOMFIL'
           Table = 'E070FIL'
           Lookup = True
@@ -412,7 +411,6 @@ object F510CON: TF510CON
           TabOrder = 0
           OnExit = BECodEmpExit
           OnKeyPress = BECodEmpKeyPress
-          OnRightButtonClick = BECodEmpRightButtonClick
           IndexFields = 'CODEMP;NOMEMP'
           Table = 'E070EMP'
           Lookup = True
@@ -527,7 +525,6 @@ object F510CON: TF510CON
           TabOrder = 5
           OnExit = BECodPorExit
           OnKeyPress = BECodPorKeyPress
-          OnRightButtonClick = BECodPorRightButtonClick
           IndexFields = 'CODEMP;CODPOR;DESPOR'
           Table = 'E039POR'
           Lookup = True
@@ -577,17 +574,20 @@ object F510CON: TF510CON
           Top = 106
           Width = 145
           Height = 21
+          Style = csDropDownList
+          BiDiMode = bdRightToLeftReadingOnly
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
+          ParentBiDiMode = False
           ParentFont = False
           TabOrder = 1
           OnChange = cbSituacaoArmChange
           Items.Strings = (
-            'Armazenado(s)'
-            'N'#227'o Armazenado(s)'
+            'Armazenados'
+            'N'#227'o Armazenados'
             'Todos')
         end
         object DFinFim: TDateTimePicker

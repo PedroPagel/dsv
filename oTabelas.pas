@@ -551,6 +551,159 @@ type
     property USU_PerExc: Char read GetPerExc Write SetPerExc;
   end;
 
+  T670BEM = class(TTabelaPadrao)
+  private
+    FCodEmp: Word;
+    FCodBem: string;
+    FDesBem: string;
+    FCodTns: string;
+    FCodEsp: Word;
+    FQtdItm: Word;
+    FCodTur: Byte;
+    FDatAqi: TDate;
+    FDatIcl: TDate;
+    FDatIcg: TDate;
+    FDatEnt: TDate;
+    FFilAqi: Word;
+    FFilLoc: Word;
+    FDatIin: TDate;
+    FDatFin: TDate;
+    FDatIac: TDate;
+    FDatFac: TDate;
+    FDatIig: TDate;
+    FDatFig: TDate;
+    FDatIag: TDate;
+    FDatFag: TDate;
+    FCcuExe: string;
+    FCodCre: string;
+    FCodInv: string;
+    FCodPen: Word;
+    FDatPen: TDate;
+    FCtaRed: Integer;
+    FEspDoc: Char;
+    FEmpNfc: Word;
+    FFilNfc: Word;
+    FCodFor: Integer;
+    FNomFor: string;
+    FCodSnf: string;
+    FNumDoc: Integer;
+    FMetImo: Double;
+    FBemClp: Char;
+    FMetCon: Double;
+    function GetBemClp: Char;
+    function GetCcuExe: string;
+    function GetCodBem: string;
+    function GetCodCre: string;
+    function GetCodEmp: Word;
+    function GetCodEsp: Word;
+    function GetCodFor: Integer;
+    function GetCodInv: string;
+    function GetCodPen: Word;
+    function GetCodSnf: string;
+    function GetCodTns: string;
+    function GetCodTur: Byte;
+    function GetCtaRed: Integer;
+    function GetDatAqi: TDate;
+    function GetDatEnt: TDate;
+    function GetDatFac: TDate;
+    function GetDatFag: TDate;
+    function GetDatFig: TDate;
+    function GetDatFin: TDate;
+    function GetDatIac: TDate;
+    function GetDatIag: TDate;
+    function GetDatIcg: TDate;
+    function GetDatIcl: TDate;
+    function GetDatIig: TDate;
+    function GetDatIin: TDate;
+    function GetDatPen: TDate;
+    function GetDesBem: string;
+    function GetEmpNfc: Word;
+    function GetEspDoc: Char;
+    function GetFilAqi: Word;
+    function GetFilLoc: Word;
+    function GetFilNfc: Word;
+    function GetMetCon: Double;
+    function GetMetImo: Double;
+    function GetNomFor: string;
+    function GetNumDoc: Integer;
+    function GetQtdItm: Word;
+    procedure SetBemClp(const Value: Char);
+    procedure SetCcuExe(const Value: string);
+    procedure SetCodBem(const Value: string);
+    procedure SetCodCre(const Value: string);
+    procedure SetCodEmp(const Value: Word);
+    procedure SetCodEsp(const Value: Word);
+    procedure SetCodFor(const Value: Integer);
+    procedure SetCodInv(const Value: string);
+    procedure SetCodPen(const Value: Word);
+    procedure SetCodSnf(const Value: string);
+    procedure SetCodTns(const Value: string);
+    procedure SetCodTur(const Value: Byte);
+    procedure SetCtaRed(const Value: Integer);
+    procedure SetDatAqi(const Value: TDate);
+    procedure SetDatEnt(const Value: TDate);
+    procedure SetDatFac(const Value: TDate);
+    procedure SetDatFag(const Value: TDate);
+    procedure SetDatFig(const Value: TDate);
+    procedure SetDatFin(const Value: TDate);
+    procedure SetDatIac(const Value: TDate);
+    procedure SetDatIag(const Value: TDate);
+    procedure SetDatIcg(const Value: TDate);
+    procedure SetDatIcl(const Value: TDate);
+    procedure SetDatIig(const Value: TDate);
+    procedure SetDatIin(const Value: TDate);
+    procedure SetDatPen(const Value: TDate);
+    procedure SetDesBem(const Value: string);
+    procedure SetEmpNfc(const Value: Word);
+    procedure SetEspDoc(const Value: Char);
+    procedure SetFilAqi(const Value: Word);
+    procedure SetFilLoc(const Value: Word);
+    procedure SetFilNfc(const Value: Word);
+    procedure SetMetCon(const Value: Double);
+    procedure SetMetImo(const Value: Double);
+    procedure SetNomFor(const Value: string);
+    procedure SetNumDoc(const Value: Integer);
+    procedure SetQtdItm(const Value: Word);
+  public
+    property CodEmp: Word read GetCodEmp write SetCodEmp;
+    property CodBem: string read GetCodBem write SetCodBem;
+    property DesBem: string read GetDesBem write SetDesBem;
+    property CodTns: string read GetCodTns write SetCodTns;
+    property CodEsp: Word read GetCodEsp write SetCodEsp;
+    property QtdItm: Word read GetQtdItm write SetQtdItm;
+    property CodTur: Byte read GetCodTur write SetCodTur;
+    property DatAqi: TDate read GetDatAqi write SetDatAqi;
+    property DatIcl: TDate read GetDatIcl write SetDatIcl;
+    property DatIcg: TDate read GetDatIcg write SetDatIcg;
+    property DatEnt: TDate read GetDatEnt write SetDatEnt;
+    property FilAqi: Word read GetFilAqi write SetFilAqi;
+    property FilLoc: Word read GetFilLoc write SetFilLoc;
+    property DatIin: TDate read GetDatIin write SetDatIin;
+    property DatFin: TDate read GetDatFin write SetDatFin;
+    property DatIac: TDate read GetDatIac write SetDatIac;
+    property DatFac: TDate read GetDatFac write SetDatFac;
+    property DatIig: TDate read GetDatIig write SetDatIig;
+    property DatFig: TDate read GetDatFig write SetDatFig;
+    property DatIag: TDate read GetDatIag write SetDatIag;
+    property DatFag: TDate read GetDatFag write SetDatFag;
+    property CcuExe: string read GetCcuExe write SetCcuExe;
+    property CodCre: string read GetCodCre write SetCodCre;
+    property CodInv: string read GetCodInv write SetCodInv;
+    property CodPen: Word read GetCodPen write SetCodPen;
+    property DatPen: TDate read GetDatPen write SetDatPen;
+    property CtaRed: Integer read GetCtaRed write SetCtaRed;
+    property EspDoc: Char read GetEspDoc write SetEspDoc;
+    property EmpNfc: Word read GetEmpNfc write SetEmpNfc;
+    property FilNfc: Word read GetFilNfc write SetFilNfc;
+    property CodFor: Integer read GetCodFor write SetCodFor;
+    property NomFor: string read GetNomFor write SetNomFor;
+    property CodSnf: string read GetCodSnf write SetCodSnf;
+    property NumDoc: Integer read GetNumDoc write SetNumDoc;
+    property USU_MetImo: Double read GetMetImo write SetMetImo;
+    property USU_BemClp: Char read GetBemClp write SetBemClp;
+    property USU_MetCon: Double read GetMetCon write SetMetCon;
+  end;
+
 implementation
 
 uses
@@ -2190,6 +2343,378 @@ end;
 procedure T510CAD.SetPerExc(const Value: Char);
 begin
   FPerExc := Value;
+end;
+
+{ T670BEM }
+
+function T670BEM.GetBemClp: Char;
+begin
+  Result := FBemClp;
+end;
+
+function T670BEM.GetCcuExe: string;
+begin
+  Result := FCcuExe;
+end;
+
+function T670BEM.GetCodBem: string;
+begin
+  Result := FCodBem;
+end;
+
+function T670BEM.GetCodCre: string;
+begin
+  Result := FCodCre;
+end;
+
+function T670BEM.GetCodEmp: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function T670BEM.GetCodEsp: Word;
+begin
+  Result := FCodEsp;
+end;
+
+function T670BEM.GetCodFor: Integer;
+begin
+  Result := FCodFor;
+end;
+
+function T670BEM.GetCodInv: string;
+begin
+  Result := FCodInv;
+end;
+
+function T670BEM.GetCodPen: Word;
+begin
+  Result := FCodPen;
+end;
+
+function T670BEM.GetCodSnf: string;
+begin
+  Result := FCodSnf;
+end;
+
+function T670BEM.GetCodTns: string;
+begin
+  Result := FCodTns;
+end;
+
+function T670BEM.GetCodTur: Byte;
+begin
+  Result := FCodTur;
+end;
+
+function T670BEM.GetCtaRed: Integer;
+begin
+  Result := FCtaRed;
+end;
+
+function T670BEM.GetDatAqi: TDate;
+begin
+  Result := FDatAqi;
+end;
+
+function T670BEM.GetDatEnt: TDate;
+begin
+  Result := FDatEnt;
+end;
+
+function T670BEM.GetDatFac: TDate;
+begin
+  Result := FDatFac;
+end;
+
+function T670BEM.GetDatFag: TDate;
+begin
+  Result := FDatFag;
+end;
+
+function T670BEM.GetDatFig: TDate;
+begin
+  Result := FDatFig;
+end;
+
+function T670BEM.GetDatFin: TDate;
+begin
+  Result := FDatFin;
+end;
+
+function T670BEM.GetDatIac: TDate;
+begin
+  Result := FDatIac;
+end;
+
+function T670BEM.GetDatIag: TDate;
+begin
+  Result := FDatIag;
+end;
+
+function T670BEM.GetDatIcg: TDate;
+begin
+  Result := FDatIcg;
+end;
+
+function T670BEM.GetDatIcl: TDate;
+begin
+  Result := FDatIcl;
+end;
+
+function T670BEM.GetDatIig: TDate;
+begin
+  Result := FDatIig;
+end;
+
+function T670BEM.GetDatIin: TDate;
+begin
+  Result := FDatIin;
+end;
+
+function T670BEM.GetDatPen: TDate;
+begin
+  Result := FDatPen;
+end;
+
+function T670BEM.GetDesBem: string;
+begin
+  Result := FDesBem;
+end;
+
+function T670BEM.GetEmpNfc: Word;
+begin
+  Result := FEmpNfc;
+end;
+
+function T670BEM.GetEspDoc: Char;
+begin
+  Result := FEspDoc;
+end;
+
+function T670BEM.GetFilAqi: Word;
+begin
+  Result := FFilAqi;
+end;
+
+function T670BEM.GetFilLoc: Word;
+begin
+  Result := FFilLoc;
+end;
+
+function T670BEM.GetFilNfc: Word;
+begin
+  Result := FFilNfc;
+end;
+
+function T670BEM.GetMetCon: Double;
+begin
+  Result := FMetCon;
+end;
+
+function T670BEM.GetMetImo: Double;
+begin
+  Result := FMetImo;
+end;
+
+function T670BEM.GetNomFor: string;
+begin
+  Result := FNomFor;
+end;
+
+function T670BEM.GetNumDoc: Integer;
+begin
+  Result := FNumDoc;
+end;
+
+function T670BEM.GetQtdItm: Word;
+begin
+  Result := FQtdItm;
+end;
+
+procedure T670BEM.SetBemClp(const Value: Char);
+begin
+  FBemClp := Value;
+end;
+
+procedure T670BEM.SetCcuExe(const Value: string);
+begin
+  FCcuExe := Value;
+end;
+
+procedure T670BEM.SetCodBem(const Value: string);
+begin
+  FCodBem := Value;
+end;
+
+procedure T670BEM.SetCodCre(const Value: string);
+begin
+  FCodCre := Value;
+end;
+
+procedure T670BEM.SetCodEmp(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T670BEM.SetCodEsp(const Value: Word);
+begin
+  FCodEsp := Value;
+end;
+
+procedure T670BEM.SetCodFor(const Value: Integer);
+begin
+  FCodFor := Value;
+end;
+
+procedure T670BEM.SetCodInv(const Value: string);
+begin
+  FCodInv := Value;
+end;
+
+procedure T670BEM.SetCodPen(const Value: Word);
+begin
+  FCodPen := Value;
+end;
+
+procedure T670BEM.SetCodSnf(const Value: string);
+begin
+  FCodSnf := Value;
+end;
+
+procedure T670BEM.SetCodTns(const Value: string);
+begin
+  FCodTns := Value;
+end;
+
+procedure T670BEM.SetCodTur(const Value: Byte);
+begin
+  FCodTur := Value;
+end;
+
+procedure T670BEM.SetCtaRed(const Value: Integer);
+begin
+  FCtaRed := Value;
+end;
+
+procedure T670BEM.SetDatAqi(const Value: TDate);
+begin
+  FDatAqi := Value;
+end;
+
+procedure T670BEM.SetDatEnt(const Value: TDate);
+begin
+  FDatEnt := Value;
+end;
+
+procedure T670BEM.SetDatFac(const Value: TDate);
+begin
+  FDatFac := Value;
+end;
+
+procedure T670BEM.SetDatFag(const Value: TDate);
+begin
+  FDatFag := Value;
+end;
+
+procedure T670BEM.SetDatFig(const Value: TDate);
+begin
+  FDatFig := Value;
+end;
+
+procedure T670BEM.SetDatFin(const Value: TDate);
+begin
+  FDatFin := Value;
+end;
+
+procedure T670BEM.SetDatIac(const Value: TDate);
+begin
+  FDatIac := Value;
+end;
+
+procedure T670BEM.SetDatIag(const Value: TDate);
+begin
+  FDatIag := Value;
+end;
+
+procedure T670BEM.SetDatIcg(const Value: TDate);
+begin
+  FDatIcg := Value;
+end;
+
+procedure T670BEM.SetDatIcl(const Value: TDate);
+begin
+  FDatIcl := Value;
+end;
+
+procedure T670BEM.SetDatIig(const Value: TDate);
+begin
+  FDatIig := Value;
+end;
+
+procedure T670BEM.SetDatIin(const Value: TDate);
+begin
+  FDatIin := Value;
+end;
+
+procedure T670BEM.SetDatPen(const Value: TDate);
+begin
+  FDatPen := Value;
+end;
+
+procedure T670BEM.SetDesBem(const Value: string);
+begin
+  FDesBem := Value;
+end;
+
+procedure T670BEM.SetEmpNfc(const Value: Word);
+begin
+  FEmpNfc := Value;
+end;
+
+procedure T670BEM.SetEspDoc(const Value: Char);
+begin
+  FEspDoc := Value;
+end;
+
+procedure T670BEM.SetFilAqi(const Value: Word);
+begin
+  FFilAqi := Value;
+end;
+
+procedure T670BEM.SetFilLoc(const Value: Word);
+begin
+  FFilLoc := Value;
+end;
+
+procedure T670BEM.SetFilNfc(const Value: Word);
+begin
+  FFilNfc := Value;
+end;
+
+procedure T670BEM.SetMetCon(const Value: Double);
+begin
+  FMetCon := Value;
+end;
+
+procedure T670BEM.SetMetImo(const Value: Double);
+begin
+  FMetImo := Value;
+end;
+
+procedure T670BEM.SetNomFor(const Value: string);
+begin
+  FNomFor := Value;
+end;
+
+procedure T670BEM.SetNumDoc(const Value: Integer);
+begin
+  FNumDoc := Value;
+end;
+
+procedure T670BEM.SetQtdItm(const Value: Word);
+begin
+  FQtdItm := Value;
 end;
 
 end.
