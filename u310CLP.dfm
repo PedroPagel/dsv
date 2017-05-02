@@ -598,7 +598,7 @@ object F310CLP: TF310CLP
           Table = 'E070EMP'
           Lookup = True
           Field = 'CODEMP'
-          AvoidSelections = True
+          AvoidSelections = False
         end
         object BECodBem: THButtonedEdit
           Left = 80
@@ -616,7 +616,7 @@ object F310CLP: TF310CLP
           Table = 'E670BEM'
           Lookup = True
           Field = 'CODBEM'
-          AvoidSelections = True
+          AvoidSelections = False
         end
       end
     end
@@ -644,6 +644,10 @@ object F310CLP: TF310CLP
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel6: TPanel
           Left = 0
           Top = 0
@@ -857,6 +861,10 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
@@ -1022,37 +1030,37 @@ object F310CLP: TF310CLP
                 TabOrder = 1
                 OnClick = RemoverClick
               end
-              object MarcarGrids: TButton
+              object MarcarGrids: TCButton
                 Left = 179
                 Top = 6
                 Width = 75
                 Height = 25
                 Caption = 'Marcar (&1)'
+                DropDownMenu = pmMarcar
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
                 Font.Height = -11
                 Font.Name = 'Tahoma'
                 Font.Style = []
                 ParentFont = False
-                PopupMenu = ListarGrids
+                PopupMenu = True
                 TabOrder = 2
-                OnClick = MarcarGridsClick
               end
-              object DesmarcarGrids: TButton
+              object DesmarcarGrids: TCButton
                 Left = 260
                 Top = 6
                 Width = 75
                 Height = 25
                 Caption = 'Desmarcar (&2)'
+                DropDownMenu = pmDesmarcar
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
                 Font.Height = -11
                 Font.Name = 'Tahoma'
                 Font.Style = []
                 ParentFont = False
-                PopupMenu = ListarGrids
+                PopupMenu = True
                 TabOrder = 3
-                OnClick = DesmarcarGridsClick
               end
             end
             object FGridDes: TDataSetGrid
@@ -1124,7 +1132,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 16
               Align = alTop
-              Caption = 'Patrim'#244'nio Mestre'
+              Caption = 'Patrim'#244'nio Principal'
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
@@ -1152,7 +1160,7 @@ object F310CLP: TF310CLP
               TitleFont.Height = -11
               TitleFont.Name = 'Tahoma'
               TitleFont.Style = []
-              OnEnterLine = FGridClpEnterLine
+              OnEnterLine = FGridBemEnterLine
               AllowNewLine = False
             end
           end
@@ -1217,7 +1225,7 @@ object F310CLP: TF310CLP
               Height = 41
               Align = alBottom
               TabOrder = 1
-              object Button1: TButton
+              object LigarBem: TButton
                 Left = 17
                 Top = 6
                 Width = 75
@@ -1230,9 +1238,9 @@ object F310CLP: TF310CLP
                 Font.Style = []
                 ParentFont = False
                 TabOrder = 0
-                OnClick = LigarClick
+                OnClick = LigarBemClick
               end
-              object Button2: TButton
+              object RemoverBem: TButton
                 Left = 98
                 Top = 6
                 Width = 75
@@ -1245,39 +1253,39 @@ object F310CLP: TF310CLP
                 Font.Style = []
                 ParentFont = False
                 TabOrder = 1
-                OnClick = RemoverClick
+                OnClick = RemoverBemClick
               end
-              object Button3: TButton
-                Left = 179
-                Top = 6
-                Width = 75
-                Height = 25
-                Caption = 'Marcar (&1)'
-                Font.Charset = DEFAULT_CHARSET
-                Font.Color = clBlack
-                Font.Height = -11
-                Font.Name = 'Tahoma'
-                Font.Style = []
-                ParentFont = False
-                PopupMenu = ListarGrids
-                TabOrder = 2
-                OnClick = MarcarGridsClick
-              end
-              object Button4: TButton
+              object DesmarcarBem: TCButton
                 Left = 260
                 Top = 6
                 Width = 75
                 Height = 25
                 Caption = 'Desmarcar (&2)'
+                DropDownMenu = pmDesmarcar
                 Font.Charset = DEFAULT_CHARSET
                 Font.Color = clBlack
                 Font.Height = -11
                 Font.Name = 'Tahoma'
                 Font.Style = []
                 ParentFont = False
-                PopupMenu = ListarGrids
+                PopupMenu = True
+                TabOrder = 2
+              end
+              object MarcarBem: TCButton
+                Left = 179
+                Top = 6
+                Width = 75
+                Height = 25
+                Caption = 'Marcar (&1)'
+                DropDownMenu = pmMarcar
+                Font.Charset = DEFAULT_CHARSET
+                Font.Color = clBlack
+                Font.Height = -11
+                Font.Name = 'Tahoma'
+                Font.Style = []
+                ParentFont = False
+                PopupMenu = True
                 TabOrder = 3
-                OnClick = DesmarcarGridsClick
               end
             end
             object FGridBnl: TDataSetGrid
@@ -1306,15 +1314,15 @@ object F310CLP: TF310CLP
       end
     end
   end
-  object ListarGrids: TPopupMenu
+  object pmMarcar: TPopupMenu
     Tag = 1
     AutoPopup = False
     BiDiMode = bdLeftToRight
     OwnerDraw = True
     ParentBiDiMode = False
     TrackButton = tbLeftButton
-    Left = 263
-    Top = 555
+    Left = 279
+    Top = 558
     object Ligado: TMenuItem
       Caption = 'Ligado(s)'
       OnClick = LigadoClick
@@ -1322,6 +1330,18 @@ object F310CLP: TF310CLP
     object NaoLigado: TMenuItem
       Caption = 'N'#227'o Ligado(s)'
       OnClick = NaoLigadoClick
+    end
+  end
+  object pmDesmarcar: TPopupMenu
+    Left = 342
+    Top = 558
+    object Ligados: TMenuItem
+      Caption = 'Ligado(s)'
+      OnClick = LigadosClick
+    end
+    object NaoLigados: TMenuItem
+      Caption = 'N'#227'o Ligado(s)'
+      OnClick = NaoLigadosClick
     end
   end
 end

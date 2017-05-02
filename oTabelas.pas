@@ -590,6 +590,9 @@ type
     FMetImo: Double;
     FBemClp: Char;
     FMetCon: Double;
+    FIDLIB: Integer;
+    FBemPri: Char;
+
     function GetBemClp: Char;
     function GetCcuExe: string;
     function GetCodBem: string;
@@ -664,7 +667,14 @@ type
     procedure SetNomFor(const Value: string);
     procedure SetNumDoc(const Value: Integer);
     procedure SetQtdItm(const Value: Word);
+    function GetBemPri: Char;
+    function GetIDLIB: Integer;
+    procedure SetBemPri(const Value: Char);
+    procedure SetIDLIB(const Value: Integer);
   public
+    constructor Create();
+    destructor Destroy(); override;
+
     property CodEmp: Word read GetCodEmp write SetCodEmp;
     property CodBem: string read GetCodBem write SetCodBem;
     property DesBem: string read GetDesBem write SetDesBem;
@@ -702,6 +712,97 @@ type
     property USU_MetImo: Double read GetMetImo write SetMetImo;
     property USU_BemClp: Char read GetBemClp write SetBemClp;
     property USU_MetCon: Double read GetMetCon write SetMetCon;
+    property USU_IDLIB: Integer read GetIDLIB write SetIDLIB;
+    property USU_BemPri: Char read GetBemPri write SetBemPri;
+  end;
+
+  T670LIB = class(TTabelaUsuario)
+  private
+    FIDLIG: Integer;
+    FCodEmp: Word;
+    FCodBem: string;
+    FDesBem: string;
+
+    function GetCodBem: string;
+    function GetCodEmp: Word;
+    function GetDesBem: string;
+    function GetIDLIG: Integer;
+    procedure SetCodBem(const Value: string);
+    procedure SetCodEmp(const Value: Word);
+    procedure SetDesBem(const Value: string);
+    procedure SetIDLIG(const Value: Integer);
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    property USU_IDLIG: Integer read GetIDLIG write SetIDLIG;
+    property USU_CodEmp: Word read GetCodEmp write SetCodEmp;
+    property USU_CodBem: string read GetCodBem write SetCodBem;
+    property USU_DesBem: string read GetDesBem write SetDesBem;
+  end;
+
+  T160MOV = class(TTabelaUsuario)
+  private
+    FIDCLP: Integer;
+    FSeqMov: Integer;
+    FCodEmp: Word;
+    FCodFil: Word;
+    FCodCli: Word;
+    FCodTpt: string;
+    FNumTit: string;
+    FVlrOri: Extended;
+    FVctOri: TDate;
+    FSitTit: string;
+    FVlrRea: Extended;
+    FVlrBon: Extended;
+    FDatDsc: TDate;
+
+    function GetCODCLI: Word;
+    function GetCODEMP: Word;
+    function GetCODFIL: Word;
+    function GetCODTPT: string;
+    function GetDATDSC: TDate;
+    function GetIDCLP: Integer;
+    function GetNUMTIT: string;
+    function GetSEQMOV: Integer;
+    function GetSITTIT: string;
+    function GetVCTORI: TDate;
+    function GetVLRBON: Extended;
+    function GetVLRORI: Extended;
+    function GetVLRREA: Extended;
+
+    procedure SetCODCLI(const Value: Word);
+    procedure SetCODEMP(const Value: Word);
+    procedure SetCODFIL(const Value: Word);
+    procedure SetCODTPT(const Value: string);
+    procedure SetDATDSC(const Value: TDate);
+    procedure SetIDCLP(const Value: Integer);
+    procedure SetNUMTIT(const Value: string);
+    procedure SetSEQMOV(const Value: Integer);
+    procedure SetSITTIT(const Value: string);
+    procedure SetVCTORI(const Value: TDate);
+    procedure SetVLRBON(const Value: Extended);
+    procedure SetVLRORI(const Value: Extended);
+    procedure SetVLRREA(const Value: Extended);
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    procedure GerarMovimento();
+
+    property USU_IDCLP: Integer read GetIDCLP write SetIDCLP;
+    property USU_SeqMov: Integer read GetSEQMOV write SetSEQMOV;
+    property USU_CodEmp: Word read GetCODEMP write SetCODEMP;
+    property USU_CodFil: Word read GetCODFIL write SetCODFIL;
+    property USU_CodCli: Word read GetCODCLI write SetCODCLI;
+    property USU_CodTpt: string read GetCODTPT write SetCODTPT;
+    property USU_NumTit: string read GetNUMTIT write SetNUMTIT;
+    property USU_VlrOri: Extended read GetVLRORI write SetVLRORI;
+    property USU_VctOri: TDate read GetVCTORI write SetVCTORI;
+    property USU_SitTit: string read GetSITTIT write SetSITTIT;
+    property USU_VlrRea: Extended read GetVLRREA write SetVLRREA;
+    property USU_VlrBon: Extended read GetVLRBON write SetVLRBON;
+    property USU_DatDsc: TDate read GetDATDSC write SetDATDSC;
   end;
 
 implementation
@@ -2347,9 +2448,24 @@ end;
 
 { T670BEM }
 
+constructor T670BEM.Create;
+begin
+  inherited Create('E670BEM');
+end;
+
+destructor T670BEM.Destroy;
+begin
+  inherited;
+end;
+
 function T670BEM.GetBemClp: Char;
 begin
   Result := FBemClp;
+end;
+
+function T670BEM.GetBemPri: Char;
+begin
+  Result := FBemPri;
 end;
 
 function T670BEM.GetCcuExe: string;
@@ -2507,6 +2623,11 @@ begin
   Result := FFilNfc;
 end;
 
+function T670BEM.GetIDLIB: Integer;
+begin
+  Result := FIDLIB;
+end;
+
 function T670BEM.GetMetCon: Double;
 begin
   Result := FMetCon;
@@ -2535,6 +2656,11 @@ end;
 procedure T670BEM.SetBemClp(const Value: Char);
 begin
   FBemClp := Value;
+end;
+
+procedure T670BEM.SetBemPri(const Value: Char);
+begin
+  FBemPri := Value;
 end;
 
 procedure T670BEM.SetCcuExe(const Value: string);
@@ -2692,6 +2818,11 @@ begin
   FFilNfc := Value;
 end;
 
+procedure T670BEM.SetIDLIB(const Value: Integer);
+begin
+  FIDLIB := Value;
+end;
+
 procedure T670BEM.SetMetCon(const Value: Double);
 begin
   FMetCon := Value;
@@ -2715,6 +2846,223 @@ end;
 procedure T670BEM.SetQtdItm(const Value: Word);
 begin
   FQtdItm := Value;
+end;
+
+{ T670LIB }
+
+constructor T670LIB.Create;
+begin
+  inherited Create('USU_T670LIB');
+end;
+
+destructor T670LIB.Destroy;
+begin
+  inherited;
+end;
+
+function T670LIB.GetCodBem: string;
+begin
+  Result := FCodBem;
+end;
+
+function T670LIB.GetCodEmp: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function T670LIB.GetDesBem: string;
+begin
+  Result := FDesBem;
+end;
+
+function T670LIB.GetIDLIG: Integer;
+begin
+  Result := FIDLIG;
+end;
+
+procedure T670LIB.SetCodBem(const Value: string);
+begin
+  FCodBem := Value;
+end;
+
+procedure T670LIB.SetCodEmp(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T670LIB.SetDesBem(const Value: string);
+begin
+  FDesBem := Value;
+end;
+
+procedure T670LIB.SetIDLIG(const Value: Integer);
+begin
+  FIDLIG := Value;
+end;
+
+{ T160MOV }
+
+constructor T160MOV.Create;
+begin
+  inherited Create('USU_T160MOV');
+end;
+
+destructor T160MOV.Destroy;
+begin
+  inherited;
+end;
+
+procedure T160MOV.GerarMovimento;
+begin
+  StartTransaction;
+  try
+    Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+    if (Self.Executar(estSelect)) then
+    begin
+      Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
+                          [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
+                           QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
+      Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
+    end
+    else
+      Self.USU_SeqMov := 1;
+
+    Self.Executar(estInsert);
+
+    Commit;
+  except
+    RollBack;
+  end;
+end;
+
+function T160MOV.GetCODCLI: Word;
+begin
+  Result := FCodCli;
+end;
+
+function T160MOV.GetCODEMP: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function T160MOV.GetCODFIL: Word;
+begin
+  Result := FCodFil;
+end;
+
+function T160MOV.GetCODTPT: string;
+begin
+  Result := FCodTpt;
+end;
+
+function T160MOV.GetDATDSC: TDate;
+begin
+  Result := FDatDsc;
+end;
+
+function T160MOV.GetIDCLP: Integer;
+begin
+  Result := FIDCLP;
+end;
+
+function T160MOV.GetNUMTIT: string;
+begin
+  Result := FNumTit;
+end;
+
+function T160MOV.GetSEQMOV: Integer;
+begin
+  Result := FSeqMov;
+end;
+
+function T160MOV.GetSITTIT: string;
+begin
+  Result := FSitTit;
+end;
+
+function T160MOV.GetVCTORI: TDate;
+begin
+  Result := FVctOri;
+end;
+
+function T160MOV.GetVLRBON: Extended;
+begin
+  Result := FVlrBon;
+end;
+
+function T160MOV.GetVLRORI: Extended;
+begin
+  Result := FVlrOri;
+end;
+
+function T160MOV.GetVLRREA: Extended;
+begin
+  Result := FVlrRea;
+end;
+
+procedure T160MOV.SetCODCLI(const Value: Word);
+begin
+  FCodCli := Value;
+end;
+
+procedure T160MOV.SetCODEMP(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T160MOV.SetCODFIL(const Value: Word);
+begin
+  FCodFil := Value;
+end;
+
+procedure T160MOV.SetCODTPT(const Value: string);
+begin
+  FCodTpt := Value;
+end;
+
+procedure T160MOV.SetDATDSC(const Value: TDate);
+begin
+  FDatDsc := Value;
+end;
+
+procedure T160MOV.SetIDCLP(const Value: Integer);
+begin
+  FIDCLP := Value;
+end;
+
+procedure T160MOV.SetNUMTIT(const Value: string);
+begin
+  FNumTit := Value;
+end;
+
+procedure T160MOV.SetSEQMOV(const Value: Integer);
+begin
+  FSeqMov := Value;
+end;
+
+procedure T160MOV.SetSITTIT(const Value: string);
+begin
+  FSitTit := Value;
+end;
+
+procedure T160MOV.SetVCTORI(const Value: TDate);
+begin
+  FVctOri := Value;
+end;
+
+procedure T160MOV.SetVLRBON(const Value: Extended);
+begin
+  FVlrBon := Value;
+end;
+
+procedure T160MOV.SetVLRORI(const Value: Extended);
+begin
+  FVlrOri := Value;
+end;
+
+procedure T160MOV.SetVLRREA(const Value: Extended);
+begin
+  FVlrRea := Value;
 end;
 
 end.

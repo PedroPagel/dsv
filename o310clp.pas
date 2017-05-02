@@ -7,7 +7,7 @@ uses
   oTabelas;
 
 type
-  tSelecaoCheck = (scSemDados, scLigacao, scPossuiLigacao, scApenasRemover, scDespesa, scSomaDespesa);
+  tSelecaoCheck = (scSemDados, scLigacao, scPossuiLigacao, scApenasRemover, scNaoLigado, scSomaNaoLigado);
 
   TControle = class(T160CLP)
   private
@@ -93,6 +93,7 @@ type
     procedure AdicionarTitulosDespesas();
     function GetDespesas: TIterador;
     procedure SetDespesas(const Value: TIterador);
+    procedure MovimentarTitulo(const pTitulo: T301TCR; const pID: Integer);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -123,6 +124,62 @@ type
     property IndexTit: Integer  read FIndexTit write FIndexTit;
     property RemoverCalculos: Boolean read FRemoverCalculos write FRemoverCalculos;
     property ValorIndice: Double read FValorIndice write FValorIndice;
+  end;
+
+  TIteradorBem = class(T670BEM)
+  private
+    FListaBLG: TIterador; //Bem ligacao
+
+    function GetLista: TIterador;
+    procedure SetLista(const Value: TIterador);
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    procedure AdicionarBemLigado();
+    procedure Processar();
+
+    property Lista: TIterador read GetLista write SetLista;
+  end;
+
+  TControladorBem = class
+  private
+    FCodEmp: Word;
+    FCodBem: string;
+    FCondicao: string;
+    FListaBLG: TIterador; //Bem ligado
+    FListaBNL: TIterador; //Bem Nao Ligado
+
+    function GetCodBem: string;
+    function GetCodEmp: Word;
+
+    procedure SetCodBem(const Value: string);
+    procedure SetCodEmp(const Value: Word);
+    function GetLstNaoLigado: TIterador;
+    procedure SetLstNaoLigado(const Value: TIterador);
+    function GetLstLigado: TIterador;
+    procedure SetLstLigado(const Value: TIterador);
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    function SelecaoBem(): tSelecaoCheck;
+    function SelecaoNaoLigado(): tSelecaoCheck;
+
+    procedure Limpar();
+    procedure Mostrar();
+    procedure Processar();
+    procedure GerarLigacao();
+    procedure RemoverLigacao();
+    procedure MarcarDesmarcarNaoLigados(const pValue: Byte);
+    procedure MarcarDesmarcarLigacoes(const pValue: Byte); overload;
+    procedure MarcarDesmarcarLigacoes(const pValue: Byte; const pPos: Integer); overload;
+
+    property CodEmp: Word read GetCodEmp write SetCodEmp;
+    property CodBem: string read GetCodBem write SetCodBem;
+    property Condicao: string write FCondicao;
+    property LstNaoLigado: TIterador read GetLstNaoLigado write SetLstNaoLigado;
+    property LstLigado: TIterador  read GetLstLigado write SetLstLigado;
   end;
 
   function SituacaoTitulo(const pSitTit: string): Boolean;
@@ -174,7 +231,7 @@ begin
     begin
       FTitulo.IterarAdd(xQueryTitulo, T301TCR.Create());
 
-      if (SituacaoTitulo(xQueryTitulo.SitTit)) then
+      if (SituacaoTitulo(xQueryTitulo.SitTit)) and (xQueryTitulo.VlrOri = xQueryTitulo.VlrAbe) then
         FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(pT090IND, xQueryTitulo.VlrOri));
     end;
   finally
@@ -427,7 +484,6 @@ begin
   try
     for i := 0 to pred(Self.Count) do
       TControle(Self[i]).InserirContrato(TControle(Self[i]).USU_NumCtr);
-
     Commit;
   except
     RollBack;
@@ -528,6 +584,26 @@ begin
   end;
 end;
 
+procedure TIteradorControle.MovimentarTitulo(const pTitulo: T301TCR; const pID: Integer);
+var
+  x160MOV: T160MOV;
+begin
+  x160MOV := T160MOV.Create();
+  x160MOV.USU_IDCLP := pID;
+  x160MOV.USU_CodEmp := pTitulo.CodEmp;
+  x160MOV.USU_CodFil := pTitulo.CodFil;
+  x160MOV.USU_CodCli := pTitulo.CodCli;
+  x160MOV.USU_CodTpt := pTitulo.CodTpt;
+  x160MOV.USU_NumTit := pTitulo.NumTit;
+  x160MOV.USU_VlrOri := pTitulo.OLD_VlrOri;
+  x160MOV.USU_VctOri := pTitulo.VctOri;
+  x160MOV.USU_SitTit := pTitulo.SitTit;
+  x160MOV.USU_VlrRea := pTitulo.VlrOri;
+  x160MOV.USU_VlrBon := 0; //pTitulo.VlrBon;
+  x160MOV.USU_DatDsc := Now;
+  x160MOV.GerarMovimento;
+end;
+
 procedure TIteradorControle.Processar;
 var
   i, j, l: Integer;
@@ -561,6 +637,8 @@ begin
           xTitulos[pred(j)].NumTit := x301tcr.NumTit;
           xTitulos[pred(j)].codCli := x301tcr.CodCli;
           xTitulos[pred(j)].vlrOri := x301tcr.VlrOri;
+
+          Self.MovimentarTitulo(x301tcr, TControle(Self[i]).USU_ID);
         end;
       end;
     end;
@@ -620,7 +698,6 @@ var
   i,j: Integer;
   x501TCP: T501TCP;
 begin
-
   StartTransaction;
   try
     for i := 0 to pred(Self.Count) do
@@ -677,7 +754,7 @@ begin
       if (Result = scPossuiLigacao) then
         Result := scApenasRemover
       else
-        Result := scSomaDespesa;
+        Result := scSomaNaoLigado;
       Break;
     end;
   end;
@@ -688,10 +765,10 @@ end;
 
 function TIteradorControle.SelecaoDespesa: tSelecaoCheck;
 begin
-  Result := iff(FListaDespesas.Count = 0, scSemDados, scSomaDespesa);
+  Result := iff(FListaDespesas.Count = 0, scSemDados, scSomaNaoLigado);
 
   if (FListaDespesas.Selecionados) then
-    Result := scDespesa;
+    Result := scNaoLigado;
 end;
 
 procedure TIteradorControle.SetDespesas(const Value: TIterador);
@@ -778,6 +855,351 @@ end;
 procedure TTituloControle.SetVlrIni(const Value: Double);
 begin
   FVlrIni := Value;
+end;
+
+{ TControladorBem }
+
+constructor TControladorBem.Create;
+begin
+  inherited Create();
+
+  FListaBNL := TIterador.Create;
+  FListaBLG := TIterador.Create;
+end;
+
+destructor TControladorBem.Destroy;
+begin
+  inherited;
+
+  FreeAndNil(FListaBNL);
+  FreeAndNil(FListaBLG);
+end;
+
+procedure TControladorBem.GerarLigacao;
+var
+  i: Integer;
+  x670BEM: T670BEM;
+  x670LIB: T670LIB;
+  xIteradorBem: TIteradorBem;
+begin
+  xIteradorBem := nil;
+
+  for i := 0 to pred(FListaBLG.Count) do
+    if (TIteradorBem(FListaBLG[i]).Check = 1) then
+    begin
+      xIteradorBem := TIteradorBem(FListaBLG[i]);
+      Break;
+    end;
+
+  StartTransaction;
+  try
+    if (Assigned(xIteradorBem)) then
+    begin
+      for i := pred(FListaBNL.Count) downto 0 do
+      begin
+        x670BEM := T670BEM(FListaBNL[i]);
+
+        if (x670BEM.Check = 1) then
+        begin
+          x670LIB := T670LIB.Create;
+          x670LIB.USU_IDLIG := xIteradorBem.USU_IDLIB;
+          x670LIB.USU_CodEmp := x670BEM.CodEmp;
+          x670LIB.USU_CodBem := x670BEM.CodBem;
+          x670LIB.USU_DesBem := x670BEM.DesBem;
+          x670LIB.Executar(estInsert);
+
+          x670BEM.USU_IDLIB := x670LIB.USU_ID;
+          x670BEM.USU_BemPri := 'N';
+          x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
+          x670BEM.DefinirCampoUpdate(['USU_IDLIB','USU_BEMPRI']);
+          x670BEM.Executar(estUpdate);
+
+          xIteradorBem.Lista.IterarAdd(x670BEM, T670BEM.Create);
+          FListaBNL.Delete(i);
+        end;
+      end;
+
+      Commit;
+    end;
+  except
+    RollBack;
+  end;
+end;
+
+function TControladorBem.GetCodBem: string;
+begin
+  Result := FCodBem;
+end;
+
+function TControladorBem.GetCodEmp: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function TControladorBem.GetLstLigado: TIterador;
+begin
+  Result := FListaBLG;
+end;
+
+function TControladorBem.GetLstNaoLigado: TIterador;
+begin
+  Result := FListaBNL
+end;
+
+procedure TControladorBem.Limpar;
+begin
+  FListaBLG.Clear;
+  FListaBNL.Clear;
+end;
+
+procedure TControladorBem.MarcarDesmarcarLigacoes(const pValue: Byte; const pPos: Integer);
+var
+  i: Integer;
+  xIteradorBem: TIteradorBem;
+begin
+  xIteradorBem := TIteradorBem(FListaBLG[pPos]);
+
+  for i := 0 to pred(xIteradorBem.Lista.Count) do
+    T670BEM(xIteradorBem.Lista[i]).Check := pValue;
+end;
+
+procedure TControladorBem.MarcarDesmarcarLigacoes(const pValue: Byte);
+var
+  i: Integer;
+begin
+  for i := 0 to pred(FListaBLG.Count) do
+  begin
+    if (TIteradorBem(FListaBLG[i]).Lista.Count > 0) then
+    begin
+      Self.MarcarDesmarcarLigacoes(pValue, i);
+      TIteradorBem(FListaBLG[i]).Check := pValue;
+    end;
+  end;
+end;
+
+procedure TControladorBem.MarcarDesmarcarNaoLigados(const pValue: Byte);
+var
+  i: Integer;
+begin
+  for i := 0 to pred(FListaBNL.Count) do
+    T670BEM(FListaBNL[i]).Check := pValue;
+end;
+
+procedure TControladorBem.Mostrar;
+var
+  xIteradorBem: TIteradorBem;
+  x670BEM: T670BEM;
+begin
+  x670BEM := T670BEM.Create;
+  try
+    x670BEM.USU_BemClp := 'S';
+    x670BEM.DefinirSelecaoPropriedade(['USU_BEMCLP']);
+    x670BEM.AdicionarCondicao(FCondicao);
+    x670BEM.Executar(estSelectLoop);
+
+    while (x670BEM.Proximo) do
+    begin
+      if (x670BEM.USU_IDLIB > 0) and not(AnsiSameText(x670BEM.USU_BemPri, 'N')) then
+      begin
+        xIteradorBem := TIteradorBem.Create;
+
+        FListaBLG.IterarAdd(x670BEM, xIteradorBem);
+        xIteradorBem.AdicionarBemLigado();
+      end
+      else
+        FListaBNL.IterarAdd(x670BEM, TIteradorBem.Create);
+    end;
+  finally
+    x670BEM.Fechar;
+  end;
+end;
+
+procedure TControladorBem.Processar;
+var
+  i: Integer;
+  x670BEM: TIteradorBem;
+begin
+  for i := 0 to pred(FListaBNL.Count) do
+  begin
+    x670BEM := TIteradorBem(FListaBNL[i]);
+
+    if (x670BEM.Check = 1) then
+      x670BEM.Processar;
+  end;
+end;
+
+procedure TControladorBem.RemoverLigacao;
+var
+  i,j: Integer;
+  x670LIB: T670LIB;
+  x670BEM: T670BEM;
+begin
+  StartTransaction;
+  try
+    for i := 0 to pred(FListaBLG.Count) do
+      if (TIteradorBem(FListaBLG[i]).Check = 1) then
+      begin
+        for j := pred(TIteradorBem(FListaBLG[i]).Lista.Count) downto 0 do
+        begin
+          x670BEM := T670BEM(TIteradorBem(FListaBLG[i]).Lista[j]);
+          if (x670BEM.Check = 1) then
+          begin
+            x670LIB := T670LIB.Create;
+            x670LIB.USU_ID := x670BEM.USU_IDLIB;
+            x670LIB.DefinirSelecaoPropriedade(['USU_ID']);
+            x670LIB.Executar(estDelete);
+
+            x670BEM.USU_IDLIB := 0;
+            x670BEM.Check := 0;
+            x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
+            x670BEM.DefinirCampoUpdate(['USU_IDLIB']);
+            x670BEM.Executar(estUpdate);
+
+            FListaBNL.IterarAdd(x670BEM, T670BEM.Create);
+            TIteradorBem(FListaBLG[i]).Lista.Delete(j);
+          end;
+        end;
+      end;
+
+    Commit;
+  except
+    RollBack;
+  end;
+end;
+
+function TControladorBem.SelecaoBem: tSelecaoCheck;
+var
+  i,j: Integer;
+  xCount: Integer;
+begin
+  xCount := 0;
+  Result := scSemDados;
+
+  for i := 0 to pred(FListaBLG.Count) do
+  begin
+    if (TIteradorBem(FListaBLG[i]).Check = 1) then
+    begin
+      for j := 0 to pred(TIteradorBem(FListaBLG[i]).Lista.Count) do
+      begin
+        if (T670BEM(TIteradorBem(FListaBLG[i]).Lista[j]).Check = 1) then
+        begin
+          Result := scPossuiLigacao;
+          Break;
+        end;
+      end;
+      Inc(xCount);
+    end;
+
+    if (xCount = 2) then
+    begin
+      if (Result = scPossuiLigacao) then
+        Result := scApenasRemover
+      else
+        Result := scSomaNaoLigado;
+      Break;
+    end;
+  end;
+
+  if (xCount = 1) and (Result = scSemDados) then
+    Result := scLigacao;
+end;
+
+function TControladorBem.SelecaoNaoLigado: tSelecaoCheck;
+begin
+  Result := iff(FListaBNL.Count = 0, scSemDados, scSomaNaoLigado);
+
+  if (FListaBNL.Selecionados) then
+    Result := scNaoLigado;
+end;
+
+procedure TControladorBem.SetCodBem(const Value: string);
+begin
+  FCodBem := Value;
+end;
+
+procedure TControladorBem.SetCodEmp(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure TControladorBem.SetLstLigado(const Value: TIterador);
+begin
+  FListaBLG := Value;
+end;
+
+procedure TControladorBem.SetLstNaoLigado(const Value: TIterador);
+begin
+  FListaBNL := Value;
+end;
+
+{ TIteradorBem }
+
+procedure TIteradorBem.AdicionarBemLigado();
+var
+  x670BEM: T670BEM;
+  x670LIB: T670LIB;
+begin
+  x670LIB := T670LIB.Create;
+  try
+    x670LIB.USU_IDLIG := Self.USU_IDLIB;
+    x670LIB.DefinirSelecaoPropriedade(['USU_IDLIG']);
+    x670LIB.Executar(estSelectLoop);
+
+    while (x670LIB.Proximo) do
+    begin
+      x670BEM := T670BEM.Create;
+      x670BEM.CodEmp := x670LIB.USU_CodEmp;
+      x670BEM.CodBem := x670LIB.USU_CodBem;
+      x670BEM.USU_BemClp := 'S';
+      x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM','USU_BEMCLP'], True);
+      x670BEM.Executar(estSelect);
+      FListaBLG.IterarAdd(x670BEM, T670BEM.Create);
+      x670BEM.Fechar;
+    end;
+  finally
+    x670LIB.Fechar;
+  end;
+end;
+
+constructor TIteradorBem.Create;
+begin
+  inherited Create();
+
+  FListaBLG := TIterador.Create;
+end;
+
+destructor TIteradorBem.Destroy;
+begin
+  inherited;
+
+  FreeAndNil(FListaBLG);
+end;
+
+function TIteradorBem.GetLista: TIterador;
+begin
+  Result := FListaBLG;
+end;
+
+procedure TIteradorBem.Processar;
+var
+  x670LIB: T670LIB;
+begin
+  x670LIB := T670LIB.Create;
+  x670LIB.USU_CodEmp := Self.CodEmp;
+  x670LIB.USU_CodBem := Self.CodBem;
+  x670LIB.USU_DesBem := Self.DesBem;
+  x670LIB.Executar(estInsert);
+
+  Self.USU_BemPri := 'S';
+  Self.USU_IDLIB := x670LIB.USU_ID;
+  Self.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
+  Self.DefinirCampoUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+  Self.Executar(estUpdate);
+end;
+
+procedure TIteradorBem.SetLista(const Value: TIterador);
+begin
+  FListaBLG := Value;
 end;
 
 end.

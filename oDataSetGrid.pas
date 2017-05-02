@@ -351,7 +351,7 @@ begin
 
   for xProperty in xType.GetProperties do
     if (xProperty.PropertyType.TypeKind in [tkInteger, tkFloat, tkString, tkUString, tkWChar, tkWString]) then
-      if not(BuscarString('ID', [DesmontaID(xProperty.Name)])) then
+      if not(BuscarString('ID', [DesmontaID(xProperty.Name)])) and not(AnsiSameText(UpperCase(Copy(xProperty.Name, 0, 4)), 'OLD_')) then
       begin
         FGridState := gsInsert;
 
@@ -438,6 +438,7 @@ begin
       if not(IsNull(Command)) then
       begin
         FClientDataSet.Filtered := False;
+        FClientDataSet.FilterOptions := [foCaseInsensitive];
         FClientDataSet.Filter := xFilter;
         FClientDataSet.Filtered := True;
       end
@@ -814,7 +815,12 @@ end;
 
 function TDataSetGrid.Selected(const pField: string): Variant;
 begin
-  Result := Self.DataSource.DataSet.FindField(pField).AsVariant;
+  if (Self.DataSource.DataSet.FindField(pField).DataType in [ftBCD, ftFloat, ftLargeint, ftInteger,
+    ftCurrency, ftSmallint, ftWord, ftBytes, ftLongWord, ftShortint]) then
+    Result := Self.DataSource.DataSet.FindField(pField).AsVariant
+  else
+  if (Self.DataSource.DataSet.FindField(pField).DataType in [ftString, ftWideString, ftFixedChar]) then
+    Result := QuotedStr(Self.DataSource.DataSet.FindField(pField).AsString);
 end;
 
 procedure TDataSetGrid.SetAllowNewLine(const Value: Boolean);
@@ -884,8 +890,8 @@ begin
   Self.Columns.Add;
   Self.Columns[FColumn].FieldName := pName;
   Self.Columns[FColumn].Title.Caption := pDesc;
-  //Self.Columns[FColumn].Width := Length(pDesc) + iff(pCheck, 30, 100);
-  //Self.Columns[FColumn].Alignment := taCenter;
+  Self.Columns[FColumn].Width := Length(pDesc) + iff(pCheck, 30, 100);
+  Self.Columns[FColumn].Alignment := taCenter;
   Inc(FColumn);
 
   if (pCheck) then

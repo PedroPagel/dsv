@@ -316,6 +316,7 @@ object F510CON: TF510CON
           OnExit = BEVlrFimExit
           OnKeyPress = BEVlrFimKeyPress
           Lookup = False
+          AvoidSelections = False
         end
         object DVenIni: TDateTimePicker
           Left = 262
@@ -352,6 +353,7 @@ object F510CON: TF510CON
           OnExit = BEVlrIniExit
           OnKeyPress = BEVlrIniKeyPress
           Lookup = False
+          AvoidSelections = False
         end
         object BECodFor: THButtonedEdit
           Left = 69
@@ -373,6 +375,7 @@ object F510CON: TF510CON
           Table = 'E095FOR'
           Lookup = True
           Field = 'CODFOR'
+          AvoidSelections = False
         end
         object BECodFil: THButtonedEdit
           Left = 69
@@ -394,6 +397,7 @@ object F510CON: TF510CON
           Table = 'E070FIL'
           Lookup = True
           Field = 'CODFIL'
+          AvoidSelections = False
         end
         object BECodEmp: THButtonedEdit
           Left = 69
@@ -415,6 +419,7 @@ object F510CON: TF510CON
           Table = 'E070EMP'
           Lookup = True
           Field = 'CODEMP'
+          AvoidSelections = False
         end
         object DBLookupComboBox1: TDBLookupComboBox
           Left = -207
@@ -529,6 +534,7 @@ object F510CON: TF510CON
           Table = 'E039POR'
           Lookup = True
           Field = 'CODPOR'
+          AvoidSelections = False
         end
         object DDatIni: TDateTimePicker
           Left = 115

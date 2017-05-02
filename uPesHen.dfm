@@ -117,7 +117,6 @@ object FPesHen: TFPesHen
     TitleFont.Style = []
     OnDblClick = FGridPesDblClick
     OnTitleClick = FGridPesTitleClick
-    OnEnterLine = FGridPesEnterLine
     AllowNewLine = False
   end
 end

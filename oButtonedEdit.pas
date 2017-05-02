@@ -33,6 +33,7 @@ type
     procedure LookupData(Sender: TObject);
 
     function Filters(): string;
+    procedure CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -68,11 +69,18 @@ begin
   FIterator.Add(pFilterLookup);
 end;
 
+procedure THButtonedEdit.CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Key = VK_F3) then
+    LookupData(Self);
+end;
+
 constructor THButtonedEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
   FIterator := TIterador.Create;
+  Self.OnKeyUp := CallLookup;
 end;
 
 procedure THButtonedEdit.CreateLookup;
@@ -107,6 +115,8 @@ function THButtonedEdit.Filters: string;
 var
   i: Integer;
 begin
+  Result := iff(FIterator.Count > 0, ' AND ', EmptyStr);
+
   for i := 0 to pred(FIterator.Count) do
     Result := Result + (THButtonedEdit(FIterator[i]).Field + ' = ' + THButtonedEdit(FIterator[i]).Text) + ' AND ';
 
