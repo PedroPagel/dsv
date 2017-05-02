@@ -23,7 +23,7 @@ type
     Processar: TButton;
     Marcar: TButton;
     Desmarcar: TButton;
-    GroupBox2: TGroupBox;
+    GBContrato: TGroupBox;
     Label2: TLabel;
     Label10: TLabel;
     Label13: TLabel;
@@ -69,7 +69,7 @@ type
     Panel20: TPanel;
     Panel21: TPanel;
     FGridDes: TDataSetGrid;
-    GroupBox1: TGroupBox;
+    GBTitulo: TGroupBox;
     Label8: TLabel;
     Label7: TLabel;
     Label5: TLabel;
@@ -91,11 +91,31 @@ type
     ListarGrids: TPopupMenu;
     Ligado: TMenuItem;
     NaoLigado: TMenuItem;
+    LigacaoBem: TTabSheet;
+    Panel15: TPanel;
+    Splitter5: TSplitter;
+    Splitter6: TSplitter;
+    Panel18: TPanel;
+    Panel22: TPanel;
+    FGridBem: TDataSetGrid;
+    Panel23: TPanel;
+    Panel24: TPanel;
+    FGridBlg: TDataSetGrid;
+    Panel25: TPanel;
+    Panel26: TPanel;
+    Panel27: TPanel;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    FGridBnl: TDataSetGrid;
+    GBBem: TGroupBox;
+    BEEmpBem: THButtonedEdit;
+    BECodBem: THButtonedEdit;
+    Label9: TLabel;
+    Label14: TLabel;
 
     procedure FormCreate(Sender: TObject);
-    procedure BECodFilRightButtonClick(Sender: TObject);
-    procedure BENumCtrRightButtonClick(Sender: TObject);
-    procedure BECodCliRightButtonClick(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CancelarClick(Sender: TObject);
@@ -121,12 +141,9 @@ type
     procedure PGControlDrawTab(Control: TCustomTabControl; TabIndex: Integer;
       const Rect: TRect; Active: Boolean);
     procedure PGControlChange(Sender: TObject);
-    procedure BECodEmpRightButtonClick(Sender: TObject);
     procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
-    procedure BETitFilRightButtonClick(Sender: TObject);
     procedure BETitFilKeyPress(Sender: TObject; var Key: Char);
     procedure BETitFilExit(Sender: TObject);
-    procedure BECodForRightButtonClick(Sender: TObject);
     procedure BECodForKeyPress(Sender: TObject; var Key: Char);
     procedure BECodForExit(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
@@ -168,6 +185,7 @@ type
     procedure MostrarReajuste();
     procedure MostrarLigacao();
     procedure ValidarSelecao();
+    procedure CalcularReajuste(const pIndice: Double);
 
     function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String; const pEspaco,pDecimal: Integer): String;
   published
@@ -207,11 +225,6 @@ begin
     key := #0;
 end;
 
-procedure TF310CLP.BECodFilRightButtonClick(Sender: TObject);
-begin
-  BECodFil.LookupData;
-end;
-
 procedure TF310CLP.BECodForExit(Sender: TObject);
 begin
   FString := BECodFor.Text;
@@ -227,11 +240,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BECodForRightButtonClick(Sender: TObject);
-begin
-  BECodFor.LookupData;
 end;
 
 procedure TF310CLP.BECodCliExit(Sender: TObject);
@@ -251,11 +259,6 @@ begin
     key := #0;
 end;
 
-procedure TF310CLP.BECodCliRightButtonClick(Sender: TObject);
-begin
-  BECodCli.LookupData;
-end;
-
 procedure TF310CLP.BECodEmpKeyPress(Sender: TObject; var Key: Char);
 begin
   FString := BECodEmp.Text;
@@ -264,11 +267,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BECodEmpRightButtonClick(Sender: TObject);
-begin
-  BECodEmp.LookupData;
 end;
 
 procedure TF310CLP.BENumCtrExit(Sender: TObject);
@@ -288,11 +286,6 @@ begin
     Key := #0;
 end;
 
-procedure TF310CLP.BENumCtrRightButtonClick(Sender: TObject);
-begin
-  BENumCtr.LookupData;
-end;
-
 procedure TF310CLP.BETitFilExit(Sender: TObject);
 begin
   FString := BECodFil.Text;
@@ -308,11 +301,6 @@ begin
   else
   if not(CharInSet(key, ['0'..'9',',',#8])) then
     key := #0;
-end;
-
-procedure TF310CLP.BETitFilRightButtonClick(Sender: TObject);
-begin
-  BETitFil.LookupData;
 end;
 
 procedure TF310CLP.BEVlrFimChange(Sender: TObject);
@@ -424,8 +412,18 @@ begin
     end;
   end
   else
+  if (PGControl.TabIndex = 1) then
   begin
     if (FGridClp.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
+    begin
+      CancelarClick(Self);
+      Self.Close;
+    end;
+  end
+  else
+  if (PGControl.TabIndex = 2) then
+  begin
+    if (FGridBem.Count = 0) or (CMessage('Deseja realmente sair?', mtConfirmationYesNo)) then
     begin
       CancelarClick(Self);
       Self.Close;
@@ -466,6 +464,32 @@ begin
   pObj.MaxLength := pred(pEspaco);
   pObj.Text := Format('%*.*n',[pEspaco,pDecimal,StrToFloat(xChar)/StrToInt(xDiv)]);
   pObj.SelStart := length(pObj.text)+1;
+end;
+
+procedure TF310CLP.CalcularReajuste(const pIndice: Double);
+var
+  xControle: TControle;
+begin
+  FIteradorReajuste.IndexCtr := pred(FGridCon.Line);
+  FIteradorReajuste.IndexTit := pred(FGridRea.Line);
+  FIteradorReajuste.ValorIndice := pIndice;
+  FIteradorReajuste.CalcularAjustes();
+
+  if (pIndice = 0) then
+  begin
+    FGridRea.FindField('Check').AsInteger := 0;
+    xControle := TControle(FIteradorReajuste[FIteradorReajuste.IndexCtr]);
+
+    if not(xControle.Ajuste.Selecionados) then
+    begin
+      FGridCon.FindField('Check').AsInteger := 0;
+      xControle.Check := 0;
+    end;
+  end;
+
+  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
+  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
+  LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
 end;
 
 procedure TF310CLP.CancelarClick(Sender: TObject);
@@ -516,8 +540,11 @@ begin
   FGridLig.Clear;
   FGridDes.Clear;
   FGridClp.Clear;
-  BECodFil.SetFocus;
+
   PGControl.TabIndex := 0;
+  PGControlChange(Self);
+
+  BECodFil.SetFocus;
   BloquearCamposTitulo(False);
 end;
 
@@ -671,6 +698,14 @@ begin
   begin
     FGridCon.CheckFields('Check', pValue);
     FIteradorReajuste.MarcarDesmarcar(pValue);
+    FGridConEnterLine(Self);
+
+    if (pValue = 0) then
+    begin
+      LTotOri.Caption := '0.00';
+      LTotRea.Caption := '0.00';
+      LDifRea.Caption := '0.00';
+    end;
   end
   else
   begin
@@ -702,6 +737,7 @@ begin
 
      FIteradorLigacao.MarcarDesmarcarLigacoes(xCheck);
      FGridClp.First;
+     FGridClpEnterLine(Self);
      ValidarSelecao();
     end;
   end
@@ -711,7 +747,6 @@ begin
     begin
       FGridDes.CheckFields('Check', xCheck);
       FIteradorLigacao.MarcarDesmarcarDespesas(xCheck);
-      FGridLigCheckClick();
       ValidarSelecao();
     end;
   end;
@@ -831,6 +866,22 @@ begin
 
   Marcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
   Desmarcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
+
+  if (PGControl.TabIndex in [0,1]) then
+  begin
+    GBBem.Visible := False;
+    GBContrato.Visible := True;
+    GBTitulo.Visible := True;
+    GBContrato.Align := alLeft;
+    GBTitulo.Align := alClient;
+  end
+  else
+  begin
+    GBBem.Align := alClient;
+    GBBem.Visible := True;
+    GBContrato.Visible := False;
+    GBTitulo.Visible := False;
+  end;
 end;
 
 procedure TF310CLP.PGControlDrawTab(Control: TCustomTabControl;
@@ -1003,6 +1054,11 @@ begin
   BETitFil.CreateLookup();
   BECodFor.CreateLookup();
 
+  //Bem
+  BEEmpBem.CreateLookup();
+  BECodBem.CreateLookup();
+  BECodBem.AddFilterLookup(BEEmpBem);
+
   BECodFil.Filter := Format('CODEMP = %d', [1]);
   BENumCtr.Filter := 'TIPCTR = 3 AND (NUMCTR IN (SELECT USU_NUMCTR FROM USU_T160CLP))';
   Ligar.Hint := 'Liga o(s) título(s) selecionado(s) ao contrato.';
@@ -1024,9 +1080,8 @@ begin
   FGridDes.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
-  FGridRea.AddColumn('IndRea', '% Índice Atual', ftFloat);
-  FGridRea.AddColumn('IndNov', '% Índice Reajuste', ftFloat);
-  FGridRea.AddColumn('LocDsc', 'Desconto do Locatário', ftFloat);
+  FGridRea.AddColumn('IndRea', '% Índice Cadastro', ftFloat);
+  FGridRea.AddColumn('IndNov', '% Índice Manual', ftFloat);
 
   FGridRea.CreateDataSet;
   FGridCon.CreateDataSet;
@@ -1044,7 +1099,6 @@ begin
   FGridDes.NumericField('VlrOri', '###,###,##0.00');
   FGridDes.NumericField('VlrAbe', '###,###,##0.00');
   FGridRea.NumericField('IndNov', '###,###,##0.00');
-  FGridRea.NumericField('LocDsc', '###,###,##0.00');
   FGridRea.NumericField('VlrOri', '###,###,##0.00');
   FGridRea.NumericField('VlrAbe', '###,###,##0.00');
 
@@ -1055,6 +1109,11 @@ begin
 
   PGControl.OwnerDraw := True;
   PGControl.TabIndex := 0;
+  GBBem.Visible := False;
+  GBContrato.Align := alLeft;
+  GBTitulo.Align := alClient;
+
+  Self.ClientWidth := 989;
   BloquearCamposTitulo(False);
 end;
 
@@ -1128,6 +1187,11 @@ begin
   xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
   x301tcr := T301TCR(xControle.Ajuste[pred(FGridRea.Line)]);
   x301tcr.Check := iff(x301tcr.Check = 1, 0, 1);
+  FGridRea.FindField('Check').AsInteger := x301tcr.Check;
+
+  FIteradorReajuste.RemoverCalculos := (x301tcr.Check = 0);
+  CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
+    FGridRea.FindField('IndNov').AsFloat));
 
   if not(xControle.Ajuste.Selecionados) then
   begin
@@ -1143,11 +1207,12 @@ end;
 
 procedure TF310CLP.FGridReaIndNovChange;
 begin
-  FIteradorReajuste.RecalcularAjustes(FGridRea.FindField('IndNov').AsFloat, pred(FGridCon.Line), pred(FGridRea.Line));
-  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
-
-  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
-  LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
+  if (FGridRea.FindField('Check').AsInteger = 1) then
+  begin
+    CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
+      FGridRea.FindField('IndNov').AsFloat));
+    FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
+  end;
 end;
 
 function TF310CLP.FiltroContrato: string;

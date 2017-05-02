@@ -4,7 +4,7 @@ interface
 
 uses
   Data.SqlExpr, oQuery, System.Rtti, System.SysUtils, Data.DBXOracle,
-  System.Contnrs, System.Variants, Data.DBXCommon, Data.Db, Data.DBCommon,
+  System.Contnrs, Data.DBXCommon, Data.Db, Data.DBCommon,
   Data.Win.ADODB, System.Classes, System.TypInfo;
 
 type

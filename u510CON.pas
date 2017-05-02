@@ -65,11 +65,7 @@ type
     Panel9: TPanel;
     ExcluirTit: TButton;
     procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
-    procedure BECodEmpRightButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure BECodFilRightButtonClick(Sender: TObject);
-    procedure BECodPorRightButtonClick(Sender: TObject);
-    procedure BECodForRightButtonClick(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure FGridArmEnterLine(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -158,11 +154,6 @@ begin
     Key := #0;
 end;
 
-procedure TF510CON.BECodEmpRightButtonClick(Sender: TObject);
-begin
-  BECodEmp.LookupData;
-end;
-
 procedure TF510CON.BECodFilExit(Sender: TObject);
 begin
   FString := BECodFil.Text;
@@ -178,11 +169,6 @@ begin
     Key := #0
   else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
     Key := #0;
-end;
-
-procedure TF510CON.BECodFilRightButtonClick(Sender: TObject);
-begin
-  BECodFil.LookupData;
 end;
 
 procedure TF510CON.BECodForExit(Sender: TObject);
@@ -202,11 +188,6 @@ begin
     Key := #0;
 end;
 
-procedure TF510CON.BECodForRightButtonClick(Sender: TObject);
-begin
-  BECodFor.LookupData;
-end;
-
 procedure TF510CON.BECodPorExit(Sender: TObject);
 begin
   FString := BECodPor.Text;
@@ -222,11 +203,6 @@ begin
     Key := #0
   else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
     Key := #0;
-end;
-
-procedure TF510CON.BECodPorRightButtonClick(Sender: TObject);
-begin
-  BECodPor.LookupData;
 end;
 
 procedure TF510CON.BEVlrFimExit(Sender: TObject);
@@ -557,7 +533,7 @@ var
 begin
   x510CON := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
 
-  if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o(s) registro(s) selecionado(s)?', mtConfirmationYesNo)) then
+  if x510CON.ListaTit.Selecionados and (CMessage('Deseja realmente excluir o registro selecionado?', mtConfirmationYesNo)) then
   begin
     x510CON.Excluir(pred(FGridTit.Line), FControle);
 

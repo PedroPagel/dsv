@@ -19,7 +19,7 @@ type
 
   TDataSetGrid = class(TDBGrid)
   private
-    FFiedList: string;
+    FFieldList: string;
     FTable: string;
     FFilter: string;
     FIndexFields: string;
@@ -32,6 +32,8 @@ type
     FOldValue: Variant;
     FNewLine: Integer;
     FChangeLine: Boolean;
+    FBackSpace: Boolean;
+    FLike: Boolean;
 
     FForm: TForm;
     FQueryField: THQuery;
@@ -59,8 +61,11 @@ type
     procedure EnterGrid(Sender: TObject);
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
+    procedure ExitCol(Sender: TObject);
     procedure CallCheck();
     procedure CreateFieldOrder(const pIndexFields: string);
+  protected
+    procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
   public
     procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
     procedure Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
@@ -79,12 +84,17 @@ type
     procedure Visible(const pField: string; pValue: Boolean);
     procedure NumericField(const pField: string; const pMask: string);
     procedure CheckFields(const pField: string; const pValue: Integer);
+    procedure Filter(const pValue: Variant; const pField: string; const pDo: Boolean);
+    procedure OrderBy(const pField: string; const pASC: Boolean);
 
     function Eof: Boolean;
     function Count: Integer;
     function Line: Integer;
     function FindField(const pFieldName: string): TField;
     function Selected(const pField: string): Variant;
+    function GridTitleClick(): Boolean;
+
+    property Like: Boolean read FLike write FLike;
   published
     property OnEnterLine: TEnterLine read FEnterLine write FEnterLine;
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
@@ -95,7 +105,7 @@ procedure Register;
 implementation
 
 uses
-  oBase, oMensagem;
+  oBase, oMensagem, System.Variants;
 
 procedure Register;
 begin
@@ -115,11 +125,12 @@ begin
   FTable := pTable;
   FForm := pForm;
 
-  FFiedList := EmptyStr;
+  FFieldList := EmptyStr;
   FFilter := pFilter;
   FColumn := 0;
   FCount := 0;
   FChangeLine := False;
+  FBackSpace := False;
 
   FClientDataSet.Close;
   FClientDataSet.FieldDefs.Clear;
@@ -131,18 +142,19 @@ begin
   Self.OnExit := ExitGrid;
   Self.OnKeyPress := GridKeyPress;
   Self.OnColEnter := EnterCol;
+  Self.OnColExit := ExitCol;
 
   CreateFieldOrder(pIndexFields);
 end;
 
 function TDataSetGrid.Line: Integer;
 begin
-  Result := FClientDataSet.RecNo;
+  Result := Self.DataSource.DataSet.RecNo;
 end;
 
 procedure TDataSetGrid.Next;
 begin
-  FClientDataSet.Next;
+  Self.DataSource.DataSet.Next;
 end;
 
 procedure TDataSetGrid.NumericField(const pField: string; const pMask: string);
@@ -150,9 +162,31 @@ begin
   TNumericField(FClientDataSet.FieldByName(pField)).DisplayFormat := ','+ pMask +';-,'+ pMask;
 end;
 
+procedure TDataSetGrid.OrderBy(const pField: string; const pASC: Boolean);
+var
+  xQuery: THQuery;
+begin
+  Self.DataSource.DataSet := FClientDataSet;
+
+  if (pASC) then
+  begin
+    FClientDataSet.IndexFieldNames := pField;
+    FClientDataSet.First;
+  end
+  else
+  begin
+    xQuery := THQuery.CreatePersonalizado();
+    xQuery.Command := Format('SELECT %s FROM %s WHERE %s ORDER BY %s %s',
+        [FFieldList, FTable, FFilter, pField, iff(pASC, 'ASC','DESC')]);
+    xQuery.Open;
+
+    Self.DataSource.DataSet := xQuery;
+  end;
+end;
+
 procedure TDataSetGrid.Edit;
 begin
-  FClientDataSet.Edit;
+  Self.DataSource.DataSet.Edit;
 end;
 
 procedure TDataSetGrid.EnterGrid(Sender: TObject);
@@ -162,7 +196,7 @@ begin
   FFieldState := gsOnEnter;
   FOldLine := 0;
   FOldColumn := 0;
-  FOldEnterLine := FClientDataSet.RecNo;
+  FOldEnterLine := Self.DataSource.DataSet.RecNo;
 
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
@@ -175,7 +209,7 @@ end;
 
 procedure TDataSetGrid.Post;
 begin
-  FClientDataSet.Post;
+  Self.DataSource.DataSet.Post;
 end;
 
 procedure TDataSetGrid.ReadOnly(const pField: string; pValue: Boolean);
@@ -212,7 +246,7 @@ begin
     if (FOldLine <> FNewLine) then
     begin
       FChangeLine := False;
-      FClientDataSet.RecNo := FNewLine;
+      Self.DataSource.DataSet.RecNo := FNewLine;
     end;
 end;
 
@@ -221,20 +255,27 @@ begin
   if (FGridState = gsBrowse) then
   begin
     if Assigned(FEnterLine) then
-      if (FOldEnterLine <> FClientDataSet.RecNo) then
+      if (FOldEnterLine <> Self.DataSource.DataSet.RecNo) then
       begin
         FEnterLine(Self);
-        FOldEnterLine := FClientDataSet.RecNo;
+        FOldEnterLine := Self.DataSource.DataSet.RecNo;
       end;
 
-    if ((FOldLine <> FClientDataSet.RecNo) and (FFieldState = gsNewValue)) then
+    if ((FOldLine <> Self.DataSource.DataSet.RecNo) and (FFieldState = gsNewValue)) then
     begin
       FChangeLine := True;
-      FNewLine := FClientDataSet.RecNo;
+      FNewLine := Self.DataSource.DataSet.RecNo;
       FFieldState := gsCallCheck;
 
       //Passado outro FS, pois o RecNo ira chamar o ChangeData
-      FClientDataSet.RecNo := FOldLine;
+      Self.DataSource.DataSet.RecNo := FOldLine;
+    end;
+
+
+    if (FBackSpace) and (FOldLine <> Self.DataSource.DataSet.RecNo) then
+    begin
+      FChangeLine := True;
+      ExitCol(Self);
     end;
 
     if (FFieldState = gsCallCheck) then
@@ -246,10 +287,10 @@ end;
 
 function TDataSetGrid.Eof: Boolean;
 begin
-  Result := FClientDataSet.Eof;
+  Result := Self.DataSource.DataSet.Eof;
 
   if not(Result) then
-    FClientDataSet.Edit;
+    Self.DataSource.DataSet.Edit;
 end;
 
 procedure TDataSetGrid.EnterCol(Sender: TObject);
@@ -268,6 +309,28 @@ begin
       Self.Options := Self.Options + [dgEditing]
     else
       Self.Options := Self.Options - [dgEditing];
+  end;
+end;
+
+procedure TDataSetGrid.ExitCol(Sender: TObject);
+begin
+  if (FBackSpace) then
+  begin
+    FBackSpace := False;
+
+    if (VarIsNull(Self.Columns[FOldColumn].Field.Value)) or (FChangeLine) then
+      if (FOldLine <> Self.DataSource.DataSet.RecNo) then
+      begin
+        FChangeLine := False;
+        FNewLine := Self.DataSource.DataSet.RecNo;
+        Self.DataSource.DataSet.RecNo := FOldLine;
+
+        Self.DataSource.DataSet.Edit;
+        Self.Columns[FOldColumn].Field.Value := FOldValue;
+        Self.DataSource.DataSet.RecNo := FNewLine;
+      end
+      else
+        Self.Columns[FOldColumn].Field.Value := FOldValue;
   end;
 end;
 
@@ -330,18 +393,77 @@ begin
     Result := iff(IsNumber(UpperCase(pMask)), iff(pSize >= 10, ftBCD, ftLargeint), ftFloat);
 end;
 
+procedure TDataSetGrid.Filter(const pValue: Variant; const pField: string; const pDo: Boolean);
+var
+  xFilter: string;
+
+  function Command: string;
+  begin
+    Result := EmptyStr;
+
+    if (Self.DataSource.DataSet.FindField(pField).DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
+        ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
+    begin
+      if not(FLike) then
+        Result := Format(pField + ' = %s', [VarToStr(pValue)]);
+    end
+    else
+    if (FLike) then
+      Result := pField + ' LIKE (''%'+ VarToStr(pValue) + '%'')'
+    else
+      Result := Format(pField + ' = ''%s''', [VarToStr(pValue)]);
+
+    xFilter := Result;
+  end;
+
+  procedure QueryFilter;
+  var
+    xQuery: THQuery;
+  begin
+    xQuery := THQuery.CreatePersonalizado();
+    xQuery.Command := Format('SELECT %s FROM %s WHERE %s LIKE %s %s ORDER BY %s',
+        [FFieldList, FTable, pField, '''%' + VarToStr(pValue) + '%''',iff(IsNull(FFilter), EmptyStr, ' AND '+ FFilter), pField]);
+    xQuery.Open;
+
+    Self.DataSource.DataSet := xQuery;
+  end;
+
+begin
+  xFilter := EmptyStr;
+  Self.DataSource.DataSet := FClientDataSet;
+
+  if (pDo) then
+  begin
+    try
+      if not(IsNull(Command)) then
+      begin
+        FClientDataSet.Filtered := False;
+        FClientDataSet.Filter := xFilter;
+        FClientDataSet.Filtered := True;
+      end
+      else
+        QueryFilter;
+    except
+      on E: Exception do
+        CMessage('Não foi possível realizar o filtro', mtErrorInform);
+    end;
+  end
+  else
+    FClientDataSet.Filtered := False;
+end;
+
 function TDataSetGrid.FindField(const pFieldName: string): TField;
 begin
-  FClientDataSet.Edit;
-  Result := FClientDataSet.FindField(pFieldName);
+  Self.DataSource.DataSet.Edit;
+  Result := Self.DataSource.DataSet.FindField(pFieldName);
 end;
 
 procedure TDataSetGrid.Finalize;
 begin
-  if Assigned(FClientDataSet) then
+  if Assigned(Self.DataSource.DataSet) then
   begin
     Clear;
-    FClientDataSet.FieldDefs.Clear;
+    Self.DataSource.DataSet.FieldDefs.Clear;
     FreeAndNil(FClientDataSet);
   end;
 
@@ -353,7 +475,7 @@ end;
 
 procedure TDataSetGrid.First;
 begin
-  FClientDataSet.First;
+  Self.DataSource.DataSet.First;
 end;
 
 function TDataSetGrid.GetAllowNewLine: Boolean;
@@ -368,35 +490,17 @@ begin
     Abort;
 
   if (Key in [VK_DOWN]) then
-    if not(FAllowNewLine) and (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+    if not(FAllowNewLine) and (Self.DataSource.DataSet.RecNo = Self.DataSource.DataSet.RecordCount) then
       Abort;
 
-  if (Key = 9) then
-  begin
+  if (key = 9) then
     Abort;
-
-    if (Col = pred(ColCount)) and (Row < pred(RowCount)) then
-    begin
-      if (pred(RowCount) >= 1) then
-      begin
-        Row := Row + 1;
-        Col := 1;
-      end
-      else
-        Abort;
-    end
-    else
-    if (Col < pred(ColCount)) then
-      Col := Col + 1;
-
-    if (Row = pred(RowCount)) and (Col = pred(ColCount)) then
-      Abort;
-  end;
 end;
 
 procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
 var
   xNextCol: Boolean;
+  xSpacePress: Boolean;
 
   procedure NewValue();
   var
@@ -409,66 +513,117 @@ var
       FOldValue := Self.Columns[pred(Col)].Field.Value;
 
     FOldColumn := Col;
-    FOldLine := FClientDataSet.RecNo;
+    FOldLine := Self.DataSource.DataSet.RecNo;
     FFieldState := iff(xReadOnly, gsBrowse, gsNewValue);
   end;
 
-begin
-  xNextCol := (Key = #13);
-
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
-    ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
+  procedure SpacePress();
+  var
+    i: Integer;
   begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+    if (Assigned(FCheckList)) then
     begin
-      key := #0;
-      FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
-  end
-  else
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftFixedChar, ftString, ftWideString]) then
-  begin
-    if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
-    begin
-        Key := #0;
-        FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
-  end
-  else
-  if (FClientDataSet.FieldDefs[Col].DataType in [ftDate, ftDateTime]) then
-  begin
-    if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
-    begin
-      key := #0;
-      FFieldState := gsBrowse;
-    end
-    else
-      NewValue();
+      for i := 0 to pred(FCheckList.Count) do
+      begin
+        if AnsiSameText(Self.Columns[pred(Col)].FieldName,FCheckList[i]) then
+        begin
+          Self.FindField(Self.Columns[pred(Col)].FieldName).AsInteger := iff(Self.FindField(Self.Columns[pred(Col)].FieldName).AsInteger = 0, 1, 0);
+          CheckMethod(Self.Columns[pred(Col)].FieldName, cmClick);
+          Break;
+        end;
+      end;
+    end;
   end;
 
-  if (xNextCol) then
+begin
+  FFieldState := iff(AnsiSameText(Key, #13) and (FFieldState = gsNewValue), gsNewValue, gsBrowse);
+
+  if not(AnsiSameText(Key, #9)) then
   begin
-    if (Self.Col < pred(ColCount)) then
-      Self.Col := Self.Col + 1
-    else
-    if not(FClientDataSet.RecNo = FClientDataSet.RecordCount) then
+    xNextCol := AnsiSameText(Key, #13);
+    xSpacePress := AnsiSameText(Key, #32);
+    FBackSpace := iff((AnsiSameText(Key,#8) or ((xNextCol) and
+      VarIsNull(Self.Columns[FOldColumn].Field.Value) and FBackSpace)), True, False);
+
+    if (xSpacePress) then
+      SpacePress();
+
+    if not(xNextCol or xSpacePress) and not(FBackSpace) then
+      if (Self.DataSource.DataSet.FieldDefs[Pred(Col)].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
+        ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) then
+      begin
+        if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+        begin
+          key := #0;
+          FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end
+      else
+      if (Self.DataSource.DataSet.FieldDefs[Pred(Col)].DataType in [ftFixedChar, ftString, ftWideString]) then
+      begin
+        if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
+        begin
+            Key := #0;
+            FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end
+      else
+      if (Self.DataSource.DataSet.FieldDefs[Pred(Col)].DataType in [ftDate, ftDateTime]) then
+      begin
+        if not(CharInSet(key, ['0'..'9',',',#8])) and not(xNextCol) then
+        begin
+          key := #0;
+          FFieldState := gsBrowse;
+        end
+        else
+          NewValue();
+      end;
+
+    if (FBackSpace) then
     begin
-      FClientDataSet.RecNo := FClientDataSet.RecNo + 1;
-      Col := 1;
-    end
-    else
-    if (FClientDataSet.RecNo = FClientDataSet.RecordCount) then
-    begin
-      FClientDataSet.RecNo := 1;
-      Col := 1;
+      if not(xNextCol) then
+      begin
+        FOldColumn := pred(Col);
+        FOldLine := Self.DataSource.DataSet.RecNo;
+        FOldValue := Self.Columns[pred(Col)].Field.Value;
+      end;
     end;
 
-    EnterCol(Self);
+    if (xNextCol) then
+    begin
+      if (Self.Col < pred(ColCount)) then
+        Self.Col := Self.Col + 1
+      else
+      if not(Self.DataSource.DataSet.RecNo = Self.DataSource.DataSet.RecordCount) then
+      begin
+        Self.DataSource.DataSet.RecNo := Self.DataSource.DataSet.RecNo + 1;
+        Col := 1;
+      end
+      else
+      if (Self.DataSource.DataSet.RecNo = Self.DataSource.DataSet.RecordCount) then
+      begin
+        Self.DataSource.DataSet.RecNo := 1;
+        Col := 1;
+      end;
+
+      ExitCol(Self);
+      EnterCol(Self);
+    end;
   end;
+end;
+
+function TDataSetGrid.GridTitleClick(): Boolean;
+var
+  xPoint: TPoint;
+  xMouse: TPoint;
+begin
+  xMouse := Mouse.CursorPos;
+  xPoint := Self.ScreenToClient(xMouse);
+  Result := (Self.MouseCoord(xPoint.X, xPoint.Y).Y = 0) and (dgTitles in Self.Options);
 end;
 
 function TDataSetGrid.DesmontaID(const pString: string): string;
@@ -492,7 +647,7 @@ begin
       if AnsiSameText(Column.FieldName,FCheckList[i]) then
       begin
         Self.Canvas.FillRect(Rect);
-        xCheck := iff(FClientDataSet.FieldByName(Column.FieldName).AsInteger = 1, DFCS_CHECKED, DFCS_BUTTONCHECK);
+        xCheck := iff((Self.DataSource.DataSet.FieldByName(Column.FieldName).AsInteger = 1), DFCS_CHECKED, DFCS_BUTTONCHECK);
 
         xRec := Rect;
         InflateRect(xRec,-2,-2);
@@ -511,9 +666,9 @@ begin
     begin
       if AnsiSameText(Column.FieldName,FCheckList[i]) then
       begin
-        FClientDataSet.Edit;
-        FClientDataSet.FieldByName(Column.FieldName).AsInteger := iff(FClientDataSet.FieldByName(Column.FieldName).AsInteger = 0, 1, 0);
-        FClientDataSet.Post;
+        Self.DataSource.DataSet.Edit;
+        Self.DataSource.DataSet.FieldByName(Column.FieldName).AsInteger := iff(Self.DataSource.DataSet.FieldByName(Column.FieldName).AsInteger = 0, 1, 0);
+        Self.DataSource.DataSet.Post;
         CheckMethod(Column.FieldName, cmClick);
       end;
     end;
@@ -628,7 +783,7 @@ begin
   end;
 
   xQuery.Close;
-  UltimoCaracter(FFiedList, ',');
+  UltimoCaracter(FFieldList, ',');
 
   FClientDataSet.CreateDataSet;
   Self.DataSource.DataSet := FClientDataSet;
@@ -659,7 +814,7 @@ end;
 
 function TDataSetGrid.Selected(const pField: string): Variant;
 begin
-  Result := FClientDataSet.FindField(pField).AsVariant;
+  Result := Self.DataSource.DataSet.FindField(pField).AsVariant;
 end;
 
 procedure TDataSetGrid.SetAllowNewLine(const Value: Boolean);
@@ -671,7 +826,7 @@ procedure TDataSetGrid.SetFields(const pField: string; const pType: TFieldType; 
 begin
   if (pType in [ftBCD, ftFloat, ftString, ftDateTime, ftLargeint, ftInteger, ftBoolean]) then
   begin
-    FFiedList := FFiedList + pField + ',';
+    FFieldList := FFieldList + pField + ',';
 
     if (pType = ftString) then
       FClientDataSet.FieldDefs.Add(pField, ftString, pLenFld)
@@ -684,7 +839,7 @@ procedure TDataSetGrid.ShowSearch;
 var
   i: Integer;
 begin
-  FQueryField.Command := Format('SELECT %s FROM %s', [FFiedList, FTable]) + iff(not(IsNull(FFilter)), ' WHERE ' + FFilter, EmptyStr);
+  FQueryField.Command := Format('SELECT %s FROM %s', [FFieldList, FTable]) + iff(not(IsNull(FFilter)), ' WHERE ' + FFilter, EmptyStr);
   FQueryField.Open;
   while not(FQueryField.Eof) do
   begin
@@ -696,6 +851,7 @@ begin
     Self.Refresh;
     FQueryField.Next;
   end;
+  Self.DataSource.DataSet.First;
 end;
 
 procedure TDataSetGrid.Visible(const pField: string; pValue: Boolean);
@@ -712,10 +868,15 @@ begin
   end;
 end;
 
+procedure TDataSetGrid.ActionChange(Sender: TObject; CheckDefaults: Boolean);
+begin
+  inherited;
+end;
+
 procedure TDataSetGrid.Add;
 begin
   FGridState := gsInsert;
-  FClientDataSet.Append;
+  Self.DataSource.DataSet.Append;
 end;
 
 procedure TDataSetGrid.AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
@@ -723,8 +884,8 @@ begin
   Self.Columns.Add;
   Self.Columns[FColumn].FieldName := pName;
   Self.Columns[FColumn].Title.Caption := pDesc;
-  Self.Columns[FColumn].Width := Length(pDesc) + iff(pCheck, 30, 100);
-  Self.Columns[FColumn].Alignment := taCenter;
+  //Self.Columns[FColumn].Width := Length(pDesc) + iff(pCheck, 30, 100);
+  //Self.Columns[FColumn].Alignment := taCenter;
   Inc(FColumn);
 
   if (pCheck) then

@@ -16,14 +16,25 @@ type
     Panel2: TPanel;
     Sair: TButton;
     OK: TButton;
+    ECampo: TEdit;
+    EFiltro: TEdit;
+    Label1: TLabel;
+    Label2: TLabel;
+    CBFiltrar: TCheckBox;
+    CBFiltros: TComboBox;
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SairClick(Sender: TObject);
     procedure OKClick(Sender: TObject);
     procedure FGridPesDblClick(Sender: TObject);
+    procedure FGridPesTitleClick(Column: TColumn);
+    procedure CBFiltrarClick(Sender: TObject);
+    procedure FGridPesEnterLine(Sender: TObject);
   private
     FField: string;
+    FieldName: string;
     FRetorno: Variant;
+    FOrdenado: Integer;
   public
     function Return(): Variant;
     procedure ShowData(const pTable: string; const pField: string; const pIndexFields: string = ''; const pFilter: string = '');
@@ -36,9 +47,40 @@ implementation
 
 {$R *.dfm}
 
+procedure TFPesHen.CBFiltrarClick(Sender: TObject);
+begin
+  FGridPes.Like := (CBFiltros.ItemIndex = 1);
+  FGridPes.Filter(EFiltro.Text, FieldName, CBFiltrar.Checked);
+end;
+
 procedure TFPesHen.FGridPesDblClick(Sender: TObject);
 begin
   Self.OK.OnClick(Self);
+end;
+
+procedure TFPesHen.FGridPesEnterLine(Sender: TObject);
+begin
+
+end;
+
+procedure TFPesHen.FGridPesTitleClick(Column: TColumn);
+begin
+   ECampo.Text := Column.Title.Caption;
+   FieldName := Column.FieldName;
+
+   if (Column.Field.DataType in [ftDate, ftTime, ftDateTime]) then
+   begin
+     CBFiltros.Enabled := False;
+     CBFiltros.ItemIndex := 0;
+   end
+   else
+    CBFiltros.Enabled := True;
+
+  Inc(FOrdenado);
+  FGridPes.OrderBy(FieldName, (FOrdenado = 1));
+
+  if (FOrdenado = 2) then
+    FOrdenado := 0;
 end;
 
 procedure TFPesHen.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -48,8 +90,11 @@ end;
 
 procedure TFPesHen.OKClick(Sender: TObject);
 begin
-  FRetorno := FGridPes.Selected(FField);
-  Close;
+  if not(FGridPes.GridTitleClick()) then
+  begin
+    FRetorno := FGridPes.Selected(FField);
+    Close;
+  end;
 end;
 
 function TFPesHen.Return: Variant;
@@ -69,7 +114,8 @@ begin
   FGridPes.Init(pTable, Self, pIndexFields, pFilter);
   FGridPes.CreateDataSet;
   FGridPes.ShowSearch();
-
+  FOrdenado := 0;
+  CBFiltros.ItemIndex := 0;
   ShowModal;
 end;
 

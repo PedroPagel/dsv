@@ -33,9 +33,8 @@ type
 
     procedure InserirContrato(const pNumCtr: Integer);
     procedure RemoverContrato();
-    procedure AdicionarTitulosReajuste();
+    procedure AdicionarTitulosReajuste(const pT090IND: T090IND);
     procedure AdicionarTitulosLigados();
-    procedure CalcularAjustes(const pT090IND: T090IND);
 
     property Titulo: TIterador read GetTitulo write SetTitulo;
     property Ligacao: TIterador read GetLigacao write SetLigacao;
@@ -49,6 +48,8 @@ type
     FIndNov: Double;
     FIndRea: Double;
     FIndFin: string;
+    FVlrIni: Double;
+    FOLD_IndNov: Double;
 
     function GetIndNov: Double;
     function GetIndRea: Double;
@@ -56,10 +57,19 @@ type
     procedure SetIndRea(const Value: Double);
     function GetIndFin: string;
     procedure SetIndFin(const Value: string);
+    function GetVlrIni: Double;
+    procedure SetVlrIni(const Value: Double);
+    function GetOLD_IndNov: Double;
+    procedure SetOLD_IndNov(const Value: Double);
   public
+    constructor Create(const pT090IND: T090IND; const pVlrOri: Double);
+    destructor Destroy(); override;
+
     property IndFin: string read GetIndFin write SetIndFin;
     property IndNov: Double read GetIndNov write SetIndNov;
     property IndRea: Double read GetIndRea write SetIndRea;
+    property VlrIni: Double read GetVlrIni write SetVlrIni;
+    property OLD_IndNov: Double read GetOLD_IndNov write SetOLD_IndNov;
   end;
 
   TIteradorControle = class(TIterador)
@@ -67,6 +77,10 @@ type
     F090IND: T090IND;
     FTotOri: Extended;
     FTotRea: Extended;
+    FIndexCtr: Integer;
+    FIndexTit: Integer;
+    FValorIndice: Double;
+    FRemoverCalculos: Boolean;
     FTitulo: tTitulo;
     FFiltraContrato: string;
     FFiltraTitulo: string;
@@ -96,7 +110,7 @@ type
     procedure MarcarDesmarcarDespesas(const pValue: Byte);
     procedure MarcarDesmarcarReajuste(const pReajusteIterado: TControle; const pValue: Byte);
     procedure MarcarDesmarcar(const pValue: Byte; const pLigacoes: Boolean = False);
-    procedure RecalcularAjustes(const pIndNov: Double; const pContrato: Integer; const pTitulo: Integer);
+    procedure CalcularAjustes();
 
     function TotalOriginal: Extended;
     function TotalAjustado: Extended;
@@ -105,6 +119,10 @@ type
     property FiltraTitulo: string write FFiltraTitulo;
     property Despesas: TIterador read GetDespesas write SetDespesas;
     property Titulo: tTitulo read GetTitulo write SetTitulo;
+    property IndexCtr: Integer read FIndexCtr write FIndexCtr;
+    property IndexTit: Integer  read FIndexTit write FIndexTit;
+    property RemoverCalculos: Boolean read FRemoverCalculos write FRemoverCalculos;
+    property ValorIndice: Double read FValorIndice write FValorIndice;
   end;
 
   function SituacaoTitulo(const pSitTit: string): Boolean;
@@ -138,7 +156,7 @@ begin
   end;
 end;
 
-procedure TControle.AdicionarTitulosReajuste;
+procedure TControle.AdicionarTitulosReajuste(const pT090IND: T090IND);
 var
   xQueryTitulo: T301TCR;
 begin
@@ -157,30 +175,10 @@ begin
       FTitulo.IterarAdd(xQueryTitulo, T301TCR.Create());
 
       if (SituacaoTitulo(xQueryTitulo.SitTit)) then
-        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create());
+        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(pT090IND, xQueryTitulo.VlrOri));
     end;
   finally
     FreeAndNil(xQueryTitulo);
-  end;
-end;
-
-procedure TControle.CalcularAjustes(const pT090IND: T090IND);
-var
-  i: Integer;
-  xTituloReajuste: TTituloControle;
-begin
-  for i := 0 to pred(FAjuste.Count) do
-  begin
-    xTituloReajuste := TTituloControle(FAjuste[i]);
-    xTituloReajuste.IndRea := pT090IND.USU_VlrInd;
-    xTituloReajuste.IndFin := pT090IND.USU_IndFin;
-
-    if (SituacaoTitulo(xTituloReajuste.SitTit)) then
-    begin
-      FTotOri := (FTotOri + xTituloReajuste.VlrOri);
-      xTituloReajuste.VlrOri := ((xTituloReajuste.VlrOri * (pT090IND.USU_VlrInd * 0.01)) + xTituloReajuste.VlrOri);
-      FTotRea := (FTotRea + xTituloReajuste.VlrOri);
-    end;
   end;
 end;
 
@@ -334,13 +332,7 @@ begin
       Self.Iterar(xQueryReajuste, xControle);
 
       if (FTitulo = tTContasReceber) then
-      begin
-        xControle.AdicionarTitulosReajuste();
-        xControle.CalcularAjustes(F090IND);
-
-        FTotOri := (FTotOri + xControle.TotOri);
-        FTotRea := (FTotRea + xControle.TotRea);
-      end
+        xControle.AdicionarTitulosReajuste(F090IND)
       else
         xControle.AdicionarTitulosLigados();
 
@@ -458,14 +450,33 @@ end;
 procedure TIteradorControle.MarcarDesmarcar(const pValue: Byte; const pLigacoes: Boolean = False);
 var
   i,j: Integer;
+  xTituloControle: TTituloControle;
 begin
   for i := 0 to pred(Self.Count) do
   begin
     TControle(Self[i]).Check := pValue;
 
     if (pLigacoes) then
+    begin
       for j := 0 to pred(TControle(Self[i]).Titulo.Count) do
         T501TCP(TControle(Self[i]).Titulo[j]).Check := pValue;
+    end
+    else
+    begin
+      FRemoverCalculos := (pValue = 0);
+
+      for j := 0 to pred(TControle(Self[i]).Ajuste.Count) do
+      begin
+        xTituloControle := TTituloControle(TControle(Self[i]).Ajuste[j]);
+
+        FIndexCtr := i;
+        FIndexTit := j;
+        FValorIndice := iff(xTituloControle.IndNov > 0, xTituloControle.IndNov, xTituloControle.IndRea);
+        CalcularAjustes();
+
+        xTituloControle.Check := pValue;
+      end;
+    end;
   end;
 end;
 
@@ -502,11 +513,18 @@ end;
 procedure TIteradorControle.MarcarDesmarcarReajuste(const pReajusteIterado: TControle; const pValue: Byte);
 var
   i: Integer;
+  xTituloControle: TTituloControle;
 begin
+  FIndexCtr := Self.IndexOf(pReajusteIterado);
   for i := 0 to pred(pReajusteIterado.Ajuste.Count) do
   begin
-    if (SituacaoTitulo(T301TCR(pReajusteIterado.Ajuste[i]).SitTit)) then
-      T301TCR(pReajusteIterado.Ajuste[i]).Check := pValue;
+    xTituloControle := TTituloControle(pReajusteIterado.Ajuste[i]);
+    xTituloControle.Check := pValue;
+
+    FIndexTit := i;
+    FRemoverCalculos := (pValue = 0);
+    FValorIndice := iff(xTituloControle.IndNov > 0, xTituloControle.IndNov, xTituloControle.IndRea);
+    CalcularAjustes();
   end;
 end;
 
@@ -562,20 +580,24 @@ begin
   end;
 end;
 
-procedure TIteradorControle.RecalcularAjustes(const pIndNov: Double;
-  const pContrato: Integer; const pTitulo: Integer);
+procedure TIteradorControle.CalcularAjustes();
 var
   xTituloReajuste: TTituloControle;
-  x301tcr: T301TCR;
 begin
-  x301tcr := T301TCR(TControle(Self[pContrato]).Titulo[pTitulo]);
-  xTituloReajuste := TTituloControle(TControle(Self[pContrato]).Ajuste[pTitulo]);
+  xTituloReajuste := TTituloControle(TControle(Self[FIndexCtr]).Ajuste[FIndexTit]);
 
-  FTotRea := (FTotRea - xTituloReajuste.VlrOri);
-  xTituloReajuste.VlrOri := ((x301tcr.VlrOri * (pIndNov * 0.01)) + x301tcr.VlrOri);
-  xTituloReajuste.IndNov := pIndNov;
+  if (FRemoverCalculos) or ((FValorIndice > 0) and (FValorIndice <> xTituloReajuste.OLD_IndNov)) then
+    FTotRea := (FTotRea - (xTituloReajuste.VlrOri - xTituloReajuste.VlrIni));
 
-  FTotRea := (FTotRea + xTituloReajuste.VlrOri);
+  xTituloReajuste.VlrOri := iff(not(FRemoverCalculos), ((xTituloReajuste.VlrIni * (FValorIndice * 0.01)) + xTituloReajuste.VlrIni), xTituloReajuste.VlrIni);
+
+  if not(FRemoverCalculos) then
+    FTotRea := (FTotRea + (xTituloReajuste.VlrOri - xTituloReajuste.VlrIni));
+
+  if (FValorIndice = 0) then
+    xTituloReajuste.Check := 0;
+
+  xTituloReajuste.OLD_IndNov := FValorIndice;
 end;
 
 procedure TIteradorControle.RemoverContrato;
@@ -694,6 +716,20 @@ end;
 
 { TTituloControle }
 
+constructor TTituloControle.Create(const pT090IND: T090IND; const pVlrOri: Double);
+begin
+  inherited Create();
+
+  Self.IndRea := pT090IND.USU_VlrInd;
+  Self.IndFin := pT090IND.USU_IndFin;
+  FVlrIni := pVlrOri;
+end;
+
+destructor TTituloControle.Destroy;
+begin
+  inherited;
+end;
+
 function TTituloControle.GetIndFin: string;
 begin
   Result := FIndFin;
@@ -709,6 +745,16 @@ begin
   Result := FIndRea;
 end;
 
+function TTituloControle.GetOLD_IndNov: Double;
+begin
+  Result := FOLD_IndNov;
+end;
+
+function TTituloControle.GetVlrIni: Double;
+begin
+  Result := FVlrIni;
+end;
+
 procedure TTituloControle.SetIndFin(const Value: string);
 begin
   FIndFin := Value;
@@ -722,6 +768,16 @@ end;
 procedure TTituloControle.SetIndRea(const Value: Double);
 begin
   FIndRea := Value;
+end;
+
+procedure TTituloControle.SetOLD_IndNov(const Value: Double);
+begin
+  FOLD_IndNov := Value;
+end;
+
+procedure TTituloControle.SetVlrIni(const Value: Double);
+begin
+  FVlrIni := Value;
 end;
 
 end.
