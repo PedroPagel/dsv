@@ -29,7 +29,6 @@ type
     procedure FGridPesDblClick(Sender: TObject);
     procedure FGridPesTitleClick(Column: TColumn);
     procedure CBFiltrarClick(Sender: TObject);
-    procedure FGridPesEnterLine(Sender: TObject);
   private
     FField: string;
     FieldName: string;
@@ -50,17 +49,13 @@ implementation
 procedure TFPesHen.CBFiltrarClick(Sender: TObject);
 begin
   FGridPes.Like := (CBFiltros.ItemIndex = 1);
+  EFiltro.Enabled := not(CBFiltrar.Checked);
   FGridPes.Filter(EFiltro.Text, FieldName, CBFiltrar.Checked);
 end;
 
 procedure TFPesHen.FGridPesDblClick(Sender: TObject);
 begin
   Self.OK.OnClick(Self);
-end;
-
-procedure TFPesHen.FGridPesEnterLine(Sender: TObject);
-begin
-
 end;
 
 procedure TFPesHen.FGridPesTitleClick(Column: TColumn);

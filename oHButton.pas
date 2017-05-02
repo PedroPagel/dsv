@@ -3,7 +3,8 @@ unit oHButton;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.Dialogs, Vcl.Forms;
+  System.SysUtils, System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.Dialogs,
+  Vcl.Forms, Vcl.Menus;
 
 type
   tButtonType = (btn_OK, btn_Cancel, btn_Yes, btn_No, btn_All, btn_Detail);
@@ -14,20 +15,28 @@ type
     FForm: Vcl.Forms.TForm;
     FType: tButtonType;
     FCheckClick: tButtonType;
+    FPopup: Boolean;
 
     procedure AfterClick(Sender: TObject);
+    procedure PopupClick(Sender: TObject);
   protected
     { Protected declarations }
   public
     { Public declarations }
+    constructor Create(AOwner: TComponent); override;
+
     function CheckClick(): tButtonType;
   published
     constructor CreatePersonalizado(AOwner: TForm; const pType: tButtonType);
+    property PopupMenu: Boolean read FPopup write FPopup;
   end;
 
 procedure Register;
 
 implementation
+
+uses
+  System.Types, oBase;
 
 procedure Register;
 begin
@@ -70,6 +79,13 @@ begin
   Result := FCheckClick;
 end;
 
+constructor TCButton.Create(AOwner: TComponent);
+begin
+  inherited;
+
+  Self.OnClick := PopupClick;
+end;
+
 constructor TCButton.CreatePersonalizado(AOwner: TForm; const pType: tButtonType);
 begin
   inherited Create(AOwner);
@@ -78,6 +94,13 @@ begin
   FType := pType;
   Self.OnClick := AfterClick;
   FillChar(FCheckClick, SizeOf(FCheckClick), 0);
+end;
+
+procedure TCButton.PopupClick(Sender: TObject);
+begin
+  if (Self.PopupMenu) then
+    with Self.ClientToScreen(point(0, 0)) do
+      Self.DropDownMenu.Popup(X, Y + Self.Height);
 end;
 
 end.

@@ -86,7 +86,25 @@ type
     FFilCtr: Integer;
     FNumCtr: Integer;
 
-    procedure GetCodCli(const Value: Integer);
+    FOldCodCli: Integer;
+    FOldVctOri: TDate;
+    FOldJrsDia: Extended;
+    FOldSitTit: string;
+    FOldVlrOri: Extended;
+    FOldCodBar: string;
+    FOldCodPor: string;
+    FOldCodCrp: string;
+    FOldTolDsc: Word;
+    FOldAntDsc: Char;
+    FOldPerDsc: Double;
+    FOldTipJrs: string;
+    FOldTolJrs: SmallInt;
+    FOldDatDsc: TDate;
+    FOldDatEmi: TDate;
+    FOldPerMul: Word;
+    FOldFilCtr: Integer;
+    FOldNumCtr: Integer;
+
     function SetCodCli: Integer;
     function GetAntDsc: Char;
     function GetCodBar: string;
@@ -103,6 +121,10 @@ type
     function GetTolJrs: SmallInt;
     function GetVctOri: TDate;
     function GetVlrOri: Extended;
+    function GetFilCtr: Integer;
+    function GetNumCtr: Integer;
+
+    procedure GetCodCli(const Value: Integer);
     procedure SetAntDsc(const Value: Char);
     procedure SetCodBar(const Value: string);
     procedure SetCodCrp(const Value: string);
@@ -118,10 +140,48 @@ type
     procedure SetTolJrs(const Value: SmallInt);
     procedure SetVctOri(const Value: TDate);
     procedure SetVlrOri(const Value: Extended);
-    function GetFilCtr: Integer;
-    function GetNumCtr: Integer;
     procedure SetFilCtr(const Value: Integer);
     procedure SetNumCtr(const Value: Integer);
+
+    function SetOLD_CodCli: Integer;
+    function GetOLD_AntDsc: Char;
+    function GetOLD_CodBar: string;
+    function GetOLD_CodCrp: string;
+    function GetOLD_CodPor: string;
+    function GetOLD_DatDsc: TDate;
+    function GetOLD_DatEmi: TDate;
+    function GetOLD_JrsDia: Extended;
+    function GetOLD_PerDsc: Double;
+    function GetOLD_PerMul: Word;
+    function GetOLD_SitTit: string;
+    function GetOLD_TipJrs: string;
+    function GetOLD_TolDsc: Word;
+    function GetOLD_TolJrs: SmallInt;
+    function GetOLD_VctOri: TDate;
+    function GetOLD_VlrOri: Extended;
+    function GetOLD_FilCtr: Integer;
+    function GetOLD_NumCtr: Integer;
+
+    procedure GetOLD_CodCli(const Value: Integer);
+    procedure SetOLD_AntDsc(const Value: Char);
+    procedure SetOLD_CodBar(const Value: string);
+    procedure SetOLD_CodCrp(const Value: string);
+    procedure SetOLD_CodPor(const Value: string);
+    procedure SetOLD_DatDsc(const Value: TDate);
+    procedure SetOLD_DatEmi(const Value: TDate);
+    procedure SetOLD_JrsDia(const Value: Extended);
+    procedure SetOLD_PerDsc(const Value: Double);
+    procedure SetOLD_PerMul(const Value: Word);
+    procedure SetOLD_SitTit(const Value: string);
+    procedure SetOLD_TipJrs(const Value: string);
+    procedure SetOLD_TolDsc(const Value: Word);
+    procedure SetOLD_TolJrs(const Value: SmallInt);
+    procedure SetOLD_VctOri(const Value: TDate);
+    procedure SetOLD_VlrOri(const Value: Extended);
+    procedure SetOLD_FilCtr(const Value: Integer);
+    procedure SetOLD_NumCtr(const Value: Integer);
+  protected
+    procedure Registros_OLD(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -144,6 +204,24 @@ type
     property PerMul: Word read GetPerMul write SetPerMul;
     property NumCtr: Integer read GetNumCtr write SetNumCtr;
     property FilCtr: Integer read GetFilCtr write SetFilCtr;
+    property OLD_CodCli: Integer read SetOLD_CodCli write GetOLD_CodCli;
+    property OLD_VctOri: TDate read GetOLD_VctOri write SetOLD_VctOri;
+    property OLD_JrsDia: Extended read GetOLD_JrsDia write SetOLD_JrsDia;
+    property OLD_SitTit: string read GetOLD_SitTit write SetOLD_SitTit;
+    property OLD_VlrOri: Extended read GetOLD_VlrOri write SetOLD_VlrOri;
+    property OLD_CodBar: string read GetOLD_CodBar write SetOLD_CodBar;
+    property OLD_CodPor: string read GetOLD_CodPor write SetOLD_CodPor;
+    property OLD_CodCrp: string read GetOLD_CodCrp write SetOLD_CodCrp;
+    property OLD_TolDsc: Word read GetOLD_TolDsc write SetOLD_TolDsc;
+    property OLD_AntDsc: Char read GetOLD_AntDsc write SetOLD_AntDsc;
+    property OLD_PerDsc: Double read GetOLD_PerDsc write SetOLD_PerDsc;
+    property OLD_TipJrs: string read GetOLD_TipJrs write SetOLD_TipJrs;
+    property OLD_TolJrs: SmallInt read GetOLD_TolJrs write SetOLD_TolJrs;
+    property OLD_DatDsc: TDate read GetOLD_DatDsc write SetOLD_DatDsc;
+    property OLD_DatEmi: TDate read GetOLD_DatEmi write SetOLD_DatEmi;
+    property OLD_PerMul: Word read GetOLD_PerMul write SetOLD_PerMul;
+    property OLD_NumCtr: Integer read GetOLD_NumCtr write SetOLD_NumCtr;
+    property OLD_FilCtr: Integer read GetOLD_FilCtr write SetOLD_FilCtr;
   end;
 
   T501TCP = class(TTitulo)
@@ -779,6 +857,30 @@ begin
   Result := FVlrOri;
 end;
 
+procedure T301TCR.Registros_OLD;
+begin
+  inherited;
+
+  FOldCodCli := FCodCli;
+  FOldVctOri := FVctOri;
+  FOldJrsDia := FJrsDia;
+  FOldSitTit := FSitTit;
+  FOldVlrOri := FVlrOri;
+  FOldCodBar := FCodBar;
+  FOldCodPor := FCodPor;
+  FOldCodCrp := FCodCrp;
+  FOldTolDsc := FTolDsc;
+  FOldAntDsc := FAntDsc;
+  FOldPerDsc := FPerDsc;
+  FOldTipJrs := FTipJrs;
+  FOldTolJrs := FTolJrs;
+  FOldDatDsc := FDatDsc;
+  FOldDatEmi := FDatEmi;
+  FOldPerMul := FPerMul;
+  FOldFilCtr := FFilCtr;
+  FOldNumCtr := FNumCtr;
+end;
+
 procedure T301TCR.SetAntDsc(const Value: Char);
 begin
   FAntDsc := Value;
@@ -867,6 +969,186 @@ end;
 procedure T301TCR.SetVlrOri(const Value: Extended);
 begin
   FVlrOri := Value;
+end;
+
+function T301TCR.GetOLD_AntDsc: Char;
+begin
+  Result := FOldAntDsc;
+end;
+
+function T301TCR.GetOLD_CodBar: string;
+begin
+  Result := FOldCodBar;
+end;
+
+procedure T301TCR.GetOLD_CodCli(const Value: Integer);
+begin
+  FOldCodCli := Value;
+end;
+
+function T301TCR.GetOLD_CodCrp: string;
+begin
+  Result := FOldCodCrp;
+end;
+
+function T301TCR.GetOLD_CodPor: string;
+begin
+  Result := FOldCodPor;
+end;
+
+function T301TCR.GetOLD_DatDsc: TDate;
+begin
+  Result := FOldDatDsc;
+end;
+
+function T301TCR.GetOLD_DatEmi: TDate;
+begin
+  Result := FOldDatEmi;
+end;
+
+function T301TCR.GetOLD_FilCtr: Integer;
+begin
+  Result := FOldFilCtr;
+end;
+
+function T301TCR.GetOLD_JrsDia: Extended;
+begin
+  Result := FOldJrsDia;
+end;
+
+function T301TCR.GetOLD_NumCtr: Integer;
+begin
+  Result := FOldNumCtr;
+end;
+
+function T301TCR.GetOLD_PerDsc: Double;
+begin
+  Result := FOldPerDsc;
+end;
+
+function T301TCR.GetOLD_PerMul: Word;
+begin
+  Result := FOldPerMul;
+end;
+
+function T301TCR.GetOLD_SitTit: string;
+begin
+  Result := FOldSitTit;
+end;
+
+function T301TCR.GetOLD_TipJrs: string;
+begin
+  Result := FOldTipJrs;
+end;
+
+function T301TCR.GetOLD_TolDsc: Word;
+begin
+  Result := FOldTolDsc;
+end;
+
+function T301TCR.GetOLD_TolJrs: SmallInt;
+begin
+  Result := FOldTolJrs;
+end;
+
+function T301TCR.GetOLD_VctOri: TDate;
+begin
+  Result := FOldVctOri;
+end;
+
+function T301TCR.GetOLD_VlrOri: Extended;
+begin
+  Result := FOldVlrOri;
+end;
+
+procedure T301TCR.SetOLD_AntDsc(const Value: Char);
+begin
+  FOldAntDsc := Value;
+end;
+
+procedure T301TCR.SetOLD_CodBar(const Value: string);
+begin
+  FOldCodBar := Value;
+end;
+
+function T301TCR.SetOLD_CodCli: Integer;
+begin
+  Result := FOldCodCli;
+end;
+
+procedure T301TCR.SetOLD_CodCrp(const Value: string);
+begin
+  FOldCodCrp := Value;
+end;
+
+procedure T301TCR.SetOLD_CodPor(const Value: string);
+begin
+  FOldCodPor := Value;
+end;
+
+procedure T301TCR.SetOLD_DatDsc(const Value: TDate);
+begin
+  FOldDatDsc := Value;
+end;
+
+procedure T301TCR.SetOLD_DatEmi(const Value: TDate);
+begin
+  FOldDatEmi := Value;
+end;
+
+procedure T301TCR.SetOLD_FilCtr(const Value: Integer);
+begin
+  FOldFilCtr := Value;
+end;
+
+procedure T301TCR.SetOLD_JrsDia(const Value: Extended);
+begin
+  FOldJrsDia := Value;
+end;
+
+procedure T301TCR.SetOLD_NumCtr(const Value: Integer);
+begin
+  FOldNumCtr := Value;
+end;
+
+procedure T301TCR.SetOLD_PerDsc(const Value: Double);
+begin
+  FOldPerDsc := Value;;
+end;
+
+procedure T301TCR.SetOLD_PerMul(const Value: Word);
+begin
+  FOldPerMul := Value;
+end;
+
+procedure T301TCR.SetOLD_SitTit(const Value: string);
+begin
+  FOldSitTit := Value;
+end;
+
+procedure T301TCR.SetOLD_TipJrs(const Value: string);
+begin
+  FOldTipJrs := Value;
+end;
+
+procedure T301TCR.SetOLD_TolDsc(const Value: Word);
+begin
+  FOldTolDsc := Value;
+end;
+
+procedure T301TCR.SetOLD_TolJrs(const Value: SmallInt);
+begin
+  FOldTolJrs := Value;
+end;
+
+procedure T301TCR.SetOLD_VctOri(const Value: TDate);
+begin
+  FOldVctOri := Value;
+end;
+
+procedure T301TCR.SetOLD_VlrOri(const Value: Extended);
+begin
+  FOldVlrOri := Value;
 end;
 
 end.

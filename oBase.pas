@@ -46,6 +46,8 @@ type
     function LiberarCampo(const pNome: string): Boolean;
     function NegarCampo(const pNome: string): Boolean;
     function LimitarCampos(const pNome: string): Boolean;
+  protected
+    procedure Registros_OLD(); virtual; abstract;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
@@ -62,32 +64,40 @@ type
 
     function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function Proximo(): Boolean;
-    function GerarIdentidade(): Integer; virtual; abstract;
+    function GerarIdentidade(const pField: string): Integer; virtual; abstract;
   public
     property Check: Byte read GetCheck write SetCheck;
   end;
 
   TTabelaPadrao = class(TTabela)
+  protected
+    procedure Registros_OLD(); override;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    function GerarIdentidade(): Integer; override;
+    function GerarIdentidade(const pField: string): Integer; override;
   end;
 
   TTabelaUsuario = class(TTabela)
   private
     FID: Integer;
+    FOldId: Integer;
 
     function GetId: Integer;
     procedure SetId(const pId: Integer);
+    function GetOldId: Integer;
+    procedure SetOldId(const Value: Integer);
+  protected
+    procedure Registros_OLD(); override;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    function GerarIdentidade(): Integer; override;
+    function GerarIdentidade(const pField: string): Integer; override;
 
     property USU_ID: Integer read GetId write SetId;
+    property OLD_USU_ID: Integer read GetOldId write SetOldId;
   end;
 
   TOracleConnection = class
@@ -368,6 +378,8 @@ begin
       end;
     end;
   end;
+
+  Registros_OLD();
 end;
 
 constructor TTabela.Create(const pTabela: string);
@@ -637,7 +649,7 @@ begin
     if NegarCampo(xProperty.Name) then
     begin
       if (AnsiSameText(UpperCase(xProperty.Name), 'USU_ID')) then
-        FQuery.ParamByName(xProperty.Name).Value := GerarIdentidade
+        FQuery.ParamByName(xProperty.Name).Value := GerarIdentidade('USU_ID')
       else
       case xProperty.PropertyType.TypeKind of
         tkInteger:
@@ -729,12 +741,17 @@ var
 begin
   Result := True;
 
-  for i := 0 to High(FlistaNegacao) do
+  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) then
+    Result := False
+  else
   begin
-    if (AnsiSameText(FlistaNegacao[i], pNome)) then
+    for i := 0 to High(FlistaNegacao) do
     begin
-      Result := False;
-      Break;
+      if (AnsiSameText(FlistaNegacao[i], pNome)) then
+      begin
+        Result := False;
+        Break;
+      end;
     end;
   end;
 end;
@@ -1068,9 +1085,14 @@ begin
   inherited;
 end;
 
-function TTabelaPadrao.GerarIdentidade: Integer;
+function TTabelaPadrao.GerarIdentidade(const pField: string): Integer;
 begin
   Result := 0;
+end;
+
+procedure TTabelaPadrao.Registros_OLD;
+begin
+  //todo
 end;
 
 { TTabelaUsuario }
@@ -1085,26 +1107,27 @@ begin
   inherited;
 end;
 
-function TTabelaUsuario.GerarIdentidade: Integer;
+function TTabelaUsuario.GerarIdentidade(const pField: string): Integer;
 var
-  xQuery: THQuery;
-  xCampoId: string;
+  FQuery: THQuery;
 begin
   Result := 1;
-  xCampoId := 'USU_ID';
 
-  xQuery := THQuery.CreatePersonalizado;
+  FQuery := THQuery.CreatePersonalizado;
   try
-    xQuery.SQL.Clear;
-    xQuery.SQL.Add('SELECT MAX('+ xCampoId +') AS IDREG FROM '+ FTabela);
-    xQuery.Open;
-    if not(xQuery.IsEmpty) then
-      Result := xQuery.FindField('IDREG').AsInteger + 1;
-    xQuery.Close;
+    FQuery.SQL.Clear;
+    FQuery.SQL.Add('SELECT MAX('+ pField +') AS IDREG FROM '+ FTabela + iff(not(IsNull(FCondicao)),
+      ' WHERE '+ FCondicao, EmptyStr));
+
+    FQuery.Open;
+    if not(FQuery.IsEmpty) then
+      Result := FQuery.FindField('IDREG').AsInteger + 1;
+    FQuery.Close;
   finally
-    FreeAndNil(xQuery);
+    FreeAndNil(FQuery);
   end;
   Self.USU_ID := Result;
+  Limpar();
 end;
 
 function TTabelaUsuario.GetId: Integer;
@@ -1112,9 +1135,24 @@ begin
   Result := FID;
 end;
 
+function TTabelaUsuario.GetOldId: Integer;
+begin
+  Result := FOldId;
+end;
+
+procedure TTabelaUsuario.Registros_OLD;
+begin
+  FOldId := FID;
+end;
+
 procedure TTabelaUsuario.SetId(const pId: Integer);
 begin
   FID := pId;
+end;
+
+procedure TTabelaUsuario.SetOldId(const Value: Integer);
+begin
+  FOldId := Value;
 end;
 
 end.
