@@ -831,7 +831,8 @@ begin
     FTituloDDA := TTituloDDA.Create;
     FTituloDDA.USU_IDTIT := Self.USU_ID;
     FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT'], True);
-    FTituloDDA.Executar(estSelect);
+    FTituloDDA.Selecao := esNormal;
+    FTituloDDA.Executar(etSelect);
   end;
 end;
 
@@ -1102,8 +1103,9 @@ begin
   x510ARM.USU_NomArq := pArquivo;
   x510ARM.USU_DatGer := Date;
   x510ARM.DefinirSelecaoPropriedade(['USU_NOMARQ'], True);
+  x510ARM.Selecao := esNormal;
 
-  FArquivoExiste := x510ARM.Executar(estSelect);
+  FArquivoExiste := x510ARM.Executar(etSelect);
 
   if not(FArquivoExiste) then
   begin
@@ -1618,7 +1620,8 @@ begin
   x501MCP.VlrMov := 0;
   x501MCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
   x501MCP.AdicionarCondicao('AND NUMLOT > 0 AND VLRMOV > 0');
-  Result := x501MCP.Executar(estSelect);
+  x501MCP.Selecao := esNormal;
+  Result := x501MCP.Executar(etSelect);
 end;
 
 function TTituloDDA.VerificarTituloArmazenado: Boolean;
@@ -1633,14 +1636,16 @@ begin
   F510TIT.USU_SitArm := 'S';
   F510TIT.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
   F510TIT.AdicionarCondicao(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]));
-  Result := F510TIT.Executar(estSelect);
+  F510TIT.Selecao := esNormal;
+  Result := F510TIT.Executar(etSelect);
 
   if (Result) then
   begin
     x510ARM := T510ARM.Create('USU_T510ARM');
     x510ARM.USU_ID := F510TIT.USU_IdArm;
     x510ARM.DefinirSelecaoPropriedade(['USU_ID']);
-    x510ARM.Executar(estSelect);
+    x510ARM.Selecao := esNormal;
+    x510ARM.Executar(etSelect);
     FNomArq := x510ARM.USU_NomArq;
   end;
 end;
@@ -2008,7 +2013,9 @@ begin
     F030ETC.CodBan := FCodBan;
     F030ETC.EspBan := pEspBan;
     F030ETC.DefinirSelecaoPropriedade(['CODBAN','ESPBAN'], True);
-    if (F030ETC.Executar(estSelect)) then
+    F030ETC.Selecao := esNormal;
+
+    if (F030ETC.Executar(etSelect)) then
     begin
       Result := F030ETC.CodTpt;
       Self.Add(F030ETC);
@@ -2081,7 +2088,8 @@ begin
     xHistorico.CodFor := pTitulo.CodFor;
 
     xHistorico.DefinirSelecaoPropriedade(['CODEMP','CODFIL','CODFOR'], True);
-    xHistorico.Executar(estSelect);
+    xHistorico.Selecao := esNormal;
+    xHistorico.Executar(etSelect);
 
     Result := xHistorico;
     Self.Add(xHistorico)
@@ -2913,26 +2921,28 @@ begin
 end;
 
 procedure T160MOV.GerarMovimento;
+var
+  xReajuste: Double;
+  xBonificacao: Double;
 begin
-  StartTransaction;
-  try
-    Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    if (Self.Executar(estSelect)) then
-    begin
-      Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
-                          [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
-                           QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
-      Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
-    end
-    else
-      Self.USU_SeqMov := 1;
+  xReajuste := Self.USU_VlrRea;
+  xBonificacao := Self.USU_VlrBon;
 
-    Self.Executar(estInsert);
+  Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+  Self.Selecao := esNormal;
+  if (Self.Executar(etSelect)) then
+  begin
+    Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
+                        [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
+                         QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
+    Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
+  end
+  else
+    Self.USU_SeqMov := 1;
 
-    Commit;
-  except
-    RollBack;
-  end;
+  Self.USU_VlrRea := xReajuste;
+  Self.USU_VlrBon := xBonificacao;
+  Self.Executar(estInsert);
 end;
 
 function T160MOV.GetCODCLI: Word;

@@ -201,7 +201,10 @@ begin
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
-      Self.Options := Self.Options + [dgEditing]
+    begin
+      Self.Options := Self.Options + [dgEditing];
+      Break;
+    end
     else
       Self.Options := Self.Options - [dgEditing];
   end;
@@ -306,7 +309,10 @@ begin
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
-      Self.Options := Self.Options + [dgEditing]
+    begin
+      Self.Options := Self.Options + [dgEditing];
+      Break;
+    end
     else
       Self.Options := Self.Options - [dgEditing];
   end;

@@ -833,8 +833,8 @@ procedure TF510CON.FormCreate(Sender: TObject);
 begin
   if (System.ParamCount > 0) then
   begin
-    FLogEmp := StrToInt(ParamStr(0));
-    FLogUsu := StrToInt(ParamStr(1));
+    FLogEmp := StrToInt(ParamStr(2));
+    FLogUsu := StrToInt(ParamStr(3));
   end
   else
   begin

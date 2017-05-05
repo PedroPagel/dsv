@@ -11,14 +11,14 @@ uses
 {$R *.res}
 
 begin
-  TIniciarConexao.Executar();
+  TConexao.Executar();
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.CreateForm(TF510ARM, F510ARM);
     Application.Terminate;
-    TIniciarConexao.Finalizar();
+    TConexao.Finalizar();
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

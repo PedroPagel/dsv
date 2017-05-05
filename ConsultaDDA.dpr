@@ -1,9 +1,4 @@
 program ConsultaDDA;
-
-
-
-
-
 {$R *.dres}
 
 uses
@@ -17,14 +12,14 @@ uses
 {$R *.res}
 
 begin
-  TIniciarConexao.Executar;
+  TConexao.Executar();
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TF510CON, F510CON);
   Application.Run;
 
-    TIniciarConexao.Finalizar;
+    TConexao.Finalizar;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

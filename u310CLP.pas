@@ -55,8 +55,6 @@ type
     LTotOri: TLabel;
     Label16: TLabel;
     LTotRea: TLabel;
-    Label17: TLabel;
-    LDifRea: TLabel;
     Despesa: TTabSheet;
     Panel11: TPanel;
     Panel5: TPanel;
@@ -189,24 +187,27 @@ type
 
     function FiltroTitulos(): string;
     function FiltroContrato(): string;
-    procedure MarcarDesmarcar(const pValue: Byte);
-    procedure MarcarDesmarcarTitulos(const pGrid: Byte);
-    procedure MarcarDesmarcarBem(const pGrid: Byte);
-    procedure MostrarReajuste();
-    procedure MostrarLigacao();
-    procedure MostrarBem();
-    procedure ValidarSelecao();
-    procedure ValidarSelecaoBem();
-    procedure CalcularReajuste(const pIndice: Double);
-
     function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String; const pEspaco,pDecimal: Integer): String;
+
+    procedure MostrarBem();
+    procedure MostrarLigacao();
+    procedure ValidarSelecao();
+    procedure MostrarReajuste();
+    procedure ValidarSelecaoBem();
+    procedure MontarDadosCalculos();
+    procedure MarcarDesmarcar(const pValue: Byte);
+    procedure MarcarDesmarcarBem(const pGrid: Byte);
+    procedure CalcularReajuste(const pIndice: Double);
+    procedure MarcarDesmarcarTitulos(const pGrid: Byte);
   published
+    procedure FGridReaCheckClick();
     procedure FGridReaIndNovChange();
+    procedure FGridReaVlrBonChange();
+
     procedure FGridConCheckClick();
     procedure FGridClpCheckClick();
     procedure FGridDesCheckClick();
     procedure FGridLigCheckClick();
-    procedure FGridReaCheckClick();
     procedure FGridBnlCheckClick();
     procedure FGridBlgCheckClick();
     procedure FGridBemCheckClick();
@@ -219,7 +220,7 @@ var
 implementation
 
 uses
-  oTabelas, oBase, oTitulo;
+  oTabelas, oBase, oTitulo, System.Math;
 
 {$R *.dfm}
 
@@ -514,9 +515,7 @@ begin
     end;
   end;
 
-  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
-  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
-  LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
+  MontarDadosCalculos();
 end;
 
 procedure TF310CLP.CancelarClick(Sender: TObject);
@@ -561,7 +560,6 @@ begin
 
   LTotOri.Caption := '0.00';
   LTotRea.Caption := '0.00';
-  LDifRea.Caption := '0.00';
 
   FGridTit.Clear;
   FGridCon.Clear;
@@ -730,7 +728,6 @@ begin
     begin
       LTotOri.Caption := '0.00';
       LTotRea.Caption := '0.00';
-      LDifRea.Caption := '0.00';
     end;
   end
   else
@@ -807,6 +804,12 @@ begin
   end;
 end;
 
+procedure TF310CLP.MontarDadosCalculos;
+begin
+  FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
+  LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado(FGridCon.Line));
+end;
+
 procedure TF310CLP.MostrarBem;
 var
   i: Integer;
@@ -829,21 +832,26 @@ begin
   FControladorBem.Condicao := MontarCondicao();
   FControladorBem.Mostrar;
 
-  for i := 0 to pred(FControladorBem.LstLigado.Count) do
+  if (FControladorBem.LstLigado.Count > 0) then
   begin
-    FGridBem.Add;
-    FGridBem.AddFields(T670BEM(FControladorBem.LstLigado[i]));
-  end;
-  FGridBem.First;
+    for i := 0 to pred(FControladorBem.LstLigado.Count) do
+    begin
+      FGridBem.Add;
+      FGridBem.AddFields(T670BEM(FControladorBem.LstLigado[i]));
+    end;
+    FGridBem.First;
 
-  for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
-  begin
-    FGridBnl.Add;
-    FGridBnl.AddFields(T670BEM(FControladorBem.LstNaoLigado[i]));
-  end;
-  FGridBnl.First;
+    for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
+    begin
+      FGridBnl.Add;
+      FGridBnl.AddFields(T670BEM(FControladorBem.LstNaoLigado[i]));
+    end;
+    FGridBnl.First;
 
-  FGridBemEnterLine(Self);
+    FGridBemEnterLine(Self);
+  end
+  else
+    CMessage('Não houve informações a listar!', mtErrorInform);
 end;
 
 procedure TF310CLP.MostrarClick(Sender: TObject);
@@ -901,7 +909,7 @@ begin
     DesmarcarGrids.Enabled := True;
   end
   else
-    CMessage('Nenhum Contrato Selecionado!', mtErrorInform);
+    CMessage('Não houve informações a listar!', mtErrorInform);
 end;
 
 procedure TF310CLP.MostrarReajuste();
@@ -918,7 +926,6 @@ begin
 
   LTotOri.Caption := '0.00';
   LTotRea.Caption := '0.00';
-  LDifRea.Caption := '0.00';
 
   FIteradorReajuste.Limpar();
   FIteradorReajuste.FiltraContrato := FiltroContrato;
@@ -941,7 +948,7 @@ begin
     Desmarcar.Enabled := True;
   end
   else
-    CMessage('Nenhum Contrato Selecionado!', mtErrorInform);
+    CMessage('Não houve informações a listar!', mtErrorInform);
 end;
 
 procedure TF310CLP.NaoLigadoClick(Sender: TObject);
@@ -1011,16 +1018,15 @@ begin
     FGridTit.Enabled := False;
     FGridRea.Enabled := False;
 
-    StartTransaction;
     try
       if (PGControl.TabIndex = 0) then
         FIteradorReajuste.Processar
       else
         FControladorBem.Processar;
     except
-      on E: Exception do
-        RollBack;
+      raise;
     end;
+
     CMessage('Processado com sucesso!', mtInformation);
     CancelarClick(Self);
   end;
@@ -1056,7 +1062,6 @@ begin
     end;
 
     ValidarSelecaoBem();
-    //FGridDes.Enabled := (FIteradorLigacao.Despesas.Count > 0);
   end;
 end;
 
@@ -1108,21 +1113,23 @@ begin
     for i := 0 to pred(xControle.Titulo.Count) do
     begin
       FGridTit.Add;
-      FGridTit.AddFields(T301TCR(xControle.Titulo[i]));
+      FGridTit.AddFields(T160MOV(xControle.Titulo[i]));
     end;
+
+    FGridTit.Enabled := (xControle.Titulo.Count > 0);
 
     for i := 0 to pred(xControle.Ajuste.Count) do
     begin
       FGridRea.Add;
       FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
       FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
+      FGridRea.FindField('VlrBon').AsFloat := TTituloControle(xControle.Ajuste[i]).VlrBon;
     end;
 
     FGridTit.First;
     FGridRea.First;
-    LTotOri.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalOriginal);
-    LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado);
-    LDifRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado - FIteradorReajuste.TotalOriginal);
+    LTotOri.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalOriginal(FGridCon.Line));
+    LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado(FGridCon.Line));
   end;
 end;
 
@@ -1251,7 +1258,7 @@ end;
 procedure TF310CLP.FormCreate(Sender: TObject);
 begin
   if (System.ParamCount > 0) then
-    FLogEmp := StrToInt(ParamStr(0))
+    FLogEmp := StrToInt(ParamStr(2))
   else
     FLogEmp := 1;
 
@@ -1274,18 +1281,24 @@ begin
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
   FGridRea.AddColumn('IndRea', '% Índice Cadastro', ftFloat);
   FGridRea.AddColumn('IndNov', '% Índice Manual', ftFloat);
+  FGridRea.AddColumn('VlrBon', 'Vlr. Bonificação', ftFloat);
   FGridRea.CreateDataSet;
+
   FGridRea.NumericField('IndNov', '###,###,##0.00');
   FGridRea.NumericField('VlrOri', '###,###,##0.00');
   FGridRea.NumericField('VlrAbe', '###,###,##0.00');
+  FGridRea.NumericField('VlrBon', '###,###,##0.00');
   FGridRea.ReadOnly('IndFin', True);
   FGridRea.ReadOnly('IndRea', True);
+  FGridRea.ReadOnly('VlrBon', False);
   FGridRea.ReadOnly('IndNov', False);
 
-  FGridTit.Init('E301TCR', F310CLP);
+  FGridTit.Init('USU_T160MOV', F310CLP);
   FGridTit.CreateDataSet;
-  FGridTit.NumericField('VlrOri', '###,###,##0.00');
-  FGridTit.NumericField('VlrAbe', '###,###,##0.00');
+  FGridTit.NumericField('USU_VlrOri', '###,###,##0.00');
+  FGridTit.NumericField('USU_VlrRea', '###,###,##0.00');
+  FGridTit.NumericField('USU_VlrBon', '###,###,##0.00');
+  FGridTit.Visible('USU_SEQMOV', False);
 
   //Titulo - tab 2
   BECodEmp.CreateLookup();
@@ -1477,10 +1490,96 @@ procedure TF310CLP.FGridReaIndNovChange;
 begin
   if (FGridRea.FindField('Check').AsInteger = 1) then
   begin
+    FIteradorReajuste.RemoverCalculos := False;
     CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
       FGridRea.FindField('IndNov').AsFloat));
     FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
   end;
+end;
+
+procedure TF310CLP.FGridReaVlrBonChange;
+var
+  xCalculo: Double;
+  xVlrOrigem: Double;
+  xRemover: Boolean;
+  xSobra: Double;
+
+  //Funcao recursiva, desce ate quando houver itens da grid.
+  function MontarRateio(const pValor: Double; const pCount: Integer): Double;
+  begin
+    if (CRound(pValor,2) > 0) then
+    begin
+      Result := (pValor / pCount);
+
+      if (pCount = 0) then
+        Exit;
+
+      if (CRound(Result, 2) = 0) then
+        Result := MontarRateio(pValor, Pred(pCount))
+      else
+        Exit;
+    end
+    else
+      Result := 0;
+  end;
+
+  procedure Bonificar();
+  var
+    xControle: TControle;
+    xTituloControle: TTituloControle;
+  begin
+    xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
+    xTituloControle := TTituloControle(xControle.Ajuste[Pred(FGridRea.Line)]);
+
+    if (FGridRea.FindField('Check').AsInteger = 1) then
+    begin
+      FIteradorReajuste.RemoverCalculos := xRemover;
+      FIteradorReajuste.IndexCtr := pred(FGridCon.Line);
+      FIteradorReajuste.IndexTit := pred(FGridRea.Line);
+      FIteradorReajuste.Bonificar(FGridRea.FindField('VlrBon').AsFloat);
+
+      MontarDadosCalculos();
+    end
+    else
+      xTituloControle.VlrBon := FGridRea.FindField('VlrBon').AsFloat;
+  end;
+
+begin
+  xSobra := 0;
+  xRemover := (CRound(FGridRea.FindField('VlrBon').AsFloat,2) = 0);
+
+  if (FGridRea.Count > 1) then
+  begin
+    if (CRound(FGridRea.FindField('VlrBon').AsFloat,2) > 0) and (CMessage('Deseja ratear o valor entre os títulos do contrato?', mtConfirmationYesNo)) then
+    begin
+      xVlrOrigem := FGridRea.FindField('VlrBon').AsFloat;
+      xCalculo := MontarRateio(xVlrOrigem, FGridRea.Count);
+
+      if (xCalculo > 0) then
+        xSobra := (CRound(xVlrOrigem,2) - (CRound(xCalculo,2) * FGridRea.Count));
+
+      FGridRea.First;
+      while not(FGridRea.Eof) do
+      begin
+        if not(CRound(xVlrOrigem, 2) = 0) then
+        begin
+          xVlrOrigem := CRound(xVlrOrigem,2) - CRound(xCalculo, 2);
+          FGridRea.FindField('VlrBon').AsFloat := iff((xSobra > 0) and (FGridRea.Count = FGridRea.Line),
+            (CRound(xCalculo,2) + CRound(xSobra,2)), CRound(xCalculo,2));
+        end
+        else
+          FGridRea.FindField('VlrBon').AsFloat := 0;
+
+        Bonificar();
+        FGridRea.Next;
+      end;
+      FGridRea.First;
+    end
+    else
+      Bonificar();
+  end
+  else
+    Bonificar();
 end;
 
 function TF310CLP.FiltroContrato: string;

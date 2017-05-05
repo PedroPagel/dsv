@@ -11,16 +11,15 @@ uses
   o310clp in 'o310clp.pas';
 
 {$R *.res}
-
 begin
-  TIniciarConexao.Executar;
+  TConexao.Executar();
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TF310CLP, F310CLP);
   Application.Run;
 
-    TIniciarConexao.Finalizar;
+    TConexao.Finalizar;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);

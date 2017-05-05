@@ -644,10 +644,6 @@ object F310CLP: TF310CLP
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel6: TPanel
           Left = 0
           Top = 0
@@ -736,7 +732,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 16
               Align = alTop
-              Caption = 'T'#237'tulo(s) - Valor Sem Reajuste'
+              Caption = 'T'#237'tulo(s) - Reajustes'
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
@@ -781,7 +777,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 22
               Align = alTop
-              Caption = 'T'#237'tulo(s) - Valor Com Reajuste'
+              Caption = 'T'#237'tulo(s) - Novos Reajustes'
               TabOrder = 0
             end
             object FGridRea: TDataSetGrid
@@ -841,30 +837,12 @@ object F310CLP: TF310CLP
               Height = 13
               Caption = '0.00'
             end
-            object Label17: TLabel
-              Left = 509
-              Top = 8
-              Width = 57
-              Height = 13
-              Caption = 'Diferen'#231'a:'
-            end
-            object LDifRea: TLabel
-              Left = 617
-              Top = 8
-              Width = 24
-              Height = 13
-              Caption = '0.00'
-            end
           end
         end
       end
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
