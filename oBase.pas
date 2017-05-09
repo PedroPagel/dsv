@@ -12,6 +12,7 @@ type
   tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT);
   TArrayOfString = array of string;
   tTitulo = (tTContasPagar, tTContasReceber);
+  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
 
   TTabela = class
   private
@@ -112,11 +113,6 @@ type
     property OLD_USU_ID: Integer read GetOldId write SetOldId;
   end;
 
-  TOracleConnection = class
-  public
-    class var FOracleConnection: TADOConnection;
-  end;
-
   TConexao = class
     class procedure Executar();
     class procedure Finalizar();
@@ -208,6 +204,8 @@ type
 
   TConnectionBase = class(TADOConnection)
   private
+    FBase: string;
+
     procedure ConexaoSENIOR52();
     procedure ConexaoSENIOR53();
     procedure ConexaoSENIOR55();
@@ -216,6 +214,7 @@ type
     destructor Destroy(); override;
 
     procedure Conexao(const pBase: string);
+    function BaseConexao(): string;
   end;
 
   procedure StartTransaction();
@@ -1378,6 +1377,12 @@ begin
 end;
 
 { TConnectionBase }
+
+function TConnectionBase.BaseConexao: string;
+begin
+  Result := FBase;
+end;
+
 procedure TConnectionBase.Conexao(const pBase: string);
 begin
   if (AnsiSameText(pBase,'SENIOR52')) then
@@ -1395,6 +1400,8 @@ begin
   Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior52;User ID=senior52;Data Source=HENNDSV;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
   Self.Open('senior52','senior52');
+
+  FBase := 'SENIOR52';
 end;
 
 procedure TConnectionBase.ConexaoSENIOR53;
@@ -1402,6 +1409,8 @@ begin
   Self.ConnectionString := 'Provider=MSDAORA.1;Password=s1b13n5;User ID=sapiens;Data Source=HENNPROD;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
   Self.Open('sapiens','s1b13n5');
+
+  FBase := 'SAPIENS';
 end;
 
 procedure TConnectionBase.ConexaoSENIOR55;
@@ -1409,6 +1418,8 @@ begin
   Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior55;User ID=senior55;Data Source=henndsv;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
   Self.Open('senior55','senior55');
+
+  FBase := 'SENIOR55';
 end;
 
 constructor TConnectionBase.CreateBase;

@@ -64,7 +64,6 @@ type
     Desmarcar: TButton;
     Panel9: TPanel;
     ExcluirTit: TButton;
-    procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure FGridArmEnterLine(Sender: TObject);
@@ -72,17 +71,11 @@ type
     procedure CancelarClick(Sender: TObject);
     procedure SairClick(Sender: TObject);
     procedure FGridTitEnterLine(Sender: TObject);
-    procedure BECodFilKeyPress(Sender: TObject; var Key: Char);
-    procedure BECodPorKeyPress(Sender: TObject; var Key: Char);
-    procedure BECodForKeyPress(Sender: TObject; var Key: Char);
-    procedure BEVlrIniKeyPress(Sender: TObject; var Key: Char);
-    procedure BEVlrFimKeyPress(Sender: TObject; var Key: Char);
+
     procedure DVenIniChange(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
     procedure DVenFimExit(Sender: TObject);
     procedure DVenFimChange(Sender: TObject);
-    procedure BEVlrFimExit(Sender: TObject);
-    procedure BEVlrIniExit(Sender: TObject);
     procedure DVenIniEnter(Sender: TObject);
     procedure DVenFimEnter(Sender: TObject);
     procedure DVenIniClick(Sender: TObject);
@@ -103,10 +96,6 @@ type
     procedure DFinIniExit(Sender: TObject);
     procedure DDatFimExit(Sender: TObject);
     procedure DFinFimExit(Sender: TObject);
-    procedure BECodPorExit(Sender: TObject);
-    procedure BECodEmpExit(Sender: TObject);
-    procedure BECodFilExit(Sender: TObject);
-    procedure BECodForExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure cbSituacaoArmChange(Sender: TObject);
     procedure ExcluirClick(Sender: TObject);
@@ -115,16 +104,15 @@ type
     procedure ExcluirTitClick(Sender: TObject);
   private
     FControle: T510CON;
-    FString: string;
     FOldDate: TDateTime;
 
     procedure MarcarDesmarcar(const pValue: Byte);
-    function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String;
-      const pEspaco, pDecimal: Integer): String;
   published
     procedure FGridAssCodBarChange();
     procedure FGridArmCheckClick();
     procedure FGridTitCheckClick();
+    procedure BEVlrFimExit();
+    procedure BEVlrIniExit();
   end;
 
 var
@@ -137,75 +125,7 @@ uses
 
 {$R *.dfm}
 
-procedure TF510CON.BECodEmpExit(Sender: TObject);
-begin
-  FString := BECodEmp.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodEmp.Text := FString;
-end;
-
-procedure TF510CON.BECodEmpKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodEmp.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-end;
-
-procedure TF510CON.BECodFilExit(Sender: TObject);
-begin
-  FString := BECodFil.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodFil.Text := FString;
-end;
-
-procedure TF510CON.BECodFilKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodFil.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-end;
-
-procedure TF510CON.BECodForExit(Sender: TObject);
-begin
-  FString := BECodFor.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodFor.Text := FString;
-end;
-
-procedure TF510CON.BECodForKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodFor.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-end;
-
-procedure TF510CON.BECodPorExit(Sender: TObject);
-begin
-  FString := BECodPor.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodPor.Text := FString;
-end;
-
-procedure TF510CON.BECodPorKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodPor.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-end;
-
-procedure TF510CON.BEVlrFimExit(Sender: TObject);
+procedure TF510CON.BEVlrFimExit();
 var
   xVlrIni: Double;
   xVlrFim: Double;
@@ -222,19 +142,7 @@ begin
     end;
 end;
 
-procedure TF510CON.BEVlrFimKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BEVlrFim.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-
-  Valor(BEVlrFim, BEVlrFim.Text, Key, 50, 2);
-end;
-
-procedure TF510CON.BEVlrIniExit(Sender: TObject);
+procedure TF510CON.BEVlrIniExit();
 var
   xVlrIni: Double;
   xVlrFim: Double;
@@ -247,18 +155,6 @@ begin
     BEVlrFim.SetFocus;
     CMessage('Valor Inicial não poder ser menor que o Valor Final!', mtWarning);
   end;
-end;
-
-procedure TF510CON.BEVlrIniKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BEVlrIni.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key, ',')) or
-    ((Length(FString) = 0) and AnsiSameText(Key, ',')) then
-    Key := #0
-  else if not(CharInSet(Key, ['0' .. '9', ',', #8])) then
-    Key := #0;
-
-  Valor(BEVlrIni, BEVlrIni.Text, Key, 50, 2);
 end;
 
 procedure TF510CON.SairClick(Sender: TObject);
@@ -795,30 +691,6 @@ begin
   FGridAss.First;
 end;
 
-function TF510CON.Valor(const pObj: THButtonedEdit; const pTexto, pKey: String;
-  const pEspaco, pDecimal: Integer): String;
-var
-  xChar, xDiv: String;
-  i: Integer;
-begin
-  xDiv := '1';
-  for i := 1 to pDecimal do
-    xDiv := xDiv + '0';
-
-  xChar := iff(pKey = #8, copy(pTexto, 1, Length(pTexto) - 1), pTexto + pKey);
-
-  While (pos(',', xChar) > 0) or (pos('.', xChar) > 0) do
-  begin
-    Delete(xChar, pos('.', xChar), 1);
-    Delete(xChar, pos(',', xChar), 1);
-  end;
-
-  pObj.MaxLength := pred(pEspaco);
-  pObj.Text := Format('%*.*n', [pEspaco, pDecimal,
-    StrToFloat(xChar) / StrToInt(xDiv)]);
-  pObj.SelStart := Length(pObj.Text) + 1;
-end;
-
 procedure TF510CON.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FControle.ListaArm.Clear;
@@ -846,6 +718,13 @@ begin
   BECodFil.CreateLookup();
   BECodPor.CreateLookup();
   BECodFor.CreateLookup();
+
+  BECodEmp.isNumber := True;
+  BECodFil.isNumber := True;
+  BECodPor.isNumber := True;
+  BECodFor.isNumber := True;
+  BEVlrIni.isFloat := True;
+  BEVlrFim.isFloat := True;
 
   FGridArm.Enabled := False;
   FGridTit.Enabled := False;

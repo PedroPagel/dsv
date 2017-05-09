@@ -123,9 +123,6 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CancelarClick(Sender: TObject);
     procedure SairClick(Sender: TObject);
-    procedure BECodFilKeyPress(Sender: TObject; var Key: Char);
-    procedure BENumCtrKeyPress(Sender: TObject; var Key: Char);
-    procedure BECodCliKeyPress(Sender: TObject; var Key: Char);
     procedure DDatIniChange(Sender: TObject);
     procedure DDatFimChange(Sender: TObject);
     procedure DDatIniClick(Sender: TObject);
@@ -134,9 +131,6 @@ type
     procedure DDatFimEnter(Sender: TObject);
     procedure DDatIniExit(Sender: TObject);
     procedure DDatFimExit(Sender: TObject);
-    procedure BENumCtrExit(Sender: TObject);
-    procedure BECodFilExit(Sender: TObject);
-    procedure BECodCliExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FGridConEnterLine(Sender: TObject);
     procedure MarcarClick(Sender: TObject);
@@ -144,22 +138,8 @@ type
     procedure PGControlDrawTab(Control: TCustomTabControl; TabIndex: Integer;
       const Rect: TRect; Active: Boolean);
     procedure PGControlChange(Sender: TObject);
-    procedure BECodEmpKeyPress(Sender: TObject; var Key: Char);
-    procedure BETitFilKeyPress(Sender: TObject; var Key: Char);
-    procedure BETitFilExit(Sender: TObject);
-    procedure BECodForKeyPress(Sender: TObject; var Key: Char);
-    procedure BECodForExit(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
     procedure DVenIniEnter(Sender: TObject);
-    procedure BEVlrIniKeyPress(Sender: TObject; var Key: Char);
-    procedure BEVlrIniExit(Sender: TObject);
-    procedure BEVlrFimKeyPress(Sender: TObject; var Key: Char);
-    procedure BEVlrFimExit(Sender: TObject);
-    procedure BEVlrIniClick(Sender: TObject);
-    procedure BEVlrIniChange(Sender: TObject);
-    procedure BEVlrFimChange(Sender: TObject);
-    procedure BEVlrFimClick(Sender: TObject);
-    procedure BEVlrFimEnter(Sender: TObject);
     procedure DVenIniClick(Sender: TObject);
     procedure DVenIniChange(Sender: TObject);
     procedure DVenFimExit(Sender: TObject);
@@ -178,7 +158,6 @@ type
     procedure LigadosClick(Sender: TObject);
     procedure NaoLigadosClick(Sender: TObject);
   private
-    FString: string;
     FOldDate: TDateTime;
     FIteradorReajuste: TIteradorControle;
     FIteradorLigacao: TIteradorControle;
@@ -187,7 +166,6 @@ type
 
     function FiltroTitulos(): string;
     function FiltroContrato(): string;
-    function Valor(const pObj: THButtonedEdit; const pTexto, pKey: String; const pEspaco,pDecimal: Integer): String;
 
     procedure MostrarBem();
     procedure MostrarLigacao();
@@ -211,6 +189,11 @@ type
     procedure FGridBnlCheckClick();
     procedure FGridBlgCheckClick();
     procedure FGridBemCheckClick();
+
+    //BEButtons
+    procedure BEVlrFimExit();
+    procedure BEVlrIniExit();
+
     procedure BloquearCamposTitulo(const pValue: Boolean);
   end;
 
@@ -224,120 +207,7 @@ uses
 
 {$R *.dfm}
 
-procedure TF310CLP.BECodFilExit(Sender: TObject);
-begin
-  FString := BECodFil.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodFil.Text := FString;
-end;
-
-procedure TF310CLP.BECodFilKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodFil.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-end;
-
-procedure TF310CLP.BECodForExit(Sender: TObject);
-begin
-  FString := BECodFor.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodFor.Text := FString;
-end;
-
-procedure TF310CLP.BECodForKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodFor.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-end;
-
-procedure TF310CLP.BECodCliExit(Sender: TObject);
-begin
-  FString := BECodCli.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodCli.Text := FString;
-end;
-
-procedure TF310CLP.BECodCliKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodCli.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-end;
-
-procedure TF310CLP.BECodEmpKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodEmp.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-end;
-
-procedure TF310CLP.BENumCtrExit(Sender: TObject);
-begin
-  FString := BENumCtr.Text;
-  UltimoCaracter(FString, ',', True);
-  BENumCtr.Text := FString;
-end;
-
-procedure TF310CLP.BENumCtrKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BENumCtr.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    Key := #0;
-end;
-
-procedure TF310CLP.BETitFilExit(Sender: TObject);
-begin
-  FString := BECodFil.Text;
-  UltimoCaracter(FString, ',', True);
-  BECodFil.Text := FString;
-end;
-
-procedure TF310CLP.BETitFilKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BECodFil.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-end;
-
-procedure TF310CLP.BEVlrFimChange(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenFim.Date = 1) then
-    DVenFim.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.BEVlrFimClick(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.BEVlrFimEnter(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.BEVlrFimExit(Sender: TObject);
+procedure TF310CLP.BEVlrFimExit;
 var
   xVlrIni: Double;
   xVlrFim: Double;
@@ -353,32 +223,7 @@ begin
     end;
 end;
 
-procedure TF310CLP.BEVlrFimKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BEVlrFim.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-
-  Valor(BEVlrFim,BEVlrFim.Text,key,50,2);
-end;
-
-procedure TF310CLP.BEVlrIniChange(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.BEVlrIniClick(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.BEVlrIniExit(Sender: TObject);
+procedure TF310CLP.BEVlrIniExit();
 var
   xVlrIni: Double;
   xVlrFim: Double;
@@ -391,18 +236,6 @@ begin
     BEVlrFim.SetFocus;
     CMessage('Valor Inicial não poder ser menor que o Valor Final!', mtWarning);
   end;
-end;
-
-procedure TF310CLP.BEVlrIniKeyPress(Sender: TObject; var Key: Char);
-begin
-  FString := BEVlrIni.Text;
-  if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
-    Key := #0
-  else
-  if not(CharInSet(key, ['0'..'9',',',#8])) then
-    key := #0;
-
-  Valor(BEVlrIni,BEVlrIni.Text,key,50,2);
 end;
 
 procedure TF310CLP.BloquearCamposTitulo(const pValue: Boolean);
@@ -469,29 +302,6 @@ begin
 
   LigarBem.Enabled := (((xBem = scLigacao) or (xBem = scPossuiLigacao)) and (xNaoLigado = scNaoLigado)) and not(xBem = scApenasRemover);
   RemoverBem.Enabled := (xBem = scPossuiLigacao) or (xBem = scApenasRemover);
-end;
-
-function TF310CLP.Valor(const pObj: THButtonedEdit; const pTexto, pKey: String;
-  const pEspaco, pDecimal: Integer): String;
-var
-  xChar, xDiv : String;
-  i: Integer;
-begin
-  xDiv := '1';
-  for i := 1 to pDecimal do
-    xDiv := xDiv + '0';
-
-  xChar := iff(pKey = #8, copy(pTexto, 1, length(pTexto) -1), pTexto + pKey);
-
-  While (pos(',', xChar) > 0) or (pos('.', xChar) > 0) do
-  begin
-    Delete(xChar, pos('.', xChar), 1);
-    Delete(xChar, pos(',', xChar), 1);
-  end;
-
-  pObj.MaxLength := pred(pEspaco);
-  pObj.Text := Format('%*.*n',[pEspaco,pDecimal,StrToFloat(xChar)/StrToInt(xDiv)]);
-  pObj.SelStart := length(pObj.text)+1;
 end;
 
 procedure TF310CLP.CalcularReajuste(const pIndice: Double);
@@ -1300,6 +1110,10 @@ begin
   FGridTit.NumericField('USU_VlrBon', '###,###,##0.00');
   FGridTit.Visible('USU_SEQMOV', False);
 
+  BECodFil.isNumber := True;
+  BECodCli.isNumber := True;
+  BENumCtr.isNumber := True;
+
   //Titulo - tab 2
   BECodEmp.CreateLookup();
   BETitFil.CreateLookup();
@@ -1324,6 +1138,12 @@ begin
   FGridDes.NumericField('VlrOri', '###,###,##0.00');
   FGridDes.NumericField('VlrAbe', '###,###,##0.00');
 
+  BECodEmp.isNumber := True;
+  BETitFil.isNumber := True;
+  BECodFor.isNumber := True;
+  BEVlrIni.isFloat := True;
+  BEVlrFim.isFloat := True;
+
   //Bem - tab 3
   BEEmpBem.CreateLookup();
   BECodBem.CreateLookup();
@@ -1340,6 +1160,9 @@ begin
   FGridBnl.Init('E670BEM', F310CLP);
   FGridBnl.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridBnl.CreateDataSet;
+
+  BEEmpBem.isNumber := True;
+  BECodBem.isAlfa := True;
 
   //Geral
   BECodFil.Filter := Format('CODEMP = %d', [1]);
