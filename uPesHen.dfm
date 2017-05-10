@@ -84,7 +84,7 @@ object FPesHen: TFPesHen
       Width = 48
       Height = 17
       Caption = '&Filtrar'
-      TabOrder = 3
+      TabOrder = 4
       OnClick = CBFiltrarClick
     end
     object CBFiltros: TComboBox
@@ -95,7 +95,7 @@ object FPesHen: TFPesHen
       Style = csDropDownList
       BiDiMode = bdRightToLeftReadingOnly
       ParentBiDiMode = False
-      TabOrder = 4
+      TabOrder = 3
       Items.Strings = (
         'Igual'
         'Contendo')

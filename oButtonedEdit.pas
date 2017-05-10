@@ -3,10 +3,12 @@ unit oButtonedEdit;
 interface
 
 uses
-  System.SysUtils, System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, uPesHen,
-  Winapi.Windows, Vcl.ComCtrls, oBase;
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, uPesHen,
+  Winapi.Windows, Vcl.ComCtrls, System.Rtti,  Vcl.Forms, oBase;
 
 type
+  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
+  TProcedure = procedure() of Object;
 
   THButtonedEdit = class(TButtonedEdit)
   private
@@ -17,8 +19,13 @@ type
     FPesHen: TFPesHen;
     FField: string;
     FFilter: string;
+    FString: string;
     FAvoidSelections: Boolean;
     FIterator: TIterador;
+    FIsNumber: Boolean;
+    FIsFloat: Boolean;
+    FAlfa: Boolean;
+    FForm: TForm;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -33,7 +40,11 @@ type
     procedure LookupData(Sender: TObject);
 
     function Filters(): string;
+    procedure ExitButton(Sender: TObject);
+    procedure KeyPressButton(Sender: TObject; var Key: Char);
     procedure CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure CheckMethod(const pCheckMethod: TCheckMethod);
+    procedure Value(const pKey: String);
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -48,6 +59,9 @@ type
     property Field: string read GetField write SetField;
     property Filter: string read GetFilter write SetFilter;
     property AvoidSelections: Boolean read FAvoidSelections write FAvoidSelections;
+    property isNumber: Boolean read FIsNumber write FIsNumber;
+    property isAlfa: Boolean read FAlfa write FAlfa;
+    property isFloat: Boolean read FIsFloat write FIsFloat;
   end;
 
 procedure Register;
@@ -55,7 +69,8 @@ procedure Register;
 implementation
 
 uses
-  Vcl.Graphics, Vcl.Imaging.pngimage, Vcl.Forms, System.Variants, System.Contnrs;
+  Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs,
+  System.SysUtils;
 
 procedure Register;
 begin
@@ -63,6 +78,67 @@ begin
 end;
 
 { THButtonedEdit }
+
+procedure THButtonedEdit.CheckMethod(const pCheckMethod: TCheckMethod);
+var
+  xType: TRttiType;
+  xMethod: TMethod;
+  xProcedure: TProcedure;
+  xRttiMethod: TRttiMethod;
+  xContext: TRttiContext;
+  xCheck: string;
+begin
+  case (pCheckMethod) of
+    cmExit:
+      xCheck := 'Exit';
+
+    cmChange:
+      xCheck := 'Change';
+
+    cmEnter:
+      xCheck := 'Enter';
+
+    cmClick:
+      xCheck := 'Click';
+  end;
+
+  xType := xContext.GetType(FForm.ClassType);
+  xRttiMethod :=  xType.GetMethod(Self.Name + xCheck);
+
+  if Assigned(xRttiMethod) then
+  begin
+    xMethod.Data := Pointer(FForm);
+    xMethod.Code := FForm.MethodAddress(xRttiMethod.Name);
+
+    if Assigned(xMethod.Code) then
+    begin
+      xProcedure := TProcedure(xMethod);
+      xProcedure;
+    end;
+  end;
+end;
+
+procedure THButtonedEdit.Value(const pKey: String);
+var
+  xChar, xDiv : String;
+  i: Integer;
+begin
+  xDiv := '1';
+  for i := 1 to 2 do
+    xDiv := xDiv + '0';
+
+  xChar := iff(pKey = #8, copy(Self.Text, 1, length(Self.Text) -1), Self.Text + pKey);
+
+  While (pos(',', xChar) > 0) or (pos('.', xChar) > 0) do
+  begin
+    Delete(xChar, pos('.', xChar), 1);
+    Delete(xChar, pos(',', xChar), 1);
+  end;
+
+  Self.MaxLength := pred(50);
+  Self.Text := Format('%*.*n',[50,2,StrToFloat(xChar)/StrToInt(xDiv)]);
+  Self.SelStart := length(Self.text)+1;
+end;
 
 procedure THButtonedEdit.AddFilterLookup(const pFilterLookup: THButtonedEdit);
 begin
@@ -81,6 +157,9 @@ begin
 
   FIterator := TIterador.Create;
   Self.OnKeyUp := CallLookup;
+  Self.OnExit := ExitButton;
+  Self.OnKeyPress := KeyPressButton;
+  FForm := TForm(AOwner);
 end;
 
 procedure THButtonedEdit.CreateLookup;
@@ -109,6 +188,18 @@ begin
   inherited;
 
   FreeAndNil(FIterator);
+end;
+
+procedure THButtonedEdit.ExitButton(Sender: TObject);
+begin
+  if not(FAlfa) and not(FIsFloat) then
+  begin
+    FString := Self.Text;
+    UltimoCaracter(FString, ',', True);
+    Self.Text := FString;
+  end;
+
+  CheckMethod(cmExit);
 end;
 
 function THButtonedEdit.Filters: string;
@@ -146,6 +237,30 @@ end;
 function THButtonedEdit.GetTable: string;
 begin
   Result := FTable;
+end;
+
+procedure THButtonedEdit.KeyPressButton(Sender: TObject; var Key: Char);
+begin
+  if not(FAlfa) then
+  begin
+    FString := Self.Text;
+    if (UltimoCaracter(FString, ',', True) and AnsiSameText(Key,',')) or ((Length(FString) = 0) and AnsiSameText(Key,',')) then
+      Key := #0
+    else
+    if (FIsNumber) or (FIsFloat) then
+    begin
+      if not(CharInSet(key, ['0'..'9',',',#8])) then
+        key := #0;
+
+      if (FIsFloat) then
+        Value(key);
+    end
+    else
+    begin
+      if not(CharInSet(key, ['A' .. 'Z', 'a' .. 'z', 'à'..'ú', 'À'..'Ú', #8])) then
+        key := #0;
+    end;
+  end;
 end;
 
 procedure THButtonedEdit.LookupData(Sender: TObject);

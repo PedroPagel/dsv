@@ -4,15 +4,14 @@ interface
 
 uses
   Vcl.Controls, Vcl.Grids, Data.SqlExpr, System.SysUtils, oQuery,
-  System.TypInfo, Data.DB, Data.Win.ADODB, Datasnap.DBClient, Vcl.DBGrids, System.Rtti,
+  System.TypInfo, Data.DB, Datasnap.DBClient, Vcl.DBGrids, System.Rtti,
   System.Classes, Vcl.DBCtrls, Winapi.Windows, Vcl.Forms;
 
 type
   TEnterLine = procedure(Sender: TObject) of Object;
   TChangeData = procedure(Sender: TObject) of Object;
-  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
   TProcedure = procedure() of Object;
-
+  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
   TGridState = (gsBrowse, gsInsert, gsEdit,
                 gsNone, gsOnEnter, gsOnExit,
                 gsNewValue, gsCallCheck);
@@ -105,7 +104,7 @@ procedure Register;
 implementation
 
 uses
-  oBase, oMensagem, System.Variants;
+  oMensagem, System.Variants, Obase;
 
 procedure Register;
 begin
@@ -201,7 +200,10 @@ begin
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
-      Self.Options := Self.Options + [dgEditing]
+    begin
+      Self.Options := Self.Options + [dgEditing];
+      Break;
+    end
     else
       Self.Options := Self.Options - [dgEditing];
   end;
@@ -306,7 +308,10 @@ begin
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
-      Self.Options := Self.Options + [dgEditing]
+    begin
+      Self.Options := Self.Options + [dgEditing];
+      Break;
+    end
     else
       Self.Options := Self.Options - [dgEditing];
   end;
@@ -763,7 +768,7 @@ begin
                       ' ORDER BY '+ FIndexFields + ' ALL_TAB_COLUMNS.COLUMN_ID ';
 
   xQuery.ParamByName('TABELA').Value := FTable;
-  xQuery.ParamByName('BASE').Value := 'SENIOR52';
+  xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
   xQuery.Open;
   while not(xQuery.Eof) do
   begin

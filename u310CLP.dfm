@@ -218,13 +218,14 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 2
-          OnExit = BENumCtrExit
-          OnKeyPress = BENumCtrKeyPress
           IndexFields = 'CODEMP;CODFIL;NUMCTR'
           Table = 'E160CTR'
           Lookup = True
           Field = 'NUMCTR'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object DDatIni: TDateTimePicker
           Left = 90
@@ -284,6 +285,9 @@ object F310CLP: TF310CLP
           Lookup = True
           Field = 'CODFIL'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodCli: THButtonedEdit
           Left = 89
@@ -299,13 +303,14 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 1
-          OnExit = BECodCliExit
-          OnKeyPress = BECodCliKeyPress
           IndexFields = 'CODCLI'
           Table = 'E085CLI'
           Lookup = True
           Field = 'CODCLI'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
       end
       object GBTitulo: TGroupBox
@@ -439,10 +444,11 @@ object F310CLP: TF310CLP
           Font.Style = []
           ParentFont = False
           TabOrder = 4
-          OnExit = BEVlrFimExit
-          OnKeyPress = BEVlrFimKeyPress
           Lookup = False
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object DVenIni: TDateTimePicker
           Left = 78
@@ -476,12 +482,11 @@ object F310CLP: TF310CLP
           Font.Style = []
           ParentFont = False
           TabOrder = 3
-          OnChange = BEVlrIniChange
-          OnClick = BEVlrIniClick
-          OnExit = BEVlrIniExit
-          OnKeyPress = BEVlrIniKeyPress
           Lookup = False
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodFor: THButtonedEdit
           Left = 78
@@ -497,13 +502,14 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 2
-          OnExit = BECodForExit
-          OnKeyPress = BECodForKeyPress
           IndexFields = 'CODFOR;NOMFOR'
           Table = 'E095FOR'
           Lookup = True
           Field = 'CODFOR'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BETitFil: THButtonedEdit
           Left = 78
@@ -519,13 +525,14 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 1
-          OnExit = BETitFilExit
-          OnKeyPress = BETitFilKeyPress
           IndexFields = 'CODEMP;CODFIL;NOMFIL'
           Table = 'E070FIL'
           Lookup = True
           Field = 'CODFIL'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodEmp: THButtonedEdit
           Left = 78
@@ -541,12 +548,14 @@ object F310CLP: TF310CLP
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 0
-          OnKeyPress = BECodEmpKeyPress
           IndexFields = 'CODEMP;NOMEMP'
           Table = 'E070EMP'
           Lookup = True
           Field = 'CODEMP'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
       end
       object GBBem: TGroupBox
@@ -599,6 +608,9 @@ object F310CLP: TF310CLP
           Lookup = True
           Field = 'CODEMP'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodBem: THButtonedEdit
           Left = 80
@@ -617,6 +629,9 @@ object F310CLP: TF310CLP
           Lookup = True
           Field = 'CODBEM'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
       end
     end
@@ -625,7 +640,7 @@ object F310CLP: TF310CLP
       Top = 156
       Width = 1141
       Height = 535
-      ActivePage = LigacaoBem
+      ActivePage = Despesa
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -644,10 +659,6 @@ object F310CLP: TF310CLP
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel6: TPanel
           Left = 0
           Top = 0
@@ -736,7 +747,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 16
               Align = alTop
-              Caption = 'T'#237'tulo(s) - Valor Sem Reajuste'
+              Caption = 'T'#237'tulo(s) - Reajustes'
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
@@ -781,7 +792,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 22
               Align = alTop
-              Caption = 'T'#237'tulo(s) - Valor Com Reajuste'
+              Caption = 'T'#237'tulo(s) - Novos Reajustes'
               TabOrder = 0
             end
             object FGridRea: TDataSetGrid
@@ -841,30 +852,12 @@ object F310CLP: TF310CLP
               Height = 13
               Caption = '0.00'
             end
-            object Label17: TLabel
-              Left = 509
-              Top = 8
-              Width = 57
-              Height = 13
-              Caption = 'Diferen'#231'a:'
-            end
-            object LDifRea: TLabel
-              Left = 617
-              Top = 8
-              Width = 24
-              Height = 13
-              Caption = '0.00'
-            end
           end
         end
       end
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0

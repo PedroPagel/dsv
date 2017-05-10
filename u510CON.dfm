@@ -313,10 +313,11 @@ object F510CON: TF510CON
           Font.Style = []
           ParentFont = False
           TabOrder = 6
-          OnExit = BEVlrFimExit
-          OnKeyPress = BEVlrFimKeyPress
           Lookup = False
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object DVenIni: TDateTimePicker
           Left = 262
@@ -350,10 +351,11 @@ object F510CON: TF510CON
           Font.Style = []
           ParentFont = False
           TabOrder = 5
-          OnExit = BEVlrIniExit
-          OnKeyPress = BEVlrIniKeyPress
           Lookup = False
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodFor: THButtonedEdit
           Left = 69
@@ -369,13 +371,14 @@ object F510CON: TF510CON
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 8
-          OnExit = BECodForExit
-          OnKeyPress = BECodForKeyPress
           IndexFields = 'CODFOR;NOMFOR'
           Table = 'E095FOR'
           Lookup = True
           Field = 'CODFOR'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodFil: THButtonedEdit
           Left = 69
@@ -391,13 +394,14 @@ object F510CON: TF510CON
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 1
-          OnExit = BECodFilExit
-          OnKeyPress = BECodFilKeyPress
           IndexFields = 'CODEMP;CODFIL;NOMFIL'
           Table = 'E070FIL'
           Lookup = True
           Field = 'CODFIL'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object BECodEmp: THButtonedEdit
           Left = 69
@@ -413,13 +417,14 @@ object F510CON: TF510CON
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 0
-          OnExit = BECodEmpExit
-          OnKeyPress = BECodEmpKeyPress
           IndexFields = 'CODEMP;NOMEMP'
           Table = 'E070EMP'
           Lookup = True
           Field = 'CODEMP'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object DBLookupComboBox1: TDBLookupComboBox
           Left = -207
@@ -528,13 +533,14 @@ object F510CON: TF510CON
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 5
-          OnExit = BECodPorExit
-          OnKeyPress = BECodPorKeyPress
           IndexFields = 'CODEMP;CODPOR;DESPOR'
           Table = 'E039POR'
           Lookup = True
           Field = 'CODPOR'
           AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
         end
         object DDatIni: TDateTimePicker
           Left = 115

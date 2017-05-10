@@ -44,8 +44,9 @@ begin
   F510CAD.Iniciar;
   F510CAD.USU_CodPor := p510CON.USU_CodPor;
   F510CAD.DefinirSelecaoPropriedade(['USU_CodEmp', 'USU_CodUsu','USU_CodPor'], True);
+  F510CAD.Selecao := esNormal;
 
-  if (F510CAD.Executar(estSelect)) then
+  if (F510CAD.Executar(etSelect)) then
   begin
     if (F510CAD.USU_IniVig <= p510CON.USU_DatGer) and (F510CAD.USU_FimVig >= p510CON.USU_DatGer) then
     begin
@@ -81,7 +82,8 @@ var
 begin
   FListaArm.Clear;
   FListaTit.Clear;
-  Self.Executar(estSelectLoop);
+  Self.Selecao := esLoop;
+  Self.Executar(etSelect);
 
   while Self.Proximo() do
   begin
@@ -115,6 +117,7 @@ begin
     x510TIT.DefinirSelecaoPropriedade(['USU_IDARM']);
     x510TIT.Executar(estDelete);
 
+    Self.Iniciar;
     Self.DefinirSelecaoPropriedade(['USU_ID']);
     Self.Executar(estDelete);
 
@@ -304,7 +307,8 @@ begin
   x510TIT.USU_IdArm := Self.USU_ID;
   x510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
   x510TIT.AdicionarCondicao(pCondicao);
-  Result := x510TIT.Executar(estSelectLoop);
+  x510TIT.Selecao := esLoop;
+  Result := x510TIT.Executar(etSelect);
 
   while (x510TIT.Proximo()) do
   begin

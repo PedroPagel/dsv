@@ -110,7 +110,8 @@ begin
   F510TIT.USU_IdArm := p510ARM.USU_ID;
   F510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
   F510TIT.AdicionarCondicao(' AND USU_SITARM <>  ''S''');
-  F510TIT.Executar(estSelectLoop);
+  F510TIT.Selecao := esLoop;
+  F510TIT.Executar(etSelect);
 
   while (F510TIT.Proximo) do
   begin
@@ -220,7 +221,8 @@ begin
     x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
     x510TIT.USU_SitArm := 'N';
     x510TIT.DefinirSelecaoPropriedade(['USU_IDARM','USU_SITARM'], True);
-    if not(x510TIT.Executar(estSelect)) then
+    x510TIT.Selecao := esNormal;
+    if not(x510TIT.Executar(etSelect)) then
     begin
       x510ARM := T510ARM(FListaArmazenamento[i]);
       x510ARM.RemoverArquivo();
@@ -254,8 +256,9 @@ begin
     xTitulo.CodPor := F510AGE.USU_CodPor;
     xTitulo.Anexar(x510Tit);
     xTitulo.DefinirSelecaoPropriedade(FCamposBuscaEmpFil, True);
+    xTitulo.Selecao := esNormal;
 
-    if (xTitulo.Executar(estSelect)) then
+    if (xTitulo.Executar(etSelect)) then
       FListaTituloBanco.Add(xTitulo)
     else
     begin
@@ -285,7 +288,8 @@ begin
   F510AGE := T510AGE.Create('USU_T510AGE');
   F510AGE.DesativarUsoParametro();
   F510AGE.DefinirSelecao(['USU_ID'], ['(SELECT USU_IDAGE FROM E000AGE WHERE CODPRA = 2447)']);
-  F510AGE.Executar(estSelect);
+  F510AGE.Selecao := esNormal;
+  F510AGE.Executar(etSelect);
 
   FListaEspecieTitulo := TIteradorEspecieTitulo.Create(F510AGE);
 end;

@@ -805,6 +805,59 @@ type
     property USU_DatDsc: TDate read GetDATDSC write SetDATDSC;
   end;
 
+  T090LIC = class(TTabelaUsuario)
+  private
+    FIDIND: Integer;
+    FCodEmp: Word;
+    FCodFil: Word;
+    FNumCtr: Integer;
+    FIndFin: string;
+
+    FOLDIDIND: Integer;
+    FOLDCodEmp: Word;
+    FOLDCodFil: Word;
+    FOLDNumCtr: Integer;
+    FOLDIndFin: string;
+
+    function GetCodEmp: Word;
+    function GetCodFil: Word;
+    function GetIDIND: Integer;
+    function GetIndFin: string;
+    function GetNumCtr: Integer;
+    procedure SetCodEmp(const Value: Word);
+    procedure SetCodFil(const Value: Word);
+    procedure SetIDIND(const Value: Integer);
+    procedure SetIndFin(const Value: string);
+    procedure SetNumCtr(const Value: Integer);
+
+    function GetOLDCodEmp: Word;
+    function GetOLDCodFil: Word;
+    function GetOLDIDIND: Integer;
+    function GetOLDIndFin: string;
+    function GetOLDNumCtr: Integer;
+    procedure SetOLDCodEmp(const Value: Word);
+    procedure SetOLDCodFil(const Value: Word);
+    procedure SetOLDIDIND(const Value: Integer);
+    procedure SetOLDIndFin(const Value: string);
+    procedure SetOLDNumCtr(const Value: Integer);
+  protected
+    procedure Registros_OLD(); override;
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    property USU_IDIND: Integer read GetIDIND write SetIDIND;
+    property USU_CodEmp: Word read GetCodEmp write SetCodEmp;
+    property USU_CodFil: Word read GetCodFil write SetCodFil;
+    property USU_NumCtr: Integer read GetNumCtr write SetNumCtr;
+    property USU_IndFin: string read GetIndFin write SetIndFin;
+    property OLD_USU_IDIND: Integer read GetOLDIDIND write SetOLDIDIND;
+    property OLD_USU_CodEmp: Word read GetOLDCodEmp write SetOLDCodEmp;
+    property OLD_USU_CodFil: Word read GetOLDCodFil write SetOLDCodFil;
+    property OLD_USU_NumCtr: Integer read GetOLDNumCtr write SetOLDNumCtr;
+    property OLD_USU_IndFin: string read GetOLDIndFin write SetOLDIndFin;
+  end;
+
 implementation
 
 uses
@@ -831,7 +884,8 @@ begin
     FTituloDDA := TTituloDDA.Create;
     FTituloDDA.USU_IDTIT := Self.USU_ID;
     FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT'], True);
-    FTituloDDA.Executar(estSelect);
+    FTituloDDA.Selecao := esNormal;
+    FTituloDDA.Executar(etSelect);
   end;
 end;
 
@@ -1102,8 +1156,9 @@ begin
   x510ARM.USU_NomArq := pArquivo;
   x510ARM.USU_DatGer := Date;
   x510ARM.DefinirSelecaoPropriedade(['USU_NOMARQ'], True);
+  x510ARM.Selecao := esNormal;
 
-  FArquivoExiste := x510ARM.Executar(estSelect);
+  FArquivoExiste := x510ARM.Executar(etSelect);
 
   if not(FArquivoExiste) then
   begin
@@ -1618,7 +1673,8 @@ begin
   x501MCP.VlrMov := 0;
   x501MCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
   x501MCP.AdicionarCondicao('AND NUMLOT > 0 AND VLRMOV > 0');
-  Result := x501MCP.Executar(estSelect);
+  x501MCP.Selecao := esNormal;
+  Result := x501MCP.Executar(etSelect);
 end;
 
 function TTituloDDA.VerificarTituloArmazenado: Boolean;
@@ -1633,14 +1689,16 @@ begin
   F510TIT.USU_SitArm := 'S';
   F510TIT.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
   F510TIT.AdicionarCondicao(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]));
-  Result := F510TIT.Executar(estSelect);
+  F510TIT.Selecao := esNormal;
+  Result := F510TIT.Executar(etSelect);
 
   if (Result) then
   begin
     x510ARM := T510ARM.Create('USU_T510ARM');
     x510ARM.USU_ID := F510TIT.USU_IdArm;
     x510ARM.DefinirSelecaoPropriedade(['USU_ID']);
-    x510ARM.Executar(estSelect);
+    x510ARM.Selecao := esNormal;
+    x510ARM.Executar(etSelect);
     FNomArq := x510ARM.USU_NomArq;
   end;
 end;
@@ -2008,7 +2066,9 @@ begin
     F030ETC.CodBan := FCodBan;
     F030ETC.EspBan := pEspBan;
     F030ETC.DefinirSelecaoPropriedade(['CODBAN','ESPBAN'], True);
-    if (F030ETC.Executar(estSelect)) then
+    F030ETC.Selecao := esNormal;
+
+    if (F030ETC.Executar(etSelect)) then
     begin
       Result := F030ETC.CodTpt;
       Self.Add(F030ETC);
@@ -2081,7 +2141,8 @@ begin
     xHistorico.CodFor := pTitulo.CodFor;
 
     xHistorico.DefinirSelecaoPropriedade(['CODEMP','CODFIL','CODFOR'], True);
-    xHistorico.Executar(estSelect);
+    xHistorico.Selecao := esNormal;
+    xHistorico.Executar(etSelect);
 
     Result := xHistorico;
     Self.Add(xHistorico)
@@ -2913,26 +2974,28 @@ begin
 end;
 
 procedure T160MOV.GerarMovimento;
+var
+  xReajuste: Double;
+  xBonificacao: Double;
 begin
-  StartTransaction;
-  try
-    Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    if (Self.Executar(estSelect)) then
-    begin
-      Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
-                          [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
-                           QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
-      Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
-    end
-    else
-      Self.USU_SeqMov := 1;
+  xReajuste := Self.USU_VlrRea;
+  xBonificacao := Self.USU_VlrBon;
 
-    Self.Executar(estInsert);
+  Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+  Self.Selecao := esNormal;
+  if (Self.Executar(etSelect)) then
+  begin
+    Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
+                        [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
+                         QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
+    Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
+  end
+  else
+    Self.USU_SeqMov := 1;
 
-    Commit;
-  except
-    RollBack;
-  end;
+  Self.USU_VlrRea := xReajuste;
+  Self.USU_VlrBon := xBonificacao;
+  Self.Executar(estInsert);
 end;
 
 function T160MOV.GetCODCLI: Word;
@@ -3063,6 +3126,129 @@ end;
 procedure T160MOV.SetVLRREA(const Value: Extended);
 begin
   FVlrRea := Value;
+end;
+
+{ T090LIC }
+
+constructor T090LIC.Create;
+begin
+  inherited Create('USU_T090LIC');
+end;
+
+destructor T090LIC.Destroy;
+begin
+  inherited;
+end;
+
+function T090LIC.GetCodEmp: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function T090LIC.GetCodFil: Word;
+begin
+  Result := FCodFil;
+end;
+
+function T090LIC.GetIDIND: Integer;
+begin
+  Result := FIDIND;
+end;
+
+function T090LIC.GetIndFin: string;
+begin
+  Result := FIndFin;
+end;
+
+function T090LIC.GetNumCtr: Integer;
+begin
+  Result := FNumCtr;
+end;
+
+function T090LIC.GetOLDCodEmp: Word;
+begin
+  Result := FOLDCodEmp;
+end;
+
+function T090LIC.GetOLDCodFil: Word;
+begin
+  Result := FOLDCodFil;
+end;
+
+function T090LIC.GetOLDIDIND: Integer;
+begin
+  Result := FOLDIDIND;
+end;
+
+function T090LIC.GetOLDIndFin: string;
+begin
+  Result := FOLDIndFin;
+end;
+
+function T090LIC.GetOLDNumCtr: Integer;
+begin
+    Result := FOLDNumCtr;
+end;
+
+procedure T090LIC.Registros_OLD;
+begin
+  inherited;
+
+  FOLDIDIND := FIDIND;
+  FOLDCodEmp := FCodEmp;
+  FOLDCodFil := FCodFil;
+  FOLDNumCtr := FNumCtr;
+  FOLDIndFin := FIndFin;
+end;
+
+procedure T090LIC.SetCodEmp(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T090LIC.SetCodFil(const Value: Word);
+begin
+  FCodFil := Value;
+end;
+
+procedure T090LIC.SetIDIND(const Value: Integer);
+begin
+  FIDIND := Value;
+end;
+
+procedure T090LIC.SetIndFin(const Value: string);
+begin
+  FIndFin := Value;
+end;
+
+procedure T090LIC.SetNumCtr(const Value: Integer);
+begin
+  FNumCtr := Value;
+end;
+
+procedure T090LIC.SetOLDCodEmp(const Value: Word);
+begin
+  FOLDIDIND := Value;
+end;
+
+procedure T090LIC.SetOLDCodFil(const Value: Word);
+begin
+  FOLDCodFil := Value;
+end;
+
+procedure T090LIC.SetOLDIDIND(const Value: Integer);
+begin
+  FOLDIDIND := Value;
+end;
+
+procedure T090LIC.SetOLDIndFin(const Value: string);
+begin
+  FOLDIndFin := Value;
+end;
+
+procedure T090LIC.SetOLDNumCtr(const Value: Integer);
+begin
+  FOLDNumCtr := Value;
 end;
 
 end.

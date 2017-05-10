@@ -4,32 +4,37 @@ interface
 
 uses
   Data.SqlExpr, oQuery, System.Rtti, System.SysUtils, Data.DBXOracle,
-  System.Contnrs, Data.DBXCommon, Data.Db, Data.DBCommon,
-  Data.Win.ADODB, System.Classes, System.TypInfo;
+  System.Contnrs, Data.DBXCommon, Data.Db, Data.DBCommon, System.Math,
+  Data.Win.ADODB, System.Classes, System.TypInfo, Vcl.Dialogs;
 
 type
-  TEstadoTabela = (estInsert, estUpdate, estDelete, estSelect, estSelectLoop, estNenhum);
+  TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
+  tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT);
   TArrayOfString = array of string;
   tTitulo = (tTContasPagar, tTContasReceber);
+  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
 
   TTabela = class
   private
     FQuery: THQuery;
     FTabela: string;
     FValoresInsert: string;
-    FListaCampos: array of string;
+    FFields: array of string;
     FCamposLimite: array of string;
     FlistaNegacao: array of string;
     FCondicao: string;
+    FRepeticaoParametros: string;
     FTabelasExtras: string;
     FUsaParametro: Boolean;
     FContext: TRttiContext;
     FType: TRttiType;
     FCheck: Byte;
+    FSelect: tEstadoSelect;
+    FCampo: string;
+    FRetorno: Integer;
+    FMontarCampos: Boolean;
 
-    procedure SetCheck(const Value: Byte);
     function GetCheck: Byte;
-
     procedure Insert();
     procedure Update();
     procedure Delete();
@@ -40,12 +45,16 @@ type
     procedure AtribuirValoresSelect();
 
     function Select(): Boolean;
+    function MAXSelect(): string;
     function MontarEstadoUpdate(): string;
     function MontarEstadoSelect(): Boolean;
     function MontarComandoSelect(): string;
     function LiberarCampo(const pNome: string): Boolean;
     function NegarCampo(const pNome: string): Boolean;
     function LimitarCampos(const pNome: string): Boolean;
+    function GetSelect: tEstadoSelect;
+    procedure SetCheck(const Value: Byte);
+    procedure SetSelect(const Value: tEstadoSelect);
   protected
     procedure Registros_OLD(); virtual; abstract;
   public
@@ -64,9 +73,13 @@ type
 
     function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function Proximo(): Boolean;
+    function Retorno: Integer;
     function GerarIdentidade(const pField: string): Integer; virtual; abstract;
   public
     property Check: Byte read GetCheck write SetCheck;
+    property Selecao: tEstadoSelect read GetSelect write SetSelect;
+    property Campo: string read FCampo write FCampo;
+    property MontarCampos: Boolean read FMontarCampos write FMontarCampos;
   end;
 
   TTabelaPadrao = class(TTabela)
@@ -100,20 +113,23 @@ type
     property OLD_USU_ID: Integer read GetOldId write SetOldId;
   end;
 
-  TOracleConnection = class
-  public
-    class var FOracleConnection: TADOConnection;
-  end;
-
-  TIniciarConexao = class
+  TConexao = class
     class procedure Executar();
     class procedure Finalizar();
   end;
 
   TIterador = class(TObjectList)
+  private
+    FFields: array of string;
+    FIndex: TStringList;
   public
-    function Selecionados(): Boolean;
+    constructor Create(const pIndice: Boolean = False);
+    destructor Destroy(); override;
 
+    function Selecionados(): Boolean;
+    function IndexOfFields(const pObj: TObject): Boolean;
+
+    procedure IndexFields(const pFields: array of string);
     procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
     procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
 
@@ -186,6 +202,21 @@ type
     class var FListaFilial: TListaFilial;
   end;
 
+  TConnectionBase = class(TADOConnection)
+  private
+    FBase: string;
+
+    procedure ConexaoSENIOR52();
+    procedure ConexaoSENIOR53();
+    procedure ConexaoSENIOR55();
+  public
+    constructor CreateBase();
+    destructor Destroy(); override;
+
+    procedure Conexao(const pBase: string);
+    function BaseConexao(): string;
+  end;
+
   procedure StartTransaction();
   procedure Commit();
   procedure RollBack;
@@ -201,8 +232,9 @@ type
   function AllowedTypeKind(const pType: TTypeKind): Boolean;
   function ValueToDB(const pValor: string): string;
   function TextToFloat(const pValor: string): Double;
+  function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
 var
-  FOracleConnection: TADOConnection;
+  FOracleConnection: TConnectionBase;
   FListaFilial: TListaFilial;
   FLogEmp: Integer;
   FLogFil: Integer;
@@ -211,27 +243,22 @@ var
 implementation
 
 uses
-  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls;
+  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants;
 
 procedure StartTransaction();
 begin
-  TIniciarConexao.Executar;
   FOracleConnection.BeginTrans;
 end;
 
 procedure Commit();
 begin
   FOracleConnection.CommitTrans;
-  TIniciarConexao.Finalizar;
 end;
 
 procedure RollBack;
 begin
   if (FOracleConnection.InTransaction) then
-  begin
     FOracleConnection.RollbackTrans;
-    TIniciarConexao.Finalizar;
-  end;
 
   Abort;
 end;
@@ -334,17 +361,51 @@ begin
   Result := StrToFloat(Trim(xString));
 end;
 
-{ TIniciarConexao }
-
-class procedure TIniciarConexao.Executar;
+function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
+var
+  i, xCount: Integer;
+  xValue: string;
+  xFloat: string;
+  xVirgula: Boolean;
 begin
-  FOracleConnection := TADOConnection.Create(nil);
-  FOracleConnection.ConnectionString := 'Provider=MSDAORA.1;Password=senior52;User ID=senior52;Data Source=HENNDSV;Extended Properties="Unicode=True";Persist Security Info=True';
-  FOracleConnection.LoginPrompt := False;
-  FOracleConnection.Open('senior52','senior52');
+  xValue := FloatToStr(pValue);
+  xCount := 0;
+  xVirgula := False;
+
+  for i := 1 to Length(xValue) do
+  begin
+    if not(xVirgula) then
+      xVirgula := xValue[i] = ',';
+
+    xFloat := xFloat + xValue[i];
+
+    if (xVirgula) then
+      Inc(xCount);
+
+      if xCount > pPrecisao then
+        Break;
+  end;
+  Result := StrToFloat(xFloat);
 end;
 
-class procedure TIniciarConexao.Finalizar;
+{ TConexao }
+
+class procedure TConexao.Executar();
+var
+  xBASE: string;
+begin
+  xBase := EmptyStr;
+
+  if (System.ParamCount > 0) then
+    xBASE := ParamStr(1)
+  else
+    xBASE := 'SENIOR52';
+
+  FOracleConnection := TConnectionBase.CreateBase();
+  FOracleConnection.Conexao(xBASE);
+end;
+
+class procedure TConexao.Finalizar;
 begin
   FOracleConnection.Close;
 end;
@@ -378,7 +439,7 @@ begin
       end;
     end;
   end;
-
+  FMontarCampos := False;
   Registros_OLD();
 end;
 
@@ -386,15 +447,17 @@ constructor TTabela.Create(const pTabela: string);
 begin
   FTabela := pTabela;
   FUsaParametro := True;
+  FMontarCampos := False;
 
+  FSelect := esNormal;
   FValoresInsert := EmptyStr;
   FTabelasExtras := EmptyStr;
   FCondicao := EmptyStr;
-  FillChar(FListaCampos, sizeOf(FListaCampos), 0);
+  FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
-  DefinirCampoNegado(['USU_Check','Check']);
+  DefinirCampoNegado(['USU_Check','Check','Campo','Selecao','MontarCampos']);
 end;
 
 procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
@@ -412,8 +475,6 @@ var
 begin
   for i := 0 to High(pCampo) do
     Aumentar(pCampo[i]);
-
-  //Aumentar('USU_ID');
 end;
 
 procedure TTabela.DefinirCampoUpdate(const pCampo: array of string);
@@ -435,43 +496,68 @@ var
 begin
   for i := 0 to High(pCampo) do
   begin
-    j := Length(FListaCampos);
+    j := Length(FFields);
     Inc(j);
-    SetLength(FListaCampos, j);
-    FListaCampos[pred(j)] := pCampo[i];
+    SetLength(FFields, j);
+    FFields[pred(j)] := pCampo[i];
 
-    FCondicao := FCondicao + pCampo[i] + iff(FUsaParametro, ' = :', ' = ') + pCampo[i] +
+    FCondicao := FCondicao + pCampo[i] + Format(iff(FUsaParametro, ' = :%s', ' = %s'),  [pCampo[i]]) +
       iff(pAND, ' AND ', ',');
+
+    if (FMontarCampos) then
+    begin
+      j := Length(FFields);
+      Inc(j);
+      SetLength(FFields, j);
+      FFields[pred(j)] := 'R' + pCampo[i];
+
+      FRepeticaoParametros := FRepeticaoParametros + pCampo[i] + Format(iff(FUsaParametro, ' = :R%s', ' = %s'),  [pCampo[i]]) +
+        iff(pAND, ' AND ', ',');
+    end;
   end;
 
   if (pAND) then
-    UltimoCaracter(FCondicao, 'AND ', True, 4)
+  begin
+    UltimoCaracter(FCondicao, 'AND ', True, 4);
+    UltimoCaracter(FRepeticaoParametros, 'AND ', True, 4);
+  end
   else
+  begin
     UltimoCaracter(FCondicao, ',');
+    UltimoCaracter(FRepeticaoParametros, ',');
+  end;
 end;
 
 procedure TTabela.DefinirParametros;
 var
   xPropriedade: TRttiProperty;
   i: Integer;
-begin
-  for i := 0 to High(FListaCampos) do
+
+  function FuncaoRetorno(const pCampo: string): string;
   begin
-    xPropriedade := FType.GetProperty(FListaCampos[i]);
+    if AnsiSameText(Copy(pCampo, 1, 1), 'R') then
+      Result := Copy(pCampo, 2, pred(Length(pCampo)))
+    else
+      Result := pCampo;
+  end;
+begin
+  for i := 0 to High(FFields) do
+  begin
+    xPropriedade := FType.GetProperty(FuncaoRetorno(FFields[i]));
 
     case xPropriedade.PropertyType.TypeKind of
       tkInteger:
-        FQuery.ParamByName(FListaCampos[i]).Value := xPropriedade.GetValue(Self).AsInteger;
+        FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).AsInteger;
 
       tkFloat:
       begin
         if (AnsiSameText('TDate', xPropriedade.PropertyType.Name)) then
-          FQuery.ParamByName(FListaCampos[i]).Value := DataNull(FloatToDateTime(xPropriedade.GetValue(Self).AsExtended))
+          FQuery.ParamByName(FFields[i]).Value := DataNull(FloatToDateTime(xPropriedade.GetValue(Self).AsExtended))
         else
-          FQuery.ParamByName(FListaCampos[i]).Value := xPropriedade.GetValue(Self).AsExtended;
+          FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).AsExtended;
       end
     else
-      FQuery.ParamByName(FListaCampos[i]).Value := xPropriedade.GetValue(Self).ToString;
+      FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).ToString;
     end;
   end;
 end;
@@ -482,10 +568,10 @@ var
 begin
   for i := 0 to High(pCampo) do
   begin
-    j := Length(FListaCampos);
+    j := Length(FFields);
     Inc(j);
-    SetLength(FListaCampos, j);
-    FListaCampos[pred(j)] := pCampo[i];
+    SetLength(FFields, j);
+    FFields[pred(j)] := pCampo[i];
 
     FCondicao := FCondicao + pCampo[i] + ' = ' + pValor[i] + iff(pAND, ' AND ', ',');
   end;
@@ -547,7 +633,7 @@ begin
     estUpdate:
       Update();
 
-    estSelect, estSelectLoop:
+    etSelect:
       Result := Select();
 
     estDelete:
@@ -557,7 +643,7 @@ begin
   if (pEstadoTabela in [estInsert, estUpdate, estDelete]) then
     FQuery.ExecSQL();
 
-  if (pEstadoTabela <> estSelectLoop) then
+  if (FSelect <> esLoop) then
   begin
     FQuery.Close;
     Self.Limpar;
@@ -576,9 +662,14 @@ begin
   Result := FCheck;
 end;
 
+function TTabela.GetSelect: tEstadoSelect;
+begin
+  Result := FSelect;
+end;
+
 procedure TTabela.Iniciar;
 begin
-  FillChar(FListaCampos, sizeOf(FListaCampos), 0);
+  FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
   FCondicao := EmptyStr;
@@ -618,10 +709,11 @@ end;
 
 procedure TTabela.Limpar;
 begin
-  FillChar(FListaCampos, sizeOf(FListaCampos), 0);
+  FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
   FCondicao := EmptyStr;
+  FSelect := esNormal;
 end;
 
 procedure TTabela.MontarEstadoInsert();
@@ -674,11 +766,63 @@ begin
   if (FUsaParametro) then
     DefinirParametros();
 
-  FQuery.Open;
+  try
+    FQuery.Prepared := True;
+    FQuery.Open;
+  except
+    on E: Exception do
+      raise;
+  end;
   Result := not(FQuery.IsEmpty);
 
   if (Result) then
-    AtribuirValoresSelect();
+    case (FSelect) of
+      esLoop, esNormal:
+          AtribuirValoresSelect();
+
+      esMAX, esMIN, esCOUNT:
+      begin
+        if not(FMontarCampos) then
+          FRetorno := FQuery.FindField('RETORNO').AsInteger
+        else
+          AtribuirValoresSelect();
+      end;
+    end;
+end;
+
+function TTabela.MAXSelect: string;
+var
+  xProperty: TRttiProperty;
+  xCampos: string;
+  xMaior: string;
+begin
+  xCampos := EmptyStr;
+  xMaior := EmptyStr;
+
+  if (FMontarCampos) then
+  begin
+    for xProperty in FType.GetProperties do
+      if NegarCampo(xProperty.Name) then
+        xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
+
+    UltimoCaracter(xCampos, ',');
+  end;
+
+  Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FCampo, FTabela]);
+
+  if not(IsNull(FCondicao)) then
+    Result := Format('%s WHERE %s', [Result, FCondicao]);
+
+  if not(IsNull(xCampos)) then
+  begin
+    xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
+
+    if not(IsNull(FCondicao)) then
+      xMaior := Format('%s WHERE %s', [xMaior, FRepeticaoParametros]);
+
+    xMaior := xMaior + ' AND ' + FCampo + ' = (' + Result + ')';
+    Result := xMaior;
+  end;
 end;
 
 function TTabela.MontarComandoSelect: string;
@@ -769,16 +913,34 @@ begin
     FQuery.Close;
 end;
 
+function TTabela.Retorno: Integer;
+begin
+  Result := FRetorno;
+end;
+
 function TTabela.Select: Boolean;
 begin
   FQuery.SQL.Clear;
-  FQuery.Command := MontarComandoSelect();
-  Result :=  MontarEstadoSelect();
+
+  case (FSelect) of
+    esLoop, esNormal:
+      FQuery.Command := MontarComandoSelect();
+
+    esMAX:
+      FQuery.Command := MAXSelect;
+  end;
+
+  Result := MontarEstadoSelect();
 end;
 
 procedure TTabela.SetCheck(const Value: Byte);
 begin
   FCheck := Value;
+end;
+
+procedure TTabela.SetSelect(const Value: tEstadoSelect);
+begin
+  FSelect := Value;
 end;
 
 procedure TTabela.Update();
@@ -787,6 +949,63 @@ begin
 end;
 
 { TIterador }
+
+constructor TIterador.Create(const pIndice: Boolean);
+begin
+  inherited Create;
+
+  if (pIndice) then
+    FIndex := TStringList.Create;
+end;
+
+destructor TIterador.Destroy;
+begin
+  FreeAndNil(FIndex);
+
+  inherited;
+end;
+
+procedure TIterador.IndexFields(const pFields: array of string);
+var
+  i,j: Integer;
+begin
+  FillChar(FFields, SizeOf(FFields), 0);
+
+  for i := 0 to High(pFields) do
+  begin
+    j := Length(FFields);
+    Inc(j);
+    SetLength(FFields, j);
+    FFields[pred(j)] := pFields[i];
+  end;
+end;
+
+function TIterador.IndexOfFields(const pObj: TObject): Boolean;
+var
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  i: Integer;
+  xValor: string;
+begin
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(pObj.ClassType);
+
+    for i := 0 to High(FFields) do
+    begin
+      xProperty := xType.GetProperty(FFields[i]);
+      xValor := xValor + VarToStr(xProperty.GetValue(pObj).AsVariant);
+    end;
+
+    Result := (FIndex.IndexOf(xValor) > -1);
+
+    if not(Result) then
+      FIndex.Add(xValor);
+  finally
+    xContext.Free;
+  end;
+end;
 
 procedure TIterador.Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
 var
@@ -999,7 +1218,8 @@ begin
   xFilial.CodEmp := pCodEmp;
   xFilial.CodFil := pCodFil;
   xFilial.DefinirSelecaoPropriedade(['CODEMP', 'CODFIL'], True);
-  xFilial.Executar(estSelectLoop);
+  xFilial.Selecao := esLoop;
+  xFilial.Executar(etSelect);
 
   while (xFilial.Proximo) do
   begin
@@ -1017,7 +1237,8 @@ begin
   xFilial := TFilial.Create();
   xFilial.CodEmp := pCodEmp;
   xFilial.DefinirSelecaoPropriedade(['CODEMP'], True);
-  xFilial.Executar(estSelectLoop);
+  xFilial.Selecao := esLoop;
+  xFilial.Executar(etSelect);
 
   while (xFilial.Proximo) do
   begin
@@ -1034,7 +1255,8 @@ var
 begin
   xFilial := TFilial.Create();
   xFilial.DesativarUsoParametro;
-  xFilial.Executar(estSelectLoop);
+  xFilial.Selecao := esLoop;
+  xFilial.Executar(etSelect);
 
   while (xFilial.Proximo) do
   begin
@@ -1153,6 +1375,62 @@ end;
 procedure TTabelaUsuario.SetOldId(const Value: Integer);
 begin
   FOldId := Value;
+end;
+
+{ TConnectionBase }
+
+function TConnectionBase.BaseConexao: string;
+begin
+  Result := FBase;
+end;
+
+procedure TConnectionBase.Conexao(const pBase: string);
+begin
+  if (AnsiSameText(pBase,'SENIOR52')) then
+    Self.ConexaoSENIOR52;
+
+  if (AnsiSameText(pBase,'SENIOR53')) then
+    Self.ConexaoSENIOR53;
+
+  if (AnsiSameText(pBase,'SENIOR55')) then
+    Self.ConexaoSENIOR55;
+end;
+
+procedure TConnectionBase.ConexaoSENIOR52;
+begin
+  Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior52;User ID=senior52;Data Source=HENNDSV;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.LoginPrompt := False;
+  Self.Open('senior52','senior52');
+
+  FBase := 'SENIOR52';
+end;
+
+procedure TConnectionBase.ConexaoSENIOR53;
+begin
+  Self.ConnectionString := 'Provider=MSDAORA.1;Password=s1b13n5;User ID=sapiens;Data Source=HENNPROD;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.LoginPrompt := False;
+  Self.Open('sapiens','s1b13n5');
+
+  FBase := 'SAPIENS';
+end;
+
+procedure TConnectionBase.ConexaoSENIOR55;
+begin
+  Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior55;User ID=senior55;Data Source=henndsv;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.LoginPrompt := False;
+  Self.Open('senior55','senior55');
+
+  FBase := 'SENIOR55';
+end;
+
+constructor TConnectionBase.CreateBase;
+begin
+  inherited Create(nil);
+end;
+
+destructor TConnectionBase.Destroy;
+begin
+  inherited;
 end;
 
 end.
