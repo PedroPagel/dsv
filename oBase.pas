@@ -449,6 +449,7 @@ begin
   FUsaParametro := True;
   FMontarCampos := False;
 
+  FSelect := esNormal;
   FValoresInsert := EmptyStr;
   FTabelasExtras := EmptyStr;
   FCondicao := EmptyStr;

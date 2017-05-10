@@ -17,6 +17,7 @@ type
 
     FTotOri: Extended;
     FTotRea: Extended;
+    F090IND: T090IND;
 
     function GetTitulo: TIterador;
     procedure SetTitulo(const Value: TIterador);
@@ -34,9 +35,10 @@ type
     constructor Create();
     destructor Destroy(); override;
 
+    procedure CarregarIndice();
     procedure InserirContrato();
     procedure RemoverContrato();
-    procedure AdicionarTitulosReajuste(const pT090IND: T090IND);
+    procedure AdicionarTitulosReajuste();
     procedure AdicionarTitulosLigados();
 
     property Titulo: TIterador read GetTitulo write SetTitulo;
@@ -81,7 +83,6 @@ type
 
   TIteradorControle = class(TIterador)
   private
-    F090IND: T090IND;
     FIndexCtr: Integer;
     FIndexTit: Integer;
     FValorIndice: Double;
@@ -242,7 +243,7 @@ begin
   end;
 end;
 
-procedure TControle.AdicionarTitulosReajuste(const pT090IND: T090IND);
+procedure TControle.AdicionarTitulosReajuste();
 var
   xQueryMovimento: T160MOV;
   xQueryTitulo: T301TCR;
@@ -274,11 +275,34 @@ begin
       if (SituacaoTitulo(xQueryTitulo.SitTit)) and (xQueryTitulo.VlrOri = xQueryTitulo.VlrAbe) then
       begin
         FTotOri := FTotOri + xQueryTitulo.VlrOri;
-        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(pT090IND, xQueryTitulo.VlrOri));
+        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(F090IND, xQueryTitulo.VlrOri));
       end;
   finally
     FreeAndNil(xQueryTitulo);
     FreeAndNil(xQueryMovimento);
+  end;
+end;
+
+procedure TControle.CarregarIndice;
+var
+  x090LIC: T090LIC;
+begin
+  x090LIC := T090LIC.Create;
+  try
+    x090LIC.USU_CodEmp := Self.USU_CodEmp;
+    x090LIC.USU_CodFil := Self.USU_CodFil;
+    x090LIC.USU_NumCtr := Self.USU_NumCtr;
+    x090LIC.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True);
+
+    if (x090LIC.Executar(etSelect)) then
+    begin
+      F090IND := T090IND.Create('USU_T090IND');
+      F090IND.USU_ID := x090LIC.USU_IDIND;
+      F090IND.DefinirSelecaoPropriedade(['USU_ID']);
+      F090IND.Executar(etSelect);
+    end;
+  finally
+    FreeAndNil(x090LIC);
   end;
 end;
 
@@ -303,6 +327,7 @@ begin
   FreeAndNil(FAjuste);
   FreeAndNil(FTitulo);
   FreeAndNil(FLigacao);
+  FreeAndNil(F090IND);
 
   inherited;
 end;
@@ -438,7 +463,10 @@ begin
       Self.Iterar(xQueryReajuste, xControle);
 
       if (FTitulo = tTContasReceber) then
-        xControle.AdicionarTitulosReajuste(F090IND)
+      begin
+        xControle.CarregarIndice;
+        xControle.AdicionarTitulosReajuste()
+      end
       else
         xControle.AdicionarTitulosLigados();
 
@@ -456,13 +484,6 @@ constructor TIteradorControle.Create;
 begin
   inherited Create();
 
-  F090IND := T090IND.Create('USU_T090IND');
-  F090IND.DefinirCampoNegado(['ID']);
-
-  F090IND.USU_CodEmp := FLogEmp;
-  F090IND.DefinirSelecaoPropriedade(['USU_CODEMP']);
-  F090IND.Selecao := esNormal;
-  F090IND.Executar(etSelect);
   FTitulo := tTContasReceber;
   FListaDespesas := TIterador.Create;
 end;
@@ -472,7 +493,6 @@ begin
   FListaDespesas.Clear;
 
   FreeAndNil(FListaDespesas);
-  FreeAndNil(F090IND);
 
   inherited;
 end;
@@ -1267,7 +1287,6 @@ begin
       x670BEM.CodBem := x670LIB.USU_CodBem;
       x670BEM.USU_BemClp := 'S';
       x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM','USU_BEMCLP'], True);
-      x670BEM.Selecao := esNormal;
       x670BEM.Executar(etSelect);
       FListaBLG.IterarAdd(x670BEM, T670BEM.Create);
       x670BEM.Fechar;
