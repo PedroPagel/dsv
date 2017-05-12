@@ -17,6 +17,8 @@ type
 
     FTotOri: Extended;
     FTotRea: Extended;
+    FBonCtr: Extended;
+    FReaCtr: Extended;
     F090IND: T090IND;
 
     function GetTitulo: TIterador;
@@ -41,6 +43,9 @@ type
     procedure AdicionarTitulosReajuste();
     procedure AdicionarTitulosLigados();
 
+    function BonificaoDoContrato: Extended;
+    function ReajusteDoContrato: Extended;
+
     property Titulo: TIterador read GetTitulo write SetTitulo;
     property Ligacao: TIterador read GetLigacao write SetLigacao;
     property Ajuste: TIterador read GetAjuste write SetAjuste;
@@ -54,7 +59,7 @@ type
     FIndRea: Double;
     FIndFin: string;
     FVlrIni: Double;
-    FVlrBon: Double;
+    FVlrBon: Currency;
     FOLD_IndNov: Double;
 
     function GetIndNov: Double;
@@ -67,8 +72,8 @@ type
     procedure SetVlrIni(const Value: Double);
     function GetOLD_IndNov: Double;
     procedure SetOLD_IndNov(const Value: Double);
-    function GetVlrBon: Double;
-    procedure SetVlrBon(const Value: Double);
+    function GetVlrBon: Currency;
+    procedure SetVlrBon(const Value: Currency);
   public
     constructor Create(const pT090IND: T090IND; const pVlrOri: Double);
     destructor Destroy(); override;
@@ -77,7 +82,7 @@ type
     property IndNov: Double read GetIndNov write SetIndNov;
     property IndRea: Double read GetIndRea write SetIndRea;
     property VlrIni: Double read GetVlrIni write SetVlrIni;
-    property VlrBon: Double read GetVlrBon write SetVlrBon;
+    property VlrBon: Currency read GetVlrBon write SetVlrBon;
     property OLD_IndNov: Double read GetOLD_IndNov write SetOLD_IndNov;
   end;
 
@@ -145,6 +150,7 @@ type
 
     procedure AdicionarBemLigado();
     procedure Processar();
+    procedure Excluir();
 
     property Lista: TIterador read GetLista write SetLista;
   end;
@@ -176,6 +182,7 @@ type
     procedure Limpar();
     procedure Mostrar();
     procedure Processar();
+    procedure Excluir();
     procedure GerarLigacao();
     procedure RemoverLigacao();
     procedure MarcarDesmarcarNaoLigados(const pValue: Byte);
@@ -206,23 +213,45 @@ end;
 procedure TControle.AdicionarMovimento(const p160MOV: T160MOV);
 var
   x160MOV: T160MOV;
+  xQueryMov: T160MOV;
 begin
-  x160MOV := T160MOV.Create();
-  x160MOV.USU_IDCLP := p160MOV.USU_IDCLP;
-  x160MOV.USU_CodEmp := p160MOV.USU_CodEmp;
-  x160MOV.USU_CodFil := p160MOV.USU_CodFil;
-  x160MOV.USU_NumTit := p160MOV.USU_NumTit;
-  x160MOV.USU_CodTpt := p160MOV.USU_CodTpt;
+  xQueryMov := nil;
+  try
+    xQueryMov := T160MOV.Create();
+    x160MOV := T160MOV.Create();
 
-  x160MOV.Selecao := esMAX;
-  x160MOV.MontarCampos := True;
-  x160MOV.Campo := 'USU_SEQMOV';
-  x160MOV.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-  x160MOV.Executar(etSelect);
-  x160MOV.USU_VlrRea := (x160MOV.USU_VlrRea - x160MOV.USU_VlrOri);
+    x160MOV.USU_IDCLP := p160MOV.USU_IDCLP;
+    x160MOV.USU_CodEmp := p160MOV.USU_CodEmp;
+    x160MOV.USU_CodFil := p160MOV.USU_CodFil;
+    x160MOV.USU_NumTit := p160MOV.USU_NumTit;
+    x160MOV.USU_CodTpt := p160MOV.USU_CodTpt;
 
-  if not(FTitulo.IndexOfFields(x160MOV)) then
-    FTitulo.Add(x160MOV);
+    x160MOV.Selecao := esMAX;
+    x160MOV.MontarCampos := True;
+    x160MOV.Campo := 'USU_SEQMOV';
+    x160MOV.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+    x160MOV.Executar(etSelect);
+
+    xQueryMov.Selecao := esSUM;
+    xQueryMov.Campo := 'USU_VLRBON';
+    xQueryMov.USU_CodEmp := x160MOV.USU_CodEmp;
+    xQueryMov.USU_CodFil := x160MOV.USU_CodFil;
+    xQueryMov.USU_NumTit := x160MOV.USU_NumTit;
+    xQueryMov.USU_CodTpt := x160MOV.USU_CodTpt;
+    xQueryMov.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+
+    if (xQueryMov.Executar(etSelect)) then
+      x160MOV.USU_VlrBon := xQueryMov.USU_VlrBon;
+
+    x160MOV.USU_VlrRea := (x160MOV.USU_VlrRea - x160MOV.USU_VlrOri);
+    FBonCtr := (FBonCtr + x160MOV.USU_VlrBon);
+    FReaCtr := (FReaCtr + x160MOV.USU_VlrRea);
+
+    if not(FTitulo.IndexOfFields(x160MOV)) then
+      FTitulo.Add(x160MOV);
+  finally
+    FreeAndNil(xQueryMov);
+  end;
 end;
 
 procedure TControle.AdicionarTitulosLigados();
@@ -283,6 +312,11 @@ begin
   end;
 end;
 
+function TControle.BonificaoDoContrato: Extended;
+begin
+  Result := FBonCtr;
+end;
+
 procedure TControle.CarregarIndice;
 var
   x090LIC: T090LIC;
@@ -314,6 +348,8 @@ begin
   FTitulo := TIterador.Create(True);
   FTitulo.IndexFields(['USU_CodEmp','USU_CodFil','USU_NumTit','USU_CodTpt']);
 
+  FBonCtr := 0;
+  FReaCtr := 0;
   FAjuste := TIterador.Create;
   FLigacao := TIterador.Create;
 end;
@@ -375,6 +411,11 @@ begin
       x301tcr.Executar(estUpdate);
     end;
   end;
+end;
+
+function TControle.ReajusteDoContrato: Extended;
+begin
+  Result := FReaCtr;
 end;
 
 procedure TControle.RemoverContrato;
@@ -936,7 +977,7 @@ begin
   Result := FOLD_IndNov;
 end;
 
-function TTituloControle.GetVlrBon: Double;
+function TTituloControle.GetVlrBon: Currency;
 begin
   Result := FVlrBon;
 end;
@@ -966,7 +1007,7 @@ begin
   FOLD_IndNov := Value;
 end;
 
-procedure TTituloControle.SetVlrBon(const Value: Double);
+procedure TTituloControle.SetVlrBon(const Value: Currency);
 begin
   FVlrBon := Value;
 end;
@@ -992,6 +1033,27 @@ begin
 
   FreeAndNil(FListaBNL);
   FreeAndNil(FListaBLG);
+end;
+
+procedure TControladorBem.Excluir;
+var
+  i: Integer;
+  x670BEM: TIteradorBem;
+begin
+  StartTransaction;
+  try
+    for i := 0 to pred(FListaBLG.Count) do
+      begin
+        x670BEM := TIteradorBem(FListaBLG[i]);
+
+        if (x670BEM.Check = 1) then
+          x670BEM.Excluir;
+      end;
+
+    Commit;
+  except
+    RollBack;
+  end;
 end;
 
 procedure TControladorBem.GerarLigacao;
@@ -1156,6 +1218,8 @@ begin
         if (x670BEM.Check = 1) then
           x670BEM.Processar;
       end;
+
+    Commit;
   except
     RollBack;
   end;
@@ -1308,6 +1372,27 @@ begin
   inherited;
 
   FreeAndNil(FListaBLG);
+end;
+
+procedure TIteradorBem.Excluir;
+var
+  x670LIB: T670LIB;
+begin
+  x670LIB := T670LIB.Create;
+  x670LIB.USU_IDLIG := Self.USU_IDLIB;
+  x670LIB.DefinirSelecaoPropriedade(['USU_IDLIG']);
+  x670LIB.Executar(estDelete);
+
+  x670LIB.USU_ID := Self.USU_IDLIB;
+  x670LIB.DefinirSelecaoPropriedade(['USU_ID']);
+  x670LIB.Executar(estDelete);
+
+  Self.Iniciar;
+  Self.USU_BemPri := 'N';
+  Self.USU_IDLIB := 0;
+  Self.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
+  Self.DefinirCampoUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+  Self.Executar(estUpdate);
 end;
 
 function TIteradorBem.GetLista: TIterador;

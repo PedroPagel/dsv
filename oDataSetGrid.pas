@@ -835,7 +835,7 @@ end;
 
 procedure TDataSetGrid.SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0);
 begin
-  if (pType in [ftBCD, ftFloat, ftString, ftDateTime, ftLargeint, ftInteger, ftBoolean]) then
+  if (pType in [ftBCD, ftFloat, ftString, ftDateTime, ftLargeint, ftInteger, ftBoolean, ftCurrency]) then
   begin
     FFieldList := FFieldList + pField + ',';
 

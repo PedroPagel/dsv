@@ -754,7 +754,7 @@ type
     FVctOri: TDate;
     FSitTit: string;
     FVlrRea: Extended;
-    FVlrBon: Extended;
+    FVlrBon: Currency;
     FDatDsc: TDate;
 
     function GetCODCLI: Word;
@@ -767,7 +767,7 @@ type
     function GetSEQMOV: Integer;
     function GetSITTIT: string;
     function GetVCTORI: TDate;
-    function GetVLRBON: Extended;
+    function GetVLRBON: Currency;
     function GetVLRORI: Extended;
     function GetVLRREA: Extended;
 
@@ -781,7 +781,7 @@ type
     procedure SetSEQMOV(const Value: Integer);
     procedure SetSITTIT(const Value: string);
     procedure SetVCTORI(const Value: TDate);
-    procedure SetVLRBON(const Value: Extended);
+    procedure SetVLRBON(const Value: Currency);
     procedure SetVLRORI(const Value: Extended);
     procedure SetVLRREA(const Value: Extended);
   public
@@ -801,7 +801,7 @@ type
     property USU_VctOri: TDate read GetVCTORI write SetVCTORI;
     property USU_SitTit: string read GetSITTIT write SetSITTIT;
     property USU_VlrRea: Extended read GetVLRREA write SetVLRREA;
-    property USU_VlrBon: Extended read GetVLRBON write SetVLRBON;
+    property USU_VlrBon: Currency read GetVLRBON write SetVLRBON;
     property USU_DatDsc: TDate read GetDATDSC write SetDATDSC;
   end;
 
@@ -3048,7 +3048,7 @@ begin
   Result := FVctOri;
 end;
 
-function T160MOV.GetVLRBON: Extended;
+function T160MOV.GetVLRBON: Currency;
 begin
   Result := FVlrBon;
 end;
@@ -3113,7 +3113,7 @@ begin
   FVctOri := Value;
 end;
 
-procedure T160MOV.SetVLRBON(const Value: Extended);
+procedure T160MOV.SetVLRBON(const Value: Currency);
 begin
   FVlrBon := Value;
 end;

@@ -49,7 +49,8 @@ contains
   wsCPAlterar in 'wsCPAlterar.pas',
   wsCPATitulos in 'wsCPATitulos.pas',
   wsCRAlterar in 'wsCRAlterar.pas',
-  oTitulo in 'oTitulo.pas';
+  oTitulo in 'oTitulo.pas',
+  wsBancoCentral in 'wsBancoCentral.pas';
 
 end.
 
