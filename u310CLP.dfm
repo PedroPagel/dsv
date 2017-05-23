@@ -130,6 +130,21 @@ object F310CLP: TF310CLP
           TabOrder = 2
           OnClick = DesmarcarClick
         end
+        object Excluir: TButton
+          Left = 13
+          Top = 105
+          Width = 75
+          Height = 25
+          Caption = '&Excluir'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
+          OnClick = ExcluirClick
+        end
       end
       object GBContrato: TGroupBox
         Left = 1
@@ -226,6 +241,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DDatIni: TDateTimePicker
           Left = 90
@@ -288,6 +304,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodCli: THButtonedEdit
           Left = 89
@@ -311,6 +328,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
       object GBTitulo: TGroupBox
@@ -449,6 +467,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DVenIni: TDateTimePicker
           Left = 78
@@ -487,6 +506,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodFor: THButtonedEdit
           Left = 78
@@ -510,6 +530,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BETitFil: THButtonedEdit
           Left = 78
@@ -533,6 +554,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodEmp: THButtonedEdit
           Left = 78
@@ -556,6 +578,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
       object GBBem: TGroupBox
@@ -611,6 +634,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodBem: THButtonedEdit
           Left = 80
@@ -632,6 +656,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
     end
@@ -640,7 +665,7 @@ object F310CLP: TF310CLP
       Top = 156
       Width = 1141
       Height = 535
-      ActivePage = Despesa
+      ActivePage = Reajuste
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlack
@@ -679,7 +704,7 @@ object F310CLP: TF310CLP
           end
           object Splitter3: TSplitter
             Left = 1
-            Top = 292
+            Top = 294
             Width = 1131
             Height = 2
             Cursor = crVSplit
@@ -737,7 +762,7 @@ object F310CLP: TF310CLP
             Left = 1
             Top = 149
             Width = 1131
-            Height = 143
+            Height = 145
             Align = alTop
             Caption = 'Panel5'
             TabOrder = 1
@@ -747,7 +772,7 @@ object F310CLP: TF310CLP
               Width = 1129
               Height = 16
               Align = alTop
-              Caption = 'T'#237'tulo(s) - Reajustes'
+              Caption = 'T'#237'tulo(s) Movimento(s) - Reajustes'
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
@@ -760,7 +785,7 @@ object F310CLP: TF310CLP
               Left = 1
               Top = 17
               Width = 1129
-              Height = 125
+              Height = 97
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
@@ -778,12 +803,48 @@ object F310CLP: TF310CLP
               TitleFont.Style = []
               AllowNewLine = False
             end
+            object pnl1: TPanel
+              Left = 1
+              Top = 114
+              Width = 1129
+              Height = 30
+              Align = alBottom
+              TabOrder = 2
+              object lbl1: TLabel
+                Left = 242
+                Top = 8
+                Width = 60
+                Height = 13
+                Caption = 'Reajustes:'
+              end
+              object lbl2: TLabel
+                Left = 23
+                Top = 8
+                Width = 73
+                Height = 13
+                Caption = 'Bonifica'#231#245'es:'
+              end
+              object LReaCtr: TLabel
+                Left = 375
+                Top = 8
+                Width = 24
+                Height = 13
+                Caption = '0.00'
+              end
+              object LBonCtr: TLabel
+                Left = 147
+                Top = 8
+                Width = 24
+                Height = 13
+                Caption = '0.00'
+              end
+            end
           end
           object Panel13: TPanel
             Left = 1
-            Top = 294
+            Top = 296
             Width = 1131
-            Height = 165
+            Height = 180
             Align = alClient
             TabOrder = 2
             object Panel9: TPanel
@@ -799,7 +860,7 @@ object F310CLP: TF310CLP
               Left = 1
               Top = 23
               Width = 1129
-              Height = 141
+              Height = 156
               Align = alClient
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
@@ -819,9 +880,9 @@ object F310CLP: TF310CLP
           end
           object Panel3: TPanel
             Left = 1
-            Top = 459
+            Top = 476
             Width = 1131
-            Height = 47
+            Height = 30
             Align = alBottom
             TabOrder = 3
             object Label15: TLabel
@@ -858,6 +919,10 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
@@ -1083,6 +1148,10 @@ object F310CLP: TF310CLP
       object LigacaoBem: TTabSheet
         Caption = 'Liga'#231#227'o Bem x Bem'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel15: TPanel
           Left = 0
           Top = 0

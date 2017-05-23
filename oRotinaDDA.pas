@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, Data.SqlExpr, oQuery, oBase, oTitulo, System.SysUtils,
-  Data.Db, System.Contnrs, oTabelas;
+  Data.Db, System.Contnrs, oTabelas, oReader;
 
 type
   TTituloArmazenamento = class(TTitulo)
@@ -69,7 +69,6 @@ type
 
   TArmazenamento = class(TBaseTitulos)
   private
-    FDiretorio: TSearchRec;
     F510TIT: T510TIT;
     FIterador: TIterador;
 
@@ -83,9 +82,6 @@ type
   end;
 
 implementation
-
-uses
-  Winapi.Windows;
 
 { TArmazenamento }
 
@@ -123,44 +119,51 @@ end;
 
 constructor TArmazenamento.Create();
 var
-  xLinha: string;
   xArqSai: string;
-  xFile: TextFile;
-  i: Integer;
+  xReader: oReader.TFileReader;
 begin
   inherited Create();
-  F510TIT := T510TIT.CreateCarregado(True);
-  FIterador := TIterador.Create;
 
-  xArqSai := Self.C510AGE.USU_DirArq;
+  F510TIT := nil;
+  xReader := nil;
+  FIterador := nil;
+  try
+    FIterador := TIterador.Create;
+    xReader := TFileReader.Create();
+    F510TIT := T510TIT.CreateCarregado(True);
 
-  Self.MontaFiliais;
-  Self.MontaBuscaPadraoEmpFil;
+    xArqSai := Self.C510AGE.USU_DirArq;
 
-  if not(UltimoCaracter(xArqSai, '\', False)) then
-    Self.C510AGE.USU_DirArq := Self.C510AGE.USU_DirArq + '\';
+    Self.MontaFiliais;
+    Self.MontaBuscaPadraoEmpFil;
 
-  i := FindFirst(Self.C510AGE.USU_DirArq + '*.RET', faAnyFile, FDiretorio);
-  while i = 0 do
-  begin
-    AssignFile(xFile, Self.C510AGE.USU_DirArq + FDiretorio.Name);
-    Self.GerarArmazenamento(FDiretorio.Name);
+    if not(UltimoCaracter(xArqSai, '\', False)) then
+      Self.C510AGE.USU_DirArq := Self.C510AGE.USU_DirArq + '\';
 
-    if not(C510ARM.ArquivoExiste) then
+    xReader.PathToRead := (Self.C510AGE.USU_DirArq + '*.RET');
+
+    xReader.First();
+    while (xReader.LineExists) do
     begin
-      Reset(xFile);
-      while not(Eof(xFile)) do
-      begin
-        ReadLn(xFile, xLinha);
-        Self.AddTitulo(xLinha, C510ARM);
-      end;
-      CloseFile(xFile);
-    end
-    else
-    if not(C510ARM.Armazenado) then
-      Self.AddTitulo(C510ARM);
+      xReader.Assingn(Self.C510AGE.USU_DirArq, True);
+      Self.GerarArmazenamento(xReader.PathName);
 
-    i := FindNext(FDiretorio);
+      if not(C510ARM.ArquivoExiste) then
+      begin
+        xReader.BeginRead;
+        while (xReader.EndOfFile) do
+          Self.AddTitulo(xReader.Read, C510ARM);
+
+        xReader.Close;
+      end
+      else
+      if not(C510ARM.Armazenado) then
+        Self.AddTitulo(C510ARM);
+
+      xReader.Next;
+    end;
+  finally
+    FreeAndNil(xReader);
   end;
 end;
 

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oTitulo, oLayout, Data.SqlExpr, oQuery, oBase, System.SysUtils,
-  Data.Db, System.Contnrs, wsCPATitulos;
+  Data.Db, System.Contnrs, wsCPATitulos, System.DateUtils;
 
 type
   T510TIT = class;
@@ -480,6 +480,8 @@ type
     FUsuAlt: Integer;
     FDatAlt: TDate;
     FUsuRes: Integer;
+    FCodDbc: Integer;
+    FSeqCot: Integer;
 
     function GetCodEmp: Word;
     function GetDatAlt: TDate;
@@ -491,6 +493,7 @@ type
     function GetUsuAlt: Integer;
     function GetUsuGer: Integer;
     function GetVlrInd: Extended;
+
     procedure SetCodEmp(const Value: Word);
     procedure SetDatAlt(const Value: TDate);
     procedure SetDatFin(const Value: TDate);
@@ -503,7 +506,16 @@ type
     procedure SetVlrInd(const Value: Extended);
     function GetUsuRes: Integer;
     procedure SetUsuRes(const Value: Integer);
+    function GetCodDbc: Integer;
+    procedure SetCodDbc(const Value: Integer);
+    function GetSeqCot: Integer;
+    procedure SetSeqCot(const Value: Integer);
   public
+    constructor Create();
+    destructor Destroy(); override;
+
+    procedure CarregarIndice(const pTitulo: T301TCR);
+
     property USU_IndFin: string read GetIndFin write SetIndFin;
     property USU_CodEmp: Word read GetCodEmp write SetCodEmp;
     property USU_DatGer: TDate read GetDatGer write SetDatGer;
@@ -515,6 +527,8 @@ type
     property USU_UsuAlt: Integer read GetUsuAlt write SetUsuAlt;
     property USU_DatAlt: TDate read GetDatAlt write SetDatAlt;
     property USU_UsuRes: Integer read GetUsuRes write SetUsuRes;
+    property USU_CodDbc: Integer read GetCodDbc write SetCodDbc;
+    property USU_SeqCot: Integer read GetSeqCot write SetSeqCot;
   end;
 
   T510CAD = class(TTabelaUsuario)
@@ -754,7 +768,7 @@ type
     FVctOri: TDate;
     FSitTit: string;
     FVlrRea: Extended;
-    FVlrBon: Extended;
+    FVlrBon: Currency;
     FDatDsc: TDate;
 
     function GetCODCLI: Word;
@@ -767,7 +781,7 @@ type
     function GetSEQMOV: Integer;
     function GetSITTIT: string;
     function GetVCTORI: TDate;
-    function GetVLRBON: Extended;
+    function GetVLRBON: Currency;
     function GetVLRORI: Extended;
     function GetVLRREA: Extended;
 
@@ -781,7 +795,7 @@ type
     procedure SetSEQMOV(const Value: Integer);
     procedure SetSITTIT(const Value: string);
     procedure SetVCTORI(const Value: TDate);
-    procedure SetVLRBON(const Value: Extended);
+    procedure SetVLRBON(const Value: Currency);
     procedure SetVLRORI(const Value: Extended);
     procedure SetVLRREA(const Value: Extended);
   public
@@ -801,7 +815,7 @@ type
     property USU_VctOri: TDate read GetVCTORI write SetVCTORI;
     property USU_SitTit: string read GetSITTIT write SetSITTIT;
     property USU_VlrRea: Extended read GetVLRREA write SetVLRREA;
-    property USU_VlrBon: Extended read GetVLRBON write SetVLRBON;
+    property USU_VlrBon: Currency read GetVLRBON write SetVLRBON;
     property USU_DatDsc: TDate read GetDATDSC write SetDATDSC;
   end;
 
@@ -851,11 +865,177 @@ type
     property USU_CodFil: Word read GetCodFil write SetCodFil;
     property USU_NumCtr: Integer read GetNumCtr write SetNumCtr;
     property USU_IndFin: string read GetIndFin write SetIndFin;
-    property OLD_USU_IDIND: Integer read GetOLDIDIND write SetOLDIDIND;
-    property OLD_USU_CodEmp: Word read GetOLDCodEmp write SetOLDCodEmp;
-    property OLD_USU_CodFil: Word read GetOLDCodFil write SetOLDCodFil;
-    property OLD_USU_NumCtr: Integer read GetOLDNumCtr write SetOLDNumCtr;
-    property OLD_USU_IndFin: string read GetOLDIndFin write SetOLDIndFin;
+    property USU_OldIDIND: Integer read GetOLDIDIND write SetOLDIDIND;
+    property USU_OldCodEmp: Word read GetOLDCodEmp write SetOLDCodEmp;
+    property USU_OldCodFil: Word read GetOLDCodFil write SetOLDCodFil;
+    property USU_OldNumCtr: Integer read GetOLDNumCtr write SetOLDNumCtr;
+    property USU_OldIndFin: string read GetOLDIndFin write SetOLDIndFin;
+  end;
+
+  T000dbc = class(TTabelaUsuario)
+  private
+    FCodDbc: Integer;
+    FNomDbc: string;
+    FDscDbc: string;
+    FPerDbc: Char;
+    FNumPer: Word;
+    FFonDbc: string;
+    FDatIni: TDate;
+    FDatFin: TDate;
+    FDiaDbc: Byte;
+    FMesDbc: Byte;
+    FAnoDbc: Word;
+    FVlrDbc: Double;
+    FSeqCot: Integer;
+
+    FOldCodDbc: Integer;
+    FOldNomDbc: string;
+    FOldDscDbc: string;
+    FOldPerDbc: Char;
+    FOldNumPer: Word;
+    FOldFonDbc: string;
+    FOldDatIni: TDate;
+    FOldDatFin: TDate;
+    FOldDiaDbc: Byte;
+    FOldMesDbc: Byte;
+    FOldAnoDbc: Word;
+    FOldVlrDbc: Double;
+    FOldSeqCot: Integer;
+
+    function GetAnoDbc: Word;
+    function GetCodDbc: Integer;
+    function GetDatFin: TDate;
+    function GetDatIni: TDate;
+    function GetDiaDbc: Byte;
+    function GetDscDbc: string;
+    function GetFonDbc: string;
+    function GetMesDbc: Byte;
+    function GetNomDbc: string;
+    function GetNumPer: Word;
+    function GetPerDbc: Char;
+    function GetVlrDbc: Double;
+
+    procedure SetAnoDbc(const Value: Word);
+    procedure SetCodDbc(const Value: Integer);
+    procedure SetDatFin(const Value: TDate);
+    procedure SetDatIni(const Value: TDate);
+    procedure SetDiaDbc(const Value: Byte);
+    procedure SetDscDbc(const Value: string);
+    procedure SetFonDbc(const Value: string);
+    procedure SetMesDbc(const Value: Byte);
+    procedure SetNomDbc(const Value: string);
+    procedure SetNumPer(const Value: Word);
+    procedure SetPerDbc(const Value: Char);
+    procedure SetVlrDbc(const Value: Double);
+
+    function GetOldAnoDbc: Word;
+    function GetOldCodDbc: Integer;
+    function GetOldDatFin: TDate;
+    function GetOldDatIni: TDate;
+    function GetOldDiaDbc: Byte;
+    function GetOldDscDbc: string;
+    function GetOldFonDbc: string;
+    function GetOldMesDbc: Byte;
+    function GetOldNomDbc: string;
+    function GetOldNumPer: Word;
+    function GetOldPerDbc: Char;
+    function GetOldVlrDbc: Double;
+
+    procedure SetOldAnoDbc(const Value: Word);
+    procedure SetOldCodDbc(const Value: Integer);
+    procedure SetOldDatFin(const Value: TDate);
+    procedure SetOldDatIni(const Value: TDate);
+    procedure SetOldDiaDbc(const Value: Byte);
+    procedure SetOldDscDbc(const Value: string);
+    procedure SetOldFonDbc(const Value: string);
+    procedure SetOldMesDbc(const Value: Byte);
+    procedure SetOldNomDbc(const Value: string);
+    procedure SetOldNumPer(const Value: Word);
+    procedure SetOldPerDbc(const Value: Char);
+    procedure SetOldVlrDbc(const Value: Double);
+    function GetOldSeqCot: Integer;
+    function GetSeqCot: Integer;
+    procedure SetOldSeqCot(const Value: Integer);
+    procedure SetSeqCot(const Value: Integer);
+ protected
+    procedure Registros_OLD(); override;
+ public
+    constructor Create();
+    destructor Destroy; override;
+
+    property USU_CodDbc: Integer read GetCodDbc write SetCodDbc;
+    property USU_NomDbc: string read GetNomDbc write SetNomDbc;
+    property USU_DscDbc: string read GetDscDbc write SetDscDbc;
+    property USU_PerDbc: Char read GetPerDbc write SetPerDbc;
+    property USU_NumPer: Word read GetNumPer write SetNumPer;
+    property USU_FonDbc: string read GetFonDbc write SetFonDbc;
+    property USU_DatIni: TDate read GetDatIni write SetDatIni;
+    property USU_DatFin: TDate read GetDatFin write SetDatFin;
+    property USU_DiaDbc: Byte read GetDiaDbc write SetDiaDbc;
+    property USU_MesDbc: Byte read GetMesDbc write SetMesDbc;
+    property USU_AnoDbc: Word read GetAnoDbc write SetAnoDbc;
+    property USU_VlrDbc: Double read GetVlrDbc write SetVlrDbc;
+    property USU_SeqCot: Integer read GetSeqCot write SetSeqCot;
+
+    property USU_OldCodDbc: Integer read GetOldCodDbc write SetOldCodDbc;
+    property USU_OldNomDbc: string read GetOldNomDbc write SetOldNomDbc;
+    property USU_OldDscDbc: string read GetOldDscDbc write SetOldDscDbc;
+    property USU_OldPerDbc: Char read GetOldPerDbc write SetOldPerDbc;
+    property USU_OldNumPer: Word read GetOldNumPer write SetOldNumPer;
+    property USU_OldFonDbc: string read GetOldFonDbc write SetOldFonDbc;
+    property USU_OldDatIni: TDate read GetOldDatIni write SetOldDatIni;
+    property USU_OldDatFin: TDate read GetOldDatFin write SetOldDatFin;
+    property USU_OldDiaDbc: Byte read GetOldDiaDbc write SetOldDiaDbc;
+    property USU_OldMesDbc: Byte read GetOldMesDbc write SetOldMesDbc;
+    property USU_OldAnoDbc: Word read GetOldAnoDbc write SetOldAnoDbc;
+    property USU_OldVlrDbc: Double read GetOldVlrDbc write SetOldVlrDbc;
+    property USU_OldSeqCot: Integer read GetOldSeqCot write SetOldSeqCot;
+  end;
+
+  T160CTR = class(TTabelaPadrao)
+  private
+    FCodEmp: Word;
+    FCodFIl: Word;
+    FNumCtr: Integer;
+    FIniVig: TDate;
+    FFimVig: TDate;
+    FTipCtr: Byte;
+    FDatEmi: TDate;
+    FVlrTot: Double;
+    FNumTit: Word;
+
+    function GetCodEmp: Word;
+    function GetCodFIl: Word;
+    function GetDatEmi: TDate;
+    function GetFimVig: TDate;
+    function GetIniVig: TDate;
+    function GetNumCtr: Integer;
+    function GetNumTit: Word;
+    function GetTipCtr: Byte;
+    function GetVlrTot: Double;
+
+    procedure SetCodEmp(const Value: Word);
+    procedure SetCodFIl(const Value: Word);
+    procedure SetDatEmi(const Value: TDate);
+    procedure SetFimVig(const Value: TDate);
+    procedure SetIniVig(const Value: TDate);
+    procedure SetNumCtr(const Value: Integer);
+    procedure SetNumTit(const Value: Word);
+    procedure SetTipCtr(const Value: Byte);
+    procedure SetVlrTot(const Value: Double); //quantidade de titulos
+  public
+    constructor Create();
+    destructor Destroy; override;
+
+    property CodEmp: Word read GetCodEmp write SetCodEmp;
+    property CodFil: Word read GetCodFIl write SetCodFIl;
+    property NumCtr: Integer read GetNumCtr write SetNumCtr;
+    property IniVig: TDate read GetIniVig write SetIniVig;
+    property FimVig: TDate read GetFimVig write SetFimVig;
+    property TipCtr: Byte read GetTipCtr write SetTipCtr;
+    property DatEmi: TDate read GetDatEmi write SetDatEmi;
+    property VlrTot: Double read GetVlrTot write SetVlrTot;
+    property NumTit: Word read GetNumTit write SetNumTit;
   end;
 
 implementation
@@ -2323,6 +2503,48 @@ end;
 
 { T090IND }
 
+procedure T090IND.CarregarIndice(const pTitulo: T301TCR);
+var
+  x160ctr: T160CTR;
+  x000dbc: T000dbc;
+begin
+  if (Self.USU_VlrInd = 0) then
+  begin
+    x160ctr := T160CTR.Create();
+    x160ctr.CodEmp := pTitulo.CodEmp;
+    x160ctr.CodFil := pTitulo.FilCtr;
+    x160ctr.NumCtr := pTitulo.NumCtr;
+    x160ctr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMCTR'], True);
+    x160ctr.Executar(etSelect);
+
+    x000dbc := T000dbc.Create;
+    x000dbc.USU_CodDbc := Self.USU_CodDbc;
+    x000dbc.Selecao := esSUM;
+    x000dbc.Campo := 'USU_VLRDBC';
+    x000dbc.Between['USU_DATINI'] := StartOfTheMonth(x160ctr.IniVig);
+    x000dbc.Between['USU_DATINI'] := Date;
+    x000dbc.DefinirSelecaoPropriedade(['USU_CODDBC']);
+    x000dbc.Executar(etSelect);
+
+    Self.USU_VlrInd := x000dbc.USU_VlrDbc;
+  end;
+end;
+
+constructor T090IND.Create;
+begin
+  inherited Create('USU_T090IND');
+end;
+
+destructor T090IND.Destroy;
+begin
+  inherited;
+end;
+
+function T090IND.GetCodDbc: Integer;
+begin
+  Result := FCodDbc;
+end;
+
 function T090IND.GetCodEmp: Word;
 begin
   Result := FCodEmp;
@@ -2358,6 +2580,11 @@ begin
   Result := FObsInd;
 end;
 
+function T090IND.GetSeqCot: Integer;
+begin
+  Result := FSeqCot;
+end;
+
 function T090IND.GetUsuAlt: Integer;
 begin
   Result := FUsuAlt;
@@ -2376,6 +2603,11 @@ end;
 function T090IND.GetVlrInd: Extended;
 begin
   Result := FVlrInd;
+end;
+
+procedure T090IND.SetCodDbc(const Value: Integer);
+begin
+  FCodDbc := Value;
 end;
 
 procedure T090IND.SetCodEmp(const Value: Word);
@@ -2411,6 +2643,11 @@ end;
 procedure T090IND.SetObsInd(const Value: string);
 begin
   FObsInd := Value;
+end;
+
+procedure T090IND.SetSeqCot(const Value: Integer);
+begin
+  FSeqCot := Value;
 end;
 
 procedure T090IND.SetUsuAlt(const Value: Integer);
@@ -3048,7 +3285,7 @@ begin
   Result := FVctOri;
 end;
 
-function T160MOV.GetVLRBON: Extended;
+function T160MOV.GetVLRBON: Currency;
 begin
   Result := FVlrBon;
 end;
@@ -3113,7 +3350,7 @@ begin
   FVctOri := Value;
 end;
 
-procedure T160MOV.SetVLRBON(const Value: Extended);
+procedure T160MOV.SetVLRBON(const Value: Currency);
 begin
   FVlrBon := Value;
 end;
@@ -3249,6 +3486,401 @@ end;
 procedure T090LIC.SetOLDNumCtr(const Value: Integer);
 begin
   FOLDNumCtr := Value;
+end;
+
+{ T000dbc }
+
+constructor T000dbc.Create;
+begin
+  inherited Create('USU_T000DBC');
+
+  DefinirCampoNegado(['USU_ID']);
+end;
+
+destructor T000dbc.Destroy;
+begin
+  inherited;
+end;
+
+function T000dbc.GetAnoDbc: Word;
+begin
+  Result := FAnoDbc;
+end;
+
+function T000dbc.GetCodDbc: Integer;
+begin
+  Result := FCodDbc;
+end;
+
+function T000dbc.GetDatFin: TDate;
+begin
+  Result := FDatIni;
+end;
+
+function T000dbc.GetDatIni: TDate;
+begin
+  Result := FDatIni;
+end;
+
+function T000dbc.GetDiaDbc: Byte;
+begin
+  Result := FDiaDbc;
+end;
+
+function T000dbc.GetDscDbc: string;
+begin
+  Result := FDscDbc;
+end;
+
+function T000dbc.GetFonDbc: string;
+begin
+  Result := FFonDbc;
+end;
+
+function T000dbc.GetMesDbc: Byte;
+begin
+  Result := FMesDbc;
+end;
+
+function T000dbc.GetNomDbc: string;
+begin
+  Result := FNomDbc;
+end;
+
+function T000dbc.GetNumPer: Word;
+begin
+  Result := FNumPer;
+end;
+
+function T000dbc.GetOldAnoDbc: Word;
+begin
+  Result := FAnoDbc;
+end;
+
+function T000dbc.GetOldCodDbc: Integer;
+begin
+  Result := FCodDbc;
+end;
+
+function T000dbc.GetOldDatFin: TDate;
+begin
+  Result := FDatFin;
+end;
+
+function T000dbc.GetOldDatIni: TDate;
+begin
+  Result := FDatIni;
+end;
+
+function T000dbc.GetOldDiaDbc: Byte;
+begin
+  Result := FDiaDbc;
+end;
+
+function T000dbc.GetOldDscDbc: string;
+begin
+  Result := FDscDbc;
+end;
+
+function T000dbc.GetOldFonDbc: string;
+begin
+  Result := FFonDbc;
+end;
+
+function T000dbc.GetOldMesDbc: Byte;
+begin
+  Result := FMesDbc;
+end;
+
+function T000dbc.GetOldNomDbc: string;
+begin
+  Result := FNomDbc;
+end;
+
+function T000dbc.GetOldNumPer: Word;
+begin
+  Result := FNumPer;
+end;
+
+function T000dbc.GetOldPerDbc: Char;
+begin
+  Result := FPerDbc;
+end;
+
+function T000dbc.GetOldSeqCot: Integer;
+begin
+  Result := FOldSeqCot;
+end;
+
+function T000dbc.GetOldVlrDbc: Double;
+begin
+  Result := FVlrDbc;
+end;
+
+function T000dbc.GetPerDbc: Char;
+begin
+    Result := FPerDbc;
+end;
+
+function T000dbc.GetSeqCot: Integer;
+begin
+  Result := FSeqCot;
+end;
+
+function T000dbc.GetVlrDbc: Double;
+begin
+  Result := FVlrDbc;
+end;
+
+procedure T000dbc.Registros_OLD;
+begin
+  inherited;
+
+  FOldCodDbc := FCodDbc;
+  FOldNomDbc := FNomDbc;
+  FOldDscDbc := FDscDbc;
+  FOldPerDbc := FPerDbc;
+  FOldNumPer := FNumPer;
+  FOldFonDbc := FFonDbc;
+  FOldDatIni := FDatIni;
+  FOldDatFin := FDatFin;
+  FOldDiaDbc := FDiaDbc;
+  FOldMesDbc := FMesDbc;
+  FOldAnoDbc := FAnoDbc;
+  FOldVlrDbc := FVlrDbc;
+  FOldSeqCot := FSeqCot;
+end;
+
+procedure T000dbc.SetAnoDbc(const Value: Word);
+begin
+  FAnoDbc := Value;
+end;
+
+procedure T000dbc.SetCodDbc(const Value: Integer);
+begin
+  FCodDbc := Value;
+end;
+
+procedure T000dbc.SetDatFin(const Value: TDate);
+begin
+  FDatFin := Value;
+end;
+
+procedure T000dbc.SetDatIni(const Value: TDate);
+begin
+  FDatIni := Value;
+end;
+
+procedure T000dbc.SetDiaDbc(const Value: Byte);
+begin
+  FDiaDbc := Value;
+end;
+
+procedure T000dbc.SetDscDbc(const Value: string);
+begin
+  FDscDbc := Value;
+end;
+
+procedure T000dbc.SetFonDbc(const Value: string);
+begin
+  FFonDbc := Value;
+end;
+
+procedure T000dbc.SetMesDbc(const Value: Byte);
+begin
+  FMesDbc := Value;
+end;
+
+procedure T000dbc.SetNomDbc(const Value: string);
+begin
+  FNomDbc := Value;
+end;
+
+procedure T000dbc.SetNumPer(const Value: Word);
+begin
+  FNumPer := Value;
+end;
+
+procedure T000dbc.SetOldAnoDbc(const Value: Word);
+begin
+  FOldAnoDbc := Value;
+end;
+
+procedure T000dbc.SetOldCodDbc(const Value: Integer);
+begin
+  FOldCodDbc := Value;
+end;
+
+procedure T000dbc.SetOldDatFin(const Value: TDate);
+begin
+  FOldDatFin := Value;
+end;
+
+procedure T000dbc.SetOldDatIni(const Value: TDate);
+begin
+  FOldDatIni := Value;
+end;
+
+procedure T000dbc.SetOldDiaDbc(const Value: Byte);
+begin
+  FOldDiaDbc := Value;
+end;
+
+procedure T000dbc.SetOldDscDbc(const Value: string);
+begin
+  FOldDscDbc := Value;
+end;
+
+procedure T000dbc.SetOldFonDbc(const Value: string);
+begin
+  FOldFonDbc := Value;
+end;
+
+procedure T000dbc.SetOldMesDbc(const Value: Byte);
+begin
+  FOldMesDbc := Value;
+end;
+
+procedure T000dbc.SetOldNomDbc(const Value: string);
+begin
+  FOldNomDbc := Value;
+end;
+
+procedure T000dbc.SetOldNumPer(const Value: Word);
+begin
+  FOldNumPer := Value;
+end;
+
+procedure T000dbc.SetOldPerDbc(const Value: Char);
+begin
+  FOldPerDbc := Value;
+end;
+
+procedure T000dbc.SetOldSeqCot(const Value: Integer);
+begin
+  FOldSeqCot := Value;
+end;
+
+procedure T000dbc.SetOldVlrDbc(const Value: Double);
+begin
+  FOldVlrDbc := Value;
+end;
+
+procedure T000dbc.SetPerDbc(const Value: Char);
+begin
+  FPerDbc := Value;
+end;
+
+procedure T000dbc.SetSeqCot(const Value: Integer);
+begin
+  FSeqCot := Value;
+end;
+
+procedure T000dbc.SetVlrDbc(const Value: Double);
+begin
+  FVlrDbc := Value;
+end;
+
+{ T160CTR }
+
+constructor T160CTR.Create;
+begin
+  inherited Create('E160CTR');
+end;
+
+destructor T160CTR.Destroy;
+begin
+  inherited;
+end;
+
+function T160CTR.GetCodEmp: Word;
+begin
+  Result := FCodEmp;
+end;
+
+function T160CTR.GetCodFIl: Word;
+begin
+  Result := FCodFIl;
+end;
+
+function T160CTR.GetDatEmi: TDate;
+begin
+  Result := FDatEmi;
+end;
+
+function T160CTR.GetFimVig: TDate;
+begin
+  Result := FFimVig;
+end;
+
+function T160CTR.GetIniVig: TDate;
+begin
+  Result := FIniVig;
+end;
+
+function T160CTR.GetNumCtr: Integer;
+begin
+  Result := FNumCtr;
+end;
+
+function T160CTR.GetNumTit: Word;
+begin
+  Result := FNumTit;
+end;
+
+function T160CTR.GetTipCtr: Byte;
+begin
+  Result := FTipCtr;
+end;
+
+function T160CTR.GetVlrTot: Double;
+begin
+  Result := FVlrTot;
+end;
+
+procedure T160CTR.SetCodEmp(const Value: Word);
+begin
+  FCodEmp := Value;
+end;
+
+procedure T160CTR.SetCodFIl(const Value: Word);
+begin
+  FCodFIl := Value;
+end;
+
+procedure T160CTR.SetDatEmi(const Value: TDate);
+begin
+  FDatEmi := Value;
+end;
+
+procedure T160CTR.SetFimVig(const Value: TDate);
+begin
+  FFimVig := Value;
+end;
+
+procedure T160CTR.SetIniVig(const Value: TDate);
+begin
+  FIniVig := Value;
+end;
+
+procedure T160CTR.SetNumCtr(const Value: Integer);
+begin
+  FNumCtr := Value;
+end;
+
+procedure T160CTR.SetNumTit(const Value: Word);
+begin
+  FNumTit := Value;
+end;
+
+procedure T160CTR.SetTipCtr(const Value: Byte);
+begin
+  FTipCtr := Value;
+end;
+
+procedure T160CTR.SetVlrTot(const Value: Double);
+begin
+  FVlrTot := Value;
 end;
 
 end.

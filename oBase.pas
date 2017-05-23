@@ -9,32 +9,37 @@ uses
 
 type
   TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
-  tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT);
-  TArrayOfString = array of string;
+  tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
   tTitulo = (tTContasPagar, tTContasReceber);
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
 
+  TArrayOfString = array of string;
+
+  TBetweenRegister = record
+    Name: array of string;
+    Data: array of TDate;
+  end;
+
   TTabela = class
   private
+    FCheck: Byte;
+    FCampo: string;
     FQuery: THQuery;
     FTabela: string;
-    FValoresInsert: string;
-    FFields: array of string;
-    FCamposLimite: array of string;
-    FlistaNegacao: array of string;
+    FType: TRttiType;
     FCondicao: string;
-    FRepeticaoParametros: string;
+    FValoresInsert: string;
     FTabelasExtras: string;
     FUsaParametro: Boolean;
     FContext: TRttiContext;
-    FType: TRttiType;
-    FCheck: Byte;
     FSelect: tEstadoSelect;
-    FCampo: string;
-    FRetorno: Integer;
     FMontarCampos: Boolean;
+    FFields: array of string;
+    FRepeticaoParametros: string;
+    FCamposLimite: array of string;
+    FlistaNegacao: array of string;
+    FBetween: TBetweenRegister;
 
-    function GetCheck: Byte;
     procedure Insert();
     procedure Update();
     procedure Delete();
@@ -43,9 +48,12 @@ type
     procedure MontarEstadoInsert();
     procedure MontarEstadoDelete();
     procedure AtribuirValoresSelect();
+    procedure MontarComandoBetween();
 
+    function GetCheck: Byte;
     function Select(): Boolean;
     function MAXSelect(): string;
+    function SUMSelect(): string;
     function MontarEstadoUpdate(): string;
     function MontarEstadoSelect(): Boolean;
     function MontarComandoSelect(): string;
@@ -55,6 +63,9 @@ type
     function GetSelect: tEstadoSelect;
     procedure SetCheck(const Value: Byte);
     procedure SetSelect(const Value: tEstadoSelect);
+    procedure ExecutarMesesEntre();
+    function GetBetween(const pName: string): TDate;
+    procedure SetBetween(const pName: string; const Value: TDate);
   protected
     procedure Registros_OLD(); virtual; abstract;
   public
@@ -63,22 +74,28 @@ type
 
     procedure Iniciar();
     procedure Fechar();
+    procedure Primeiro();
     procedure AdicionarCondicao(const pCondicao: string);
     procedure DesativarUsoParametro();
     procedure DefinirTabelasExtras(const pTabelas: array of string);
     procedure DefinirCampoNegado(const pCampo: array of string);
-    procedure DefinirSelecaoPropriedade(const pCampo: array of string; const pAND: Boolean = False);
+    procedure DefinirSelecaoPropriedade(const pCampo: array of string;
+      const pAND: Boolean = False);
     procedure DefinirCampoUpdate(const pCampo: array of string);
-    procedure DefinirSelecao(const pCampo: array of string; const pValor: array of string; const pAND: Boolean = False);
+    procedure DefinirSelecao(const pCampo: array of string;
+      const pValor: array of string; const pAND: Boolean = False);
 
-    function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function Proximo(): Boolean;
-    function Retorno: Integer;
+    function MesesEntre(const pInicial, pFinal: string): Word; overload;
+    function MesesEntre(const pInicial: string; const pFinal: TDate): Word; overload;
+    function MesesEntre(const pInicial: TDate; const pFinal: string): Word; overload;
+    function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function GerarIdentidade(const pField: string): Integer; virtual; abstract;
-  public
-    property Check: Byte read GetCheck write SetCheck;
-    property Selecao: tEstadoSelect read GetSelect write SetSelect;
+
     property Campo: string read FCampo write FCampo;
+    property Check: Byte read GetCheck write SetCheck;
+    property Between[const pName: string]: TDate read GetBetween write SetBetween;
+    property Selecao: tEstadoSelect read GetSelect write SetSelect;
     property MontarCampos: Boolean read FMontarCampos write FMontarCampos;
   end;
 
@@ -133,7 +150,8 @@ type
     procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
     procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
 
-    class procedure Repassar(const pObjEntrada: TObject; const pObjeSaida: TObject);
+    class procedure Repassar(const pObjEntrada: TObject;
+      const pObjeSaida: TObject);
   end;
 
   TFilial = class(TTabelaPadrao)
@@ -191,9 +209,11 @@ type
     constructor Create();
     destructor Destroy(); override;
 
-    function DadosFilial(const pCodEmp: Integer; const pCodFil: Integer): TFilial;
+    function DadosFilial(const pCodEmp: Integer;
+      const pCodFil: Integer): TFilial;
     procedure AddEmpresaLogada(const pCodEmp: Integer);
-    procedure AddEmpresaFilialLogada(const pCodEmp: Integer; const pCodFil: Integer);
+    procedure AddEmpresaFilialLogada(const pCodEmp: Integer;
+      const pCodFil: Integer);
     procedure AddTodas();
   end;
 
@@ -217,22 +237,26 @@ type
     function BaseConexao(): string;
   end;
 
-  procedure StartTransaction();
-  procedure Commit();
-  procedure RollBack;
+procedure StartTransaction();
+procedure Commit();
+procedure RollBack;
 
-  function iff(const pTernario: Boolean; const pParametro1, pParametro2: Variant): Variant;
-  function UltimoCaracter(var pString: string; pCaracter: string; pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
-  function DataNull(pData: TDate): TDateTime;
-  function IsNull(const pString: string): Boolean;
-  function DateTimeFormatDB(const pData: TDate): string;
-  function DateTimeFormat(const pData: TDate): TDate;
-  function BuscarString(const pComparar: string; const pString: array of string): Boolean;
-  function FloatToDate(const pFloat: Extended): TDate;
-  function AllowedTypeKind(const pType: TTypeKind): Boolean;
-  function ValueToDB(const pValor: string): string;
-  function TextToFloat(const pValor: string): Double;
-  function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
+function iff(const pTernario: Boolean;
+  const pParametro1, pParametro2: Variant): Variant;
+function UltimoCaracter(var pString: string; pCaracter: string;
+  pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
+function DataNull(pData: TDate): TDateTime;
+function IsNull(const pString: string): Boolean;
+function DateTimeFormatDB(const pData: TDate): string;
+function DateTimeFormat(const pData: TDate): TDate;
+function BuscarString(const pComparar: string;
+  const pString: array of string): Boolean;
+function FloatToDate(const pFloat: Extended): TDate;
+function AllowedTypeKind(const pType: TTypeKind): Boolean;
+function ValueToDB(const pValor: string): string;
+function TextToFloat(const pValor: string): Double;
+function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
+
 var
   FOracleConnection: TConnectionBase;
   FListaFilial: TListaFilial;
@@ -263,7 +287,8 @@ begin
   Abort;
 end;
 
-function iff(const pTernario: Boolean; const pParametro1, pParametro2: Variant): Variant;
+function iff(const pTernario: Boolean;
+  const pParametro1, pParametro2: Variant): Variant;
 begin
   if (pTernario) then
     Result := pParametro1
@@ -271,12 +296,14 @@ begin
     Result := pParametro2;
 end;
 
-function UltimoCaracter(var pString: string; pCaracter: string; pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
+function UltimoCaracter(var pString: string; pCaracter: string;
+  pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
 begin
   Result := False;
 
   repeat
-    if (AnsiSameText(Copy(pString, (Length(pString) - (pCount - 1)), pCount), pCaracter)) then
+    if (AnsiSameText(Copy(pString, (Length(pString) - (pCount - 1)), pCount),
+      pCaracter)) then
     begin
       if (pDeletar) then
         Delete(pString, (Length(pString) - (pCount - 1)), pCount);
@@ -287,6 +314,7 @@ begin
 end;
 
 {$HINTS OFF}
+
 function DataNull(pData: TDate): TDateTime;
 var
   xHint: TDate;
@@ -303,13 +331,13 @@ end;
 
 function IsNull(const pString: string): Boolean;
 begin
-  Result := ((Length(pString) = 0) or (AnsiSameText(pString,' ')));
+  Result := ((Length(pString) = 0) or (AnsiSameText(pString, ' ')));
 end;
-
 
 function DateTimeFormatDB(const pData: TDate): string;
 begin
-  Result := Format('TO_DATE(''%s'', ''DD/MM/YYYY'')', [FormatDateTime('DD/MM/YYYY', pData)]);
+  Result := Format('TO_DATE(''%s'', ''DD/MM/YYYY'')',
+    [FormatDateTime('DD/MM/YYYY', pData)]);
 end;
 
 function DateTimeFormat(const pData: TDate): TDate;
@@ -317,7 +345,8 @@ begin
   Result := StrToDateTimeDef('DD/MM/YYYY', pData);
 end;
 
-function BuscarString(const pComparar: string; const pString: array of string): Boolean;
+function BuscarString(const pComparar: string;
+  const pString: array of string): Boolean;
 var
   i: Integer;
 begin
@@ -325,7 +354,7 @@ begin
 
   for i := 0 to High(pString) do
   begin
-    if AnsiSameText(pComparar,pString[i]) then
+    if AnsiSameText(pComparar, pString[i]) then
     begin
       Result := True;
       Break;
@@ -341,7 +370,7 @@ end;
 function AllowedTypeKind(const pType: TTypeKind): Boolean;
 begin
   Result := (pType in [tkInteger, tkFloat, tkString, tkChar, tkVariant,
-          tkLString, tkWChar, tkWString, tkInt64, tkUString]);
+    tkLString, tkWChar, tkWString, tkInt64, tkUString]);
 end;
 
 function ValueToDB(const pValor: string): string;
@@ -382,8 +411,8 @@ begin
     if (xVirgula) then
       Inc(xCount);
 
-      if xCount > pPrecisao then
-        Break;
+    if xCount > pPrecisao then
+      Break;
   end;
   Result := StrToFloat(xFloat);
 end;
@@ -394,7 +423,7 @@ class procedure TConexao.Executar();
 var
   xBASE: string;
 begin
-  xBase := EmptyStr;
+  xBASE := EmptyStr;
 
   if (System.ParamCount > 0) then
     xBASE := ParamStr(1)
@@ -431,7 +460,8 @@ begin
 
         tkFloat:
           if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-            xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name).AsDateTime))
+            xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name)
+              .AsDateTime))
           else
             xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
       else
@@ -450,19 +480,24 @@ begin
   FMontarCampos := False;
 
   FSelect := esNormal;
+  FCondicao := EmptyStr;
   FValoresInsert := EmptyStr;
   FTabelasExtras := EmptyStr;
-  FCondicao := EmptyStr;
+
+
   FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
-  DefinirCampoNegado(['USU_Check','Check','Campo','Selecao','MontarCampos']);
+  //SetLength(FBetween, 2);
+
+  DefinirCampoNegado(['USU_Check', 'Check', 'Campo', 'Selecao',
+    'MontarCampos','Between']);
 end;
 
 procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
 var
-  i,j: Integer;
+  i, j: Integer;
 
   procedure Aumentar(const pNome: string);
   begin
@@ -479,7 +514,7 @@ end;
 
 procedure TTabela.DefinirCampoUpdate(const pCampo: array of string);
 var
-  i,j: Integer;
+  i, j: Integer;
 begin
   for i := 0 to High(pCampo) do
   begin
@@ -490,9 +525,10 @@ begin
   end;
 end;
 
-procedure TTabela.DefinirSelecaoPropriedade(const pCampo: array of string; const pAND: Boolean = False);
+procedure TTabela.DefinirSelecaoPropriedade(const pCampo: array of string;
+  const pAND: Boolean = False);
 var
-  i,j: Integer;
+  i, j: Integer;
 begin
   for i := 0 to High(pCampo) do
   begin
@@ -501,7 +537,8 @@ begin
     SetLength(FFields, j);
     FFields[pred(j)] := pCampo[i];
 
-    FCondicao := FCondicao + pCampo[i] + Format(iff(FUsaParametro, ' = :%s', ' = %s'),  [pCampo[i]]) +
+    FCondicao := FCondicao + pCampo[i] +
+      Format(iff(FUsaParametro, ' = :%s', ' = %s'), [pCampo[i]]) +
       iff(pAND, ' AND ', ',');
 
     if (FMontarCampos) then
@@ -511,7 +548,8 @@ begin
       SetLength(FFields, j);
       FFields[pred(j)] := 'R' + pCampo[i];
 
-      FRepeticaoParametros := FRepeticaoParametros + pCampo[i] + Format(iff(FUsaParametro, ' = :R%s', ' = %s'),  [pCampo[i]]) +
+      FRepeticaoParametros := FRepeticaoParametros + pCampo[i] +
+        Format(iff(FUsaParametro, ' = :R%s', ' = %s'), [pCampo[i]]) +
         iff(pAND, ' AND ', ',');
     end;
   end;
@@ -540,6 +578,7 @@ var
     else
       Result := pCampo;
   end;
+
 begin
   for i := 0 to High(FFields) do
   begin
@@ -547,24 +586,29 @@ begin
 
     case xPropriedade.PropertyType.TypeKind of
       tkInteger:
-        FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).AsInteger;
+        FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self)
+          .AsInteger;
 
       tkFloat:
-      begin
-        if (AnsiSameText('TDate', xPropriedade.PropertyType.Name)) then
-          FQuery.ParamByName(FFields[i]).Value := DataNull(FloatToDateTime(xPropriedade.GetValue(Self).AsExtended))
-        else
-          FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).AsExtended;
-      end
+        begin
+          if (AnsiSameText('TDate', xPropriedade.PropertyType.Name)) then
+            FQuery.ParamByName(FFields[i]).Value :=
+              DataNull(FloatToDateTime(xPropriedade.GetValue(Self).AsExtended))
+          else
+            FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self)
+              .AsExtended;
+        end
     else
-      FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).ToString;
+      FQuery.ParamByName(FFields[i]).Value :=
+        xPropriedade.GetValue(Self).ToString;
     end;
   end;
 end;
 
-procedure TTabela.DefinirSelecao(const pCampo, pValor: array of string; const pAND: Boolean = False);
+procedure TTabela.DefinirSelecao(const pCampo, pValor: array of string;
+  const pAND: Boolean = False);
 var
-  i,j: Integer;
+  i, j: Integer;
 begin
   for i := 0 to High(pCampo) do
   begin
@@ -573,7 +617,8 @@ begin
     SetLength(FFields, j);
     FFields[pred(j)] := pCampo[i];
 
-    FCondicao := FCondicao + pCampo[i] + ' = ' + pValor[i] + iff(pAND, ' AND ', ',');
+    FCondicao := FCondicao + pCampo[i] + ' = ' + pValor[i] +
+      iff(pAND, ' AND ', ',');
   end;
 
   if (pAND) then
@@ -606,13 +651,14 @@ destructor TTabela.Destroy;
 begin
   FContext.Free;
   FreeAndNil(FQuery);
+  FillChar(FBetween, sizeOf(FBetween), 0);
 
   inherited;
 end;
 
 procedure TTabela.MontarEstadoDelete;
 begin
-  FQuery.Command := 'DELETE FROM '+ FTabela + ' WHERE '+ FCondicao;
+  FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
 
   if (FUsaParametro) then
     DefinirParametros();
@@ -650,11 +696,31 @@ begin
   end;
 end;
 
+procedure TTabela.ExecutarMesesEntre;
+begin
+  if (FUsaParametro) then
+    DefinirParametros;
+
+  FQuery.Prepared := True;
+  FQuery.Open;
+end;
+
 procedure TTabela.Fechar;
 begin
   FCondicao := EmptyStr;
   FQuery.Close;
   FreeAndNil(FQuery);
+end;
+
+function TTabela.GetBetween(const pName: string): TDate;
+var
+  i: Byte;
+begin
+  for i := 0 to High(FBetween.Name) do
+    if (AnsiSameText(pName, FBetween.Name[i])) then
+      Break;
+
+  Result := FBetween.Data[i];
 end;
 
 function TTabela.GetCheck: Byte;
@@ -718,15 +784,15 @@ end;
 
 procedure TTabela.MontarEstadoInsert();
 var
-  xProperty : TRttiProperty;
+  xProperty: TRttiProperty;
   xCampos, xValores: string;
 begin
   for xProperty in FType.GetProperties do
   begin
     if NegarCampo(xProperty.Name) then
     begin
-      xCampos := xCampos + xProperty.Name +  ',';
-      xValores := xValores +  ':' + xProperty.Name +  ',';
+      xCampos := xCampos + xProperty.Name + ',';
+      xValores := xValores + ':' + xProperty.Name + ',';
     end;
   end;
 
@@ -734,7 +800,8 @@ begin
   UltimoCaracter(xValores, ',');
 
   FQuery.Sql.Clear;
-  FQuery.Command := 'INSERT INTO '+ FTabela +' ('+ xCampos +') VALUES ('+ xValores +')';
+  FQuery.Command := 'INSERT INTO ' + FTabela + ' (' + xCampos + ') VALUES (' +
+    xValores + ')';
 
   for xProperty in FType.GetProperties do
   begin
@@ -743,25 +810,31 @@ begin
       if (AnsiSameText(UpperCase(xProperty.Name), 'USU_ID')) then
         FQuery.ParamByName(xProperty.Name).Value := GerarIdentidade('USU_ID')
       else
-      case xProperty.PropertyType.TypeKind of
-        tkInteger:
-          FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsInteger;
+        case xProperty.PropertyType.TypeKind of
+          tkInteger:
+            FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self)
+              .AsInteger;
 
-        tkFloat:
-        begin
-          if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-            FQuery.ParamByName(xProperty.Name).Value := FloatToDateTime((xProperty.GetValue(Self).AsExtended))
-          else
-            FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsExtended;
-        end
-      else
-        FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).ToString;
-      end;
+          tkFloat:
+            begin
+              if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+                FQuery.ParamByName(xProperty.Name).Value :=
+                  FloatToDateTime((xProperty.GetValue(Self).AsExtended))
+              else
+                FQuery.ParamByName(xProperty.Name).Value :=
+                  xProperty.GetValue(Self).AsExtended;
+            end
+        else
+          FQuery.ParamByName(xProperty.Name).Value :=
+            xProperty.GetValue(Self).ToString;
+        end;
     end;
   end;
 end;
 
 function TTabela.MontarEstadoSelect: Boolean;
+var
+  xProperty: TRttiProperty;
 begin
   if (FUsaParametro) then
     DefinirParametros();
@@ -778,15 +851,22 @@ begin
   if (Result) then
     case (FSelect) of
       esLoop, esNormal:
-          AtribuirValoresSelect();
+        AtribuirValoresSelect();
 
-      esMAX, esMIN, esCOUNT:
-      begin
-        if not(FMontarCampos) then
-          FRetorno := FQuery.FindField('RETORNO').AsInteger
-        else
-          AtribuirValoresSelect();
-      end;
+      esMAX, esMIN, esCOUNT, esSUM:
+        begin
+          if not(FMontarCampos) then
+          begin
+            xProperty := FType.GetProperty(FCampo);
+
+            if (xProperty.PropertyType.TypeKind = tkFloat) then
+              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
+            else
+              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsInteger);
+          end
+          else
+            AtribuirValoresSelect();
+        end;
     end;
 end;
 
@@ -823,6 +903,82 @@ begin
     xMaior := xMaior + ' AND ' + FCampo + ' = (' + Result + ')';
     Result := xMaior;
   end;
+
+  FQuery.LockType := ltReadOnly;
+end;
+
+function TTabela.MesesEntre(const pInicial: string; const pFinal: TDate): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(TO_DATE('''+ DateToStr(pFinal) +''',''DD/MM/YYYY''), %s)) AS RETORNO FROM %s WHERE %s',
+      [pInicial, FTabela, FCondicao]);
+
+    ExecutarMesesEntre();
+
+    Result := Abs(FQuery.FindField('RETORNO').AsInteger);
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+function TTabela.MesesEntre(const pInicial: TDate; const pFinal: string): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(TO_DATE(%s, ''DD/MM/YYYY''), %s)) AS RETORNO FROM %s ',
+      [DateToStr(pInicial), pFinal, FTabela]);
+
+    ExecutarMesesEntre();
+
+    Result := FQuery.FindField('RETORNO').AsInteger;
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+function TTabela.MesesEntre(const pInicial, pFinal: string): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(%s, %s)) AS RETORNO FROM %s ',
+      [pInicial, pFinal, FTabela]);
+
+    ExecutarMesesEntre();
+
+    Result := FQuery.FindField('RETORNO').AsInteger;
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+procedure TTabela.MontarComandoBetween;
+var
+  i: Byte;
+begin
+  if (Length(FBetween.Name) > 0) then
+  begin
+    for i := 0 to High(FBetween.Name) do
+    begin
+      if (i = 0) then
+      begin
+        if (IsNull(FCondicao)) then
+          FCondicao := ' WHERE '
+        else
+          FCondicao := ' AND ';
+
+        FCondicao := Format('%s %s BETWEEN TO_DATE('''+ DateToStr(FBetween.Data[i]) +''',''DD/MM/YYYY'') AND', [FCondicao, FBetween.Name[i]]);
+      end;
+
+      if (i = 1) then
+        FCondicao := Format('%s TO_DATE('''+ DateToStr(FBetween.Data[i]) +''',''DD/MM/YYYY'')', [FCondicao])
+    end;
+    FQuery.Reset;
+    FQuery.Command := FQuery.Command + FCondicao;
+  end;
 end;
 
 function TTabela.MontarComandoSelect: string;
@@ -836,7 +992,7 @@ begin
 
   UltimoCaracter(xCampos, ',');
 
-  Result := 'SELECT '+ xCampos + ' FROM ' + FTabela;
+  Result := 'SELECT ' + xCampos + ' FROM ' + FTabela;
 
   if not(FTabelasExtras = EmptyStr) then
     Result := Result + ',' + FTabelasExtras;
@@ -849,30 +1005,34 @@ function TTabela.MontarEstadoUpdate(): string;
 var
   xProperty: TRttiProperty;
 begin
-  Result := 'UPDATE '+ FTabela + ' SET ';
+  Result := 'UPDATE ' + FTabela + ' SET ';
 
   for xProperty in FType.GetProperties do
     if LimitarCampos(xProperty.Name) then
-      Result := Result + xProperty.Name +' = :'+ xProperty.Name + ',';
+      Result := Result + xProperty.Name + ' = :' + xProperty.Name + ',';
 
   UltimoCaracter(Result, ',');
-  FQuery.Command := Result + ' WHERE '+ FCondicao;
+  FQuery.Command := Result + ' WHERE ' + FCondicao;
 
   for xProperty in FType.GetProperties do
     if (LimitarCampos(xProperty.Name)) then
       case xProperty.PropertyType.TypeKind of
         tkInteger:
-          FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsInteger;
+          FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self)
+            .AsInteger;
 
         tkFloat:
-        begin
-          if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-            FQuery.ParamByName(xProperty.Name).Value := DataNull(FloatToDate(xProperty.GetValue(Self).AsExtended))
-          else
-            FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsExtended;
-        end;
+          begin
+            if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+              FQuery.ParamByName(xProperty.Name).Value :=
+                DataNull(FloatToDate(xProperty.GetValue(Self).AsExtended))
+            else
+              FQuery.ParamByName(xProperty.Name).Value :=
+                xProperty.GetValue(Self).AsExtended;
+          end;
       else
-        FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).ToString;
+        FQuery.ParamByName(xProperty.Name).Value :=
+          xProperty.GetValue(Self).ToString;
       end;
 
   if (FUsaParametro) then
@@ -885,7 +1045,7 @@ var
 begin
   Result := True;
 
-  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) then
+  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) or (AnsiSameText(UpperCase(Copy(pNome, 0, 7)), 'USU_Old')) then
     Result := False
   else
   begin
@@ -898,6 +1058,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TTabela.Primeiro;
+begin
+  FQuery.First;
 end;
 
 function TTabela.Proximo(): Boolean;
@@ -913,14 +1078,9 @@ begin
     FQuery.Close;
 end;
 
-function TTabela.Retorno: Integer;
-begin
-  Result := FRetorno;
-end;
-
 function TTabela.Select: Boolean;
 begin
-  FQuery.SQL.Clear;
+  FQuery.Sql.Clear;
 
   case (FSelect) of
     esLoop, esNormal:
@@ -928,9 +1088,27 @@ begin
 
     esMAX:
       FQuery.Command := MAXSelect;
+
+    esSUM:
+      FQuery.Command := SUMSelect;
   end;
 
+  MontarComandoBetween;
   Result := MontarEstadoSelect();
+end;
+
+procedure TTabela.SetBetween(const pName: string; const Value: TDate);
+var
+  i: Byte;
+begin
+  i := Length(FBetween.Name);
+  Inc(i);
+  SetLength(FBetween.Name, i);
+  SetLength(FBetween.Data, i);
+  Dec(i);
+
+  FBetween.Name[i] := pName;
+  FBetween.Data[i] := Value;
 end;
 
 procedure TTabela.SetCheck(const Value: Byte);
@@ -941,6 +1119,16 @@ end;
 procedure TTabela.SetSelect(const Value: tEstadoSelect);
 begin
   FSelect := Value;
+end;
+
+function TTabela.SUMSelect: string;
+begin
+  Result := Format('SELECT SUM(%s) AS RETORNO FROM %s ', [FCampo, FTabela]);
+
+  if not(IsNull(FCondicao)) then
+    Result := Format('%s WHERE %s', [Result, FCondicao]);
+
+  FQuery.LockType := ltReadOnly;
 end;
 
 procedure TTabela.Update();
@@ -967,9 +1155,9 @@ end;
 
 procedure TIterador.IndexFields(const pFields: array of string);
 var
-  i,j: Integer;
+  i, j: Integer;
 begin
-  FillChar(FFields, SizeOf(FFields), 0);
+  FillChar(FFields, sizeOf(FFields), 0);
 
   for i := 0 to High(pFields) do
   begin
@@ -1007,7 +1195,8 @@ begin
   end;
 end;
 
-procedure TIterador.Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
+procedure TIterador.Iterar(const pObjEntrada: TObject;
+  const pObjeSaida: TObject);
 var
   xContextEntrada: TRttiContext;
   xTypeEntrada: TRttiType;
@@ -1030,7 +1219,8 @@ begin
         if (AllowedTypeKind(xPropertySaida.PropertyType.TypeKind)) then
           if (AnsiSameText(xPropertyEntrada.Name, xPropertySaida.Name)) then
           begin
-            xPropertySaida.SetValue(pObjeSaida, xPropertyEntrada.GetValue(pObjEntrada));
+            xPropertySaida.SetValue(pObjeSaida,
+              xPropertyEntrada.GetValue(pObjEntrada));
             Break;
           end;
       end;
@@ -1069,7 +1259,8 @@ begin
       begin
         if (AnsiSameText(xPropertyEntrada.Name, xPropertySaida.Name)) then
         begin
-          xPropertySaida.SetValue(pObjeSaida, xPropertyEntrada.GetValue(pObjEntrada));
+          xPropertySaida.SetValue(pObjeSaida,
+            xPropertyEntrada.GetValue(pObjEntrada));
           Break;
         end;
       end;
@@ -1184,7 +1375,7 @@ end;
 
 procedure TFilial.SetPagMul(const pPagMul: Double);
 begin
- FPagMul := pPagMul;
+  FPagMul := pPagMul;
 end;
 
 procedure TFilial.SetPagTjr(const pPagTjr: Char);
@@ -1209,7 +1400,8 @@ end;
 
 { TListaFilial }
 
-procedure TListaFilial.AddEmpresaFilialLogada(const pCodEmp: Integer; const pCodFil: Integer);
+procedure TListaFilial.AddEmpresaFilialLogada(const pCodEmp: Integer;
+  const pCodFil: Integer);
 var
   xFilial: TFilial;
   xDadosFilial: TFilial;
@@ -1271,7 +1463,8 @@ begin
   inherited Create();
 end;
 
-function TListaFilial.DadosFilial(const pCodEmp: Integer; const pCodFil: Integer): TFilial;
+function TListaFilial.DadosFilial(const pCodEmp: Integer;
+  const pCodFil: Integer): TFilial;
 var
   i: Integer;
 begin
@@ -1279,7 +1472,8 @@ begin
 
   for i := 0 to pred(Self.Count) do
   begin
-    if (TFilial(Self[i]).CodEmp = pCodEmp) and (TFilial(Self[i]).CodFil = pCodFil) then
+    if (TFilial(Self[i]).CodEmp = pCodEmp) and
+      (TFilial(Self[i]).CodFil = pCodFil) then
     begin
       Result := TFilial.Create;
       Self.Iterar(TFilial(Self[i]), Result);
@@ -1299,7 +1493,7 @@ constructor TTabelaPadrao.Create(const pTabela: string);
 begin
   inherited Create(pTabela);
 
-  DefinirCampoNegado(['ID','USU_ID']);
+  DefinirCampoNegado(['ID', 'USU_ID']);
 end;
 
 destructor TTabelaPadrao.Destroy;
@@ -1314,7 +1508,7 @@ end;
 
 procedure TTabelaPadrao.Registros_OLD;
 begin
-  //todo
+  // todo
 end;
 
 { TTabelaUsuario }
@@ -1337,9 +1531,9 @@ begin
 
   FQuery := THQuery.CreatePersonalizado;
   try
-    FQuery.SQL.Clear;
-    FQuery.SQL.Add('SELECT MAX('+ pField +') AS IDREG FROM '+ FTabela + iff(not(IsNull(FCondicao)),
-      ' WHERE '+ FCondicao, EmptyStr));
+    FQuery.Sql.Clear;
+    FQuery.Sql.Add('SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela +
+      iff(not(IsNull(FCondicao)), ' WHERE ' + FCondicao, EmptyStr));
 
     FQuery.Open;
     if not(FQuery.IsEmpty) then
@@ -1386,39 +1580,42 @@ end;
 
 procedure TConnectionBase.Conexao(const pBase: string);
 begin
-  if (AnsiSameText(pBase,'SENIOR52')) then
+  if (AnsiSameText(pBase, 'SENIOR52')) then
     Self.ConexaoSENIOR52;
 
-  if (AnsiSameText(pBase,'SENIOR53')) then
+  if (AnsiSameText(pBase, 'SENIOR53')) then
     Self.ConexaoSENIOR53;
 
-  if (AnsiSameText(pBase,'SENIOR55')) then
+  if (AnsiSameText(pBase, 'SENIOR55')) then
     Self.ConexaoSENIOR55;
 end;
 
 procedure TConnectionBase.ConexaoSENIOR52;
 begin
-  Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior52;User ID=senior52;Data Source=HENNDSV;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.ConnectionString :=
+    'Provider=MSDAORA.1;Password=senior52;User ID=senior52;Data Source=HENNDSV;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
-  Self.Open('senior52','senior52');
+  Self.Open('senior52', 'senior52');
 
   FBase := 'SENIOR52';
 end;
 
 procedure TConnectionBase.ConexaoSENIOR53;
 begin
-  Self.ConnectionString := 'Provider=MSDAORA.1;Password=s1b13n5;User ID=sapiens;Data Source=HENNPROD;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.ConnectionString :=
+    'Provider=MSDAORA.1;Password=s1b13n5;User ID=sapiens;Data Source=HENNPROD;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
-  Self.Open('sapiens','s1b13n5');
+  Self.Open('sapiens', 's1b13n5');
 
   FBase := 'SAPIENS';
 end;
 
 procedure TConnectionBase.ConexaoSENIOR55;
 begin
-  Self.ConnectionString := 'Provider=MSDAORA.1;Password=senior55;User ID=senior55;Data Source=henndsv;Extended Properties="Unicode=True";Persist Security Info=True';
+  Self.ConnectionString :=
+    'Provider=MSDAORA.1;Password=senior55;User ID=senior55;Data Source=henndsv;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
-  Self.Open('senior55','senior55');
+  Self.Open('senior55', 'senior55');
 
   FBase := 'SENIOR55';
 end;

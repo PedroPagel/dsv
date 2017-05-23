@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
   Vcl.Mask, Vcl.DBCtrls, Vcl.Menus, CommCtrl, o310clp, Winapi.Windows, Data.DB,
-  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton;
+  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, wsBancoCentral;
 
 CONST
   CGRIDLIG = 1;
@@ -117,6 +117,12 @@ type
     pmDesmarcar: TPopupMenu;
     Ligados: TMenuItem;
     NaoLigados: TMenuItem;
+    pnl1: TPanel;
+    lbl1: TLabel;
+    lbl2: TLabel;
+    LReaCtr: TLabel;
+    LBonCtr: TLabel;
+    Excluir: TButton;
 
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
@@ -157,6 +163,7 @@ type
     procedure RemoverBemClick(Sender: TObject);
     procedure LigadosClick(Sender: TObject);
     procedure NaoLigadosClick(Sender: TObject);
+    procedure ExcluirClick(Sender: TObject);
   private
     FOldDate: TDateTime;
     FIteradorReajuste: TIteradorControle;
@@ -372,6 +379,7 @@ begin
   LTotRea.Caption := '0.00';
 
   FGridTit.Clear;
+  FGridTit.Refresh;
   FGridCon.Clear;
   FGridRea.Clear;
   FGridLig.Clear;
@@ -519,6 +527,24 @@ begin
   else
   if (DVenIni.Date = 1) then
     DVenIni.Format := '00/00/0000';
+end;
+
+procedure TF310CLP.ExcluirClick(Sender: TObject);
+begin
+  if ((PGControl.TabIndex = 2) and not(FControladorBem.LstLigado.Selecionados)) then
+    CMessage('Não há registros selecionados!', mtErrorInform)
+  else
+  if (CMessage('Patrimônio(s) marcado(s) como "Principal" serão removido(s), deseja continuar?', mtConfirmationYesNo)) then
+  begin
+    try
+      FControladorBem.Excluir;
+    except
+      raise;
+    end;
+
+    CMessage('Excluído com sucesso!', mtInformation);
+    CancelarClick(Self);
+  end;
 end;
 
 procedure TF310CLP.MarcarClick(Sender: TObject);
@@ -736,6 +762,8 @@ begin
 
   LTotOri.Caption := '0.00';
   LTotRea.Caption := '0.00';
+  LReaCtr.Caption := '0.00';
+  LBonCtr.Caption := '0.00';
 
   FIteradorReajuste.Limpar();
   FIteradorReajuste.FiltraContrato := FiltroContrato;
@@ -795,6 +823,7 @@ begin
 
     Marcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
     Desmarcar.Enabled := iff(PGControl.TabIndex = 0, (FGridCon.Count > 0), (FGridClp.Count > 0));
+    Excluir.Enabled := False;
   end
   else
   begin
@@ -806,6 +835,7 @@ begin
     Marcar.Enabled := (FGridBem.Count > 0);
     Desmarcar.Enabled := (FGridBem.Count > 0);
     Processar.Enabled := True;
+    Excluir.Enabled := True;
     BEEmpBem.SetFocus;
   end;
 end;
@@ -834,7 +864,11 @@ begin
       else
         FControladorBem.Processar;
     except
-      raise;
+      on E: Exception do
+      begin
+        CancelarClick(Self);
+        Exit;
+      end;
     end;
 
     CMessage('Processado com sucesso!', mtInformation);
@@ -933,13 +967,15 @@ begin
       FGridRea.Add;
       FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
       FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
-      FGridRea.FindField('VlrBon').AsFloat := TTituloControle(xControle.Ajuste[i]).VlrBon;
+      FGridRea.FindField('VlrBon').AsCurrency := TTituloControle(xControle.Ajuste[i]).VlrBon;
     end;
 
     FGridTit.First;
     FGridRea.First;
     LTotOri.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalOriginal(FGridCon.Line));
     LTotRea.Caption := FormatFloat('###,###,##0.00', FIteradorReajuste.TotalAjustado(FGridCon.Line));
+    LReaCtr.Caption := FormatFloat('###,###,##0.00', xControle.ReajusteDoContrato);
+    LBonCtr.Caption := FormatFloat('###,###,##0.00', xControle.BonificaoDoContrato);
   end;
 end;
 
@@ -1091,7 +1127,7 @@ begin
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
   FGridRea.AddColumn('IndRea', '% Índice Cadastro', ftFloat);
   FGridRea.AddColumn('IndNov', '% Índice Manual', ftFloat);
-  FGridRea.AddColumn('VlrBon', 'Vlr. Bonificação', ftFloat);
+  FGridRea.AddColumn('VlrBon', 'Vlr. Bonificação', ftCurrency);
   FGridRea.CreateDataSet;
 
   FGridRea.NumericField('IndNov', '###,###,##0.00');
@@ -1359,12 +1395,12 @@ var
       FIteradorReajuste.RemoverCalculos := xRemover;
       FIteradorReajuste.IndexCtr := pred(FGridCon.Line);
       FIteradorReajuste.IndexTit := pred(FGridRea.Line);
-      FIteradorReajuste.Bonificar(FGridRea.FindField('VlrBon').AsFloat);
+      FIteradorReajuste.Bonificar(FGridRea.FindField('VlrBon').AsCurrency);
 
       MontarDadosCalculos();
     end
     else
-      xTituloControle.VlrBon := FGridRea.FindField('VlrBon').AsFloat;
+      xTituloControle.VlrBon := FGridRea.FindField('VlrBon').AsCurrency;
   end;
 
 begin
@@ -1387,7 +1423,7 @@ begin
         if not(CRound(xVlrOrigem, 2) = 0) then
         begin
           xVlrOrigem := CRound(xVlrOrigem,2) - CRound(xCalculo, 2);
-          FGridRea.FindField('VlrBon').AsFloat := iff((xSobra > 0) and (FGridRea.Count = FGridRea.Line),
+          FGridRea.FindField('VlrBon').AsCurrency := iff((xSobra > 0) and (FGridRea.Count = FGridRea.Line),
             (CRound(xCalculo,2) + CRound(xSobra,2)), CRound(xCalculo,2));
         end
         else
