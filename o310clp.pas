@@ -75,7 +75,7 @@ type
     function GetVlrBon: Currency;
     procedure SetVlrBon(const Value: Currency);
   public
-    constructor Create(const pT090IND: T090IND; const pVlrOri: Double);
+    constructor Create(const p090IND: T090IND; const pTitulo: T301TCR);
     destructor Destroy(); override;
 
     property IndFin: string read GetIndFin write SetIndFin;
@@ -299,12 +299,13 @@ begin
                                  'E160CTR.CODEMP','E160CTR.CODFIL','E160CTR.NUMCTR','E301TCR.CODTPT','E160CTR.CODCLI'], True);
     xQueryTitulo.Selecao := esLoop;
     xQueryTitulo.Executar(etSelect);
+    F090IND.CarregarIndice(xQueryTitulo);
 
     while (xQueryTitulo.Proximo) do
       if (SituacaoTitulo(xQueryTitulo.SitTit)) and (xQueryTitulo.VlrOri = xQueryTitulo.VlrAbe) then
       begin
         FTotOri := FTotOri + xQueryTitulo.VlrOri;
-        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(F090IND, xQueryTitulo.VlrOri));
+        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(F090IND, xQueryTitulo));
       end;
   finally
     FreeAndNil(xQueryTitulo);
@@ -330,7 +331,7 @@ begin
 
     if (x090LIC.Executar(etSelect)) then
     begin
-      F090IND := T090IND.Create('USU_T090IND');
+      F090IND := T090IND.Create();
       F090IND.USU_ID := x090LIC.USU_IDIND;
       F090IND.DefinirSelecaoPropriedade(['USU_ID']);
       F090IND.Executar(etSelect);
@@ -740,6 +741,7 @@ var
   xTitulos: Array_Of_alteratituloscrAlteraTitulosCRInGridTitulosAlterar;
 begin
   j := 0;
+  xSaida := nil;
   xServico := Getsapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr();
   xEntrada := alteratituloscrAlteraTitulosCRIn.Create;
 
@@ -773,8 +775,16 @@ begin
 
     xEntrada.gridTitulosAlterar := xTitulos;
     xEntrada.codEmp := FLogEmp;
-    xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
-    Self.InserirContrato(xSaida.resultado);
+    try
+      xSaida := xServico.AlteraTitulosCR('sapiensweb', 'sapiensweb', 0, xEntrada);
+      Self.InserirContrato(xSaida.resultado);
+    except
+      on E: Exception do
+      begin
+        Self.InserirContrato('ERRO');
+        CMessage('Não foi possível alterar o contrato!', mtExceptError, True, 'Erro: '+ E.Message);
+      end;
+    end;
 
     if (AnsiSameText(xSaida.resultado, 'ERRO')) then
     begin
@@ -943,13 +953,13 @@ end;
 
 { TTituloControle }
 
-constructor TTituloControle.Create(const pT090IND: T090IND; const pVlrOri: Double);
+constructor TTituloControle.Create(const p090IND: T090IND; const pTitulo: T301TCR);
 begin
   inherited Create();
 
-  Self.IndRea := pT090IND.USU_VlrInd;
-  Self.IndFin := pT090IND.USU_IndFin;
-  FVlrIni := pVlrOri;
+  Self.IndRea := p090IND.USU_VlrInd;
+  Self.IndFin := p090IND.USU_IndFin;
+  FVlrIni := pTitulo.VlrOri;
 end;
 
 destructor TTituloControle.Destroy;

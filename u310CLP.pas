@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
   Vcl.Mask, Vcl.DBCtrls, Vcl.Menus, CommCtrl, o310clp, Winapi.Windows, Data.DB,
-  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton;
+  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, wsBancoCentral;
 
 CONST
   CGRIDLIG = 1;
@@ -379,6 +379,7 @@ begin
   LTotRea.Caption := '0.00';
 
   FGridTit.Clear;
+  FGridTit.Refresh;
   FGridCon.Clear;
   FGridRea.Clear;
   FGridLig.Clear;
@@ -863,7 +864,11 @@ begin
       else
         FControladorBem.Processar;
     except
-      raise;
+      on E: Exception do
+      begin
+        CancelarClick(Self);
+        Exit;
+      end;
     end;
 
     CMessage('Processado com sucesso!', mtInformation);
@@ -1098,14 +1103,6 @@ end;
 
 procedure TF310CLP.FormCreate(Sender: TObject);
 begin
-  FHTTPRIO.HTTPWebNode.Proxy := 'proxy.henningsbnu.local:3128';
-  FHTTPRIO.HTTPWebNode.UserName := 'henningsbnu\pedrolp';
-  FHTTPRIO.HTTPWebNode.Password := CSENHA;
-  //htpr1.HTTPWebNode.OnBeforePost := HTTPRIO1HTTPWebNode1BeforePost;
-
-  xWSSerieVO := GetFachadaWSSGS(False, '', FHTTPRIO).getUltimosValoresSerieVO(1, 1);
-
-
   if (System.ParamCount > 0) then
     FLogEmp := StrToInt(ParamStr(2))
   else

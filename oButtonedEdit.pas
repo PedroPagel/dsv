@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, uPesHen,
-  Winapi.Windows, Vcl.ComCtrls, System.Rtti,  Vcl.Forms, oBase;
+  Winapi.Windows, Vcl.ComCtrls, System.Rtti,  Vcl.Forms, oBase, Vcl.Dialogs;
 
 type
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
@@ -26,6 +26,7 @@ type
     FIsFloat: Boolean;
     FAlfa: Boolean;
     FForm: TForm;
+    FOpenDialog: Boolean;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -62,6 +63,7 @@ type
     property isNumber: Boolean read FIsNumber write FIsNumber;
     property isAlfa: Boolean read FAlfa write FAlfa;
     property isFloat: Boolean read FIsFloat write FIsFloat;
+    property OpenDialog: Boolean read FOpenDialog write FOpenDialog;
   end;
 
 procedure Register;
@@ -160,6 +162,8 @@ begin
   Self.OnExit := ExitButton;
   Self.OnKeyPress := KeyPressButton;
   FForm := TForm(AOwner);
+
+  FOpenDialog := False;
 end;
 
 procedure THButtonedEdit.CreateLookup;
@@ -179,7 +183,8 @@ begin
     xImage.Add(xBtmp, nil);
     Self.Images := xImage;
 
-    FPesHen := TFPesHen.Create(nil);
+    if not(FOpenDialog) then
+      FPesHen := TFPesHen.Create(nil);
   end;
 end;
 
@@ -264,8 +269,10 @@ begin
 end;
 
 procedure THButtonedEdit.LookupData(Sender: TObject);
+var
+  xDialog: TOpenDialog;
 begin
-  if (FLookup) then
+  if (FLookup) and not(FOpenDialog) then
   begin
     FPesHen.ShowData(FTable, FField, FIndexFields, FFilter + Filters);
 
@@ -277,6 +284,19 @@ begin
   else
   if Assigned(FPesHen) then
     FPesHen.Free;
+
+  if (FOpenDialog) and (FLookup) then
+  begin
+    xDialog := TOpenDialog.Create(Self);
+    try
+      xDialog.Filter := 'Tipos |*.RET;*.TXT';
+      xDialog.InitialDir := GetCurrentDir;
+      xDialog.Execute();
+      Self.Text := xDialog.Files[0];
+    finally
+      FreeAndNil(xDialog);
+    end;
+  end;
 end;
 
 procedure THButtonedEdit.SetField(const Value: string);

@@ -13,10 +13,16 @@
             <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
         </Projects>
         <Projects Include="ProcessoDDA.dproj">
-            <Dependencies/>
+            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
         </Projects>
         <Projects Include="ControleLocacao.dproj">
             <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Importador.dproj">
+            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Atualizador.dproj">
+            <Dependencies/>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -53,13 +59,13 @@
     <Target Name="ConsultaDDA:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
         <MSBuild Projects="ConsultaDDA.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ProcessoDDA">
+    <Target Name="ProcessoDDA" DependsOnTargets="HBase;HBaseComponente">
         <MSBuild Projects="ProcessoDDA.dproj"/>
     </Target>
-    <Target Name="ProcessoDDA:Clean">
+    <Target Name="ProcessoDDA:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
         <MSBuild Projects="ProcessoDDA.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ProcessoDDA:Make">
+    <Target Name="ProcessoDDA:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
         <MSBuild Projects="ProcessoDDA.dproj" Targets="Make"/>
     </Target>
     <Target Name="ControleLocacao" DependsOnTargets="HBase;HBaseComponente">
@@ -71,14 +77,32 @@
     <Target Name="ControleLocacao:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
         <MSBuild Projects="ControleLocacao.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Importador" DependsOnTargets="HBase;HBaseComponente">
+        <MSBuild Projects="Importador.dproj"/>
+    </Target>
+    <Target Name="Importador:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
+        <MSBuild Projects="Importador.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Importador:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
+        <MSBuild Projects="Importador.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Atualizador">
+        <MSBuild Projects="Atualizador.dproj"/>
+    </Target>
+    <Target Name="Atualizador:Clean">
+        <MSBuild Projects="Atualizador.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Atualizador:Make">
+        <MSBuild Projects="Atualizador.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;ControleLocacao"/>
+        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;ControleLocacao;Importador;Atualizador"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean"/>
+        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean;Importador:Clean;Atualizador:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make"/>
+        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make;Importador:Make;Atualizador:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

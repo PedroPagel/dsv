@@ -318,6 +318,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DVenIni: TDateTimePicker
           Left = 262
@@ -356,6 +357,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodFor: THButtonedEdit
           Left = 69
@@ -379,6 +381,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodFil: THButtonedEdit
           Left = 69
@@ -402,6 +405,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodEmp: THButtonedEdit
           Left = 69
@@ -425,6 +429,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DBLookupComboBox1: TDBLookupComboBox
           Left = -207
@@ -541,6 +546,7 @@ object F510CON: TF510CON
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DDatIni: TDateTimePicker
           Left = 115

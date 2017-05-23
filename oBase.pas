@@ -10,30 +10,36 @@ uses
 type
   TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
   tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
-  TArrayOfString = array of string;
   tTitulo = (tTContasPagar, tTContasReceber);
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
 
+  TArrayOfString = array of string;
+
+  TBetweenRegister = record
+    Name: array of string;
+    Data: array of TDate;
+  end;
+
   TTabela = class
   private
+    FCheck: Byte;
+    FCampo: string;
     FQuery: THQuery;
     FTabela: string;
-    FValoresInsert: string;
-    FFields: array of string;
-    FCamposLimite: array of string;
-    FlistaNegacao: array of string;
+    FType: TRttiType;
     FCondicao: string;
-    FRepeticaoParametros: string;
+    FValoresInsert: string;
     FTabelasExtras: string;
     FUsaParametro: Boolean;
     FContext: TRttiContext;
-    FType: TRttiType;
-    FCheck: Byte;
     FSelect: tEstadoSelect;
-    FCampo: string;
     FMontarCampos: Boolean;
+    FFields: array of string;
+    FRepeticaoParametros: string;
+    FCamposLimite: array of string;
+    FlistaNegacao: array of string;
+    FBetween: TBetweenRegister;
 
-    function GetCheck: Byte;
     procedure Insert();
     procedure Update();
     procedure Delete();
@@ -42,7 +48,9 @@ type
     procedure MontarEstadoInsert();
     procedure MontarEstadoDelete();
     procedure AtribuirValoresSelect();
+    procedure MontarComandoBetween();
 
+    function GetCheck: Byte;
     function Select(): Boolean;
     function MAXSelect(): string;
     function SUMSelect(): string;
@@ -55,6 +63,9 @@ type
     function GetSelect: tEstadoSelect;
     procedure SetCheck(const Value: Byte);
     procedure SetSelect(const Value: tEstadoSelect);
+    procedure ExecutarMesesEntre();
+    function GetBetween(const pName: string): TDate;
+    procedure SetBetween(const pName: string; const Value: TDate);
   protected
     procedure Registros_OLD(); virtual; abstract;
   public
@@ -63,6 +74,7 @@ type
 
     procedure Iniciar();
     procedure Fechar();
+    procedure Primeiro();
     procedure AdicionarCondicao(const pCondicao: string);
     procedure DesativarUsoParametro();
     procedure DefinirTabelasExtras(const pTabelas: array of string);
@@ -73,13 +85,17 @@ type
     procedure DefinirSelecao(const pCampo: array of string;
       const pValor: array of string; const pAND: Boolean = False);
 
-    function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function Proximo(): Boolean;
+    function MesesEntre(const pInicial, pFinal: string): Word; overload;
+    function MesesEntre(const pInicial: string; const pFinal: TDate): Word; overload;
+    function MesesEntre(const pInicial: TDate; const pFinal: string): Word; overload;
+    function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
     function GerarIdentidade(const pField: string): Integer; virtual; abstract;
-  public
-    property Check: Byte read GetCheck write SetCheck;
-    property Selecao: tEstadoSelect read GetSelect write SetSelect;
+
     property Campo: string read FCampo write FCampo;
+    property Check: Byte read GetCheck write SetCheck;
+    property Between[const pName: string]: TDate read GetBetween write SetBetween;
+    property Selecao: tEstadoSelect read GetSelect write SetSelect;
     property MontarCampos: Boolean read FMontarCampos write FMontarCampos;
   end;
 
@@ -464,15 +480,19 @@ begin
   FMontarCampos := False;
 
   FSelect := esNormal;
+  FCondicao := EmptyStr;
   FValoresInsert := EmptyStr;
   FTabelasExtras := EmptyStr;
-  FCondicao := EmptyStr;
+
+
   FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
   FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
 
+  //SetLength(FBetween, 2);
+
   DefinirCampoNegado(['USU_Check', 'Check', 'Campo', 'Selecao',
-    'MontarCampos']);
+    'MontarCampos','Between']);
 end;
 
 procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
@@ -631,6 +651,7 @@ destructor TTabela.Destroy;
 begin
   FContext.Free;
   FreeAndNil(FQuery);
+  FillChar(FBetween, sizeOf(FBetween), 0);
 
   inherited;
 end;
@@ -675,11 +696,31 @@ begin
   end;
 end;
 
+procedure TTabela.ExecutarMesesEntre;
+begin
+  if (FUsaParametro) then
+    DefinirParametros;
+
+  FQuery.Prepared := True;
+  FQuery.Open;
+end;
+
 procedure TTabela.Fechar;
 begin
   FCondicao := EmptyStr;
   FQuery.Close;
   FreeAndNil(FQuery);
+end;
+
+function TTabela.GetBetween(const pName: string): TDate;
+var
+  i: Byte;
+begin
+  for i := 0 to High(FBetween.Name) do
+    if (AnsiSameText(pName, FBetween.Name[i])) then
+      Break;
+
+  Result := FBetween.Data[i];
 end;
 
 function TTabela.GetCheck: Byte;
@@ -817,7 +858,11 @@ begin
           if not(FMontarCampos) then
           begin
             xProperty := FType.GetProperty(FCampo);
-            xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat);
+
+            if (xProperty.PropertyType.TypeKind = tkFloat) then
+              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
+            else
+              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsInteger);
           end
           else
             AtribuirValoresSelect();
@@ -857,6 +902,82 @@ begin
 
     xMaior := xMaior + ' AND ' + FCampo + ' = (' + Result + ')';
     Result := xMaior;
+  end;
+
+  FQuery.LockType := ltReadOnly;
+end;
+
+function TTabela.MesesEntre(const pInicial: string; const pFinal: TDate): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(TO_DATE('''+ DateToStr(pFinal) +''',''DD/MM/YYYY''), %s)) AS RETORNO FROM %s WHERE %s',
+      [pInicial, FTabela, FCondicao]);
+
+    ExecutarMesesEntre();
+
+    Result := Abs(FQuery.FindField('RETORNO').AsInteger);
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+function TTabela.MesesEntre(const pInicial: TDate; const pFinal: string): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(TO_DATE(%s, ''DD/MM/YYYY''), %s)) AS RETORNO FROM %s ',
+      [DateToStr(pInicial), pFinal, FTabela]);
+
+    ExecutarMesesEntre();
+
+    Result := FQuery.FindField('RETORNO').AsInteger;
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+function TTabela.MesesEntre(const pInicial, pFinal: string): Word;
+begin
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    FQuery.Command := Format('SELECT TRUNC(MONTHS_BETWEEN(%s, %s)) AS RETORNO FROM %s ',
+      [pInicial, pFinal, FTabela]);
+
+    ExecutarMesesEntre();
+
+    Result := FQuery.FindField('RETORNO').AsInteger;
+  finally
+    FQuery.Close;
+    Self.Limpar;
+  end;
+end;
+
+procedure TTabela.MontarComandoBetween;
+var
+  i: Byte;
+begin
+  if (Length(FBetween.Name) > 0) then
+  begin
+    for i := 0 to High(FBetween.Name) do
+    begin
+      if (i = 0) then
+      begin
+        if (IsNull(FCondicao)) then
+          FCondicao := ' WHERE '
+        else
+          FCondicao := ' AND ';
+
+        FCondicao := Format('%s %s BETWEEN TO_DATE('''+ DateToStr(FBetween.Data[i]) +''',''DD/MM/YYYY'') AND', [FCondicao, FBetween.Name[i]]);
+      end;
+
+      if (i = 1) then
+        FCondicao := Format('%s TO_DATE('''+ DateToStr(FBetween.Data[i]) +''',''DD/MM/YYYY'')', [FCondicao])
+    end;
+    FQuery.Reset;
+    FQuery.Command := FQuery.Command + FCondicao;
   end;
 end;
 
@@ -924,7 +1045,7 @@ var
 begin
   Result := True;
 
-  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) then
+  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) or (AnsiSameText(UpperCase(Copy(pNome, 0, 7)), 'USU_Old')) then
     Result := False
   else
   begin
@@ -937,6 +1058,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TTabela.Primeiro;
+begin
+  FQuery.First;
 end;
 
 function TTabela.Proximo(): Boolean;
@@ -967,7 +1093,22 @@ begin
       FQuery.Command := SUMSelect;
   end;
 
+  MontarComandoBetween;
   Result := MontarEstadoSelect();
+end;
+
+procedure TTabela.SetBetween(const pName: string; const Value: TDate);
+var
+  i: Byte;
+begin
+  i := Length(FBetween.Name);
+  Inc(i);
+  SetLength(FBetween.Name, i);
+  SetLength(FBetween.Data, i);
+  Dec(i);
+
+  FBetween.Name[i] := pName;
+  FBetween.Data[i] := Value;
 end;
 
 procedure TTabela.SetCheck(const Value: Byte);

@@ -202,6 +202,8 @@ begin
 
   Excluir.Enabled := False;
   ExcluirTit.Enabled := False;
+  Marcar.Enabled := False;
+  Desmarcar.Enabled := False;
 end;
 
 procedure TF510CON.cbSituacaoArmChange(Sender: TObject);
@@ -568,6 +570,9 @@ begin
   begin
     FGridArm.First;
     FGridArmEnterLine(Self);
+
+    Marcar.Enabled := True;
+    Desmarcar.Enabled := True;
   end;
 end;
 

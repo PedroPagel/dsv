@@ -241,6 +241,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DDatIni: TDateTimePicker
           Left = 90
@@ -303,6 +304,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodCli: THButtonedEdit
           Left = 89
@@ -326,6 +328,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
       object GBTitulo: TGroupBox
@@ -464,6 +467,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object DVenIni: TDateTimePicker
           Left = 78
@@ -502,6 +506,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodFor: THButtonedEdit
           Left = 78
@@ -525,6 +530,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BETitFil: THButtonedEdit
           Left = 78
@@ -548,6 +554,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodEmp: THButtonedEdit
           Left = 78
@@ -571,6 +578,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
       object GBBem: TGroupBox
@@ -626,6 +634,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
         object BECodBem: THButtonedEdit
           Left = 80
@@ -647,6 +656,7 @@ object F310CLP: TF310CLP
           isNumber = False
           isAlfa = False
           isFloat = False
+          OpenDialog = False
         end
       end
     end
