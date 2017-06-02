@@ -41,12 +41,14 @@ procedure T510CON.Consistir(const p510CON: T510CON);
 var
   i: Integer;
 begin
-  F510CAD.Iniciar;
+  F510CAD.Start;
   F510CAD.USU_CodPor := p510CON.USU_CodPor;
-  F510CAD.DefinirSelecaoPropriedade(['USU_CodEmp', 'USU_CodUsu','USU_CodPor'], True);
-  F510CAD.Selecao := esNormal;
+  F510CAD.PropertyForSelect(['USU_CodEmp', 'USU_CodUsu','USU_CodPor'], True);
 
-  if (F510CAD.Executar(etSelect)) then
+  if (AnsiSameText(F510CAD.USU_PerExc, 'N') or IsNull(F510CAD.USU_PerExc)) then
+    FLOG := Format('Usuário: %s, sem permissão para exclusão!', [IntToStr(FLogUsu)])
+  else
+  if (F510CAD.Execute(etSelect)) then
   begin
     if (F510CAD.USU_IniVig <= p510CON.USU_DatGer) and (F510CAD.USU_FimVig >= p510CON.USU_DatGer) then
     begin
@@ -62,7 +64,7 @@ begin
       FLOG := FLOG + ' ';
 
     FLOG := FLOG + Format('O armazenamento: %s, não possui ligação com o Usuário: %s, da Empresa: %s e Portador: %s',
-      [p510CON.USU_NomArq, IntToStr(FLogEmp), IntToStr(FLogUsu) , p510CON.USU_CodPor]);
+      [p510CON.USU_NomArq, IntToStr(FLogUsu), IntToStr(FLogEmp), p510CON.USU_CodPor]);
   end;
 
   if not(FArmazenado) then
@@ -82,10 +84,9 @@ var
 begin
   FListaArm.Clear;
   FListaTit.Clear;
-  Self.Selecao := esLoop;
-  Self.Executar(etSelect);
+  Self.Execute(etSelect, esLoop);
 
-  while Self.Proximo() do
+  while Self.Next() do
   begin
     x510CON := T510CON.Create;
     FListaArm.Iterar(Self, x510CON);
@@ -114,12 +115,12 @@ begin
   x510TIT := T510TIT.Create('USU_T510TIT');
   try
     x510TIT.USU_IdArm := Self.USU_ID;
-    x510TIT.DefinirSelecaoPropriedade(['USU_IDARM']);
-    x510TIT.Executar(estDelete);
+    x510TIT.PropertyForSelect(['USU_IDARM']);
+    x510TIT.Execute(estDelete);
 
-    Self.Iniciar;
-    Self.DefinirSelecaoPropriedade(['USU_ID']);
-    Self.Executar(estDelete);
+    Self.Start;
+    Self.PropertyForSelect(['USU_ID']);
+    Self.Execute(estDelete);
 
     Self.RemoverArquivo(False);
   finally
@@ -211,7 +212,7 @@ begin
       Self.Consistir(x510CON);
 
       Inc(j);
-      F510CAD.Fechar;
+      F510CAD.Close;
     end;
   end;
 
@@ -287,11 +288,11 @@ begin
 
         if (x510CON.Check = 1) then
         begin
-          x501TCP.Iniciar;
+          x501TCP.Start;
           x501TCP.USU_IDTIT := 0;
-          x501TCP.AdicionarCondicao(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]));
-          x501TCP.DefinirCampoUpdate(['USU_IDTIT']);
-          x501TCP.Executar(estUpdate);
+          x501TCP.AddToCommand(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]), False);
+          x501TCP.FieldsForUpdate(['USU_IDTIT']);
+          x501TCP.Execute(estUpdate);
         end;
       end;
     end;
@@ -305,12 +306,11 @@ var
 begin
   x510TIT := T510TIT.CreateCarregado(True);
   x510TIT.USU_IdArm := Self.USU_ID;
-  x510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
-  x510TIT.AdicionarCondicao(pCondicao);
-  x510TIT.Selecao := esLoop;
-  Result := x510TIT.Executar(etSelect);
+  x510TIT.PropertyForSelect(['USU_IDARM'], True);
+  x510TIT.AddToCommand(pCondicao);
+  Result := x510TIT.Execute(etSelect, esLoop);
 
-  while (x510TIT.Proximo()) do
+  while (x510TIT.Next()) do
   begin
     x510TCP := T510TIT.CreateCarregado(True);
     FListaTit.Iterar(x510TIT, x510TCP);

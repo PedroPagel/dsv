@@ -55,7 +55,7 @@ type
     procedure Liberar();
     procedure GerarNovo(const pLinha: string = '');
     procedure GerarArmazenamento(const pNome: string);
-    procedure Executar();
+    procedure Execute();
     procedure AtualizarArmazenamento();
   public
     constructor Create();
@@ -94,7 +94,7 @@ begin
 
     Self.C510TIT.USU_SitArm := 'N';
     Self.C510TIT.USU_IdArm := p510ARM.USU_ID;
-    Self.C510TIT.Executar(estInsert);
+    Self.C510TIT.Execute(estInsert);
   end
   else
     Self.Liberar();
@@ -102,14 +102,13 @@ end;
 
 procedure TArmazenamento.AddTitulo(const p510ARM: T510ARM);
 begin
-  F510TIT.Iniciar;
+  F510TIT.Start;
   F510TIT.USU_IdArm := p510ARM.USU_ID;
-  F510TIT.DefinirSelecaoPropriedade(['USU_IDARM'], True);
-  F510TIT.AdicionarCondicao(' AND USU_SITARM <>  ''S''');
-  F510TIT.Selecao := esLoop;
-  F510TIT.Executar(etSelect);
+  F510TIT.PropertyForSelect(['USU_IDARM'], True);
+  F510TIT.AddToCommand(' AND USU_SITARM <>  ''S''', False);
+  F510TIT.Execute(etSelect, esLoop);
 
-  while (F510TIT.Proximo) do
+  while (F510TIT.Next) do
   begin
     Self.GerarNovo();
     FIterador.Iterar(F510TIT, Self.C510TIT);
@@ -177,7 +176,7 @@ end;
 
 procedure TArmazenamento.Processar;
 begin
-  Self.Executar();
+  Self.Execute();
   Self.AtualizarArmazenamento();
 end;
 
@@ -205,7 +204,7 @@ begin
   end;
 end;
 
-procedure TBaseTitulos.Executar();
+procedure TBaseTitulos.Execute();
 begin
   Self.BuscarExistentes();
   Self.AtualizarTitulos();
@@ -223,9 +222,9 @@ begin
     x510TIT := T510TIT.CreateCarregado;
     x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
     x510TIT.USU_SitArm := 'N';
-    x510TIT.DefinirSelecaoPropriedade(['USU_IDARM','USU_SITARM'], True);
-    x510TIT.Selecao := esNormal;
-    if not(x510TIT.Executar(etSelect)) then
+    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
+
+    if not(x510TIT.Execute(etSelect)) then
     begin
       x510ARM := T510ARM(FListaArmazenamento[i]);
       x510ARM.RemoverArquivo();
@@ -258,19 +257,15 @@ begin
     xTitulo.VlrOri := x510Tit.USU_VlrOri;
     xTitulo.CodPor := F510AGE.USU_CodPor;
     xTitulo.Anexar(x510Tit);
-    xTitulo.DefinirSelecaoPropriedade(FCamposBuscaEmpFil, True);
-    xTitulo.Selecao := esNormal;
+    xTitulo.PropertyForSelect(['CODEMP','VLRORI','VCTORI','CODFOR'], True);
 
-    if (xTitulo.Executar(etSelect)) then
+    if (xTitulo.Execute(etSelect)) then
       FListaTituloBanco.Add(xTitulo)
     else
     begin
-      x510Tit.USU_LogTit := 'Títlo não encontrado!';
+      x510Tit.USU_LogTit := 'Título não encontrado!';
       xTitulo.Anexar(x510Tit);
       xTitulo.GerarLog();
-
-      //xTitulo.Preparar();
-      //FListaTituloGerar.Add(xTitulo);
     end;
   end;
 
@@ -289,10 +284,10 @@ begin
 
   F095FOR := T095FOR.Create();
   F510AGE := T510AGE.Create('USU_T510AGE');
-  F510AGE.DesativarUsoParametro();
-  F510AGE.DefinirSelecao(['USU_ID'], ['(SELECT USU_IDAGE FROM E000AGE WHERE CODPRA = 2447)']);
-  F510AGE.Selecao := esNormal;
-  F510AGE.Executar(etSelect);
+  F510AGE.USU_EmpGer := FLogEmp;
+  F510AGE.USU_FilGer := FLogFil;
+  F510AGE.PropertyForSelect(['USU_EMPGER','USU_FILGER'], True);
+  F510AGE.Execute(etSelect);
 
   FListaEspecieTitulo := TIteradorEspecieTitulo.Create(F510AGE);
 end;
@@ -391,7 +386,7 @@ end;
 constructor TTituloArmazenamento.Create;
 begin
   inherited Create('E501TCP');
-  DefinirCampoNegado(['USU_ID','USU_IDARM']);
+  BlockProperty(['USU_ID','USU_IDARM']);
 
   FLog := EmptyStr;
 end;

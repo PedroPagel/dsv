@@ -32,6 +32,12 @@ var
 begin
   StartTransaction;
   try
+    if (System.ParamCount > 1) then
+    begin
+      FLogEmp := StrToInt(ParamStr(2));
+      FLogFil := StrToInt(ParamStr(3));
+    end;
+
     xArmazenamento := TArmazenamento.Create();
     try
       xArmazenamento.Processar();

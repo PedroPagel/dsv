@@ -143,7 +143,7 @@ begin
   xForm := CreateMessageDialog(xMensagem, xMessageType, []);
   try
     xForm.Height := 150;
-    xForm.Width := 310;
+    xForm.Width := 330;
     xForm.BorderStyle := bsSingle;
 
     CreateButtons();

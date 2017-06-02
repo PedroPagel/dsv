@@ -52,7 +52,7 @@ begin
     try
       FSubFacedeIndices.Carregar(FContrato, FIndice);
       FSubFacedeCodigosBancoCentral.Carregar(FSubFacedeIndices);
-      FSubFaceAtualizarDados.Executar(FSubFacedeCodigosBancoCentral, FSubFacadeConsumoBancoCentral);
+      FSubFaceAtualizarDados.Execute(FSubFacedeCodigosBancoCentral, FSubFacadeConsumoBancoCentral);
 
       Commit;
     except

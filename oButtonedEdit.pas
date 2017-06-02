@@ -27,6 +27,7 @@ type
     FAlfa: Boolean;
     FForm: TForm;
     FOpenDialog: Boolean;
+    FGetDirectory: Boolean;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -53,6 +54,8 @@ type
 
     procedure CreateLookup();
     procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
+
+    property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
   published
     property IndexFields: string read GetIndexFields write SetIndexFields;
     property Table: string read GetTable write SetTable;
@@ -71,8 +74,9 @@ procedure Register;
 implementation
 
 uses
+  {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs,
-  System.SysUtils;
+  System.SysUtils, Vcl.FileCtrl;
 
 procedure Register;
 begin
@@ -173,6 +177,7 @@ var
 begin
   if (FLookup) then
   begin
+    FGetDirectory := True;
     Self.RightButton.ImageIndex := 0;
     Self.RightButton.Visible := True;
     Self.OnRightButtonClick := LookupData;
@@ -271,6 +276,7 @@ end;
 procedure THButtonedEdit.LookupData(Sender: TObject);
 var
   xDialog: TOpenDialog;
+  xDiretorio: string;
 begin
   if (FLookup) and not(FOpenDialog) then
   begin
@@ -289,10 +295,21 @@ begin
   begin
     xDialog := TOpenDialog.Create(Self);
     try
-      xDialog.Filter := 'Tipos |*.RET;*.TXT';
-      xDialog.InitialDir := GetCurrentDir;
-      xDialog.Execute();
-      Self.Text := xDialog.Files[0];
+      if (FGetDirectory) then
+      begin
+        SelectDirectory('Selecione uma pasta', 'C:\', xDiretorio);
+        Self.Text := xDiretorio;
+      end
+      else
+      begin
+        xDialog.Filter := 'Tipos |*.RET;*.TXT';
+
+        //xDialog.InitialDir := GetCurrentDir;
+        xDialog.Execute();
+
+        if (xDialog.Files.Count > 0) then
+          Self.Text := xDialog.Files[0];
+      end;
     finally
       FreeAndNil(xDialog);
     end;

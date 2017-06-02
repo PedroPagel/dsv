@@ -226,21 +226,19 @@ begin
     x160MOV.USU_NumTit := p160MOV.USU_NumTit;
     x160MOV.USU_CodTpt := p160MOV.USU_CodTpt;
 
-    x160MOV.Selecao := esMAX;
-    x160MOV.MontarCampos := True;
-    x160MOV.Campo := 'USU_SEQMOV';
-    x160MOV.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    x160MOV.Executar(etSelect);
+    x160MOV.SetFields := True;
+    x160MOV.Field := 'USU_SEQMOV';
+    x160MOV.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+    x160MOV.Execute(etSelect, esMAX);
 
-    xQueryMov.Selecao := esSUM;
-    xQueryMov.Campo := 'USU_VLRBON';
+    xQueryMov.Field := 'USU_VLRBON';
     xQueryMov.USU_CodEmp := x160MOV.USU_CodEmp;
     xQueryMov.USU_CodFil := x160MOV.USU_CodFil;
     xQueryMov.USU_NumTit := x160MOV.USU_NumTit;
     xQueryMov.USU_CodTpt := x160MOV.USU_CodTpt;
-    xQueryMov.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+    xQueryMov.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
 
-    if (xQueryMov.Executar(etSelect)) then
+    if (xQueryMov.Execute(etSelect, esSUM)) then
       x160MOV.USU_VlrBon := xQueryMov.USU_VlrBon;
 
     x160MOV.USU_VlrRea := (x160MOV.USU_VlrRea - x160MOV.USU_VlrOri);
@@ -261,11 +259,10 @@ begin
   xQueryTitulo := T501TCP.Create();
   try
     xQueryTitulo.USU_IDCLP := Self.USU_ID;
-    xQueryTitulo.DefinirSelecaoPropriedade(['USU_IDCLP'], True);
-    xQueryTitulo.Selecao := esLoop;
-    xQueryTitulo.Executar(etSelect);
+    xQueryTitulo.PropertyForSelect(['USU_IDCLP'], True);
+    xQueryTitulo.Execute(etSelect, esLoop);
 
-    while (xQueryTitulo.Proximo) do
+    while (xQueryTitulo.Next) do
       FTitulo.IterarAdd(xQueryTitulo, T501TCP.Create);
   finally
     FreeAndNil(xQueryTitulo);
@@ -283,25 +280,23 @@ begin
     xQueryMovimento := T160MOV.Create();
     xQueryMovimento.USU_IDCLP := Self.USU_ID;
     xQueryMovimento.USU_SeqMov := 1;
-    xQueryMovimento.DefinirSelecaoPropriedade(['USU_IDCLP','USU_SEQMOV'], True);
-    xQueryMovimento.Selecao := esLoop;
-    xQueryMovimento.Executar(etSelect);
+    xQueryMovimento.PropertyForSelect(['USU_IDCLP','USU_SEQMOV'], True);
+    xQueryMovimento.Execute(etSelect, esLoop);
 
-    while (xQueryMovimento.Proximo) do
+    while (xQueryMovimento.Next) do
       Self.AdicionarMovimento(xQueryMovimento);
 
     xQueryTitulo := T301TCR.Create();
-    xQueryTitulo.DesativarUsoParametro;
-    xQueryTitulo.DefinirTabelasExtras(['E160CTR']);
-    xQueryTitulo.DefinirSelecao(['E160CTR.CODEMP', 'E160CTR.CODFIL','E160CTR.NUMCTR',
+    xQueryTitulo.AddTable(['E160CTR']);
+    xQueryTitulo.AddToCommand(SetOperator(['E160CTR.CODEMP', 'E160CTR.CODFIL','E160CTR.NUMCTR',
                                  'E301TCR.CODEMP','E301TCR.CODFIL', 'E301TCR.NUMCTR','E301TCR.CODTPT','E301TCR.CODCLI'],
                                  [IntToStr(USU_CodEmp), IntToStr(USU_CodFil),IntToStr(USU_NumCtr),
-                                 'E160CTR.CODEMP','E160CTR.CODFIL','E160CTR.NUMCTR','E301TCR.CODTPT','E160CTR.CODCLI'], True);
-    xQueryTitulo.Selecao := esLoop;
-    xQueryTitulo.Executar(etSelect);
+                                 'E160CTR.CODEMP','E160CTR.CODFIL','E160CTR.NUMCTR','E301TCR.CODTPT','E160CTR.CODCLI'], True));
+
+    xQueryTitulo.Execute(etSelect, esLoop);
     F090IND.CarregarIndice(xQueryTitulo);
 
-    while (xQueryTitulo.Proximo) do
+    while (xQueryTitulo.Next) do
       if (SituacaoTitulo(xQueryTitulo.SitTit)) and (xQueryTitulo.VlrOri = xQueryTitulo.VlrAbe) then
       begin
         FTotOri := FTotOri + xQueryTitulo.VlrOri;
@@ -327,15 +322,19 @@ begin
     x090LIC.USU_CodEmp := Self.USU_CodEmp;
     x090LIC.USU_CodFil := Self.USU_CodFil;
     x090LIC.USU_NumCtr := Self.USU_NumCtr;
-    x090LIC.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True);
+    x090LIC.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True);
 
-    if (x090LIC.Executar(etSelect)) then
+    if (x090LIC.Execute(etSelect)) then
     begin
       F090IND := T090IND.Create();
       F090IND.USU_ID := x090LIC.USU_IDIND;
-      F090IND.DefinirSelecaoPropriedade(['USU_ID']);
-      F090IND.Executar(etSelect);
-    end;
+      F090IND.PropertyForSelect(['USU_ID']);
+      F090IND.Execute(etSelect);
+    end
+    else
+      CMessage(Format('Não existe índice ligado ao contrato: %s da empresa: %s e filial: %s.',
+      [IntToStr(Self.USU_NumCtr), IntToStr(Self.USU_CodEmp), IntToStr(USU_CodFil)]),
+        mtExceptError, True, 'Será necessário incluir uma ligação de um índice ao contrato!');
   finally
     FreeAndNil(x090LIC);
   end;
@@ -345,7 +344,7 @@ constructor TControle.Create;
 begin
   inherited Create();
 
-  DefinirCampoNegado(['ID','Check','Titulo', 'Ajuste','TotOri','TotRea', 'Ligacao']);
+  BlockProperty(['ID','Check','Titulo', 'Ajuste','TotOri','TotRea', 'Ligacao']);
   FTitulo := TIterador.Create(True);
   FTitulo.IndexFields(['USU_CodEmp','USU_CodFil','USU_NumTit','USU_CodTpt']);
 
@@ -405,11 +404,11 @@ begin
 
     if (x301tcr.Check = 1) then
     begin
-      x301tcr.Iniciar;
+      x301tcr.Start;
       x301tcr.NumCtr := Self.USU_NumCtr;
-      x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
-      x301tcr.DefinirCampoUpdate(['NUMCTR']);
-      x301tcr.Executar(estUpdate);
+      x301tcr.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
+      x301tcr.FieldsForUpdate(['NUMCTR']);
+      x301tcr.Execute(estUpdate);
     end;
   end;
 end;
@@ -430,11 +429,11 @@ begin
 
     if (x301tcr.Check = 1) then
     begin
-      x301tcr.Iniciar;
+      x301tcr.Start;
       x301tcr.NumCtr := 0;
-      x301tcr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
-      x301tcr.DefinirCampoUpdate(['NUMCTR']);
-      x301tcr.Executar(estUpdate)
+      x301tcr.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODTPT'], True);
+      x301tcr.FieldsForUpdate(['NUMCTR']);
+      x301tcr.Execute(estUpdate)
     end;
   end;
 end;
@@ -472,12 +471,10 @@ var
 begin
   xQueryTitulo := T501TCP.Create();
   try
-    xQueryTitulo.DesativarUsoParametro;
-    xQueryTitulo.AdicionarCondicao(FFiltraTitulo + 'E501TCP.CODTPT IN (''64'',''39'') AND E501TCP.SITTIT LIKE ''A%'' AND (USU_IDCLP = 0)');
-    xQueryTitulo.Selecao := esLoop;
-    xQueryTitulo.Executar(etSelect);
+    xQueryTitulo.AddToCommand(FFiltraTitulo + 'E501TCP.CODTPT IN (''64'',''39'') AND E501TCP.SITTIT LIKE ''A%'' AND (USU_IDCLP = 0)');
+    xQueryTitulo.Execute(etSelect, esLoop);
 
-    while (xQueryTitulo.Proximo) do
+    while (xQueryTitulo.Next) do
       FListaDespesas.IterarAdd(xQueryTitulo, T501TCP.Create);
   finally
     FreeAndNil(xQueryTitulo);
@@ -491,15 +488,13 @@ var
 begin
   xQueryReajuste := TControle.Create();
   try
-    xQueryReajuste.DesativarUsoParametro;
-    xQueryReajuste.DefinirTabelasExtras(['E160CTR']);
-    xQueryReajuste.AdicionarCondicao(FFiltraContrato);
-    xQueryReajuste.DefinirSelecao(['E160CTR.CODEMP', 'E160CTR.CODFIL','E160CTR.NUMCTR'],
-                                  ['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True);
-    xQueryReajuste.Selecao := esLoop;
-    xQueryReajuste.Executar(etSelect);
+    xQueryReajuste.AddTable(['E160CTR']);
+    xQueryReajuste.AddToCommand(FFiltraContrato);
+    xQueryReajuste.AddToCommand(SetOperator(['E160CTR.CODEMP', 'E160CTR.CODFIL','E160CTR.NUMCTR'],
+                                  ['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True));
+    xQueryReajuste.Execute(etSelect, esLoop);
 
-    while xQueryReajuste.Proximo() do
+    while xQueryReajuste.Next() do
     begin
       xControle := TControle.Create();
       Self.Iterar(xQueryReajuste, xControle);
@@ -562,11 +557,11 @@ begin
 
       if (x501TCP.Check = 1) then
       begin
-        x501TCP.Iniciar;
+        x501TCP.Start;
         x501TCP.USU_IDCLP := xControle.USU_ID;
-        x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
-        x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
-        x501TCP.Executar(estUpdate);
+        x501TCP.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
+        x501TCP.FieldsForUpdate(['USU_IDCLP']);
+        x501TCP.Execute(estUpdate);
 
         xControle.Titulo.IterarAdd(x501TCP, T501TCP.Create);
         Self.Despesas.Delete(i);
@@ -735,13 +730,14 @@ var
   i, j, l: Integer;
   x301tcr: T301TCR;
   xErro: string;
-  xServico: sapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr;
-  xEntrada: alteratituloscrAlteraTitulosCRIn;
   xSaida: alteratituloscrAlteraTitulosCROut;
+  xEntrada: alteratituloscrAlteraTitulosCRIn;
+  xServico: sapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr;
   xTitulos: Array_Of_alteratituloscrAlteraTitulosCRInGridTitulosAlterar;
 begin
   j := 0;
   xSaida := nil;
+
   xServico := Getsapiens_Synccom_senior_g5_co_mfi_cre_alteratituloscr();
   xEntrada := alteratituloscrAlteraTitulosCRIn.Create;
 
@@ -867,12 +863,12 @@ begin
           x501TCP := T501TCP(TControle(Self[i]).Titulo[j]);
           if (x501TCP.Check = 1) then
           begin
-            x501TCP.Iniciar;
+            x501TCP.Start;
             x501TCP.USU_IDCLP := 0;
             x501TCP.Check := 0;
-            x501TCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
-            x501TCP.DefinirCampoUpdate(['USU_IDCLP']);
-            x501TCP.Executar(estUpdate);
+            x501TCP.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODTPT','CODFOR'], True);
+            x501TCP.FieldsForUpdate(['USU_IDCLP']);
+            x501TCP.Execute(estUpdate);
 
             Self.Despesas.IterarAdd(x501TCP, T501TCP.Create);
             TControle(Self[i]).Titulo.Delete(j);
@@ -1097,14 +1093,14 @@ begin
           x670LIB.USU_CodEmp := x670BEM.CodEmp;
           x670LIB.USU_CodBem := x670BEM.CodBem;
           x670LIB.USU_DesBem := x670BEM.DesBem;
-          x670LIB.Executar(estInsert);
+          x670LIB.Execute(estInsert);
 
-          x670BEM.Iniciar;
+          x670BEM.Start;
           x670BEM.USU_IDLIB := x670LIB.USU_ID;
           x670BEM.USU_BemPri := 'N';
-          x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
-          x670BEM.DefinirCampoUpdate(['USU_IDLIB','USU_BEMPRI']);
-          x670BEM.Executar(estUpdate);
+          x670BEM.PropertyForSelect(['CODEMP','CODBEM'], True);
+          x670BEM.FieldsForUpdate(['USU_IDLIB','USU_BEMPRI']);
+          x670BEM.Execute(estUpdate);
 
           xIteradorBem.Lista.IterarAdd(x670BEM, T670BEM.Create);
           FListaBNL.Delete(i);
@@ -1191,12 +1187,11 @@ begin
   x670BEM := T670BEM.Create;
   try
     x670BEM.USU_BemClp := 'S';
-    x670BEM.DefinirSelecaoPropriedade(['USU_BEMCLP']);
-    x670BEM.AdicionarCondicao(MontarCondicao);
-    x670BEM.Selecao := esLoop;
-    x670BEM.Executar(etSelect);
+    x670BEM.PropertyForSelect(['USU_BEMCLP']);
+    x670BEM.AddToCommand(MontarCondicao, False);
+    x670BEM.Execute(etSelect, esLoop);
 
-    while (x670BEM.Proximo) do
+    while (x670BEM.Next) do
     begin
       if (x670BEM.USU_IDLIB > 0) and not(AnsiSameText(x670BEM.USU_BemPri, 'N')) then
       begin
@@ -1210,7 +1205,7 @@ begin
         FListaBNL.IterarAdd(x670BEM, TIteradorBem.Create);
     end;
   finally
-    x670BEM.Fechar;
+    x670BEM.Close;
   end;
 end;
 
@@ -1253,15 +1248,15 @@ begin
           begin
             x670LIB := T670LIB.Create;
             x670LIB.USU_ID := x670BEM.USU_IDLIB;
-            x670LIB.DefinirSelecaoPropriedade(['USU_ID']);
-            x670LIB.Executar(estDelete);
+            x670LIB.PropertyForSelect(['USU_ID']);
+            x670LIB.Execute(estDelete);
 
-            x670BEM.Iniciar;
+            x670BEM.Start;
             x670BEM.USU_IDLIB := 0;
             x670BEM.Check := 0;
-            x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
-            x670BEM.DefinirCampoUpdate(['USU_IDLIB']);
-            x670BEM.Executar(estUpdate);
+            x670BEM.PropertyForSelect(['CODEMP','CODBEM'], True);
+            x670BEM.FieldsForUpdate(['USU_IDLIB']);
+            x670BEM.Execute(estUpdate);
 
             FListaBNL.IterarAdd(x670BEM, T670BEM.Create);
             TIteradorBem(FListaBLG[i]).Lista.Delete(j);
@@ -1350,23 +1345,22 @@ begin
   x670LIB := T670LIB.Create;
   try
     x670LIB.USU_IDLIG := Self.USU_IDLIB;
-    x670LIB.DefinirSelecaoPropriedade(['USU_IDLIG']);
-    x670LIB.Selecao := esLoop;
-    x670LIB.Executar(etSelect);
+    x670LIB.PropertyForSelect(['USU_IDLIG']);
+    x670LIB.Execute(etSelect, esLoop);
 
-    while (x670LIB.Proximo) do
+    while (x670LIB.Next) do
     begin
       x670BEM := T670BEM.Create;
       x670BEM.CodEmp := x670LIB.USU_CodEmp;
       x670BEM.CodBem := x670LIB.USU_CodBem;
       x670BEM.USU_BemClp := 'S';
-      x670BEM.DefinirSelecaoPropriedade(['CODEMP','CODBEM','USU_BEMCLP'], True);
-      x670BEM.Executar(etSelect);
+      x670BEM.PropertyForSelect(['CODEMP','CODBEM','USU_BEMCLP'], True);
+      x670BEM.Execute(etSelect);
       FListaBLG.IterarAdd(x670BEM, T670BEM.Create);
-      x670BEM.Fechar;
+      x670BEM.Close;
     end;
   finally
-    x670LIB.Fechar;
+    x670LIB.Close;
   end;
 end;
 
@@ -1390,19 +1384,19 @@ var
 begin
   x670LIB := T670LIB.Create;
   x670LIB.USU_IDLIG := Self.USU_IDLIB;
-  x670LIB.DefinirSelecaoPropriedade(['USU_IDLIG']);
-  x670LIB.Executar(estDelete);
+  x670LIB.PropertyForSelect(['USU_IDLIG']);
+  x670LIB.Execute(estDelete);
 
   x670LIB.USU_ID := Self.USU_IDLIB;
-  x670LIB.DefinirSelecaoPropriedade(['USU_ID']);
-  x670LIB.Executar(estDelete);
+  x670LIB.PropertyForSelect(['USU_ID']);
+  x670LIB.Execute(estDelete);
 
-  Self.Iniciar;
+  Self.Start;
   Self.USU_BemPri := 'N';
   Self.USU_IDLIB := 0;
-  Self.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
-  Self.DefinirCampoUpdate(['USU_BEMPRI', 'USU_IDLIB']);
-  Self.Executar(estUpdate);
+  Self.PropertyForSelect(['CODEMP','CODBEM'], True);
+  Self.FieldsForUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+  Self.Execute(estUpdate);
 end;
 
 function TIteradorBem.GetLista: TIterador;
@@ -1418,14 +1412,14 @@ begin
   x670LIB.USU_CodEmp := Self.CodEmp;
   x670LIB.USU_CodBem := Self.CodBem;
   x670LIB.USU_DesBem := Self.DesBem;
-  x670LIB.Executar(estInsert);
+  x670LIB.Execute(estInsert);
 
-  Self.Iniciar;
+  Self.Start;
   Self.USU_BemPri := 'S';
   Self.USU_IDLIB := x670LIB.USU_ID;
-  Self.DefinirSelecaoPropriedade(['CODEMP','CODBEM'], True);
-  Self.DefinirCampoUpdate(['USU_BEMPRI', 'USU_IDLIB']);
-  Self.Executar(estUpdate);
+  Self.PropertyForSelect(['CODEMP','CODBEM'], True);
+  Self.FieldsForUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+  Self.Execute(estUpdate);
 end;
 
 procedure TIteradorBem.SetLista(const Value: TIterador);

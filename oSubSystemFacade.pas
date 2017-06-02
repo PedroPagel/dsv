@@ -80,7 +80,7 @@ type
     constructor Create();
     destructor Destroy; override;
 
-    procedure Executar(const pCodigos: TSubFacedeCodigosBancoCentral; const pWebService: TSubFacadeConsumoBancoCentral);
+    procedure Execute(const pCodigos: TSubFacedeCodigosBancoCentral; const pWebService: TSubFacadeConsumoBancoCentral);
   end;
 
   TIteracaoDadosFacade = class(T090IND)
@@ -154,15 +154,14 @@ function TSubFacedeIndices.ContratoAberto(
 begin
   Result := False;
 
-  F301TCR.Iniciar;
+  F301TCR.Start;
   F301TCR.CodEmp := pIteracaoDadosFacade.USU_CodEmp;
   F301TCR.FilCtr := pIteracaoDadosFacade.CodFil;
   F301TCR.NumCtr := pIteracaoDadosFacade.NumCtr;
-  F301TCR.DefinirSelecaoPropriedade(['CODEMP','FILCTR','NUMCTR'], True);
-  F301TCR.Selecao := esLoop;
-  F301TCR.Executar(etSelect);
+  F301TCR.PropertyForSelect(['CODEMP','FILCTR','NUMCTR'], True);
+  F301TCR.Execute(etSelect, esLoop);
 
-  while (F301TCR.Proximo) do
+  while (F301TCR.Next) do
     if (F301TCR.VlrOri = F301TCR.VlrAbe) then
     begin
       Result := True;
@@ -190,8 +189,8 @@ begin
 
   F090IND.USU_CodEmp := FLogEmp;
   F090IND.USU_IndFin := pIndice;
-  F090IND.DefinirSelecaoPropriedade(['USU_CODEMP','USU_INDFIN'], True);
-  F090IND.Executar(etSelect);
+  F090IND.PropertyForSelect(['USU_CODEMP','USU_INDFIN'], True);
+  F090IND.Execute(etSelect);
 
   if (Self.ContratoAberto(Result)) then
     Self.IterarAdd(F090IND, Result);
@@ -211,16 +210,15 @@ begin
   Result := nil;
 
   F090LIC.USU_CodEmp := FLogEmp;
-  F090LIC.DefinirSelecaoPropriedade(['USU_CODEMP'], True);
-  F090LIC.Selecao := esLoop;
-  F090LIC.Executar(etSelect);
+  F090LIC.PropertyForSelect(['USU_CODEMP'], True);
+  F090LIC.Execute(etSelect, esLoop);
 
   //Quando for com parametros, buscar direto o indice
-  while (F090LIC.Proximo) do
+  while (F090LIC.Next) do
   begin
     F090IND.USU_ID := F090LIC.USU_IDIND;
-    F090IND.DefinirSelecaoPropriedade(['USU_ID'], True);
-    F090IND.Executar(etSelect);
+    F090IND.PropertyForSelect(['USU_ID'], True);
+    F090IND.Execute(etSelect);
 
     Result := TIteracaoDadosFacade.Create;
     Result.USU_CodEmp := F090LIC.USU_CodEmp;
@@ -231,8 +229,8 @@ begin
       Self.IterarAdd(F090IND, Result);
   end;
 
-  F090LIC.Fechar;
-  F090IND.Fechar;
+  F090LIC.Close;
+  F090IND.Close;
 end;
 
 { TSubFacedeCodigosBancoCentral }
@@ -246,17 +244,16 @@ begin
   for i := 0 to pred(pIndice.Count) do
   begin
     xDadosFacade := TIteracaoDadosFacade(pIndice[i]);
-    F000DBC.Iniciar;
+    F000DBC.Start;
     F000DBC.USU_CodDbc := xDadosFacade.USU_CodDbc;
     F000DBC.USU_SeqCot := 1;
-    F000DBC.DefinirSelecaoPropriedade(['USU_CODDBC','USU_SEQCOT'], True);
-    F000DBC.Executar(etSelect);
+    F000DBC.PropertyForSelect(['USU_CODDBC','USU_SEQCOT'], True);
+    F000DBC.Execute(etSelect);
 
-    F000DBC.Iniciar;
-    F000DBC.Selecao := esMAX;
-    F000DBC.Campo := 'USU_SEQCOT';
-    F000DBC.DefinirSelecaoPropriedade(['USU_CODDBC']);
-    F000DBC.Executar(etSelect);
+    F000DBC.Start;
+    F000DBC.Field := 'USU_SEQCOT';
+    F000DBC.PropertyForSelect(['USU_CODDBC']);
+    F000DBC.Execute(etSelect, esMAX);
 
     MontarPeriodo(xDadosFacade);
   end;
@@ -295,11 +292,11 @@ begin
   F160CTR.CodEmp := pIteracaoDadosFacade.USU_CodEmp;
   F160CTR.CodFIl := pIteracaoDadosFacade.CodFil;
   F160CTR.NumCtr := pIteracaoDadosFacade.NumCtr;
-  F160CTR.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMCTR'], True);
-  F160CTR.Executar(etSelect);
+  F160CTR.PropertyForSelect(['CODEMP','CODFIL','NUMCTR'], True);
+  F160CTR.Execute(etSelect);
 
-  F160CTR.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMCTR'], True);
-  xMeses := F160CTR.MesesEntre('INIVIG', Date);
+  F160CTR.PropertyForSelect(['CODEMP','CODFIL','NUMCTR'], True);
+  xMeses := F160CTR.MonthsBetween('INIVIG', Date);
   xPeriodo := F160CTR.IniVig;
 
   if (xMeses > 0) then
@@ -310,10 +307,9 @@ begin
     FListaFacade[pred(i)].Registro := T000dbc.Create();
     TIterador.Repassar(F000DBC, FListaFacade[pred(i)].Registro);
 
-    F000DBC.Selecao := esLoop;
-    F000DBC.DefinirSelecaoPropriedade(['USU_CODDBC']);
-    F000DBC.Executar(etSelect);
-    while (F000DBC.Proximo) do
+    F000DBC.PropertyForSelect(['USU_CODDBC']);
+    F000DBC.Execute(etSelect, esLoop);
+    while (F000DBC.Next) do
       //A entrada do codigo do BC nao conta
       if (F000DBC.USU_SeqCot > 1) then
         FData.Add(DateToStr(StartOfTheMonth(F000DBC.USU_DatIni)));
@@ -352,7 +348,7 @@ begin
   p000dbc.USU_AnoDbc := StrToInt(pWS.Consumo.Grid[0].ano);
   p000dbc.USU_VlrDbc := StrToFloat(pWS.Consumo.Grid[0].valor);
   p000dbc.USU_NumPer := Periodicidade(pWS.Consumo.Grid[0].periodicidadeSigla[1]);
-  p000dbc.Executar(estInsert);
+  p000dbc.Execute(estInsert);
 end;
 
 constructor TSubFaceAtualizarDados.Create;
@@ -369,7 +365,7 @@ begin
   FreeAndNil(F000DBC);
 end;
 
-procedure TSubFaceAtualizarDados.Executar(
+procedure TSubFaceAtualizarDados.Execute(
   const pCodigos: TSubFacedeCodigosBancoCentral;
   const pWebService: TSubFacadeConsumoBancoCentral);
 var

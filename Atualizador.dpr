@@ -1,5 +1,7 @@
 program Atualizador;
 
+{$R *.dres}
+
 uses
   Vcl.Forms,
   oBase,
@@ -12,14 +14,14 @@ uses
 {$R *.res}
 
 begin
-  TConexao.Executar();
+  TConexao.Execute();
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TF000ATU, F000ATU);
-    Application.Terminate;
+  Application.Terminate;
     TConexao.Finalizar;
   except
     on E: Exception do

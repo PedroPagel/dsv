@@ -1047,9 +1047,9 @@ uses
 
 procedure T510TIT.Alterar;
 begin
-  FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT']);
-  FTituloDDA.DefinirCampoUpdate(['CODBAR']);
-  FTituloDDA.Executar(estUpdate);
+  FTituloDDA.PropertyForSelect(['USU_IDTIT']);
+  FTituloDDA.FieldsForUpdate(['CODBAR']);
+  FTituloDDA.Execute(estUpdate);
 end;
 
 function T510TIT.Carregado: Boolean;
@@ -1063,9 +1063,8 @@ begin
   begin
     FTituloDDA := TTituloDDA.Create;
     FTituloDDA.USU_IDTIT := Self.USU_ID;
-    FTituloDDA.DefinirSelecaoPropriedade(['USU_IDTIT'], True);
-    FTituloDDA.Selecao := esNormal;
-    FTituloDDA.Executar(etSelect);
+    FTituloDDA.PropertyForSelect(['USU_IDTIT'], True);
+    FTituloDDA.Execute(etSelect);
   end;
 end;
 
@@ -1076,7 +1075,6 @@ begin
   inherited Create('USU_T510TIT');
 
   FCarregado := False;
-  //DefinirCampoNegado(['USU_IDARM']);
 
   FillChar(xCodReg, SizeOf(xCodReg), 0);
   xCodReg.Posicao := 14;
@@ -1106,7 +1104,7 @@ begin
   FCarregado := True;
 
   if not(pUsaID) then
-    DefinirCampoNegado(['USU_IDARM']);
+    BlockProperty(['USU_IDARM']);
 end;
 
 destructor T510TIT.Destroy;
@@ -1116,10 +1114,10 @@ end;
 
 procedure T510TIT.Excluir(const pID: Integer);
 begin
-  Self.Iniciar;
+  Self.Start;
   Self.USU_IdArm := pID;
-  Self.DefinirSelecaoPropriedade(['USU_ID','USU_IDARM'], True);
-  Self.Executar(estDelete);
+  Self.PropertyForSelect(['USU_ID','USU_IDARM'], True);
+  Self.Execute(estDelete);
 end;
 
 function T510TIT.GetCodEmp: Integer;
@@ -1335,15 +1333,14 @@ begin
   x510ARM.USU_DirArm := pDados.USU_DirArq;
   x510ARM.USU_NomArq := pArquivo;
   x510ARM.USU_DatGer := Date;
-  x510ARM.DefinirSelecaoPropriedade(['USU_NOMARQ'], True);
-  x510ARM.Selecao := esNormal;
+  x510ARM.PropertyForSelect(['USU_NOMARQ'], True);
 
-  FArquivoExiste := x510ARM.Executar(etSelect);
+  FArquivoExiste := x510ARM.Execute(etSelect);
 
   if not(FArquivoExiste) then
   begin
     x510ARM.USU_SitArm := 'N';
-    x510ARM.Executar(estInsert);
+    x510ARM.Execute(estInsert);
   end;
 
   TIterador.Repassar(x510ARM, Self);
@@ -1395,8 +1392,8 @@ begin
   begin
     Self.USU_SitArm := 'S';
     Self.USU_DatFin := Date;
-    Self.DefinirSelecaoPropriedade(['USU_ID']);
-    Self.Executar(estUpdate);
+    Self.PropertyForSelect(['USU_ID']);
+    Self.Execute(estUpdate);
   end;
 
   if not(DirectoryExists(Self.USU_DirArm + 'DDA_BKP\')) then
@@ -1709,7 +1706,7 @@ begin
   inherited Create();
 
   FFilial := TFilial.Create;
-  DefinirCampoNegado(['NomArq', 'Filial']);
+  BlockProperty(['NomArq', 'Filial']);
   FListaHistorico := TIterador.Create;
   FIteradorHistoricoFornecedor := TIteradorHistoricoFornecedor.Create;
 end;
@@ -1726,9 +1723,9 @@ end;
 procedure TTituloDDA.GerarLog;
 begin
   F510TIT.USU_SitArm := 'N';
-  F510TIT.DefinirSelecaoPropriedade(['USU_ID']);
-  F510TIT.DefinirCampoUpdate(['USU_SITARM', 'USU_LOGTIT']);
-  F510TIT.Executar(estUpdate);
+  F510TIT.PropertyForSelect(['USU_ID']);
+  F510TIT.FieldsForUpdate(['USU_SITARM', 'USU_LOGTIT']);
+  F510TIT.Execute(estUpdate);
 end;
 
 function TTituloDDA.GetFilial: TFilial;
@@ -1766,12 +1763,12 @@ procedure TTituloDDA.Processar;
 begin
   if (AnsiSameText(F510TIT.USU_LogTit,'Ok')) then
   begin
-    Self.Iniciar;
+    Self.Start;
     Self.USU_IDTIT := F510TIT.USU_ID;
     Self.CodBar := F510TIT.USU_CodBar;
-    Self.DefinirSelecaoPropriedade(['CODEMP','CODFIL','CODFOR','NUMTIT','CODTPT'], True);
-    Self.DefinirCampoUpdate(['CODBAR', 'USU_IDTIT']);
-    Self.Executar(estUpdate);
+    Self.PropertyForSelect(['CODEMP','CODFIL','CODFOR','NUMTIT','CODTPT'], True);
+    Self.FieldsForUpdate(['CODBAR', 'USU_IDTIT']);
+    Self.Execute(estUpdate);
 
     F510TIT.USU_CodEmp := Self.CodEmp;
     F510TIT.USU_CodFil := Self.CodFil;
@@ -1780,9 +1777,9 @@ begin
     F510TIT.USU_CodTpt := Self.CodTpt;
     F510TIT.USU_SitTit := Self.SitTit;
     F510TIT.USU_SitArm := 'S';
-    F510TIT.DefinirSelecaoPropriedade(['USU_ID']);
-    F510TIT.DefinirCampoUpdate(['USU_CODEMP','USU_CODFIL','USU_SITARM','USU_LOGTIT']);
-    F510TIT.Executar(estUpdate);
+    F510TIT.PropertyForSelect(['USU_ID']);
+    F510TIT.FieldsForUpdate(['USU_CODEMP','USU_CODFIL','USU_SITARM','USU_LOGTIT']);
+    F510TIT.Execute(estUpdate);
   end
   else
     GerarLog();
@@ -1851,10 +1848,9 @@ begin
   x501MCP.CodTpt := Self.CodTpt;
   x501MCP.DatPgt := 0;
   x501MCP.VlrMov := 0;
-  x501MCP.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
-  x501MCP.AdicionarCondicao('AND NUMLOT > 0 AND VLRMOV > 0');
-  x501MCP.Selecao := esNormal;
-  Result := x501MCP.Executar(etSelect);
+  x501MCP.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
+  x501MCP.AddToCommand('AND NUMLOT > 0 AND VLRMOV > 0', False);
+  Result := x501MCP.Execute(etSelect);
 end;
 
 function TTituloDDA.VerificarTituloArmazenado: Boolean;
@@ -1867,18 +1863,16 @@ begin
   F510TIT.USU_CodFor := Self.CodFor;
   F510TIT.USU_CodTpt := Self.CodTpt;
   F510TIT.USU_SitArm := 'S';
-  F510TIT.DefinirSelecaoPropriedade(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
-  F510TIT.AdicionarCondicao(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]));
-  F510TIT.Selecao := esNormal;
-  Result := F510TIT.Executar(etSelect);
+  F510TIT.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
+  F510TIT.AddToCommand(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]), False);
+  Result := F510TIT.Execute(etSelect);
 
   if (Result) then
   begin
     x510ARM := T510ARM.Create('USU_T510ARM');
     x510ARM.USU_ID := F510TIT.USU_IdArm;
-    x510ARM.DefinirSelecaoPropriedade(['USU_ID']);
-    x510ARM.Selecao := esNormal;
-    x510ARM.Executar(etSelect);
+    x510ARM.PropertyForSelect(['USU_ID']);
+    x510ARM.Execute(etSelect);
     FNomArq := x510ARM.USU_NomArq;
   end;
 end;
@@ -2245,10 +2239,9 @@ begin
     F030ETC := T030ETC.Create;
     F030ETC.CodBan := FCodBan;
     F030ETC.EspBan := pEspBan;
-    F030ETC.DefinirSelecaoPropriedade(['CODBAN','ESPBAN'], True);
-    F030ETC.Selecao := esNormal;
+    F030ETC.PropertyForSelect(['CODBAN','ESPBAN'], True);
 
-    if (F030ETC.Executar(etSelect)) then
+    if (F030ETC.Execute(etSelect)) then
     begin
       Result := F030ETC.CodTpt;
       Self.Add(F030ETC);
@@ -2320,9 +2313,8 @@ begin
     xHistorico.CodFil := pTitulo.CodFil;
     xHistorico.CodFor := pTitulo.CodFor;
 
-    xHistorico.DefinirSelecaoPropriedade(['CODEMP','CODFIL','CODFOR'], True);
-    xHistorico.Selecao := esNormal;
-    xHistorico.Executar(etSelect);
+    xHistorico.PropertyForSelect(['CODEMP','CODFIL','CODFOR'], True);
+    xHistorico.Execute(etSelect);
 
     Result := xHistorico;
     Self.Add(xHistorico)
@@ -2514,17 +2506,16 @@ begin
     x160ctr.CodEmp := pTitulo.CodEmp;
     x160ctr.CodFil := pTitulo.FilCtr;
     x160ctr.NumCtr := pTitulo.NumCtr;
-    x160ctr.DefinirSelecaoPropriedade(['CODEMP','CODFIL','NUMCTR'], True);
-    x160ctr.Executar(etSelect);
+    x160ctr.PropertyForSelect(['CODEMP','CODFIL','NUMCTR'], True);
+    x160ctr.Execute(etSelect);
 
     x000dbc := T000dbc.Create;
     x000dbc.USU_CodDbc := Self.USU_CodDbc;
-    x000dbc.Selecao := esSUM;
-    x000dbc.Campo := 'USU_VLRDBC';
+    x000dbc.Field := 'USU_VLRDBC';
     x000dbc.Between['USU_DATINI'] := StartOfTheMonth(x160ctr.IniVig);
     x000dbc.Between['USU_DATINI'] := Date;
-    x000dbc.DefinirSelecaoPropriedade(['USU_CODDBC']);
-    x000dbc.Executar(etSelect);
+    x000dbc.PropertyForSelect(['USU_CODDBC']);
+    x000dbc.Execute(etSelect, esSUM);
 
     Self.USU_VlrInd := x000dbc.USU_VlrDbc;
   end;
@@ -2676,7 +2667,7 @@ constructor T510CAD.Create;
 begin
   inherited Create('USU_T510CAD');
 
-  Self.DefinirCampoNegado(['USU_ID']);
+  Self.BlockProperty(['USU_ID']);
 end;
 
 destructor T510CAD.Destroy;
@@ -3218,21 +3209,21 @@ begin
   xReajuste := Self.USU_VlrRea;
   xBonificacao := Self.USU_VlrBon;
 
-  Self.DefinirSelecaoPropriedade(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-  Self.Selecao := esNormal;
-  if (Self.Executar(etSelect)) then
+  Self.PropertyForSelect(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
+
+  if (Self.Execute(etSelect)) then
   begin
-    Self.DefinirSelecao(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
+    Self.AddToCommand(SetOperator(['USU_IDCLP','USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'],
                         [IntToStr(Self.USU_IDCLP), IntToStr(USU_CodEmp), IntToStr(USU_CodFil),
-                         QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True);
-    Self.USU_SeqMov := GerarIdentidade('USU_SeqMov');
+                         QuotedStr(Self.USU_NumTit), QuotedStr(Self.USU_CodTpt)], True), False);
+    Self.USU_SeqMov := GenerateID('USU_SeqMov');
   end
   else
     Self.USU_SeqMov := 1;
 
   Self.USU_VlrRea := xReajuste;
   Self.USU_VlrBon := xBonificacao;
-  Self.Executar(estInsert);
+  Self.Execute(estInsert);
 end;
 
 function T160MOV.GetCODCLI: Word;
@@ -3494,7 +3485,7 @@ constructor T000dbc.Create;
 begin
   inherited Create('USU_T000DBC');
 
-  DefinirCampoNegado(['USU_ID']);
+  BlockProperty(['USU_ID']);
 end;
 
 destructor T000dbc.Destroy;

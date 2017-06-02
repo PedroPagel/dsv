@@ -13,7 +13,7 @@ uses
 {$R *.res}
 
 begin
-  TConexao.Executar();
+  TConexao.Execute();
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := True;

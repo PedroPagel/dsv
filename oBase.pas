@@ -5,7 +5,8 @@ interface
 uses
   Data.SqlExpr, oQuery, System.Rtti, System.SysUtils, Data.DBXOracle,
   System.Contnrs, Data.DBXCommon, Data.Db, Data.DBCommon, System.Math,
-  Data.Win.ADODB, System.Classes, System.TypInfo, Vcl.Dialogs;
+  Data.Win.ADODB, System.Classes, System.TypInfo, Vcl.Dialogs, Vcl.ComCtrls,
+  Vcl.ExtCtrls;
 
 type
   TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
@@ -20,30 +21,30 @@ type
     Data: array of TDate;
   end;
 
-  TTabela = class
+  TTable = class
   private
     FCheck: Byte;
-    FCampo: string;
+    FField: string;
     FQuery: THQuery;
     FTabela: string;
     FType: TRttiType;
     FCondicao: string;
-    FValoresInsert: string;
-    FTabelasExtras: string;
-    FUsaParametro: Boolean;
+    FInsertValue: string;
+    FTables: string;
+    FUseParam: Boolean;
     FContext: TRttiContext;
     FSelect: tEstadoSelect;
-    FMontarCampos: Boolean;
+    FSetFields: Boolean;
     FFields: array of string;
-    FRepeticaoParametros: string;
-    FCamposLimite: array of string;
-    FlistaNegacao: array of string;
+    FRepeatParam: string;
+    FLimitField: array of string;
+    FBlockList: array of string;
     FBetween: TBetweenRegister;
 
     procedure Insert();
     procedure Update();
     procedure Delete();
-    procedure Limpar();
+    procedure Clean();
     procedure DefinirParametros();
     procedure MontarEstadoInsert();
     procedure MontarEstadoDelete();
@@ -60,9 +61,7 @@ type
     function LiberarCampo(const pNome: string): Boolean;
     function NegarCampo(const pNome: string): Boolean;
     function LimitarCampos(const pNome: string): Boolean;
-    function GetSelect: tEstadoSelect;
     procedure SetCheck(const Value: Byte);
-    procedure SetSelect(const Value: tEstadoSelect);
     procedure ExecutarMesesEntre();
     function GetBetween(const pName: string): TDate;
     procedure SetBetween(const pName: string; const Value: TDate);
@@ -72,44 +71,39 @@ type
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    procedure Iniciar();
-    procedure Fechar();
-    procedure Primeiro();
-    procedure AdicionarCondicao(const pCondicao: string);
-    procedure DesativarUsoParametro();
-    procedure DefinirTabelasExtras(const pTabelas: array of string);
-    procedure DefinirCampoNegado(const pCampo: array of string);
-    procedure DefinirSelecaoPropriedade(const pCampo: array of string;
-      const pAND: Boolean = False);
-    procedure DefinirCampoUpdate(const pCampo: array of string);
-    procedure DefinirSelecao(const pCampo: array of string;
-      const pValor: array of string; const pAND: Boolean = False);
+    procedure Start();
+    procedure Close();
+    procedure First();
+    procedure AddTable(const pTables: array of string);
+    procedure BlockProperty(const pField: array of string);
+    procedure FieldsForUpdate(const pField: array of string);
+    procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
+    procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
 
-    function Proximo(): Boolean;
-    function MesesEntre(const pInicial, pFinal: string): Word; overload;
-    function MesesEntre(const pInicial: string; const pFinal: TDate): Word; overload;
-    function MesesEntre(const pInicial: TDate; const pFinal: string): Word; overload;
-    function Executar(const pEstadoTabela: TEstadoTabela): Boolean;
-    function GerarIdentidade(const pField: string): Integer; virtual; abstract;
+    function Next(): Boolean;
+    function GenerateID(const pField: string): Integer; virtual; abstract;
+    function MonthsBetween(const pInicial, pFinal: string): Word; overload;
+    function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
+    function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
+    function Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 
-    property Campo: string read FCampo write FCampo;
+    property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
-    property Selecao: tEstadoSelect read GetSelect write SetSelect;
-    property MontarCampos: Boolean read FMontarCampos write FMontarCampos;
+    property SetFields: Boolean read FSetFields write FSetFields;
   end;
 
-  TTabelaPadrao = class(TTabela)
+  TTabelaPadrao = class(TTable)
   protected
     procedure Registros_OLD(); override;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    function GerarIdentidade(const pField: string): Integer; override;
+    function GenerateID(const pField: string): Integer; override;
   end;
 
-  TTabelaUsuario = class(TTabela)
+  TTabelaUsuario = class(TTable)
   private
     FID: Integer;
     FOldId: Integer;
@@ -124,14 +118,14 @@ type
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    function GerarIdentidade(const pField: string): Integer; override;
+    function GenerateID(const pField: string): Integer; override;
 
     property USU_ID: Integer read GetId write SetId;
     property OLD_USU_ID: Integer read GetOldId write SetOldId;
   end;
 
   TConexao = class
-    class procedure Executar();
+    class procedure Execute();
     class procedure Finalizar();
   end;
 
@@ -256,6 +250,8 @@ function AllowedTypeKind(const pType: TTypeKind): Boolean;
 function ValueToDB(const pValor: string): string;
 function TextToFloat(const pValor: string): Double;
 function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
+function FieldType(const pColumnType, pMask: string; const pSize: Integer): TFieldType;
+function SetOperator(const pField, pValue: array of string; const pAND: Boolean): string;
 
 var
   FOracleConnection: TConnectionBase;
@@ -331,7 +327,7 @@ end;
 
 function IsNull(const pString: string): Boolean;
 begin
-  Result := ((Length(pString) = 0) or (AnsiSameText(pString, ' ')));
+  Result := ((Length(pString) = 0) or (AnsiSameText(pString, ' ')) or (AnsiSameText(pString, #0)));
 end;
 
 function DateTimeFormatDB(const pData: TDate): string;
@@ -417,9 +413,57 @@ begin
   Result := StrToFloat(xFloat);
 end;
 
+function FieldType(const pColumnType, pMask: string; const pSize: Integer): TFieldType;
+
+  function IsNumber(const pNumber: string): Boolean;
+  var
+    i: Integer;
+  begin
+    Result := True;
+
+    for i := 0 to High(pNumber) do
+      if (AnsiSameText(pNumber[i], ',')) then
+      begin
+        Result := False;
+        Break;
+      end;
+  end;
+
+begin
+  Result := ftUnknown;
+
+  if (AnsiSameText(UpperCase(pColumnType), 'DATE')) then
+    Result := ftDateTime
+  else
+  if (AnsiSameText(UpperCase(pColumnType), 'VARCHAR2')) then
+    Result := ftString
+  else
+  if (AnsiSameText(UpperCase(pColumnType), 'NUMBER')) then
+    if (IsNull(pMask)) then
+      Result := iff(pSize >= 10, ftBCD, ftLargeint)
+    else
+      Result := iff(IsNumber(UpperCase(pMask)), iff(pSize >= 10, ftBCD, ftLargeint), ftFloat);
+end;
+
+function SetOperator(const pField, pValue: array of string; const pAND: Boolean): string;
+var
+  i: Integer;
+begin
+  for i := 0 to High(pField) do
+  begin
+    Result := Result + pField[i] + ' = ' + pValue[i] +
+      iff(pAND, ' AND ', ',');
+  end;
+
+  if (pAND) then
+    UltimoCaracter(Result, 'AND ', True, 4)
+  else
+    UltimoCaracter(Result, ',');
+end;
+
 { TConexao }
 
-class procedure TConexao.Executar();
+class procedure TConexao.Execute();
 var
   xBASE: string;
 begin
@@ -439,14 +483,15 @@ begin
   FOracleConnection.Close;
 end;
 
-{ TTabela }
+{ TTable }
 
-procedure TTabela.AdicionarCondicao(const pCondicao: string);
+procedure TTable.AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
 begin
-  FCondicao := FCondicao + EmptyStr + pCondicao;
+  FUseParam := iff(pDontUseParam, False, True);
+  FCondicao := FCondicao + EmptyStr + pValue;
 end;
 
-procedure TTabela.AtribuirValoresSelect;
+procedure TTable.AtribuirValoresSelect;
 var
   xProperty: TRttiProperty;
 begin
@@ -469,87 +514,85 @@ begin
       end;
     end;
   end;
-  FMontarCampos := False;
+  FSetFields := False;
   Registros_OLD();
 end;
 
-constructor TTabela.Create(const pTabela: string);
+constructor TTable.Create(const pTabela: string);
 begin
   FTabela := pTabela;
-  FUsaParametro := True;
-  FMontarCampos := False;
+  FUseParam := True;
+  FSetFields := False;
 
   FSelect := esNormal;
   FCondicao := EmptyStr;
-  FValoresInsert := EmptyStr;
-  FTabelasExtras := EmptyStr;
+  FInsertValue := EmptyStr;
+  FTables := EmptyStr;
 
 
   FillChar(FFields, sizeOf(FFields), 0);
-  FillChar(FlistaNegacao, sizeOf(FlistaNegacao), 0);
-  FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
+  FillChar(FBlockList, sizeOf(FBlockList), 0);
+  FillChar(FLimitField, sizeOf(FLimitField), 0);
 
-  //SetLength(FBetween, 2);
-
-  DefinirCampoNegado(['USU_Check', 'Check', 'Campo', 'Selecao',
+  BlockProperty(['USU_Check', 'Check', 'Field',
     'MontarCampos','Between']);
 end;
 
-procedure TTabela.DefinirCampoNegado(const pCampo: array of string);
+procedure TTable.BlockProperty(const pField: array of string);
 var
   i, j: Integer;
 
   procedure Aumentar(const pNome: string);
   begin
-    j := Length(FlistaNegacao);
+    j := Length(FBlockList);
     Inc(j);
-    SetLength(FlistaNegacao, j);
-    FlistaNegacao[pred(j)] := pNome;
+    SetLength(FBlockList, j);
+    FBlockList[pred(j)] := pNome;
   end;
 
 begin
-  for i := 0 to High(pCampo) do
-    Aumentar(pCampo[i]);
+  for i := 0 to High(pField) do
+    Aumentar(pField[i]);
 end;
 
-procedure TTabela.DefinirCampoUpdate(const pCampo: array of string);
+procedure TTable.FieldsForUpdate(const pField: array of string);
 var
   i, j: Integer;
 begin
-  for i := 0 to High(pCampo) do
+  for i := 0 to High(pField) do
   begin
-    j := Length(FCamposLimite);
+    j := Length(FLimitField);
     Inc(j);
-    SetLength(FCamposLimite, j);
-    FCamposLimite[pred(j)] := pCampo[i];
+    SetLength(FLimitField, j);
+    FLimitField[pred(j)] := pField[i];
   end;
 end;
 
-procedure TTabela.DefinirSelecaoPropriedade(const pCampo: array of string;
+procedure TTable.PropertyForSelect(const pField: array of string;
   const pAND: Boolean = False);
 var
   i, j: Integer;
 begin
-  for i := 0 to High(pCampo) do
+  for i := 0 to High(pField) do
   begin
     j := Length(FFields);
     Inc(j);
     SetLength(FFields, j);
-    FFields[pred(j)] := pCampo[i];
+    FFields[pred(j)] := pField[i];
 
-    FCondicao := FCondicao + pCampo[i] +
-      Format(iff(FUsaParametro, ' = :%s', ' = %s'), [pCampo[i]]) +
+    FCondicao := FCondicao + pField[i] +
+      Format(iff(FUseParam, ' = :%s', ' = %s'), [pField[i]]) +
       iff(pAND, ' AND ', ',');
 
-    if (FMontarCampos) then
+    if (FSetFields) then
     begin
       j := Length(FFields);
       Inc(j);
       SetLength(FFields, j);
-      FFields[pred(j)] := 'R' + pCampo[i];
+      FFields[pred(j)] := 'R' + pField[i];
 
-      FRepeticaoParametros := FRepeticaoParametros + pCampo[i] +
-        Format(iff(FUsaParametro, ' = :R%s', ' = %s'), [pCampo[i]]) +
+      FRepeatParam := FRepeatParam + pField[i] +
+        Format(iff(FUseParam, ' = :R%s', ' = %s'), [pField[i]]) +
         iff(pAND, ' AND ', ',');
     end;
   end;
@@ -557,26 +600,26 @@ begin
   if (pAND) then
   begin
     UltimoCaracter(FCondicao, 'AND ', True, 4);
-    UltimoCaracter(FRepeticaoParametros, 'AND ', True, 4);
+    UltimoCaracter(FRepeatParam, 'AND ', True, 4);
   end
   else
   begin
     UltimoCaracter(FCondicao, ',');
-    UltimoCaracter(FRepeticaoParametros, ',');
+    UltimoCaracter(FRepeatParam, ',');
   end;
 end;
 
-procedure TTabela.DefinirParametros;
+procedure TTable.DefinirParametros;
 var
   xPropriedade: TRttiProperty;
   i: Integer;
 
-  function FuncaoRetorno(const pCampo: string): string;
+  function FuncaoRetorno(const pField: string): string;
   begin
-    if AnsiSameText(Copy(pCampo, 1, 1), 'R') then
-      Result := Copy(pCampo, 2, pred(Length(pCampo)))
+    if AnsiSameText(Copy(pField, 1, 1), 'R') then
+      Result := Copy(pField, 2, pred(Length(pField)))
     else
-      Result := pCampo;
+      Result := pField;
   end;
 
 begin
@@ -605,49 +648,22 @@ begin
   end;
 end;
 
-procedure TTabela.DefinirSelecao(const pCampo, pValor: array of string;
-  const pAND: Boolean = False);
-var
-  i, j: Integer;
-begin
-  for i := 0 to High(pCampo) do
-  begin
-    j := Length(FFields);
-    Inc(j);
-    SetLength(FFields, j);
-    FFields[pred(j)] := pCampo[i];
-
-    FCondicao := FCondicao + pCampo[i] + ' = ' + pValor[i] +
-      iff(pAND, ' AND ', ',');
-  end;
-
-  if (pAND) then
-    UltimoCaracter(FCondicao, 'AND ', True, 4)
-  else
-    UltimoCaracter(FCondicao, ',');
-end;
-
-procedure TTabela.DefinirTabelasExtras(const pTabelas: array of string);
+procedure TTable.AddTable(const pTables: array of string);
 var
   i: Integer;
 begin
-  for i := 0 to High(pTabelas) do
-    FTabelasExtras := FTabelasExtras + pTabelas[i] + ',';
+  for i := 0 to High(pTables) do
+    FTables := FTables + pTables[i] + ',';
 
-  UltimoCaracter(FTabelasExtras, ',');
+  UltimoCaracter(FTables, ',');
 end;
 
-procedure TTabela.Delete();
+procedure TTable.Delete();
 begin
   MontarEstadoDelete();
 end;
 
-procedure TTabela.DesativarUsoParametro;
-begin
-  FUsaParametro := False;
-end;
-
-destructor TTabela.Destroy;
+destructor TTable.Destroy;
 begin
   FContext.Free;
   FreeAndNil(FQuery);
@@ -656,18 +672,18 @@ begin
   inherited;
 end;
 
-procedure TTabela.MontarEstadoDelete;
+procedure TTable.MontarEstadoDelete;
 begin
   FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
 
-  if (FUsaParametro) then
+  if (FUseParam) then
     DefinirParametros();
 end;
 
-function TTabela.Executar(const pEstadoTabela: TEstadoTabela): Boolean;
+function TTable.Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 begin
   Result := False;
-
+  FSelect := pEstadoSelect;
   FQuery := THQuery.CreatePersonalizado;
   FContext := TRttiContext.Create;
   FType := FContext.GetType(Self.ClassType);
@@ -692,27 +708,27 @@ begin
   if (FSelect <> esLoop) then
   begin
     FQuery.Close;
-    Self.Limpar;
+    Self.Clean;
   end;
 end;
 
-procedure TTabela.ExecutarMesesEntre;
+procedure TTable.ExecutarMesesEntre;
 begin
-  if (FUsaParametro) then
+  if (FUseParam) then
     DefinirParametros;
 
   FQuery.Prepared := True;
   FQuery.Open;
 end;
 
-procedure TTabela.Fechar;
+procedure TTable.Close;
 begin
   FCondicao := EmptyStr;
   FQuery.Close;
   FreeAndNil(FQuery);
 end;
 
-function TTabela.GetBetween(const pName: string): TDate;
+function TTable.GetBetween(const pName: string): TDate;
 var
   i: Byte;
 begin
@@ -723,40 +739,35 @@ begin
   Result := FBetween.Data[i];
 end;
 
-function TTabela.GetCheck: Byte;
+function TTable.GetCheck: Byte;
 begin
   Result := FCheck;
 end;
 
-function TTabela.GetSelect: tEstadoSelect;
-begin
-  Result := FSelect;
-end;
-
-procedure TTabela.Iniciar;
+procedure TTable.Start;
 begin
   FillChar(FFields, sizeOf(FFields), 0);
-  FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
+  FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FCondicao := EmptyStr;
 end;
 
-procedure TTabela.Insert();
+procedure TTable.Insert();
 begin
   Self.MontarEstadoInsert();
 end;
 
-function TTabela.LiberarCampo(const pNome: string): Boolean;
+function TTable.LiberarCampo(const pNome: string): Boolean;
 var
   i: Integer;
 begin
   Result := False;
 
-  if (Length(FCamposLimite) > 0) then
+  if (Length(FLimitField) > 0) then
   begin
-    for i := 0 to High(FCamposLimite) do
+    for i := 0 to High(FLimitField) do
     begin
-      if (AnsiSameText(FCamposLimite[i], pNome)) then
+      if (AnsiSameText(FLimitField[i], pNome)) then
       begin
         Result := True;
         Break;
@@ -765,24 +776,24 @@ begin
   end;
 end;
 
-function TTabela.LimitarCampos(const pNome: string): Boolean;
+function TTable.LimitarCampos(const pNome: string): Boolean;
 begin
   Result := (LiberarCampo(pNome));
 
-  if (Length(FCamposLimite) = 0) then
+  if (Length(FLimitField) = 0) then
     Result := NegarCampo(pNome)
 end;
 
-procedure TTabela.Limpar;
+procedure TTable.Clean;
 begin
   FillChar(FFields, sizeOf(FFields), 0);
-  FillChar(FCamposLimite, sizeOf(FCamposLimite), 0);
+  FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FCondicao := EmptyStr;
   FSelect := esNormal;
 end;
 
-procedure TTabela.MontarEstadoInsert();
+procedure TTable.MontarEstadoInsert();
 var
   xProperty: TRttiProperty;
   xCampos, xValores: string;
@@ -808,7 +819,7 @@ begin
     if NegarCampo(xProperty.Name) then
     begin
       if (AnsiSameText(UpperCase(xProperty.Name), 'USU_ID')) then
-        FQuery.ParamByName(xProperty.Name).Value := GerarIdentidade('USU_ID')
+        FQuery.ParamByName(xProperty.Name).Value := GenerateID('USU_ID')
       else
         case xProperty.PropertyType.TypeKind of
           tkInteger:
@@ -832,11 +843,11 @@ begin
   end;
 end;
 
-function TTabela.MontarEstadoSelect: Boolean;
+function TTable.MontarEstadoSelect: Boolean;
 var
   xProperty: TRttiProperty;
 begin
-  if (FUsaParametro) then
+  if (FUseParam) then
     DefinirParametros();
 
   try
@@ -855,9 +866,9 @@ begin
 
       esMAX, esMIN, esCOUNT, esSUM:
         begin
-          if not(FMontarCampos) then
+          if not(FSetFields) then
           begin
-            xProperty := FType.GetProperty(FCampo);
+            xProperty := FType.GetProperty(FField);
 
             if (xProperty.PropertyType.TypeKind = tkFloat) then
               xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
@@ -870,7 +881,7 @@ begin
     end;
 end;
 
-function TTabela.MAXSelect: string;
+function TTable.MAXSelect: string;
 var
   xProperty: TRttiProperty;
   xCampos: string;
@@ -879,7 +890,7 @@ begin
   xCampos := EmptyStr;
   xMaior := EmptyStr;
 
-  if (FMontarCampos) then
+  if (FSetFields) then
   begin
     for xProperty in FType.GetProperties do
       if NegarCampo(xProperty.Name) then
@@ -888,7 +899,7 @@ begin
     UltimoCaracter(xCampos, ',');
   end;
 
-  Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FCampo, FTabela]);
+  Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FField, FTabela]);
 
   if not(IsNull(FCondicao)) then
     Result := Format('%s WHERE %s', [Result, FCondicao]);
@@ -898,16 +909,16 @@ begin
     xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
 
     if not(IsNull(FCondicao)) then
-      xMaior := Format('%s WHERE %s', [xMaior, FRepeticaoParametros]);
+      xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
 
-    xMaior := xMaior + ' AND ' + FCampo + ' = (' + Result + ')';
+    xMaior := xMaior + ' AND ' + FField + ' = (' + Result + ')';
     Result := xMaior;
   end;
 
   FQuery.LockType := ltReadOnly;
 end;
 
-function TTabela.MesesEntre(const pInicial: string; const pFinal: TDate): Word;
+function TTable.MonthsBetween(const pInicial: string; const pFinal: TDate): Word;
 begin
   FQuery := THQuery.CreatePersonalizado;
   try
@@ -919,11 +930,11 @@ begin
     Result := Abs(FQuery.FindField('RETORNO').AsInteger);
   finally
     FQuery.Close;
-    Self.Limpar;
+    Self.Clean;
   end;
 end;
 
-function TTabela.MesesEntre(const pInicial: TDate; const pFinal: string): Word;
+function TTable.MonthsBetween(const pInicial: TDate; const pFinal: string): Word;
 begin
   FQuery := THQuery.CreatePersonalizado;
   try
@@ -935,11 +946,11 @@ begin
     Result := FQuery.FindField('RETORNO').AsInteger;
   finally
     FQuery.Close;
-    Self.Limpar;
+    Self.Clean;
   end;
 end;
 
-function TTabela.MesesEntre(const pInicial, pFinal: string): Word;
+function TTable.MonthsBetween(const pInicial, pFinal: string): Word;
 begin
   FQuery := THQuery.CreatePersonalizado;
   try
@@ -951,11 +962,11 @@ begin
     Result := FQuery.FindField('RETORNO').AsInteger;
   finally
     FQuery.Close;
-    Self.Limpar;
+    Self.Clean;
   end;
 end;
 
-procedure TTabela.MontarComandoBetween;
+procedure TTable.MontarComandoBetween;
 var
   i: Byte;
 begin
@@ -981,7 +992,7 @@ begin
   end;
 end;
 
-function TTabela.MontarComandoSelect: string;
+function TTable.MontarComandoSelect: string;
 var
   xProperty: TRttiProperty;
   xCampos: string;
@@ -994,14 +1005,14 @@ begin
 
   Result := 'SELECT ' + xCampos + ' FROM ' + FTabela;
 
-  if not(FTabelasExtras = EmptyStr) then
-    Result := Result + ',' + FTabelasExtras;
+  if not(FTables = EmptyStr) then
+    Result := Result + ',' + FTables;
 
   if not(FCondicao = EmptyStr) then
     Result := Result + ' WHERE ' + FCondicao;
 end;
 
-function TTabela.MontarEstadoUpdate(): string;
+function TTable.MontarEstadoUpdate(): string;
 var
   xProperty: TRttiProperty;
 begin
@@ -1035,11 +1046,11 @@ begin
           xProperty.GetValue(Self).ToString;
       end;
 
-  if (FUsaParametro) then
+  if (FUseParam) then
     DefinirParametros();
 end;
 
-function TTabela.NegarCampo(const pNome: string): Boolean;
+function TTable.NegarCampo(const pNome: string): Boolean;
 var
   i: Integer;
 begin
@@ -1049,9 +1060,9 @@ begin
     Result := False
   else
   begin
-    for i := 0 to High(FlistaNegacao) do
+    for i := 0 to High(FBlockList) do
     begin
-      if (AnsiSameText(FlistaNegacao[i], pNome)) then
+      if (AnsiSameText(FBlockList[i], pNome)) then
       begin
         Result := False;
         Break;
@@ -1060,12 +1071,12 @@ begin
   end;
 end;
 
-procedure TTabela.Primeiro;
+procedure TTable.First;
 begin
   FQuery.First;
 end;
 
-function TTabela.Proximo(): Boolean;
+function TTable.Next(): Boolean;
 begin
   Result := not(FQuery.Eof);
 
@@ -1078,7 +1089,7 @@ begin
     FQuery.Close;
 end;
 
-function TTabela.Select: Boolean;
+function TTable.Select: Boolean;
 begin
   FQuery.Sql.Clear;
 
@@ -1097,7 +1108,7 @@ begin
   Result := MontarEstadoSelect();
 end;
 
-procedure TTabela.SetBetween(const pName: string; const Value: TDate);
+procedure TTable.SetBetween(const pName: string; const Value: TDate);
 var
   i: Byte;
 begin
@@ -1111,19 +1122,14 @@ begin
   FBetween.Data[i] := Value;
 end;
 
-procedure TTabela.SetCheck(const Value: Byte);
+procedure TTable.SetCheck(const Value: Byte);
 begin
   FCheck := Value;
 end;
 
-procedure TTabela.SetSelect(const Value: tEstadoSelect);
+function TTable.SUMSelect: string;
 begin
-  FSelect := Value;
-end;
-
-function TTabela.SUMSelect: string;
-begin
-  Result := Format('SELECT SUM(%s) AS RETORNO FROM %s ', [FCampo, FTabela]);
+  Result := Format('SELECT SUM(%s) AS RETORNO FROM %s ', [FField, FTabela]);
 
   if not(IsNull(FCondicao)) then
     Result := Format('%s WHERE %s', [Result, FCondicao]);
@@ -1131,7 +1137,7 @@ begin
   FQuery.LockType := ltReadOnly;
 end;
 
-procedure TTabela.Update();
+procedure TTable.Update();
 begin
   Self.MontarEstadoUpdate();
 end;
@@ -1279,7 +1285,7 @@ begin
 
   for i := 0 to pred(Self.Count) do
   begin
-    Result := (TTabela(Self[i]).Check = 1);
+    Result := (TTable(Self[i]).Check = 1);
 
     if (Result) then
       Break;
@@ -1409,11 +1415,10 @@ begin
   xFilial := TFilial.Create();
   xFilial.CodEmp := pCodEmp;
   xFilial.CodFil := pCodFil;
-  xFilial.DefinirSelecaoPropriedade(['CODEMP', 'CODFIL'], True);
-  xFilial.Selecao := esLoop;
-  xFilial.Executar(etSelect);
+  xFilial.PropertyForSelect(['CODEMP', 'CODFIL'], True);
+  xFilial.Execute(etSelect, esLoop);
 
-  while (xFilial.Proximo) do
+  while (xFilial.Next) do
   begin
     xDadosFilial := TFilial.Create();
     Self.Iterar(xFilial, xDadosFilial);
@@ -1428,11 +1433,10 @@ var
 begin
   xFilial := TFilial.Create();
   xFilial.CodEmp := pCodEmp;
-  xFilial.DefinirSelecaoPropriedade(['CODEMP'], True);
-  xFilial.Selecao := esLoop;
-  xFilial.Executar(etSelect);
+  xFilial.PropertyForSelect(['CODEMP'], True);
+  xFilial.Execute(etSelect, esLoop);
 
-  while (xFilial.Proximo) do
+  while (xFilial.Next) do
   begin
     xDadosFilial := TFilial.Create();
     Self.Iterar(xFilial, xDadosFilial);
@@ -1446,11 +1450,9 @@ var
   xDadosFilial: TFilial;
 begin
   xFilial := TFilial.Create();
-  xFilial.DesativarUsoParametro;
-  xFilial.Selecao := esLoop;
-  xFilial.Executar(etSelect);
+  xFilial.Execute(etSelect, esLoop);
 
-  while (xFilial.Proximo) do
+  while (xFilial.Next) do
   begin
     xDadosFilial := TFilial.Create();
     Self.Iterar(xFilial, xDadosFilial);
@@ -1493,7 +1495,7 @@ constructor TTabelaPadrao.Create(const pTabela: string);
 begin
   inherited Create(pTabela);
 
-  DefinirCampoNegado(['ID', 'USU_ID']);
+  BlockProperty(['ID', 'USU_ID']);
 end;
 
 destructor TTabelaPadrao.Destroy;
@@ -1501,14 +1503,14 @@ begin
   inherited;
 end;
 
-function TTabelaPadrao.GerarIdentidade(const pField: string): Integer;
+function TTabelaPadrao.GenerateID(const pField: string): Integer;
 begin
   Result := 0;
 end;
 
 procedure TTabelaPadrao.Registros_OLD;
 begin
-  // todo
+  //nada
 end;
 
 { TTabelaUsuario }
@@ -1523,7 +1525,7 @@ begin
   inherited;
 end;
 
-function TTabelaUsuario.GerarIdentidade(const pField: string): Integer;
+function TTabelaUsuario.GenerateID(const pField: string): Integer;
 var
   FQuery: THQuery;
 begin
@@ -1543,7 +1545,7 @@ begin
     FreeAndNil(FQuery);
   end;
   Self.USU_ID := Result;
-  Limpar();
+  Clean();
 end;
 
 function TTabelaUsuario.GetId: Integer;

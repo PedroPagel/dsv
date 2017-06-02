@@ -1,13 +1,14 @@
-program ConsultaDDA;
+program CGerador;
+
 {$R *.dres}
 
 uses
   Vcl.Forms,
   oBase,
-  System.SysUtils,
   midaslib,
-  u510CON in 'u510CON.pas' {F510CON},
-  oConsulta in 'oConsulta.pas';
+  System.SysUtils,
+  uGeradorClasse in 'uGeradorClasse.pas' {FGerCla},
+  u998fld in 'u998fld.pas';
 
 {$R *.res}
 
@@ -16,9 +17,8 @@ begin
   try
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
-    Application.CreateForm(TF510CON, F510CON);
+    Application.CreateForm(TFGerCla, FGerCla);
   Application.Run;
-
     TConexao.Finalizar;
   except
     on E: Exception do
