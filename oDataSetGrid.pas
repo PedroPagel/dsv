@@ -11,10 +11,18 @@ type
   TEnterLine = procedure(Sender: TObject) of Object;
   TChangeData = procedure(Sender: TObject) of Object;
   TProcedure = procedure() of Object;
-  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
+  TColumnInfo = procedure(Column: TColumn) of Object;
+  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick, cmLine);
   TGridState = (gsBrowse, gsInsert, gsEdit,
                 gsNone, gsOnEnter, gsOnExit,
                 gsNewValue, gsCallCheck);
+
+  TFieldPosition = record
+    Name: string;
+    NewPos: Integer;
+  end;
+
+  TListFieldPosition = array of TFieldPosition;
 
   TDataSetGrid = class(TDBGrid)
   private
@@ -33,6 +41,8 @@ type
     FChangeLine: Boolean;
     FBackSpace: Boolean;
     FLike: Boolean;
+    FOrderTitles: Boolean;
+    FOrdenado: Integer;
 
     FForm: TForm;
     FQueryField: THQuery;
@@ -40,51 +50,55 @@ type
     FContext: TRttiContext;
     FCheckList: TStringList;
     FReadOnlyList: TStringList;
+    FListFieldPosition: TListFieldPosition;
 
     FGridState: TGridState;
     FFieldState: TGridState;
     FEnterLine: TEnterLine;
 
-    function FieldType(const pColumnType: string; const pMask: string; const pSize: Integer): TFieldType;
     function DesmontaID(const pString: string): string;
     function GetAllowNewLine: Boolean;
 
+    procedure SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0; const pCustom: Boolean = False);
     procedure Check(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
-    procedure SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0);
-    procedure GridKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckMethod(const pField: string; const pCheckMethod: TCheckMethod);
+    procedure GridKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure GridKeyPress(Sender: TObject; var Key: Char);
     procedure ChangeData(Sender: TObject; Field: TField);
+    procedure CreateFieldOrder(const pIndexFields: string);
     procedure SetAllowNewLine(const Value: Boolean);
+    procedure ChangePosition(const pField: string);
+    procedure TitleClickOrder(Column: TColumn);
     procedure CheckClick(Column: TColumn);
     procedure EnterGrid(Sender: TObject);
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
     procedure ExitCol(Sender: TObject);
+    procedure EnterLine(Sender: TObject);
     procedure CallCheck();
-    procedure CreateFieldOrder(const pIndexFields: string);
+
+    property OnEnterLine: TEnterLine read FEnterLine write FEnterLine;
   protected
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
   public
-    procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
-    procedure Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
-    procedure Finalize();
-
-    procedure CreateDataSet();
-    procedure AddFields(const pObj: TObject);
-    procedure ShowSearch();
     procedure Add();
     procedure Clear();
     procedure Edit();
     procedure Post();
     procedure First();
     procedure Next();
-    procedure ReadOnly(const pField: string; pValue: Boolean);
+    procedure Finalize();
+    procedure ShowSearch();
+    procedure CreateDataSet();
+    procedure AddFields(const pObj: TObject);
     procedure Visible(const pField: string; pValue: Boolean);
+    procedure ReadOnly(const pField: string; pValue: Boolean);
     procedure NumericField(const pField: string; const pMask: string);
     procedure CheckFields(const pField: string; const pValue: Integer);
+    procedure FieldPosition(const pField: string; const pPosition: Integer);
     procedure Filter(const pValue: Variant; const pField: string; const pDo: Boolean);
-    procedure OrderBy(const pField: string; const pASC: Boolean);
+    procedure Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
+    procedure AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);
 
     function Eof: Boolean;
     function Count: Integer;
@@ -94,8 +108,9 @@ type
     function GridTitleClick(): Boolean;
 
     property Like: Boolean read FLike write FLike;
+    property OrderTitles: Boolean read FOrderTitles write FOrderTitles;
+    property FieldList: string read FFieldList write FFieldList;
   published
-    property OnEnterLine: TEnterLine read FEnterLine write FEnterLine;
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
   end;
 
@@ -128,8 +143,10 @@ begin
   FFilter := pFilter;
   FColumn := 0;
   FCount := 0;
+  FOrdenado := 0;
   FChangeLine := False;
   FBackSpace := False;
+  FOrderTitles := False;
 
   FClientDataSet.Close;
   FClientDataSet.FieldDefs.Clear;
@@ -142,6 +159,8 @@ begin
   Self.OnKeyPress := GridKeyPress;
   Self.OnColEnter := EnterCol;
   Self.OnColExit := ExitCol;
+  Self.OnTitleClick := TitleClickOrder;
+  Self.OnEnterLine := EnterLine;
 
   CreateFieldOrder(pIndexFields);
 end;
@@ -159,28 +178,6 @@ end;
 procedure TDataSetGrid.NumericField(const pField: string; const pMask: string);
 begin
   TNumericField(FClientDataSet.FieldByName(pField)).DisplayFormat := ','+ pMask +';-,'+ pMask;
-end;
-
-procedure TDataSetGrid.OrderBy(const pField: string; const pASC: Boolean);
-var
-  xQuery: THQuery;
-begin
-  Self.DataSource.DataSet := FClientDataSet;
-
-  if (pASC) then
-  begin
-    FClientDataSet.IndexFieldNames := pField;
-    FClientDataSet.First;
-  end
-  else
-  begin
-    xQuery := THQuery.CreatePersonalizado();
-    xQuery.Command := Format('SELECT %s FROM %s WHERE %s ORDER BY %s %s',
-        [FFieldList, FTable, FFilter, pField, iff(pASC, 'ASC','DESC')]);
-    xQuery.Open;
-
-    Self.DataSource.DataSet := xQuery;
-  end;
 end;
 
 procedure TDataSetGrid.Edit;
@@ -207,6 +204,11 @@ begin
     else
       Self.Options := Self.Options - [dgEditing];
   end;
+end;
+
+procedure TDataSetGrid.EnterLine(Sender: TObject);
+begin
+  CheckMethod(EmptyStr, cmLine);
 end;
 
 procedure TDataSetGrid.Post;
@@ -285,6 +287,21 @@ begin
   end;
 
   FGridState := gsBrowse;
+end;
+
+procedure TDataSetGrid.ChangePosition(const pField: string);
+var
+  i: Integer;
+begin
+  if (Length(FListFieldPosition) > 0) then
+    for i := 0 to High(FListFieldPosition) do
+    begin
+      if (AnsiSameText(pField, FListFieldPosition[i].Name)) then
+      begin
+        Self.ColumnMoved(FColumn, FListFieldPosition[i].NewPos);
+        Break;
+      end;
+    end;
 end;
 
 function TDataSetGrid.Eof: Boolean;
@@ -369,33 +386,16 @@ begin
   Inc(FCount);
 end;
 
-function TDataSetGrid.FieldType(const pColumnType, pMask: string; const pSize: Integer): TFieldType;
-
-  function IsNumber(const pNumber: string): Boolean;
-  var
-    i: Integer;
-  begin
-    Result := True;
-
-    for i := 0 to High(pNumber) do
-      if (AnsiSameText(pNumber[i], ',')) then
-      begin
-        Result := False;
-        Break;
-      end;
-  end;
-
+procedure TDataSetGrid.FieldPosition(const pField: string;
+  const pPosition: Integer);
+var
+  i: Integer;
 begin
-  Result := ftUnknown;
-
-  if (AnsiSameText(UpperCase(pColumnType), 'DATE')) then
-    Result := ftDateTime
-  else
-  if (AnsiSameText(UpperCase(pColumnType), 'VARCHAR2')) then
-    Result := ftString
-  else
-  if (AnsiSameText(UpperCase(pColumnType), 'NUMBER')) then
-    Result := iff(IsNumber(UpperCase(pMask)), iff(pSize >= 10, ftBCD, ftLargeint), ftFloat);
+  i := Length(FListFieldPosition);
+  Inc(i);
+  SetLength(FListFieldPosition, i);
+  FListFieldPosition[pred(i)].Name := pField;
+  FListFieldPosition[pred(i)].NewPos := pPosition;
 end;
 
 procedure TDataSetGrid.Filter(const pValue: Variant; const pField: string; const pDo: Boolean);
@@ -569,7 +569,7 @@ begin
       else
       if (Self.DataSource.DataSet.FieldDefs[Pred(Col)].DataType in [ftFixedChar, ftString, ftWideString]) then
       begin
-        if not(CharInSet(key, ['A'..'Z','a'..'z'])) and not(xNextCol) then
+        if (xNextCol) then
         begin
             Key := #0;
             FFieldState := gsBrowse;
@@ -711,6 +711,9 @@ begin
 
     cmClick:
       xCheck := 'Click';
+
+    cmLine:
+      xCheck := 'EnterLine';
   end;
 
   xType := FContext.GetType(FForm.ClassType);
@@ -734,6 +737,7 @@ begin
   FGridState := gsNone;
   FClientDataSet.EmptyDataSet;
   FCount := 0;
+  FOrdenado := 0;
 end;
 
 function TDataSetGrid.Count: Integer;
@@ -745,6 +749,16 @@ procedure TDataSetGrid.CreateDataSet();
 var
   xQuery: THQuery;
   xCampo: string;
+
+  function Alinhamento(): Boolean;
+  var
+    xType: TFieldType;
+  begin
+    xType := FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+                    xQuery.FindField('LENFLD').AsInteger);
+    Result := (xType in [ftBCD, ftFloat, ftDateTime, ftLargeint, ftInteger, ftBoolean, ftCurrency]);
+  end;
+
 begin
   xQuery := THQuery.CreatePersonalizado();
 
@@ -765,7 +779,7 @@ begin
                       'OWNER = :BASE AND ' +
                       'R998FLD.TBLNAM = TABLE_NAME AND ' +
                       'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME ' +
-                      ' ORDER BY '+ FIndexFields + ' ALL_TAB_COLUMNS.COLUMN_ID ';
+                      ' ORDER BY '+ FIndexFields + ' FLDORD ';
 
   xQuery.ParamByName('TABELA').Value := FTable;
   xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
@@ -780,7 +794,12 @@ begin
       Self.Columns[FColumn].FieldName := xCampo;
       Self.Columns[FColumn].Title.Caption := xQuery.FindField('LGNTIT').AsString;
       Self.Columns[FColumn].ReadOnly := True;
+      Self.Columns[FColumn].Width := iff(xQuery.FindField('LENFLD').AsInteger > 20, 250, 100);
+      Self.Columns[FColumn].Alignment := iff(Alinhamento, taCenter, taLeftJustify);
+
       Inc(FColumn);
+
+      ChangePosition(xCampo);
     end;
 
     SetFields(xCampo, (FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
@@ -833,11 +852,12 @@ begin
   FAllowNewLine := Value;
 end;
 
-procedure TDataSetGrid.SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0);
+procedure TDataSetGrid.SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0; const pCustom: Boolean = False);
 begin
   if (pType in [ftBCD, ftFloat, ftString, ftDateTime, ftLargeint, ftInteger, ftBoolean, ftCurrency]) then
   begin
-    FFieldList := FFieldList + pField + ',';
+    if not(pCustom) then
+      FFieldList := FFieldList + pField + ',';
 
     if (pType = ftString) then
       FClientDataSet.FieldDefs.Add(pField, ftString, pLenFld)
@@ -863,6 +883,65 @@ begin
     FQueryField.Next;
   end;
   Self.DataSource.DataSet.First;
+end;
+
+procedure TDataSetGrid.TitleClickOrder(Column: TColumn);
+var
+  xType: TRttiType;
+  xMethod: TMethod;
+  xProcedure: TColumnInfo;
+  xRttiMethod: TRttiMethod;
+  xIndice: string;
+  xAchou: Boolean;
+begin
+  xType := FContext.GetType(FForm.ClassType);
+  xRttiMethod :=  xType.GetMethod(Self.Name + 'TitleClick');
+
+  if Assigned(xRttiMethod) then
+  begin
+    xMethod.Data := Pointer(FForm);
+    xMethod.Code := FForm.MethodAddress(xRttiMethod.Name);
+
+    if Assigned(xMethod.Code) then
+    begin
+      xProcedure := TColumnInfo(xMethod);
+      xProcedure(Column);
+    end;
+  end;
+
+  if (FOrderTitles) then
+  begin
+    if (Column.Field.FieldKind = fkCalculated) then
+      Exit;
+
+    if (AnsiSameText(FClientDataSet.IndexFieldNames, Column.FieldName)) then
+    begin
+      xIndice := UpperCase(Column.FieldName) + '_IND';
+
+      try
+        FClientDataSet.IndexDefs.Find(xIndice);
+        xAchou := True;
+      except
+        xAchou := False;
+      end;
+
+      if not(xAchou) then
+      begin
+        with (FClientDataSet.IndexDefs.AddIndexDef) do
+        begin
+          Name := xIndice;
+          Fields := Column.FieldName;
+          Options := [ixDescending];
+        end;
+      end;
+
+      FClientDataSet.IndexName := xIndice;
+    end
+    else
+      FClientDataSet.IndexFieldNames := Column.FieldName;
+  end;
+
+  Self.First;
 end;
 
 procedure TDataSetGrid.Visible(const pField: string; pValue: Boolean);
@@ -902,7 +981,7 @@ begin
   if (pCheck) then
     FCheckList.Add(pName);
 
-  SetFields(pName, pType, pStringSize);
+  SetFields(pName, pType, pStringSize, True);
 end;
 
 end.

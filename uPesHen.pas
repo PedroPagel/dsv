@@ -27,22 +27,25 @@ type
     procedure SairClick(Sender: TObject);
     procedure OKClick(Sender: TObject);
     procedure FGridPesDblClick(Sender: TObject);
-    procedure FGridPesTitleClick(Column: TColumn);
     procedure CBFiltrarClick(Sender: TObject);
   private
     FField: string;
     FieldName: string;
     FRetorno: Variant;
-    FOrdenado: Integer;
   public
     function Return(): Variant;
     procedure ShowData(const pTable: string; const pField: string; const pIndexFields: string = ''; const pFilter: string = '');
+  published
+    procedure FGridPesTitleClick(Column: TColumn);
   end;
 
 var
   FPesHen: TFPesHen;
 
 implementation
+
+uses
+  oBase;
 
 {$R *.dfm}
 
@@ -70,12 +73,6 @@ begin
    end
    else
     CBFiltros.Enabled := True;
-
-  Inc(FOrdenado);
-  FGridPes.OrderBy(FieldName, (FOrdenado = 1));
-
-  if (FOrdenado = 2) then
-    FOrdenado := 0;
 end;
 
 procedure TFPesHen.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -107,9 +104,9 @@ begin
   FField := pField;
   FRetorno := EmptyStr;
   FGridPes.Init(pTable, Self, pIndexFields, pFilter);
+  FGridPes.OrderTitles := True;
   FGridPes.CreateDataSet;
   FGridPes.ShowSearch();
-  FOrdenado := 0;
   CBFiltros.ItemIndex := 0;
   ShowModal;
 end;

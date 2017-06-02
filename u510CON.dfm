@@ -691,7 +691,6 @@ object F510CON: TF510CON
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
-        OnEnterLine = FGridArmEnterLine
         AllowNewLine = False
       end
     end
@@ -781,7 +780,6 @@ object F510CON: TF510CON
         TitleFont.Height = -11
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
-        OnEnterLine = FGridTitEnterLine
         AllowNewLine = False
       end
       object Panel9: TPanel

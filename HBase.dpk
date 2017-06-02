@@ -39,7 +39,8 @@ requires
   dsnap,
   xmlrtl,
   soaprtl,
-  inet;
+  inet,
+  fmx;
 
 contains
   oBase in 'oBase.pas',
@@ -52,5 +53,6 @@ contains
   oTitulo in 'oTitulo.pas',
   oReader in 'oReader.pas',
   wsBancoCentral in 'wsBancoCentral.pas';
+
 end.
 

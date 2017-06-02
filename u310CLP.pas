@@ -138,7 +138,6 @@ type
     procedure DDatIniExit(Sender: TObject);
     procedure DDatFimExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure FGridConEnterLine(Sender: TObject);
     procedure MarcarClick(Sender: TObject);
     procedure ProcessarClick(Sender: TObject);
     procedure PGControlDrawTab(Control: TCustomTabControl; TabIndex: Integer;
@@ -152,13 +151,11 @@ type
     procedure DVenFimEnter(Sender: TObject);
     procedure DVenFimClick(Sender: TObject);
     procedure DVenFimChange(Sender: TObject);
-    procedure FGridClpEnterLine(Sender: TObject);
     procedure LigarClick(Sender: TObject);
     procedure RemoverClick(Sender: TObject);
     procedure DesmarcarClick(Sender: TObject);
     procedure LigadoClick(Sender: TObject);
     procedure NaoLigadoClick(Sender: TObject);
-    procedure FGridBemEnterLine(Sender: TObject);
     procedure LigarBemClick(Sender: TObject);
     procedure RemoverBemClick(Sender: TObject);
     procedure LigadosClick(Sender: TObject);
@@ -185,6 +182,10 @@ type
     procedure CalcularReajuste(const pIndice: Double);
     procedure MarcarDesmarcarTitulos(const pGrid: Byte);
   published
+    procedure FGridConEnterLine();
+    procedure FGridClpEnterLine();
+    procedure FGridBemEnterLine();
+
     procedure FGridReaCheckClick();
     procedure FGridReaIndNovChange();
     procedure FGridReaVlrBonChange();
@@ -558,7 +559,6 @@ begin
   begin
     FGridCon.CheckFields('Check', pValue);
     FIteradorReajuste.MarcarDesmarcar(pValue);
-    FGridConEnterLine(Self);
 
     if (pValue = 0) then
     begin
@@ -572,6 +572,8 @@ begin
     FGridLig.CheckFields('Check', pValue);
     FIteradorLigacao.MarcarDesmarcar(pValue, True);
   end;
+
+  FGridConEnterLine();
 end;
 
 procedure TF310CLP.MarcarDesmarcarBem(const pGrid: Byte);
@@ -592,7 +594,7 @@ begin
 
      FControladorBem.MarcarDesmarcarLigacoes(FMarcarDesmarcar);
      FGridBem.First;
-     FGridBemEnterLine(Self);
+     FGridBemEnterLine();
      ValidarSelecaoBem();
     end;
   end
@@ -625,7 +627,7 @@ begin
 
      FIteradorLigacao.MarcarDesmarcarLigacoes(FMarcarDesmarcar);
      FGridClp.First;
-     FGridClpEnterLine(Self);
+     FGridClpEnterLine();
      ValidarSelecao();
     end;
   end
@@ -684,7 +686,7 @@ begin
     end;
     FGridBnl.First;
 
-    FGridBemEnterLine(Self);
+    FGridBemEnterLine();
   end
   else
     CMessage('Não houve informações a listar!', mtErrorInform);
@@ -710,42 +712,49 @@ begin
   FGridClp.Enabled := True;
   FGridLig.Enabled := True;
   FGridDes.Enabled := True;
+  try
+    FIteradorLigacao.Limpar();
+    FIteradorLigacao.Titulo := tTContasPagar;
+    FIteradorLigacao.FiltraContrato := FiltroContrato;
+    FIteradorLigacao.FiltraTitulo := FiltroTitulos;
+    FIteradorLigacao.Carregar();
 
-  FIteradorLigacao.Limpar();
-  FIteradorLigacao.Titulo := tTContasPagar;
-  FIteradorLigacao.FiltraContrato := FiltroContrato;
-  FIteradorLigacao.FiltraTitulo := FiltroTitulos;
-  FIteradorLigacao.Carregar();
-
-  if (FIteradorLigacao.Count > 0) then
-  begin
-    for i := 0 to pred(FIteradorLigacao.Count) do
+    if (FIteradorLigacao.Count > 0) then
     begin
-      FGridClp.Add;
-      x310clp := TControle.Create;
-      try
-        FIteradorLigacao.Iterar(FIteradorLigacao[i], x310clp);
-        FGridClp.AddFields(x310clp);
-      finally
-        FreeAndNil(x310clp);
+      for i := 0 to pred(FIteradorLigacao.Count) do
+      begin
+        FGridClp.Add;
+        x310clp := TControle.Create;
+        try
+          FIteradorLigacao.Iterar(FIteradorLigacao[i], x310clp);
+          FGridClp.AddFields(x310clp);
+        finally
+          FreeAndNil(x310clp);
+        end;
       end;
-    end;
 
-    for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
+      for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
+      begin
+        FGridDes.Add;
+        FGridDes.AddFields(T501TCP(FIteradorLigacao.Despesas[i]));
+      end;
+
+      FGridDes.First;
+      FGridClp.First;
+      FGridClpEnterLine();
+
+      MarcarGrids.Enabled := True;
+      DesmarcarGrids.Enabled := True;
+    end
+    else
+      CMessage('Não houve informações a listar!', mtErrorInform);
+  except
+    on E: Exception do
     begin
-      FGridDes.Add;
-      FGridDes.AddFields(T501TCP(FIteradorLigacao.Despesas[i]));
+      CancelarClick(Self);
+      Exit;
     end;
-
-    FGridDes.First;
-    FGridClp.First;
-    FGridClpEnterLine(Self);
-
-    MarcarGrids.Enabled := True;
-    DesmarcarGrids.Enabled := True;
-  end
-  else
-    CMessage('Não houve informações a listar!', mtErrorInform);
+  end;
 end;
 
 procedure TF310CLP.MostrarReajuste();
@@ -764,29 +773,36 @@ begin
   LTotRea.Caption := '0.00';
   LReaCtr.Caption := '0.00';
   LBonCtr.Caption := '0.00';
+  try
+    FIteradorReajuste.Limpar();
+    FIteradorReajuste.FiltraContrato := FiltroContrato;
+    FIteradorReajuste.Carregar();
 
-  FIteradorReajuste.Limpar();
-  FIteradorReajuste.FiltraContrato := FiltroContrato;
-  FIteradorReajuste.Carregar();
-
-  if (FIteradorReajuste.Count > 0) then
-  begin
-    for i := 0 to pred(FIteradorReajuste.Count) do
+    if (FIteradorReajuste.Count > 0) then
     begin
-      FGridCon.Add;
-      x310clp := TControle.Create;
-      FIteradorReajuste.Iterar(FIteradorReajuste[i], x310clp);
-      FGridCon.AddFields(x310clp);
+      for i := 0 to pred(FIteradorReajuste.Count) do
+      begin
+        FGridCon.Add;
+        x310clp := TControle.Create;
+        FIteradorReajuste.Iterar(FIteradorReajuste[i], x310clp);
+        FGridCon.AddFields(x310clp);
+      end;
+
+      FGridCon.First;
+      FGridConEnterLine();
+
+      Marcar.Enabled := True;
+      Desmarcar.Enabled := True;
+    end
+    else
+      CMessage('Não houve informações a listar!', mtErrorInform);
+  except
+    on E: Exception do
+    begin
+      CancelarClick(Self);
+      Exit;
     end;
-
-    FGridCon.First;
-    FGridConEnterLine(Self);
-
-    Marcar.Enabled := True;
-    Desmarcar.Enabled := True;
-  end
-  else
-    CMessage('Não houve informações a listar!', mtErrorInform);
+  end;
 end;
 
 procedure TF310CLP.NaoLigadoClick(Sender: TObject);
@@ -883,7 +899,7 @@ begin
   if (CMessage('Deseja realmente remover a ligação do(s) patrimônio(s)?', mtConfirmationYesNo)) then
   begin
     FControladorBem.RemoverLigacao();
-    FGridBemEnterLine(Self);
+    FGridBemEnterLine();
 
     FGridBnl.Clear;
     for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
@@ -916,7 +932,7 @@ begin
   if (CMessage('Deseja realmente remover a ligação do(s) título(s) do contrato?', mtConfirmationYesNo)) then
   begin
     FIteradorLigacao.RemoverLigacao();
-    FGridClpEnterLine(Self);
+    FGridClpEnterLine();
 
     FGridDes.Clear;
     for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
@@ -943,7 +959,7 @@ begin
   end;
 end;
 
-procedure TF310CLP.FGridConEnterLine(Sender: TObject);
+procedure TF310CLP.FGridConEnterLine();
 var
   i: Integer;
   xControle: TControle;
@@ -1021,11 +1037,11 @@ begin
     x670BEM.Check := iff(x670BEM.Check = 1, 0, 1);
 
     FControladorBem.MarcarDesmarcarLigacoes(x670BEM.Check, Pred(FGridBem.Line));
-    FGridBemEnterLine(Self);
+    FGridBemEnterLine();
   end;
 end;
 
-procedure TF310CLP.FGridBemEnterLine(Sender: TObject);
+procedure TF310CLP.FGridBemEnterLine();
 var
   i: Integer;
   xIteradorBem: TIteradorBem;
@@ -1078,7 +1094,7 @@ begin
   begin
     TControle(FIteradorLigacao[pred(FGridClp.Line)]).Check := iff(TControle(FIteradorLigacao[pred(FGridClp.Line)]).Check = 1, 0, 1);
     FIteradorLigacao.MarcarDesmarcarLigacoes(TControle(FIteradorLigacao[pred(FGridClp.Line)]).Check, pred(FGridClp.Line));
-    FGridClpEnterLine(Self);
+    FGridClpEnterLine();
     ValidarSelecao();
   end;
 end;
@@ -1114,6 +1130,8 @@ begin
 
   //Contrato - tab 1
   BECodCli.CreateLookup();
+  BECodCli.Filter := 'CODCLI IN (SELECT USU_CODCLI FROM USU_T095LOC)';
+
   BECodFil.CreateLookup();
   BENumCtr.CreateLookup();
 
@@ -1154,6 +1172,7 @@ begin
   BECodEmp.CreateLookup();
   BETitFil.CreateLookup();
   BECodFor.CreateLookup();
+  BECodFor.Filter := 'E095FOR.CODFOR IN (SELECT E501TCP.CODFOR FROM E501TCP WHERE CODTPT IN (''39'',''64''))';
 
   FGridClp.Init('USU_T160CLP', F310CLP);
   FGridClp.AddColumn('Check', 'Sel.', ftInteger, 0, True);
@@ -1253,7 +1272,7 @@ begin
   if (CMessage('Deseja realmente ligar o(s) patrimônio(s)?', mtConfirmationYesNo)) then
   begin
     FControladorBem.GerarLigacao();
-    FGridBemEnterLine(Self);
+    FGridBemEnterLine();
 
     FGridBnl.Clear;
     for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
@@ -1274,7 +1293,7 @@ begin
   if (CMessage('Deseja realmente ligar o(s) título(s) ao contrato?', mtConfirmationYesNo)) then
   begin
     FIteradorLigacao.GerarLigacao();
-    FGridClpEnterLine(Self);
+    FGridClpEnterLine();
 
     FGridDes.Clear;
     for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
@@ -1287,7 +1306,7 @@ begin
   end;
 end;
 
-procedure TF310CLP.FGridClpEnterLine(Sender: TObject);
+procedure TF310CLP.FGridClpEnterLine();
 var
   i: Integer;
   xControle: TControle;
@@ -1316,7 +1335,7 @@ begin
   xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
   xControle.Check := iff(xControle.Check = 1, 0, 1);
   FIteradorReajuste.MarcarDesmarcarReajuste(xControle, xControle.Check);
-  FGridConEnterLine(Self);
+  FGridConEnterLine();
 end;
 
 procedure TF310CLP.FGridReaCheckClick;
@@ -1449,7 +1468,7 @@ begin
     Result := Result + Format(' USU_CODFIL IN (%s) AND ', [BECodFil.Text]);
 
   if not(IsNull(BECodCli.Text)) then
-    Result := Result + Format(' E160CTR.CODCLI IN (%s) AND ', [BECodCli.Text]);
+    Result := Result + Format(' USU_CODCLI IN (%s) AND ', [BECodCli.Text]);
 
   if not(IsNull(BENumCtr.Text)) then
     Result := Result + Format(' USU_NUMCTR IN (%s) AND ', [BENumCtr.Text]);
@@ -1459,8 +1478,6 @@ begin
 
   if not(DDatFim.Date = 1) then
     Result := Result + Format(' USU_DATFIN <= %s AND ', [DateTimeFormatDB(DDatFim.DateTime)]);
-
-  Result := Result + ' E160CTR.TIPCTR = 3 AND ';
 end;
 
 function TF310CLP.FiltroTitulos: string;

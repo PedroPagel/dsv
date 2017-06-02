@@ -51,7 +51,7 @@ constructor TControladorImportacao.Create;
 begin
   inherited Create();
 
-  DefinirCampoNegado(['Caminho']);
+  BlockProperty(['Caminho']);
 end;
 
 destructor TControladorImportacao.Destroy;
@@ -66,7 +66,7 @@ begin
   Self.USU_CodDbc := pRegistro.Codigo;
   Self.USU_DscDbc := pRegistro.Descricao;
   Self.USU_SeqCot := 1;
-  Self.Executar(estInsert);
+  Self.Execute(estInsert);
 end;
 
 function TControladorImportacao.Importacao(const pLinha: string; const pLer: Boolean): TRegistro;

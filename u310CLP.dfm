@@ -754,7 +754,6 @@ object F310CLP: TF310CLP
               TitleFont.Height = -11
               TitleFont.Name = 'Tahoma'
               TitleFont.Style = []
-              OnEnterLine = FGridConEnterLine
               AllowNewLine = False
             end
           end
@@ -919,10 +918,6 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
@@ -993,7 +988,6 @@ object F310CLP: TF310CLP
               TitleFont.Height = -11
               TitleFont.Name = 'Tahoma'
               TitleFont.Style = []
-              OnEnterLine = FGridClpEnterLine
               AllowNewLine = False
             end
           end
@@ -1148,10 +1142,6 @@ object F310CLP: TF310CLP
       object LigacaoBem: TTabSheet
         Caption = 'Liga'#231#227'o Bem x Bem'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel15: TPanel
           Left = 0
           Top = 0
@@ -1222,7 +1212,6 @@ object F310CLP: TF310CLP
               TitleFont.Height = -11
               TitleFont.Name = 'Tahoma'
               TitleFont.Style = []
-              OnEnterLine = FGridBemEnterLine
               AllowNewLine = False
             end
           end
