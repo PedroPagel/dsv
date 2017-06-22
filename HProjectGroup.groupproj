@@ -27,6 +27,9 @@
         <Projects Include="CGerador.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Executer.dproj">
+            <Dependencies>HBase.dproj</Dependencies>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -107,14 +110,23 @@
     <Target Name="CGerador:Make">
         <MSBuild Projects="CGerador.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Executer" DependsOnTargets="HBase">
+        <MSBuild Projects="Executer.dproj"/>
+    </Target>
+    <Target Name="Executer:Clean" DependsOnTargets="HBase:Clean">
+        <MSBuild Projects="Executer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Executer:Make" DependsOnTargets="HBase:Make">
+        <MSBuild Projects="Executer.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;ControleLocacao;Importador;Atualizador;CGerador"/>
+        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;ControleLocacao;Importador;Atualizador;CGerador;Executer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean;Importador:Clean;Atualizador:Clean;CGerador:Clean"/>
+        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean;Importador:Clean;Atualizador:Clean;CGerador:Clean;Executer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make;Importador:Make;Atualizador:Make;CGerador:Make"/>
+        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make;Importador:Make;Atualizador:Make;CGerador:Make;Executer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

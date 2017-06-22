@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
-  oButtonedEdit, oBase, oReader, u998fld, oQuery, oDataSetGrid;
+  oButtonedEdit, oBase, oReader, oQuery, oDataSetGrid;
 
 const
   CTAB = '  ';
@@ -77,7 +77,7 @@ var
 
       ftString:
       begin
-        if (xQuery.FindField('LENFLD').AsInteger <= 3)  then
+        if (xQuery.FindField('LENFLD').AsInteger = 1) then
           Result := 'Char'
         else
           Result := 'string';
@@ -105,15 +105,15 @@ var
 
   procedure GetAndSetOLD(const pTipo: TFieldType);
   begin
-    Write(FTextFile, CTAB2 + 'function Get'+ xCampo + 'OLD: '+ MontarTipo(pTipo) + ';');
+    Write(FTextFile, CTAB2 + 'function Get'+ xCampo + 'Old: '+ MontarTipo(pTipo) + ';');
     Writeln(FTextFile);
     Write(FTextFile, '');
-    Write(FTextFile, CTAB2 + 'procedure Set'+ xCampo + 'OLD(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
+    Write(FTextFile, CTAB2 + 'procedure Set'+ xCampo + 'Old(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
   end;
 
   procedure MontarDados(const pTipo: TFieldType);
   begin
-    Write(FTextFile, 'function '+ ENomObj.Text +'.' + xCampo + ': '+ MontarTipo(pTipo) + ';');
+    Write(FTextFile, 'function '+ ENomObj.Text +'.Get' + xCampo + ': '+ MontarTipo(pTipo) + ';');
     Writeln(FTextFile);
     Write(FTextFile, 'begin');
     Writeln(FTextFile);
@@ -124,7 +124,7 @@ var
     Write(FTextFile, '');
     Writeln(FTextFile);
 
-    Write(FTextFile, 'procedure '+ ENomObj.Text +'.' + 'Set'+ xCampo + '(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
+    Write(FTextFile, 'procedure '+ ENomObj.Text +'.Set'+ xCampo + '(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
     Writeln(FTextFile);
     Write(FTextFile, 'begin');
     Writeln(FTextFile);
@@ -138,7 +138,7 @@ var
 
   procedure MontarDadosOLD(const pTipo: TFieldType);
   begin
-    Write(FTextFile, 'function '+ ENomObj.Text +'.' + xCampo + 'OLD: '+ MontarTipo(pTipo) + ';');
+    Write(FTextFile, 'function '+ ENomObj.Text +'.Get' + xCampo + 'OLD: '+ MontarTipo(pTipo) + ';');
     Writeln(FTextFile);
     Write(FTextFile, 'begin');
     Writeln(FTextFile);
@@ -149,7 +149,7 @@ var
     Write(FTextFile, '');
     Writeln(FTextFile);
 
-    Write(FTextFile, 'procedure '+ ENomObj.Text +'.' + 'Set'+ xCampo + 'OLD(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
+    Write(FTextFile, 'procedure '+ ENomObj.Text +'.Set'+ xCampo + 'OLD(const p'+ xCampo +': '+ MontarTipo(pTipo) + ');');
     Writeln(FTextFile);
     Write(FTextFile, 'begin');
     Writeln(FTextFile);
@@ -168,7 +168,7 @@ var
 
   procedure MontarProPertyOLD(const pTipo: TFieldType);
   begin
-    Write(FTextFile, CTAB2 + 'property '+ xCampo + 'OLD: '+ MontarTipo(pTipo) + ' read Get'+ xCampo + ' write Set'+ xCampo + ';');
+    Write(FTextFile, CTAB2 + 'property OLD_'+ xCampo + ': '+ MontarTipo(pTipo) + ' read Get'+ xCampo + 'OLD write Set'+ xCampo + 'OLD;');
   end;
 
 begin
@@ -188,9 +188,9 @@ begin
   BENomTab.Text := StringReplace(BENomTab.Text, Char(39), '', [rfReplaceAll]);
   try
     if (IsNull(BEDirFil.Text)) then
-      xArquivo := 'C:\' + ENomObj.Text + '.pas'
+      xArquivo := 'C:\' + ENomUni.Text + '.pas'
     else
-      xArquivo := BEDirFil.Text + '\' + ENomObj.Text + '.pas';
+      xArquivo := BEDirFil.Text + '\' + ENomUni.Text + '.pas';
 
     AssignFile(FTextFile, xArquivo);
     if not(FileExists(xArquivo)) then
@@ -415,7 +415,9 @@ begin
       Writeln(FTextFile);
     end;
 
-    Write(FTextFile, 'end;');
+    Write(FTextFile, CTAB + '{$HINTS ON}');
+    Writeln(FTextFile);
+    Write(FTextFile, 'end.');
     Writeln(FTextFile);
 
     CloseFile(FTextFile);
@@ -471,6 +473,8 @@ begin
   Write(FTextFile, '');
   Writeln(FTextFile);
   Write(FTextFile, 'type');
+  Writeln(FTextFile);
+  Write(FTextFile, CTAB + '{$HINTS OFF}');
   Writeln(FTextFile);
   Write(FTextFile, '');
   Writeln(FTextFile);

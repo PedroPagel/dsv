@@ -6,7 +6,7 @@ uses
   Data.SqlExpr, oQuery, System.Rtti, System.SysUtils, Data.DBXOracle,
   System.Contnrs, Data.DBXCommon, Data.Db, Data.DBCommon, System.Math,
   Data.Win.ADODB, System.Classes, System.TypInfo, Vcl.Dialogs, Vcl.ComCtrls,
-  Vcl.ExtCtrls;
+  Vcl.ExtCtrls, System.AnsiStrings;
 
 type
   TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
@@ -86,6 +86,7 @@ type
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
     function Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
+    function AssignedQueryExecute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 
     property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
@@ -229,6 +230,7 @@ type
 
     procedure Conexao(const pBase: string);
     function BaseConexao(): string;
+    function MontarURL(const pType: PTypeInfo): string;
   end;
 
 procedure StartTransaction();
@@ -529,13 +531,11 @@ begin
   FInsertValue := EmptyStr;
   FTables := EmptyStr;
 
-
   FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FBlockList, sizeOf(FBlockList), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
-  BlockProperty(['USU_Check', 'Check', 'Field',
-    'MontarCampos','Between']);
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between']);
 end;
 
 procedure TTable.BlockProperty(const pField: array of string);
@@ -640,7 +640,7 @@ begin
           else
             FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self)
               .AsExtended;
-        end
+        end;
     else
       FQuery.ParamByName(FFields[i]).Value :=
         xPropriedade.GetValue(Self).ToString;
@@ -682,9 +682,10 @@ end;
 
 function TTable.Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 begin
+  FQuery := THQuery.CreatePersonalizado;
+
   Result := False;
   FSelect := pEstadoSelect;
-  FQuery := THQuery.CreatePersonalizado;
   FContext := TRttiContext.Create;
   FType := FContext.GetType(Self.ClassType);
 
@@ -709,6 +710,24 @@ begin
   begin
     FQuery.Close;
     Self.Clean;
+  end;
+end;
+
+function TTable.AssignedQueryExecute(const pEstadoTabela: TEstadoTabela;
+  const pEstadoSelect: tEstadoSelect): Boolean;
+begin
+  if not(Assigned(FQuery)) then
+    Result := Execute(pEstadoTabela, pEstadoSelect)
+  else
+  begin
+    try
+      FQuery.Prepared := True;
+      FQuery.Open;
+    except
+      on E: Exception do
+        raise;
+    end;
+    Result := not(FQuery.IsEmpty);
   end;
 end;
 
@@ -1056,7 +1075,8 @@ var
 begin
   Result := True;
 
-  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) or (AnsiSameText(UpperCase(Copy(pNome, 0, 7)), 'USU_Old')) then
+  if (AnsiSameText(UpperCase(Copy(pNome, 0, 4)), 'OLD_')) or (AnsiSameText(UpperCase(Copy(pNome, 0, 7)), 'USU_Old')) or
+     (AnsiSameText(UpperCase(Copy(pNome, 0, 7)), 'OLD_USU')) then
     Result := False
   else
   begin
@@ -1630,6 +1650,20 @@ end;
 destructor TConnectionBase.Destroy;
 begin
   inherited;
+end;
+
+function TConnectionBase.MontarURL(const pType: PTypeInfo): string;
+begin
+  Result := EmptyStr;
+
+  if (AnsiSameText(FBase, 'SENIOR52'))  then
+    Result := Format('http://sch:8383/g5-senior-services/%s', [pType.Name]);
+
+  if (AnsiSameText(FBase, 'SAPIENS'))  then
+    Result := Format('http://seniorclapp/g5-senior-services/%s', [pType.Name]);
+
+  if (AnsiSameText(FBase, 'SENIOR55'))  then
+    Result := Format('http://sch:8484/g5-senior-services/%s', [pType.Name]);
 end;
 
 end.

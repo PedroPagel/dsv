@@ -1,15 +1,15 @@
-program Atualizador;
-
-{$R *.dres}
+program Executer;
 
 uses
   Vcl.Forms,
-  oBase,
   midaslib,
+  oBase,
   System.SysUtils,
-  u000atu in 'u000atu.pas' {F000ATU},
-  oSubSystemFacade in 'oSubSystemFacade.pas',
-  oFacadeAtualizador in 'oFacadeAtualizador.pas';
+  uExecute in 'uExecute.pas' {FExecute},
+  oFacadeExe in 'oFacadeExe.pas',
+  oSubFacadeImportador in 'oSubFacadeImportador.pas',
+  uTimeFacade in 'uTimeFacade.pas',
+  wsRelatorioImp in 'wsRelatorioImp.pas';
 
 {$R *.res}
 
@@ -19,8 +19,8 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
-    Application.CreateForm(TF000ATU, F000ATU);
-    Application.Terminate;
+    Application.CreateForm(TFExecute, FExecute);
+  Application.Terminate;
     TConexao.Finalizar;
   except
     on E: Exception do

@@ -372,14 +372,17 @@ type
     FCgcCpf: Double;
     FCodFor: Integer;
     FRaiz: string;
+    FLista: TStringList;
 
     function GetCgcCpf: Double;
     function GetCodFor: Integer;
     procedure SetCgcCpf(const pCgcCpf: Double);
     procedure SetCodFor(const pCodFor: Integer);
 
+    function ListaFornecedores: string;
     function BuscarPorCNPJ(const pCNPJ: Double): string;
   public
+    constructor Create();
     constructor CreatePersonalizado(const pCgcCpf: Double);
     destructor Destroy(); override;
 
@@ -387,6 +390,7 @@ type
     procedure AdicionarFonecedor(const pTitulo: T510TIT);
 
     function CodigoDoFornecedor: Integer;
+    function FornecedoresRaiz: string;
 
     property CodFor: Integer read GetCodFor write SetCodFor;
     property CgcCpf: Double read GetCgcCpf write SetCgcCpf;
@@ -450,8 +454,8 @@ type
     destructor Destroy(); override;
 
     property USU_ID: Integer read GetID write SetId;
-    property USU_DatIni: TDate read GetDatIni write SetDatIni;
-    property USU_DatFin: TDate read GetDatFin write SetDatFin;
+    property USU_IniVig: TDate read GetDatIni write SetDatIni;
+    property USU_VigFim: TDate read GetDatFin write SetDatFin;
     property USU_NumCtr: Integer read GetNumCtr write SetNumCtr;
     property USU_CodEmp: Integer read GetCodEmp write SetCodEmp;
     property USU_CodFil: Integer read GetCodFil write SetCodFil;
@@ -1588,10 +1592,17 @@ begin
     xQuery.ParamByName('CGCCPF').Value := FCgcCpf;
     xQuery.ParamByName('RAIZFOR').Value := FRaiz;
     xQuery.Open;
-    if not(xQuery.IsEmpty) then
+    while not(xQuery.Eof) do
+    begin
       FCodFor := iff(xQuery.FindField('ORIGINAL').AsInteger = 0,
         xQuery.FindField('RAIZ').AsInteger,
         xQuery.FindField('ORIGINAL').AsInteger);
+
+      if (FLista.IndexOf(IntToStr(FCodFor)) = -1) then
+        FLista.Add(IntToStr(FCodFor));
+
+      xQuery.Next;
+    end;
 
     xQuery.Close;
   finally
@@ -1615,16 +1626,23 @@ begin
   end;
 end;
 
+constructor T095FOR.Create;
+begin
+  inherited Create();
+end;
+
 constructor T095FOR.CreatePersonalizado(const pCgcCpf: Double);
 begin
   inherited;
 
   Self.CgcCpf := pCgcCpf;
+  FLista := TStringList.Create;
 end;
 
 destructor T095FOR.Destroy;
 begin
   Self.Clear;
+  FreeAndNil(FLista);
 
   inherited;
 end;
@@ -1637,6 +1655,24 @@ end;
 function T095FOR.GetCodFor: Integer;
 begin
   Result := FCodFor;
+end;
+
+function T095FOR.ListaFornecedores: string;
+var
+  i: Integer;
+begin
+  Result := EmptyStr;
+
+  if (Assigned(FLista)) then
+    for i := 0 to pred(FLista.Count) do
+        Result := Result + FLista[i] + ',';
+
+  UltimoCaracter(Result, ',');
+end;
+
+function T095FOR.FornecedoresRaiz: string;
+begin
+  Result := T095FOR(Self[0]).ListaFornecedores;
 end;
 
 procedure T095FOR.SetCgcCpf(const pCgcCpf: Double);
@@ -1689,7 +1725,7 @@ begin
       [Self.CodBar, Self.CodFil, Self.NumTit, Self.CodTpt, Self.CodFor]));
 
   if (VerificarTituloArmazenado) then
-    Self.AddLog(Format('Alteração não permitida, título já foi cadastrano no arquivo: %s.', [FNomArq]));
+      Self.AddLog(Format('Alteração não permitida, título já foi cadastrado no arquivo: %s.', [FNomArq]));
 
   if (VerificarContabilizacao) then
     Self.AddLog('Alteração não permitida. Movimento de Entrada do Título já está contabilizado.');

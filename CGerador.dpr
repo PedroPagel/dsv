@@ -7,8 +7,7 @@ uses
   oBase,
   midaslib,
   System.SysUtils,
-  uGeradorClasse in 'uGeradorClasse.pas' {FGerCla},
-  u998fld in 'u998fld.pas';
+  uGeradorClasse in 'uGeradorClasse.pas' {FGerCla};
 
 {$R *.res}
 

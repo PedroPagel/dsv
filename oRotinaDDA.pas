@@ -186,8 +186,7 @@ procedure TBaseTitulos.AddTitulo;
 var
   xTitulo: TTituloDDA;
 begin
-  if not(F510TIT.Carregado) then
-    F095FOR.AdicionarFonecedor(F510TIT);
+  F095FOR.AdicionarFonecedor(F510TIT);
 
   if (F510TIT.USU_CodFor > 0) then
     FListaTituloGeral.Add(F510TIT)
@@ -263,9 +262,18 @@ begin
       FListaTituloBanco.Add(xTitulo)
     else
     begin
-      x510Tit.USU_LogTit := 'Título não encontrado!';
-      xTitulo.Anexar(x510Tit);
-      xTitulo.GerarLog();
+      xTitulo.Start;
+      xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ F095FOR.FornecedoresRaiz + ') AND ');
+      xTitulo.PropertyForSelect(['CODEMP','VLRORI','VCTORI'], True);
+
+      if not(xTitulo.Execute(etSelect)) then
+      begin
+        x510Tit.USU_LogTit := 'Título não encontrado!';
+        xTitulo.Anexar(x510Tit);
+        xTitulo.GerarLog();
+      end
+      else
+        FListaTituloBanco.Add(xTitulo);
     end;
   end;
 
