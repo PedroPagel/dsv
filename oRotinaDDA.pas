@@ -25,7 +25,7 @@ type
     constructor Create();
 
     procedure AddLog(const pMensagem: string);
-    function Estado(): TEstadoTabela;
+    function Estado(): TTableState;
 
     property Id: Integer read GetId write SetId;
     property IdArm: Integer read GetIdArm write SetIdArm;
@@ -399,9 +399,9 @@ begin
   FLog := EmptyStr;
 end;
 
-function TTituloArmazenamento.Estado: TEstadoTabela;
+function TTituloArmazenamento.Estado: TTableState;
 begin
-  Result := iff(FLog = EmptyStr, estNenhum, estUpdate);
+  Result := iff(FLog = EmptyStr, etNone, estUpdate);
 end;
 
 function TTituloArmazenamento.GetCodFor: Integer;

@@ -1,0 +1,227 @@
+object F133MAU: TF133MAU
+  Left = 0
+  Top = 0
+  Caption = 'Controle de Frotas'
+  ClientHeight = 511
+  ClientWidth = 959
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 959
+    Height = 129
+    Align = alTop
+    TabOrder = 0
+    object Panel3: TPanel
+      Left = 773
+      Top = 1
+      Width = 185
+      Height = 127
+      Align = alRight
+      TabOrder = 0
+      object Excluir: TButton
+        Left = 13
+        Top = 97
+        Width = 75
+        Height = 25
+        Caption = '&Excluir'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 0
+      end
+      object Desmarcar: TButton
+        Left = 13
+        Top = 66
+        Width = 75
+        Height = 25
+        Caption = '&Desmarcar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 1
+      end
+      object Marcar: TButton
+        Left = 13
+        Top = 35
+        Width = 75
+        Height = 25
+        Caption = 'M&arcar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 2
+      end
+      object Mostrar: TButton
+        Left = 13
+        Top = 4
+        Width = 75
+        Height = 25
+        Caption = '&Mostrar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 3
+        OnClick = MostrarClick
+      end
+      object Processar: TButton
+        Left = 94
+        Top = 4
+        Width = 75
+        Height = 25
+        Caption = '&Processar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 4
+      end
+      object Sair: TButton
+        Left = 94
+        Top = 66
+        Width = 75
+        Height = 25
+        Caption = '&Sair'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 5
+        OnClick = SairClick
+      end
+      object Cancelar: TButton
+        Left = 94
+        Top = 35
+        Width = 75
+        Height = 25
+        Caption = '&Cancelar'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 6
+      end
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 129
+    Width = 959
+    Height = 382
+    Align = alClient
+    TabOrder = 1
+    object pnl2: TPanel
+      Left = 1
+      Top = 1
+      Width = 957
+      Height = 380
+      Align = alClient
+      TabOrder = 0
+      object spl1: TSplitter
+        Left = 1
+        Top = 169
+        Width = 955
+        Height = 4
+        Cursor = crVSplit
+        Align = alTop
+        ExplicitTop = 227
+        ExplicitWidth = 1014
+      end
+      object FGridMau: TDataSetGrid
+        Left = 1
+        Top = 17
+        Width = 955
+        Height = 152
+        Align = alTop
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgTabs, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+        TabOrder = 0
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleFont.Style = []
+        AllowNewLine = True
+      end
+      object pnl3: TPanel
+        Left = 1
+        Top = 1
+        Width = 955
+        Height = 16
+        Align = alTop
+        Caption = 'Matr'#237'cula(s)'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 1
+      end
+      object pnl4: TPanel
+        Left = 1
+        Top = 345
+        Width = 955
+        Height = 34
+        Align = alBottom
+        TabOrder = 2
+      end
+      object pnl6: TPanel
+        Left = 1
+        Top = 173
+        Width = 955
+        Height = 16
+        Align = alTop
+        Caption = 'Ve'#237'culo(s)'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 3
+      end
+      object FGridVem: TDataSetGrid
+        Left = 1
+        Top = 189
+        Width = 955
+        Height = 156
+        Align = alClient
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+        TabOrder = 4
+        TitleFont.Charset = DEFAULT_CHARSET
+        TitleFont.Color = clWindowText
+        TitleFont.Height = -11
+        TitleFont.Name = 'Tahoma'
+        TitleFont.Style = []
+        AllowNewLine = True
+      end
+    end
+  end
+end
