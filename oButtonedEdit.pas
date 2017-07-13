@@ -196,8 +196,6 @@ end;
 destructor THButtonedEdit.Destroy;
 begin
   inherited;
-
-  FreeAndNil(FIterator);
 end;
 
 procedure THButtonedEdit.ExitButton(Sender: TObject);
@@ -216,10 +214,11 @@ function THButtonedEdit.Filters: string;
 var
   i: Integer;
 begin
-  Result := iff(FIterator.Count > 0, ' AND ', EmptyStr);
+  Result := iff(not(IsNull(Filter)), ' AND ', EmptyStr);
 
   for i := 0 to pred(FIterator.Count) do
-    Result := Result + (THButtonedEdit(FIterator[i]).Field + ' = ' + THButtonedEdit(FIterator[i]).Text) + ' AND ';
+    if not(IsNull(THButtonedEdit(FIterator[i]).Text)) then
+      Result := Result + (THButtonedEdit(FIterator[i]).Field + ' = ' + THButtonedEdit(FIterator[i]).Text) + ' AND ';
 
   UltimoCaracter(Result, 'AND ', True, 4)
 end;
@@ -280,7 +279,7 @@ var
 begin
   if (FLookup) and not(FOpenDialog) then
   begin
-    FPesHen.ShowData(FTable, FField, FIndexFields, FFilter + Filters);
+    FPesHen.ShowData(FTable, FField, FIndexFields,  FFilter + Filters);
 
     if (FAvoidSelections) then
       Self.Text := String(FPesHen.Return)

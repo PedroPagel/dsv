@@ -415,8 +415,6 @@ begin
       Writeln(FTextFile);
     end;
 
-    Write(FTextFile, CTAB + '{$HINTS ON}');
-    Writeln(FTextFile);
     Write(FTextFile, 'end.');
     Writeln(FTextFile);
 
@@ -442,6 +440,7 @@ begin
   BENomTab.Filter := 'FLDORD = 0';
   BENomTab.isAlfa := True;
 
+  BEDirFil.Text := 'C:\Users\user\Documents\RAD Studio\Projects';
   BEDirFil.CreateLookup;
   BEDirFil.GetDirectory := True;
   cbHeranca.ItemIndex := 2;
@@ -473,8 +472,6 @@ begin
   Write(FTextFile, '');
   Writeln(FTextFile);
   Write(FTextFile, 'type');
-  Writeln(FTextFile);
-  Write(FTextFile, CTAB + '{$HINTS OFF}');
   Writeln(FTextFile);
   Write(FTextFile, '');
   Writeln(FTextFile);

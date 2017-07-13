@@ -60,7 +60,7 @@ procedure TTimeFacade.ExecuteFacade;
 begin
   FExecutarWS := False;
 
-  while (FTimer < 30) do
+  while (FTimer < 600) do
   begin
     Inc(FTimer);
     if (F420OCP.AssignedQueryExecute(etSelect, esNormal)) then

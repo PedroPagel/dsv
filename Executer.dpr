@@ -20,7 +20,7 @@ begin
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.CreateForm(TFExecute, FExecute);
-  Application.Terminate;
+    Application.Terminate;
     TConexao.Finalizar;
   except
     on E: Exception do

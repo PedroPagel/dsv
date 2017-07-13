@@ -9,7 +9,7 @@ uses
   Vcl.ExtCtrls, System.AnsiStrings;
 
 type
-  TEstadoTabela = (estInsert, estUpdate, estDelete, etSelect, estNenhum);
+  TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists);
   tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
   tTitulo = (tTContasPagar, tTContasReceber);
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
@@ -40,6 +40,7 @@ type
     FLimitField: array of string;
     FBlockList: array of string;
     FBetween: TBetweenRegister;
+    FLine: TTableState;
 
     procedure Insert();
     procedure Update();
@@ -65,6 +66,8 @@ type
     procedure ExecutarMesesEntre();
     function GetBetween(const pName: string): TDate;
     procedure SetBetween(const pName: string; const Value: TDate);
+    function GetLine: TTableState;
+    procedure SetLine(const Value: TTableState);
   protected
     procedure Registros_OLD(); virtual; abstract;
   public
@@ -79,17 +82,19 @@ type
     procedure FieldsForUpdate(const pField: array of string);
     procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
     procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
+    procedure Execute(); overload;
 
     function Next(): Boolean;
     function GenerateID(const pField: string): Integer; virtual; abstract;
     function MonthsBetween(const pInicial, pFinal: string): Word; overload;
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
-    function Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
-    function AssignedQueryExecute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
+    function Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean; overload;
+    function AssignedQueryExecute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 
     property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
+    property LineState: TTableState read GetLine write SetLine;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
   end;
@@ -139,6 +144,7 @@ type
     destructor Destroy(); override;
 
     function Selecionados(): Boolean;
+    function Exists(const pItem: Integer): Boolean;
     function IndexOfFields(const pObj: TObject): Boolean;
 
     procedure IndexFields(const pFields: array of string);
@@ -497,6 +503,7 @@ procedure TTable.AtribuirValoresSelect;
 var
   xProperty: TRttiProperty;
 begin
+  try
   for xProperty in FType.GetProperties do
   begin
     if NegarCampo(xProperty.Name) then
@@ -511,10 +518,17 @@ begin
               .AsDateTime))
           else
             xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
+
+        tkWChar, tkChar:
+          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1]);
       else
         xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
       end;
     end;
+  end;
+  except
+    on e: exception do
+      raise;
   end;
   FSetFields := False;
   Registros_OLD();
@@ -525,7 +539,7 @@ begin
   FTabela := pTabela;
   FUseParam := True;
   FSetFields := False;
-
+  FLine := etNone;
   FSelect := esNormal;
   FCondicao := EmptyStr;
   FInsertValue := EmptyStr;
@@ -535,7 +549,7 @@ begin
   FillChar(FBlockList, sizeOf(FBlockList), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
-  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between']);
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState']);
 end;
 
 procedure TTable.BlockProperty(const pField: array of string);
@@ -680,7 +694,12 @@ begin
     DefinirParametros();
 end;
 
-function TTable.Execute(const pEstadoTabela: TEstadoTabela; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
+procedure TTable.Execute();
+begin
+
+end;
+
+function TTable.Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 begin
   FQuery := THQuery.CreatePersonalizado;
 
@@ -713,7 +732,7 @@ begin
   end;
 end;
 
-function TTable.AssignedQueryExecute(const pEstadoTabela: TEstadoTabela;
+function TTable.AssignedQueryExecute(const pEstadoTabela: TTableState;
   const pEstadoSelect: tEstadoSelect): Boolean;
 begin
   if not(Assigned(FQuery)) then
@@ -761,6 +780,11 @@ end;
 function TTable.GetCheck: Byte;
 begin
   Result := FCheck;
+end;
+
+function TTable.GetLine: TTableState;
+begin
+  Result := FLine;
 end;
 
 procedure TTable.Start;
@@ -1103,6 +1127,7 @@ begin
   if (Result) then
   begin
     AtribuirValoresSelect();
+    FLine := etExists;
     FQuery.Next;
   end
   else
@@ -1147,6 +1172,11 @@ begin
   FCheck := Value;
 end;
 
+procedure TTable.SetLine(const Value: TTableState);
+begin
+  FLine := Value;
+end;
+
 function TTable.SUMSelect: string;
 begin
   Result := Format('SELECT SUM(%s) AS RETORNO FROM %s ', [FField, FTabela]);
@@ -1177,6 +1207,15 @@ begin
   FreeAndNil(FIndex);
 
   inherited;
+end;
+
+function TIterador.Exists(const pItem: Integer): Boolean;
+begin
+  try
+    Result := (Self[pred(pItem)] <> nil) or not(Assigned(TObject(Self[pred(pItem)])));
+  except
+    Result := False;
+  end;
 end;
 
 procedure TIterador.IndexFields(const pFields: array of string);
@@ -1230,6 +1269,14 @@ var
   xContextSaida: TRttiContext;
   xTypeSaida: TRttiType;
   xPropertySaida: TRttiProperty;
+
+  function EnumNameToTValue(): TValue;
+  begin
+    Result := xPropertyEntrada.GetValue(pObjEntrada);
+    Result := TValue.FromOrdinal(Result.TypeInfo,GetEnumValue(Result.TypeInfo,
+      GetEnumName(Result.TypeInfo, xPropertyEntrada.GetValue(pObjEntrada).AsOrdinal)));
+  end;
+
 begin
   xContextEntrada := TRttiContext.Create;
   try
@@ -1242,11 +1289,14 @@ begin
     begin
       for xPropertySaida in xTypeSaida.GetProperties do
       begin
-        if (AllowedTypeKind(xPropertySaida.PropertyType.TypeKind)) then
+        if (AllowedTypeKind(xPropertySaida.PropertyType.TypeKind)) or (AnsiSameText(xPropertySaida.Name, 'LineState')) then
           if (AnsiSameText(xPropertyEntrada.Name, xPropertySaida.Name)) then
           begin
-            xPropertySaida.SetValue(pObjeSaida,
-              xPropertyEntrada.GetValue(pObjEntrada));
+            if (xPropertySaida.PropertyType.TypeKind = tkEnumeration) then
+              xPropertySaida.SetValue(pObjeSaida, EnumNameToTValue)
+            else
+              xPropertySaida.SetValue(pObjeSaida,
+                xPropertyEntrada.GetValue(pObjEntrada));
             Break;
           end;
       end;
