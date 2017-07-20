@@ -425,7 +425,6 @@ begin
   end;
 
   BENomTab.Text := '';
-  BEDirFil.Text := '';
   ENomObj.Text := '';
   ENomUni.Text := '';
   cbHeranca.ItemIndex := 2;

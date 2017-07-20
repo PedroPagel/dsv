@@ -7,7 +7,7 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls, oButtonedEdit,
   oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs, Vcl.Mask, Vcl.DBCtrls,
-  Vcl.Menus, oMensagem;
+  Vcl.Menus, oMensagem, oDateTimePicker;
 
 type
   TF510CON = class(TForm)
@@ -31,11 +31,9 @@ type
     GroupBox1: TGroupBox;
     Label9: TLabel;
     cbSituacaoTit: TComboBox;
-    DVenFim: TDateTimePicker;
     BEVlrFim: THButtonedEdit;
     Label8: TLabel;
     Label7: TLabel;
-    DVenIni: TDateTimePicker;
     BEVlrIni: THButtonedEdit;
     Label5: TLabel;
     Label4: TLabel;
@@ -48,15 +46,11 @@ type
     GroupBox2: TGroupBox;
     BECodPor: THButtonedEdit;
     Label2: TLabel;
-    DDatIni: TDateTimePicker;
     Label10: TLabel;
-    DDatFim: TDateTimePicker;
     Label11: TLabel;
     Label12: TLabel;
     cbSituacaoArm: TComboBox;
-    DFinIni: TDateTimePicker;
     Label14: TLabel;
-    DFinFim: TDateTimePicker;
     Label13: TLabel;
     DBLookupComboBox1: TDBLookupComboBox;
     Excluir: TButton;
@@ -64,6 +58,12 @@ type
     Desmarcar: TButton;
     Panel9: TPanel;
     ExcluirTit: TButton;
+    DDatIni: THDateTimePicker;
+    DDatFim: THDateTimePicker;
+    DFinIni: THDateTimePicker;
+    DFinFim: THDateTimePicker;
+    DVenFim: THDateTimePicker;
+    DVenIni: THDateTimePicker;
 
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
@@ -71,26 +71,8 @@ type
     procedure CancelarClick(Sender: TObject);
     procedure SairClick(Sender: TObject);
 
-    procedure DVenIniChange(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
     procedure DVenFimExit(Sender: TObject);
-    procedure DVenFimChange(Sender: TObject);
-    procedure DVenIniEnter(Sender: TObject);
-    procedure DVenFimEnter(Sender: TObject);
-    procedure DVenIniClick(Sender: TObject);
-    procedure DVenFimClick(Sender: TObject);
-    procedure DDatIniChange(Sender: TObject);
-    procedure DDatFimChange(Sender: TObject);
-    procedure DFinIniChange(Sender: TObject);
-    procedure DFinFimChange(Sender: TObject);
-    procedure DDatIniClick(Sender: TObject);
-    procedure DDatFimClick(Sender: TObject);
-    procedure DFinIniClick(Sender: TObject);
-    procedure DFinFimClick(Sender: TObject);
-    procedure DDatIniEnter(Sender: TObject);
-    procedure DDatFimEnter(Sender: TObject);
-    procedure DFinIniEnter(Sender: TObject);
-    procedure DFinFimEnter(Sender: TObject);
     procedure DDatIniExit(Sender: TObject);
     procedure DFinIniExit(Sender: TObject);
     procedure DDatFimExit(Sender: TObject);
@@ -103,7 +85,6 @@ type
     procedure ExcluirTitClick(Sender: TObject);
   private
     FControle: T510CON;
-    FOldDate: TDateTime;
 
     procedure MarcarDesmarcar(const pValue: Byte);
   published
@@ -177,18 +158,6 @@ begin
   BECodFil.Text := EmptyStr;
   BECodPor.Text := EmptyStr;
   BECodFor.Text := EmptyStr;
-  DVenIni.DateTime := 1;
-  DVenIni.Format := '00/00/0000';
-  DVenFim.DateTime := 1;
-  DVenFim.Format := '00/00/0000';
-  DDatIni.DateTime := 1;
-  DDatIni.Format := '00/00/0000';
-  DDatFim.DateTime := 1;
-  DDatFim.Format := '00/00/0000';
-  DFinIni.DateTime := 1;
-  DFinIni.Format := '00/00/0000';
-  DFinFim.DateTime := 1;
-  DFinFim.Format := '00/00/0000';
 
   BEVlrIni.Text := '0,00';
   BEVlrFim.Text := '0,00';
@@ -222,53 +191,13 @@ begin
     cbSituacaoTit.Enabled := True;
 end;
 
-procedure TF510CON.DDatFimChange(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DDatFim.Date = 1) then
-    DDatFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DDatFimClick(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DDatFimEnter(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-end;
-
 procedure TF510CON.DDatFimExit(Sender: TObject);
 begin
   if (DDatFim.Date < DDatIni.Date) then
   begin
     DDatFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
-  end
-  else if (DDatFim.Date = 1) then
-    DDatFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DDatIniChange(Sender: TObject);
-begin
-  DDatIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DDatIni.Date = 1) then
-    DDatIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DDatIniClick(Sender: TObject);
-begin
-  FOldDate := DDatIni.DateTime;
-  DDatIni.DateTime := Date;
-  DDatIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DDatIniEnter(Sender: TObject);
-begin
-  DDatIni.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF510CON.DDatIniExit(Sender: TObject);
@@ -280,32 +209,12 @@ begin
       DDatIni.SetFocus;
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
-  end
-  else if (DDatIni.Date = 1) then
-    DDatIni.Format := '00/00/0000';
+  end;
 end;
 
 procedure TF510CON.DesmarcarClick(Sender: TObject);
 begin
   MarcarDesmarcar(0);
-end;
-
-procedure TF510CON.DFinFimChange(Sender: TObject);
-begin
-  DFinFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DFinFim.Date = 1) then
-    DFinFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DFinFimClick(Sender: TObject);
-begin
-  DFinFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DFinFimEnter(Sender: TObject);
-begin
-  DFinFim.Format := FormatSettings.ShortDateFormat;
 end;
 
 procedure TF510CON.DFinFimExit(Sender: TObject);
@@ -314,27 +223,7 @@ begin
   begin
     DFinFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
-  end
-  else if (DFinFim.Date = 1) then
-    DFinFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DFinIniChange(Sender: TObject);
-begin
-  DFinIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DFinIni.Date = 1) then
-    DFinIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DFinIniClick(Sender: TObject);
-begin
-  DFinIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DFinIniEnter(Sender: TObject);
-begin
-  DFinIni.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF510CON.DFinIniExit(Sender: TObject);
@@ -346,27 +235,7 @@ begin
       DFinIni.SetFocus;
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
-  end
-  else if (DFinIni.Date = 1) then
-    DFinIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DVenFimChange(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenFim.Date = 1) then
-    DVenFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DVenFimClick(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DVenFimEnter(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF510CON.DVenFimExit(Sender: TObject);
@@ -375,27 +244,7 @@ begin
   begin
     DVenFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
-  end
-  else if (DVenFim.Date = 1) then
-    DVenFim.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DVenIniChange(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
-end;
-
-procedure TF510CON.DVenIniClick(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF510CON.DVenIniEnter(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF510CON.DVenIniExit(Sender: TObject);
@@ -407,9 +256,7 @@ begin
       DVenIni.SetFocus;
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
-  end
-  else if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
+  end;
 end;
 
 procedure TF510CON.ExcluirClick(Sender: TObject);
@@ -729,6 +576,13 @@ begin
     FLogEmp := 1;
     FLogUsu := 1403;
   end;
+
+  DDatIni.Start;
+  DDatFim.Start;
+  DVenIni.Start;
+  DVenFim.Start;
+  DFinIni.Start;
+  DFinFim.Start;
 
   BECodEmp.CreateLookup();
   BECodFil.CreateLookup();

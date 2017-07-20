@@ -42,6 +42,8 @@ end;
 
 function TFacadeCFT.AddVeiculos: T133VEM;
 begin
+  Result := nil;
+
   if not(TIteradorMatricula(FFacadeControladora[pred(FGridMau.Line)]).Matricula.Exists(FGridVem.Line)) then
   begin
     Result := T133VEM.Create;

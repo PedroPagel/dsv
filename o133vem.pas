@@ -9,22 +9,20 @@ type
 
   T133VEM = class(TTabelaUsuario)
   private
-    FUSU_ID: Integer;
     FUSU_PlaVei: string;
     FUSU_ModVei: string;
     FUSU_DatGer: TDate;
     FUSU_UsuGer: Integer;
     FUSU_IDMAU: Integer;
+    FUSU_NumMat: string;
 
-    FUSU_IDOLD: Integer;
     FUSU_PlaVeiOLD: string;
     FUSU_ModVeiOLD: string;
     FUSU_DatGerOLD: TDate;
     FUSU_UsuGerOLD: Integer;
     FUSU_IDMAUOLD: Integer;
+    FUSU_NumMatOLD: string;
 
-    function GetUSU_ID: Integer;
-    procedure SetUSU_ID(const pUSU_ID: Integer);
     function GetUSU_PlaVei: string;
     procedure SetUSU_PlaVei(const pUSU_PlaVei: string);
     function GetUSU_ModVei: string;
@@ -35,9 +33,9 @@ type
     procedure SetUSU_UsuGer(const pUSU_UsuGer: Integer);
     function GetUSU_IDMAU: Integer;
     procedure SetUSU_IDMAU(const pUSU_IDMAU: Integer);
+    function GetUSU_NumMat: string;
+    procedure SetUSU_NumMat(const pUSU_NumMat: string);
 
-    function GetUSU_IDOld: Integer;
-    procedure SetUSU_IDOld(const pUSU_ID: Integer);
     function GetUSU_PlaVeiOld: string;
     procedure SetUSU_PlaVeiOld(const pUSU_PlaVei: string);
     function GetUSU_ModVeiOld: string;
@@ -48,25 +46,27 @@ type
     procedure SetUSU_UsuGerOld(const pUSU_UsuGer: Integer);
     function GetUSU_IDMAUOld: Integer;
     procedure SetUSU_IDMAUOld(const pUSU_IDMAU: Integer);
+    function GetUSU_NumMatOld: string;
+    procedure SetUSU_NumMatOld(const pUSU_NumMat: string);
   protected
     procedure Registros_OLD(); override;
   public
     constructor Create();
     destructor Destroy(); override;
 
-    property USU_ID: Integer read GetUSU_ID write SetUSU_ID;
     property USU_PlaVei: string read GetUSU_PlaVei write SetUSU_PlaVei;
     property USU_ModVei: string read GetUSU_ModVei write SetUSU_ModVei;
     property USU_DatGer: TDate read GetUSU_DatGer write SetUSU_DatGer;
     property USU_UsuGer: Integer read GetUSU_UsuGer write SetUSU_UsuGer;
     property USU_IDMAU: Integer read GetUSU_IDMAU write SetUSU_IDMAU;
+    property USU_NumMat: string read GetUSU_NumMat write SetUSU_NumMat;
 
-    property OLD_USU_ID: Integer read GetUSU_IDOLD write SetUSU_IDOLD;
     property OLD_USU_PlaVei: string read GetUSU_PlaVeiOLD write SetUSU_PlaVeiOLD;
     property OLD_USU_ModVei: string read GetUSU_ModVeiOLD write SetUSU_ModVeiOLD;
     property OLD_USU_DatGer: TDate read GetUSU_DatGerOLD write SetUSU_DatGerOLD;
     property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
     property OLD_USU_IDMAU: Integer read GetUSU_IDMAUOLD write SetUSU_IDMAUOLD;
+    property OLD_USU_NumMat: string read GetUSU_NumMatOLD write SetUSU_NumMatOLD;
   end;
 
 implementation
@@ -76,22 +76,14 @@ implementation
 constructor T133VEM.Create();
 begin
   inherited Create('USU_T133VEM');
+
+  BlockProperty(['USU_ID']);
 end;
 
 destructor T133VEM.Destroy();
 begin
   inherited;
 end;
-function T133VEM.GetUSU_ID: Integer;
-begin
-  Result := FUSU_ID;
-end;
-
-procedure T133VEM.SetUSU_ID(const pUSU_ID: Integer);
-begin
-  FUSU_ID := pUSU_ID;
-end;
-
 function T133VEM.GetUSU_PlaVei: string;
 begin
   Result := FUSU_PlaVei;
@@ -142,14 +134,14 @@ begin
   FUSU_IDMAU := pUSU_IDMAU;
 end;
 
-function T133VEM.GetUSU_IDOLD: Integer;
+function T133VEM.GetUSU_NumMat: string;
 begin
-  Result := FUSU_IDOLD;
+  Result := FUSU_NumMat;
 end;
 
-procedure T133VEM.SetUSU_IDOLD(const pUSU_ID: Integer);
+procedure T133VEM.SetUSU_NumMat(const pUSU_NumMat: string);
 begin
-  FUSU_IDOLD := pUSU_ID;
+  FUSU_NumMat := pUSU_NumMat;
 end;
 
 function T133VEM.GetUSU_PlaVeiOLD: string;
@@ -202,14 +194,24 @@ begin
   FUSU_IDMAUOLD := pUSU_IDMAU;
 end;
 
+function T133VEM.GetUSU_NumMatOLD: string;
+begin
+  Result := FUSU_NumMatOLD;
+end;
+
+procedure T133VEM.SetUSU_NumMatOLD(const pUSU_NumMat: string);
+begin
+  FUSU_NumMatOLD := pUSU_NumMat;
+end;
+
 procedure T133VEM.Registros_OLD();
 begin
-  FUSU_IDOLD := FUSU_ID;
   FUSU_PlaVeiOLD := FUSU_PlaVei;
   FUSU_ModVeiOLD := FUSU_ModVei;
   FUSU_DatGerOLD := FUSU_DatGer;
   FUSU_UsuGerOLD := FUSU_UsuGer;
   FUSU_IDMAUOLD := FUSU_IDMAU;
+  FUSU_NumMatOLD := FUSU_NumMat;
 end;
 
 end.

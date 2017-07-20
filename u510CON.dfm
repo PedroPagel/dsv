@@ -153,7 +153,7 @@ object F510CON: TF510CON
       object GroupBox1: TGroupBox
         Left = 360
         Top = 1
-        Width = 504
+        Width = 510
         Height = 145
         Caption = 'T'#237'tulo(s)'
         TabOrder = 1
@@ -275,30 +275,11 @@ object F510CON: TF510CON
           Font.Style = []
           ParentBiDiMode = False
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 3
           Items.Strings = (
             'Associados'
             'N'#227'o Associados'
             'Todos')
-        end
-        object DVenFim: TDateTimePicker
-          Left = 390
-          Top = 25
-          Width = 110
-          Height = 21
-          Date = 0.352449409721884900
-          Time = 0.352449409721884900
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 7
-          OnClick = DVenFimClick
-          OnChange = DVenFimChange
-          OnEnter = DVenFimEnter
-          OnExit = DVenFimExit
         end
         object BEVlrFim: THButtonedEdit
           Left = 390
@@ -312,32 +293,13 @@ object F510CON: TF510CON
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 5
           Lookup = False
           AvoidSelections = False
           isNumber = False
           isAlfa = False
           isFloat = False
           OpenDialog = False
-        end
-        object DVenIni: TDateTimePicker
-          Left = 262
-          Top = 25
-          Width = 110
-          Height = 21
-          Date = 0.351422557869227600
-          Time = 0.351422557869227600
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-          OnClick = DVenIniClick
-          OnChange = DVenIniChange
-          OnEnter = DVenIniEnter
-          OnExit = DVenIniExit
         end
         object BEVlrIni: THButtonedEdit
           Left = 262
@@ -351,7 +313,7 @@ object F510CON: TF510CON
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 4
           Lookup = False
           AvoidSelections = False
           isNumber = False
@@ -372,7 +334,7 @@ object F510CON: TF510CON
           ParentFont = False
           RightButton.ImageIndex = 0
           RightButton.Visible = True
-          TabOrder = 8
+          TabOrder = 6
           IndexFields = 'CODFOR;NOMFOR'
           Table = 'E095FOR'
           Lookup = True
@@ -438,16 +400,48 @@ object F510CON: TF510CON
           Height = 21
           TabOrder = 2
         end
+        object DVenFim: THDateTimePicker
+          Left = 390
+          Top = 25
+          Width = 112
+          Height = 21
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 7
+        end
+        object DVenIni: THDateTimePicker
+          Left = 262
+          Top = 25
+          Width = 112
+          Height = 21
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 8
+        end
       end
       object GroupBox2: TGroupBox
         Left = 2
         Top = 1
         Width = 357
-        Height = 145
+        Height = 146
         Caption = 'Armazenamento'
         TabOrder = 0
         object Label2: TLabel
-          Left = 61
+          Left = 58
           Top = 28
           Width = 46
           Height = 13
@@ -460,7 +454,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label10: TLabel
-          Left = 231
+          Left = 228
           Top = 56
           Width = 6
           Height = 13
@@ -473,7 +467,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label11: TLabel
-          Left = 11
+          Left = 8
           Top = 82
           Width = 96
           Height = 13
@@ -486,7 +480,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label12: TLabel
-          Left = 62
+          Left = 59
           Top = 106
           Width = 45
           Height = 13
@@ -499,7 +493,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label13: TLabel
-          Left = 23
+          Left = 20
           Top = 55
           Width = 84
           Height = 13
@@ -512,7 +506,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label14: TLabel
-          Left = 231
+          Left = 228
           Top = 81
           Width = 6
           Height = 13
@@ -525,7 +519,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object BECodPor: THButtonedEdit
-          Left = 113
+          Left = 110
           Top = 25
           Width = 121
           Height = 21
@@ -537,7 +531,7 @@ object F510CON: TF510CON
           ParentFont = False
           RightButton.ImageIndex = 0
           RightButton.Visible = True
-          TabOrder = 5
+          TabOrder = 1
           IndexFields = 'CODEMP;CODPOR;DESPOR'
           Table = 'E039POR'
           Lookup = True
@@ -548,47 +542,8 @@ object F510CON: TF510CON
           isFloat = False
           OpenDialog = False
         end
-        object DDatIni: TDateTimePicker
-          Left = 115
-          Top = 52
-          Width = 110
-          Height = 21
-          Date = 0.351422557869227600
-          Time = 0.351422557869227600
-          Checked = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-          OnClick = DDatIniClick
-          OnChange = DDatIniChange
-          OnEnter = DDatIniEnter
-          OnExit = DDatIniExit
-        end
-        object DDatFim: TDateTimePicker
-          Left = 243
-          Top = 52
-          Width = 110
-          Height = 21
-          Date = 0.352449409721884900
-          Time = 0.352449409721884900
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 2
-          OnClick = DDatFimClick
-          OnChange = DDatFimChange
-          OnEnter = DDatFimEnter
-          OnExit = DDatFimExit
-        end
         object cbSituacaoArm: TComboBox
-          Left = 113
+          Left = 110
           Top = 106
           Width = 145
           Height = 21
@@ -601,39 +556,37 @@ object F510CON: TF510CON
           Font.Style = []
           ParentBiDiMode = False
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 0
           OnChange = cbSituacaoArmChange
           Items.Strings = (
             'Armazenados'
             'N'#227'o Armazenados'
             'Todos')
         end
-        object DFinFim: TDateTimePicker
-          Left = 243
-          Top = 81
-          Width = 110
+        object DDatIni: THDateTimePicker
+          Left = 110
+          Top = 52
+          Width = 112
           Height = 21
-          Date = 0.352449409721884900
-          Time = 0.352449409721884900
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
-          OnClick = DFinFimClick
-          OnChange = DFinFimChange
-          OnEnter = DFinFimEnter
-          OnExit = DFinFimExit
+          TabOrder = 2
         end
-        object DFinIni: TDateTimePicker
-          Left = 115
-          Top = 81
-          Width = 110
+        object DDatFim: THDateTimePicker
+          Left = 240
+          Top = 52
+          Width = 112
           Height = 21
-          Date = 0.351422557869227600
-          Time = 0.351422557869227600
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -641,10 +594,38 @@ object F510CON: TF510CON
           Font.Style = []
           ParentFont = False
           TabOrder = 3
-          OnClick = DFinIniClick
-          OnChange = DFinIniChange
-          OnEnter = DFinIniEnter
-          OnExit = DFinIniExit
+        end
+        object DFinIni: THDateTimePicker
+          Left = 110
+          Top = 78
+          Width = 112
+          Height = 21
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
+        end
+        object DFinFim: THDateTimePicker
+          Left = 240
+          Top = 78
+          Width = 112
+          Height = 21
+          Date = 42936.423708888890000000
+          Format = '00/00/0000'
+          Time = 42936.423708888890000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
         end
       end
     end
