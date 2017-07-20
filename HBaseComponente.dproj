@@ -115,6 +115,7 @@
         <DCCReference Include="oHButton.pas"/>
         <DCCReference Include="oDataSetGrid.pas"/>
         <DCCReference Include="oButtonedEdit.pas"/>
+        <DCCReference Include="oDateTimePicker.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

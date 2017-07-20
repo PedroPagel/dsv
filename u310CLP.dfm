@@ -243,45 +243,6 @@ object F310CLP: TF310CLP
           isFloat = False
           OpenDialog = False
         end
-        object DDatIni: TDateTimePicker
-          Left = 90
-          Top = 95
-          Width = 110
-          Height = 21
-          Date = 0.351422557869227600
-          Time = 0.351422557869227600
-          Checked = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 3
-          OnClick = DDatIniClick
-          OnChange = DDatIniChange
-          OnEnter = DDatIniEnter
-          OnExit = DDatIniExit
-        end
-        object DDatFim: TDateTimePicker
-          Left = 219
-          Top = 95
-          Width = 110
-          Height = 21
-          Date = 0.352449409721884900
-          Time = 0.352449409721884900
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 4
-          OnClick = DDatFimClick
-          OnChange = DDatFimChange
-          OnEnter = DDatFimEnter
-          OnExit = DDatFimExit
-        end
         object BECodFil: THButtonedEdit
           Left = 90
           Top = 14
@@ -329,6 +290,37 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+        end
+        object DDatIni: THDateTimePicker
+          Left = 90
+          Top = 95
+          Width = 110
+          Height = 21
+          Date = 42936.325340509260000000
+          Time = 42936.325340509260000000
+          Checked = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+        end
+        object DDatFim: THDateTimePicker
+          Left = 218
+          Top = 95
+          Width = 111
+          Height = 21
+          Date = 42936.409457777780000000
+          Time = 42936.409457777780000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 4
         end
       end
       object GBTitulo: TGroupBox
@@ -430,25 +422,6 @@ object F310CLP: TF310CLP
           Font.Style = []
           ParentFont = False
         end
-        object DVenFim: TDateTimePicker
-          Left = 206
-          Top = 122
-          Width = 110
-          Height = 21
-          Date = 0.352449409721884900
-          Time = 0.352449409721884900
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 6
-          OnClick = DVenFimClick
-          OnChange = DVenFimChange
-          OnEnter = DVenFimEnter
-          OnExit = DVenFimExit
-        end
         object BEVlrFim: THButtonedEdit
           Left = 206
           Top = 95
@@ -468,25 +441,6 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
-        end
-        object DVenIni: TDateTimePicker
-          Left = 78
-          Top = 122
-          Width = 110
-          Height = 21
-          Date = 0.351422557869227600
-          Time = 0.351422557869227600
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 5
-          OnClick = DVenIniClick
-          OnChange = DVenIniChange
-          OnEnter = DVenIniEnter
-          OnExit = DVenIniExit
         end
         object BEVlrIni: THButtonedEdit
           Left = 78
@@ -579,6 +533,36 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+        end
+        object DVenFim: THDateTimePicker
+          Left = 206
+          Top = 120
+          Width = 110
+          Height = 21
+          Date = 42936.409457777780000000
+          Time = 42936.409457777780000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 5
+        end
+        object DVenIni: THDateTimePicker
+          Left = 79
+          Top = 120
+          Width = 109
+          Height = 21
+          Date = 42936.409457777780000000
+          Time = 42936.409457777780000000
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 6
         end
       end
       object GBBem: TGroupBox
@@ -918,10 +902,6 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
@@ -1146,10 +1126,6 @@ object F310CLP: TF310CLP
       object LigacaoBem: TTabSheet
         Caption = 'Liga'#231#227'o Bem x Bem'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel15: TPanel
           Left = 0
           Top = 0

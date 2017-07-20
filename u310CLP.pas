@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
   Vcl.Mask, Vcl.DBCtrls, Vcl.Menus, CommCtrl, o310clp, Winapi.Windows, Data.DB,
-  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, wsBancoCentral;
+  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, wsBancoCentral, oDateTimePicker;
 
 CONST
   CGRIDLIG = 1;
@@ -32,8 +32,6 @@ type
     Label6: TLabel;
     Label3: TLabel;
     BENumCtr: THButtonedEdit;
-    DDatIni: TDateTimePicker;
-    DDatFim: TDateTimePicker;
     BECodFil: THButtonedEdit;
     BECodCli: THButtonedEdit;
     PGControl: TPageControl;
@@ -77,9 +75,7 @@ type
     Label1: TLabel;
     Label11: TLabel;
     Label12: TLabel;
-    DVenFim: TDateTimePicker;
     BEVlrFim: THButtonedEdit;
-    DVenIni: TDateTimePicker;
     BEVlrIni: THButtonedEdit;
     BECodFor: THButtonedEdit;
     BETitFil: THButtonedEdit;
@@ -123,18 +119,16 @@ type
     LReaCtr: TLabel;
     LBonCtr: TLabel;
     Excluir: TButton;
+    DDatIni: THDateTimePicker;
+    DDatFim: THDateTimePicker;
+    DVenFim: THDateTimePicker;
+    DVenIni: THDateTimePicker;
 
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure CancelarClick(Sender: TObject);
     procedure SairClick(Sender: TObject);
-    procedure DDatIniChange(Sender: TObject);
-    procedure DDatFimChange(Sender: TObject);
-    procedure DDatIniClick(Sender: TObject);
-    procedure DDatFimClick(Sender: TObject);
-    procedure DDatIniEnter(Sender: TObject);
-    procedure DDatFimEnter(Sender: TObject);
     procedure DDatIniExit(Sender: TObject);
     procedure DDatFimExit(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -144,13 +138,7 @@ type
       const Rect: TRect; Active: Boolean);
     procedure PGControlChange(Sender: TObject);
     procedure DVenIniExit(Sender: TObject);
-    procedure DVenIniEnter(Sender: TObject);
-    procedure DVenIniClick(Sender: TObject);
-    procedure DVenIniChange(Sender: TObject);
     procedure DVenFimExit(Sender: TObject);
-    procedure DVenFimEnter(Sender: TObject);
-    procedure DVenFimClick(Sender: TObject);
-    procedure DVenFimChange(Sender: TObject);
     procedure LigarClick(Sender: TObject);
     procedure RemoverClick(Sender: TObject);
     procedure DesmarcarClick(Sender: TObject);
@@ -162,7 +150,6 @@ type
     procedure NaoLigadosClick(Sender: TObject);
     procedure ExcluirClick(Sender: TObject);
   private
-    FOldDate: TDateTime;
     FIteradorReajuste: TIteradorControle;
     FIteradorLigacao: TIteradorControle;
     FControladorBem: TControladorBem;
@@ -360,19 +347,6 @@ begin
   MarcarGrids.Enabled := False;
   DesmarcarGrids.Enabled := False;
 
-  DDatIni.DateTime := 1;
-  DDatIni.Format := '00/00/0000';
-  DDatFim.DateTime := 1;
-  DDatFim.Format := '00/00/0000';
-  DVenIni.DateTime := 1;
-  DVenIni.Format := '00/00/0000';
-  DVenFim.DateTime := 1;
-  DVenFim.Format := '00/00/0000';
-  DDatIni.DateTime := 1;
-  DDatIni.Format := '00/00/0000';
-  DDatFim.DateTime := 1;
-  DDatFim.Format := '00/00/0000';
-
   BEVlrIni.Text := '0,00';
   BEVlrFim.Text := '0,00';
 
@@ -397,54 +371,13 @@ begin
   BloquearCamposTitulo(False);
 end;
 
-procedure TF310CLP.DDatFimChange(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DDatFim.Date = 1) then
-    DDatFim.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DDatFimClick(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.DDatFimEnter(Sender: TObject);
-begin
-  DDatFim.Format := FormatSettings.ShortDateFormat;
-end;
-
 procedure TF310CLP.DDatFimExit(Sender: TObject);
 begin
   if (DDatFim.Date < DDatIni.Date) then
   begin
     DDatFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
-  end
-  else
-  if (DDatFim.Date = 1) then
-    DDatFim.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DDatIniChange(Sender: TObject);
-begin
-  DDatIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DDatIni.Date = 1) then
-    DDatIni.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DDatIniClick(Sender: TObject);
-begin
-  FOldDate := DDatIni.DateTime;
-  DDatIni.DateTime := Date;
-  DDatIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.DDatIniEnter(Sender: TObject);
-begin
-  DDatIni.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF310CLP.DDatIniExit(Sender: TObject);
@@ -456,33 +389,12 @@ begin
       DDatIni.SetFocus;
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
-  end
-  else
-  if (DDatIni.Date = 1) then
-    DDatIni.Format :=  '00/00/0000';
+  end;
 end;
 
 procedure TF310CLP.DesmarcarClick(Sender: TObject);
 begin
   MarcarDesmarcar(0);
-end;
-
-procedure TF310CLP.DVenFimChange(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenFim.Date = 1) then
-    DVenFim.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DVenFimClick(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.DVenFimEnter(Sender: TObject);
-begin
-  DVenFim.Format := FormatSettings.ShortDateFormat;
 end;
 
 procedure TF310CLP.DVenFimExit(Sender: TObject);
@@ -491,28 +403,7 @@ begin
   begin
     DVenFim.SetFocus;
     CMessage('Data Final não poder ser menor que a Data Inicial!', mtWarning);
-  end
-  else
-  if (DVenFim.Date = 1) then
-    DVenFim.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DVenIniChange(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-
-  if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
-end;
-
-procedure TF310CLP.DVenIniClick(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
-end;
-
-procedure TF310CLP.DVenIniEnter(Sender: TObject);
-begin
-  DVenIni.Format := FormatSettings.ShortDateFormat;
+  end;
 end;
 
 procedure TF310CLP.DVenIniExit(Sender: TObject);
@@ -524,10 +415,7 @@ begin
       DVenIni.SetFocus;
       CMessage('Data Inicial não poder ser maior que a Data Final!', mtWarning);
     end;
-  end
-  else
-  if (DVenIni.Date = 1) then
-    DVenIni.Format := '00/00/0000';
+  end;
 end;
 
 procedure TF310CLP.ExcluirClick(Sender: TObject);
@@ -780,6 +668,7 @@ begin
 
     if (FIteradorReajuste.Count > 0) then
     begin
+      FGridCon.Disconnect;
       for i := 0 to pred(FIteradorReajuste.Count) do
       begin
         FGridCon.Add;
@@ -787,7 +676,7 @@ begin
         FIteradorReajuste.Iterar(FIteradorReajuste[i], x310clp);
         FGridCon.AddFields(x310clp);
       end;
-
+      FGridCon.Connect;
       FGridCon.First;
       FGridConEnterLine();
 
@@ -970,14 +859,17 @@ begin
   if (FIteradorReajuste.Count > 0) then
   begin
     xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
+
+    FGridTit.Disconnect;
     for i := 0 to pred(xControle.Titulo.Count) do
     begin
       FGridTit.Add;
       FGridTit.AddFields(T160MOV(xControle.Titulo[i]));
     end;
-
+    FGridTit.Connect;
     FGridTit.Enabled := (xControle.Titulo.Count > 0);
 
+    FGridRea.Disconnect;
     for i := 0 to pred(xControle.Ajuste.Count) do
     begin
       FGridRea.Add;
@@ -985,6 +877,7 @@ begin
       FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
       FGridRea.FindField('VlrBon').AsCurrency := TTituloControle(xControle.Ajuste[i]).VlrBon;
     end;
+    FGridRea.Connect;
 
     FGridTit.First;
     FGridRea.First;
@@ -1123,6 +1016,11 @@ begin
     FLogEmp := StrToInt(ParamStr(2))
   else
     FLogEmp := 1;
+
+  DDatIni.Start;
+  DDatFim.Start;
+  DVenIni.Start;
+  DVenFim.Start;
 
   FIteradorReajuste := TIteradorControle.Create();
   FIteradorLigacao := TIteradorControle.Create();

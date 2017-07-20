@@ -431,10 +431,10 @@ end;
 
 function TDataSetGrid.Eof: Boolean;
 begin
-  Result := Self.DataSource.DataSet.Eof;
+  Result := FClientDataSet.Eof;
 
   if not(Result) then
-    Self.DataSource.DataSet.Edit;
+    FClientDataSet.Edit;
 end;
 
 procedure TDataSetGrid.EnterCol(Sender: TObject);
@@ -516,7 +516,18 @@ begin
         FGridState := gsInsert;
 
         if (Assigned(FClientDataSet.FindField(xProperty.Name))) then
-          FClientDataSet.FindField(xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;
+        begin
+          if (FClientDataSet.FindField(xProperty.Name).DataType in [ftDateTime, ftDate]) then
+          begin
+            if (FClientDataSet.FindField(xProperty.Name).AsDateTime <= 366) then
+            begin
+              TDateTimeField(FClientDataSet.FindField(xProperty.Name)).DisplayFormat := '00/00/0000';
+              FClientDataSet.FindField(xProperty.Name).AsVariant := 1;
+            end;
+          end
+          else
+            FClientDataSet.FindField(xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;
+        end;
       end;
 
   FGridState := gsInsert;
@@ -855,13 +866,15 @@ end;
 
 procedure TDataSetGrid.CheckFields(const pField: string; const pValue: Integer);
 begin
-  Self.First();
+  Disconnect;
+  FClientDataSet.First();
   while not(Self.Eof) do
   begin
-    Self.FindField(pField).AsInteger := pValue;
-    Self.Post();
-    Self.Next
+    FClientDataSet.FindField(pField).AsInteger := pValue;
+    FClientDataSet.Post();
+    FClientDataSet.Next
   end;
+  Connect;
 end;
 
 procedure TDataSetGrid.CheckMethod(const pField: string; const pCheckMethod: TCheckMethod);
