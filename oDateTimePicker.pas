@@ -102,7 +102,6 @@ procedure THDateTimePicker.Start;
 begin
   FEnter := False;
   FDatePressed := False;
-
   Self.DateTime := System.SysUtils.Date;
   FDate := System.SysUtils.Date;
   FDateHandler := 1;
