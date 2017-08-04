@@ -224,7 +224,7 @@ type
     property OLD_FilCtr: Integer read GetOLD_FilCtr write SetOLD_FilCtr;
   end;
 
-  T501TCP = class(TTitulo)
+  T501TCP2 = class(TTitulo)
   private
     FCodFor: Word;
     FCodPor: string;
@@ -488,212 +488,212 @@ end;
 
 { T501TCP }
 
-constructor T501TCP.Create;
+constructor T501TCP2.Create;
 begin
   inherited Create('E501TCP');
 end;
 
-destructor T501TCP.Destroy;
+destructor T501TCP2.Destroy;
 begin
   inherited;
 end;
 
-function T501TCP.GetAntDsc: Char;
+function T501TCP2.GetAntDsc: Char;
 begin
   Result := FAntDsc;
 end;
 
-function T501TCP.GetCodBar: string;
+function T501TCP2.GetCodBar: string;
 begin
   Result := FCodBar;
 end;
 
-function T501TCP.GetCodCrp: string;
+function T501TCP2.GetCodCrp: string;
 begin
   Result := FCodCrp;
 end;
 
-function T501TCP.GetCodFor: Word;
+function T501TCP2.GetCodFor: Word;
 begin
   Result := FCodFor;
 end;
 
-function T501TCP.GetCodPor: string;
+function T501TCP2.GetCodPor: string;
 begin
   Result := FCodPor;
 end;
 
-function T501TCP.GetDatDsc: TDate;
+function T501TCP2.GetDatDsc: TDate;
 begin
   Result := FDatDsc;
 end;
 
-function T501TCP.GetDatEmi: TDate;
+function T501TCP2.GetDatEmi: TDate;
 begin
   Result := FDatEmi;
 end;
 
-function T501TCP.GetIDCLP: Integer;
+function T501TCP2.GetIDCLP: Integer;
 begin
   Result := FIDCLP;
 end;
 
-function T501TCP.GetIDTIT: Integer;
+function T501TCP2.GetIDTIT: Integer;
 begin
   Result := FIDTIT;
 end;
 
-function T501TCP.GetJrsDia: Extended;
+function T501TCP2.GetJrsDia: Extended;
 begin
   Result := FJrsDia;
 end;
 
-function T501TCP.GetNumCtr: Integer;
+function T501TCP2.GetNumCtr: Integer;
 begin
   Result := FNumCtr;
 end;
 
-function T501TCP.GetPerDsc: Double;
+function T501TCP2.GetPerDsc: Double;
 begin
   Result := FPerDsc;
 end;
 
-function T501TCP.GetPerMul: Word;
+function T501TCP2.GetPerMul: Word;
 begin
   Result := FPerMul;
 end;
 
-function T501TCP.GetSitTit: string;
+function T501TCP2.GetSitTit: string;
 begin
   Result := FSitTit;
 end;
 
-function T501TCP.GetTipJrs: string;
+function T501TCP2.GetTipJrs: string;
 begin
   Result := FTipJrs;
 end;
 
-function T501TCP.GetTolDsc: Word;
+function T501TCP2.GetTolDsc: Word;
 begin
   Result := FTolDsc;
 end;
 
-function T501TCP.GetTolJrs: SmallInt;
+function T501TCP2.GetTolJrs: SmallInt;
 begin
   Result := FTolJrs;
 end;
 
-function T501TCP.GetTolMul: Word;
+function T501TCP2.GetTolMul: Word;
 begin
   Result := FTolMul;
 end;
 
-function T501TCP.GetVctOri: TDate;
+function T501TCP2.GetVctOri: TDate;
 begin
   Result := FVctOri;
 end;
 
-function T501TCP.GetVlrOri: Extended;
+function T501TCP2.GetVlrOri: Extended;
 begin
   Result := FVlrOri;
 end;
 
-procedure T501TCP.SetAntDsc(const Value: Char);
+procedure T501TCP2.SetAntDsc(const Value: Char);
 begin
   FAntDsc := Value;
 end;
 
-procedure T501TCP.SetCodBar(const Value: string);
+procedure T501TCP2.SetCodBar(const Value: string);
 begin
   FCodBar := Value;
 end;
 
-procedure T501TCP.SetCodCrp(const pCodCrp: string);
+procedure T501TCP2.SetCodCrp(const pCodCrp: string);
 begin
   FCodCrp := pCodCrp;
 end;
 
-procedure T501TCP.SetCodFor(const pCodFor: Word);
+procedure T501TCP2.SetCodFor(const pCodFor: Word);
 begin
   FCodFor := pCodFor;
 end;
 
-procedure T501TCP.SetCodPor(const pCodPor: string);
+procedure T501TCP2.SetCodPor(const pCodPor: string);
 begin
   FCodPor := pCodPor;
 end;
 
-procedure T501TCP.SetDatDsc(const Value: TDate);
+procedure T501TCP2.SetDatDsc(const Value: TDate);
 begin
   FDatDsc := Value;
 end;
 
-procedure T501TCP.SetDatEmi(const Value: TDate);
+procedure T501TCP2.SetDatEmi(const Value: TDate);
 begin
   FDatEmi := Value;
 end;
 
-procedure T501TCP.SetIDCLP(const Value: Integer);
+procedure T501TCP2.SetIDCLP(const Value: Integer);
 begin
   FIDCLP := Value;
 end;
 
-procedure T501TCP.SetIDTIT(const Value: Integer);
+procedure T501TCP2.SetIDTIT(const Value: Integer);
 begin
   FIDTIT := Value;
 end;
 
-procedure T501TCP.SetJrsDia(const Value: Extended);
+procedure T501TCP2.SetJrsDia(const Value: Extended);
 begin
   FJrsDia := Value;
 end;
 
-procedure T501TCP.SetNumCtr(const Value: Integer);
+procedure T501TCP2.SetNumCtr(const Value: Integer);
 begin
   FNumCtr := Value;
 end;
 
-procedure T501TCP.SetPerDsc(const Value: Double);
+procedure T501TCP2.SetPerDsc(const Value: Double);
 begin
   FPerDsc := Value;
 end;
 
-procedure T501TCP.SetPerMul(const Value: Word);
+procedure T501TCP2.SetPerMul(const Value: Word);
 begin
   FPerMul := Value;
 end;
 
-procedure T501TCP.SetSitTit(const Value: string);
+procedure T501TCP2.SetSitTit(const Value: string);
 begin
   FSitTit := Value;
 end;
 
-procedure T501TCP.SetTipJrs(const Value: string);
+procedure T501TCP2.SetTipJrs(const Value: string);
 begin
   FTipJrs := Value;
 end;
 
-procedure T501TCP.SetTolDsc(const Value: Word);
+procedure T501TCP2.SetTolDsc(const Value: Word);
 begin
   FTolDsc := Value;
 end;
 
-procedure T501TCP.SetTolJrs(const Value: SmallInt);
+procedure T501TCP2.SetTolJrs(const Value: SmallInt);
 begin
   FTolJrs := Value;
 end;
 
-procedure T501TCP.SetTolMul(const Value: Word);
+procedure T501TCP2.SetTolMul(const Value: Word);
 begin
   FTolMul := Value;
 end;
 
-procedure T501TCP.SetVctOri(const Value: TDate);
+procedure T501TCP2.SetVctOri(const Value: TDate);
 begin
   FVctOri := Value;
 end;
 
-procedure T501TCP.SetVlrOri(const Value: Extended);
+procedure T501TCP2.SetVlrOri(const Value: Extended);
 begin
   FVlrOri := Value;
 end;

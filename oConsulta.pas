@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, Data.SqlExpr, oQuery, oBase, oTitulo, System.SysUtils,
-  Data.Db, System.Contnrs, oTabelas, oMensagem;
+  Data.Db, System.Contnrs, oTabelas, oMensagem, o501tcp;
 
 type
   T510CON = class(T510ARM)
@@ -307,7 +307,7 @@ begin
   x510TIT := T510TIT.CreateCarregado(True);
   x510TIT.USU_IdArm := Self.USU_ID;
   x510TIT.PropertyForSelect(['USU_IDARM'], True);
-  x510TIT.AddToCommand(pCondicao);
+  x510TIT.AddToCommand(pCondicao, False);
   Result := x510TIT.Execute(etSelect, esLoop);
 
   while (x510TIT.Next()) do

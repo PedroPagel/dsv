@@ -9,10 +9,10 @@ uses
   System.SysUtils,
   u000atu in 'u000atu.pas' {F000ATU},
   oSubSystemFacade in 'oSubSystemFacade.pas',
-  oFacadeAtualizador in 'oFacadeAtualizador.pas';
+  oFacadeAtualizador in 'oFacadeAtualizador.pas',
+  wsBancoCentral in 'wsBancoCentral.pas';
 
 {$R *.res}
-
 begin
   TConexao.Execute();
   try
@@ -20,7 +20,7 @@ begin
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.CreateForm(TF000ATU, F000ATU);
-    Application.Terminate;
+  Application.Terminate;
     TConexao.Finalizar;
   except
     on E: Exception do

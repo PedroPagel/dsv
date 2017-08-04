@@ -260,6 +260,8 @@ function TextToFloat(const pValor: string): Double;
 function CRound(const pValue: Extended; const pPrecisao: Byte): Extended;
 function FieldType(const pColumnType, pMask: string; const pSize: Integer): TFieldType;
 function SetOperator(const pField, pValue: array of string; const pAND: Boolean): string;
+function StrToChar(const pString: string): Char;
+function VarToChar(const pVar: Variant): Char;
 
 var
   FOracleConnection: TConnectionBase;
@@ -469,6 +471,16 @@ begin
     UltimoCaracter(Result, ',');
 end;
 
+function StrToChar(const pString: string): Char;
+begin
+  Result := pString[1];
+end;
+
+function VarToChar(const pVar: Variant): Char;
+begin
+  Result := VarToStr(pVar)[1];
+end;
+
 { TConexao }
 
 class procedure TConexao.Execute();
@@ -520,7 +532,12 @@ begin
             xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
 
         tkWChar, tkChar:
-          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1]);
+        begin
+          if (Length(FQuery.FindField(xProperty.Name).AsString) > 0) then
+            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1])
+          else
+            xProperty.SetValue(Self, ' ');
+        end;
       else
         xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
       end;

@@ -52,10 +52,10 @@ contains
   wsCRAlterar in 'wsCRAlterar.pas',
   oTitulo in 'oTitulo.pas',
   oReader in 'oReader.pas',
-  wsBancoCentral in 'wsBancoCentral.pas',
   o420ocp in 'o420ocp.pas',
   o133mau in 'o133mau.pas',
-  o133vem in 'o133vem.pas';
+  o133vem in 'o133vem.pas',
+  o501tcp in 'o501tcp.pas';
 
 end.
 
