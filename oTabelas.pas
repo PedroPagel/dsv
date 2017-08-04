@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oTitulo, oLayout, Data.SqlExpr, oQuery, oBase, System.SysUtils,
-  Data.Db, System.Contnrs, wsCPATitulos, System.DateUtils;
+  Data.Db, System.Contnrs, wsCPATitulos, System.DateUtils, o501tcp;
 
 type
   T510TIT = class;
@@ -1782,7 +1782,7 @@ begin
     Self.TolMul := iff((xHistorico.PagDtm > 0), xHistorico.PagDtm, FFilial.PagDtm);
     Self.PerJrs := iff((xHistorico.PagJmm > 0), xHistorico.PagJmm, FFilial.PagJmm);
     Self.TolJrs := iff((xHistorico.PagDtj > 0), xHistorico.PagDtj, FFilial.PagDtj);
-    Self.TipJrs := iff(not(IsNull(xHistorico.PagTir)), xHistorico.PagTir, FFilial.PagTjr);
+    Self.TipJrs := VarToChar(iff(not(IsNull(xHistorico.PagTir)), xHistorico.PagTir, FFilial.PagTjr));
     Self.CodCrt := iff(not(IsNull(xHistorico.CodCrt)), xHistorico.CodCrt, FFilial.RecCrt);
     Self.CodPor := iff(not(IsNull(xHistorico.CodPor)), xHistorico.CodPor, FFilial.RecPor);
     Self.AntDsc := xHistorico.AntDsc;
@@ -1790,7 +1790,7 @@ begin
     Self.TolDsc := xHistorico.TolDsc;
     Self.CodCrp := xHistorico.CodCrp;
 
-    if	xHistorico.CodFpg > 0 then
+    if	(xHistorico.CodFpg > 0) then
       Self.CodFpg := xHistorico.CodFpg;
   end;
 end;

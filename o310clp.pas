@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oTitulo, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas;
+  oTabelas, o501tcp;
 
 type
   tSelecaoCheck = (scSemDados, scLigacao, scPossuiLigacao, scApenasRemover, scNaoLigado, scSomaNaoLigado);

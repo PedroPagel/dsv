@@ -519,11 +519,13 @@ begin
         begin
           if (FClientDataSet.FindField(xProperty.Name).DataType in [ftDateTime, ftDate]) then
           begin
-            if (FClientDataSet.FindField(xProperty.Name).AsDateTime <= 366) then
+            if (VarToDateTime(xProperty.GetValue(pObj).AsVariant) <= 366) then
             begin
               TDateTimeField(FClientDataSet.FindField(xProperty.Name)).DisplayFormat := '00/00/0000';
               FClientDataSet.FindField(xProperty.Name).AsVariant := 1;
-            end;
+            end
+            else
+              FClientDataSet.FindField(xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;
           end
           else
             FClientDataSet.FindField(xProperty.Name).AsVariant := xProperty.GetValue(pObj).AsVariant;

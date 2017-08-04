@@ -198,7 +198,7 @@ var
 implementation
 
 uses
-  oTabelas, oBase, oTitulo, System.Math;
+  oTabelas, oBase, oTitulo, System.Math, o501tcp;
 
 {$R *.dfm}
 
