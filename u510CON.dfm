@@ -300,6 +300,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BEVlrIni: THButtonedEdit
           Left = 262
@@ -320,6 +321,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodFor: THButtonedEdit
           Left = 69
@@ -344,6 +346,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodFil: THButtonedEdit
           Left = 69
@@ -368,6 +371,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodEmp: THButtonedEdit
           Left = 69
@@ -392,6 +396,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object DBLookupComboBox1: TDBLookupComboBox
           Left = -207
@@ -541,6 +546,7 @@ object F510CON: TF510CON
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object cbSituacaoArm: TComboBox
           Left = 110

@@ -15,7 +15,11 @@ uses
   oFacedeCarregamentoCRM in 'oFacedeCarregamentoCRM.pas',
   oFacadeOperadora in 'oFacadeOperadora.pas',
   WConnect_WSDL in 'WConnect_WSDL.pas',
-  oFacadeBaseCRM in 'oFacadeBaseCRM.pas';
+  oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
+  u510ARM in 'u510ARM.pas' {F510ARM},
+  oRotinaDDA in 'oRotinaDDA.pas',
+  u510CON in 'u510CON.pas' {F510CON},
+  oConsulta in 'oConsulta.pas';
 
 {$R *.res}
 begin
@@ -37,6 +41,19 @@ begin
       if (ParamStr(2) = TF310CLP.ClassName) then
       begin
         Application.CreateForm(TF310CLP, F310CLP);
+        Application.Run;
+      end
+      else
+      if (ParamStr(2) = TF510ARM.ClassName) then
+      begin
+        Application.ShowMainForm := False;
+        Application.CreateForm(TF510ARM, F510ARM);
+        Application.Terminate;
+      end
+      else
+      if (ParamStr(2) = TF510CON.ClassName) then
+      begin
+        Application.CreateForm(TF510CON, F510CON);
         Application.Run;
       end;
     end;

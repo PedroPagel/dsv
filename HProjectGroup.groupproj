@@ -9,12 +9,6 @@
         <Projects Include="HBaseComponente.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="ConsultaDDA.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="ProcessoDDA.dproj">
-            <Dependencies/>
-        </Projects>
         <Projects Include="HProject.dproj">
             <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
         </Projects>
@@ -53,24 +47,6 @@
     <Target Name="HBaseComponente:Make">
         <MSBuild Projects="HBaseComponente.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ConsultaDDA">
-        <MSBuild Projects="ConsultaDDA.dproj"/>
-    </Target>
-    <Target Name="ConsultaDDA:Clean">
-        <MSBuild Projects="ConsultaDDA.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ConsultaDDA:Make">
-        <MSBuild Projects="ConsultaDDA.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="ProcessoDDA">
-        <MSBuild Projects="ProcessoDDA.dproj"/>
-    </Target>
-    <Target Name="ProcessoDDA:Clean">
-        <MSBuild Projects="ProcessoDDA.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ProcessoDDA:Make">
-        <MSBuild Projects="ProcessoDDA.dproj" Targets="Make"/>
-    </Target>
     <Target Name="HProject" DependsOnTargets="HBase;HBaseComponente">
         <MSBuild Projects="HProject.dproj"/>
     </Target>
@@ -108,13 +84,13 @@
         <MSBuild Projects="Executer.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;HProject;Importador;CGerador;Executer"/>
+        <CallTarget Targets="HBase;HBaseComponente;HProject;Importador;CGerador;Executer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;HProject:Clean;Importador:Clean;CGerador:Clean;Executer:Clean"/>
+        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;HProject:Clean;Importador:Clean;CGerador:Clean;Executer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;HProject:Make;Importador:Make;CGerador:Make;Executer:Make"/>
+        <CallTarget Targets="HBase:Make;HBaseComponente:Make;HProject:Make;Importador:Make;CGerador:Make;Executer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
