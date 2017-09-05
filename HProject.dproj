@@ -110,6 +110,16 @@
         <DCCReference Include="oFacadeOperadora.pas"/>
         <DCCReference Include="WConnect_WSDL.pas"/>
         <DCCReference Include="oFacadeBaseCRM.pas"/>
+        <DCCReference Include="u510ARM.pas">
+            <Form>F510ARM</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="oRotinaDDA.pas"/>
+        <DCCReference Include="u510CON.pas">
+            <Form>F510CON</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="oConsulta.pas"/>
         <RcItem Include="..\..\..\Downloads\lupa.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>lupa</ResourceId>
