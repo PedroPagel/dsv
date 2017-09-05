@@ -46,16 +46,19 @@ contains
   oBase in 'oBase.pas',
   oLayout in 'oLayout.pas',
   oQuery in 'oQuery.pas',
-  oTabelas in 'oTabelas.pas',
-  wsCPAlterar in 'wsCPAlterar.pas',
-  wsCPATitulos in 'wsCPATitulos.pas',
+  oReader in 'oReader.pas',
   wsCRAlterar in 'wsCRAlterar.pas',
   oTitulo in 'oTitulo.pas',
-  oReader in 'oReader.pas',
-  o420ocp in 'o420ocp.pas',
+  oTabelas in 'oTabelas.pas',
   o133mau in 'o133mau.pas',
   o133vem in 'o133vem.pas',
-  o501tcp in 'o501tcp.pas';
+  o420ocp in 'o420ocp.pas',
+  o501tcp in 'o501tcp.pas',
+  o998fld in 'o998fld.pas',
+  o998rfl in 'o998rfl.pas',
+  o120ped in 'o120ped.pas',
+  o120ipd in 'o120ipd.pas',
+  o075pro in 'o075pro.pas',
+  o085cli in 'o085cli.pas';
 
 end.
-

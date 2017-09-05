@@ -64,7 +64,8 @@ end;
 procedure TControladorImportacao.ExecutarImportacao(const pRegistro: TRegistro);
 begin
   Self.USU_CodDbc := pRegistro.Codigo;
-  Self.USU_DscDbc := pRegistro.Descricao;
+  Self.USU_NomDbc := pRegistro.Descricao;
+  Self.USU_DatInd := Date;
   Self.USU_SeqCot := 1;
   Self.Execute(estInsert);
 end;

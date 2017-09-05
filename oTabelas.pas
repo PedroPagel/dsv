@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oTitulo, oLayout, Data.SqlExpr, oQuery, oBase, System.SysUtils,
-  Data.Db, System.Contnrs, wsCPATitulos, System.DateUtils, o501tcp;
+  Data.Db, System.Contnrs, o501tcp;
 
 type
   T510TIT = class;
@@ -177,13 +177,6 @@ type
   TIteradorAtualizarTitulos = class(TIteradorTitulos)
   public
     procedure Atualizar();
-  end;
-
-  TIteradorCriacaoTitulos = class(TIteradorTitulos)
-  private
-    procedure GerarLogs(const pRetorno: titulosGravarTitulosCPOutResultado; const pPosicao: Integer);
-  public
-    procedure Criar();
   end;
 
   T510TIT = class(TTabelaUsuario)
@@ -367,12 +360,13 @@ type
     property USU_SitArm: Char read GetSitArm write SetSitArm;
   end;
 
-  T095FOR = class(TIterador)
+  T095FOR = class(TTabelaPadrao)
   private
     FCgcCpf: Double;
     FCodFor: Integer;
     FRaiz: string;
     FLista: TStringList;
+    FIterador: TIterador;
 
     function GetCgcCpf: Double;
     function GetCodFor: Integer;
@@ -399,140 +393,246 @@ type
   //controle de locação pelo contrato
   T160CLP = class(TTabelaUsuario)
   private
-    FDatIni: TDate;
-    FDatFin: TDate;
-    FNumCtr: Integer;
-    FCodEmp: Integer;
-    FCodFil: Integer;
-    FVlrCtr: Double;
-    FDatGer: TDate;
-    FIndFin: string;
-    FUsuAlt: Integer;
-    FDatAlt: TDate;
-    FUsuGer: Integer;
-    FCodCli: Integer;
-    FCodBem: string;
-    FIDLOC: Integer;
-    FIDLIC: Integer;
-    FID: Integer;
+    FUSU_IDIND: Integer;
+    FUSU_IniVig: TDate;
+    FUSU_VigFim: TDate;
+    FUSU_CodEmp: Integer;
+    FUSU_CodFil: Integer;
+    FUSU_CodCli: Integer;
+    FUSU_NumCtr: Integer;
+    FUSU_VlrCtr: Double;
+    FUSU_IndFin: string;
+    FUSU_CodBem: string;
+    FUSU_DatGer: TDate;
+    FUSU_UsuGer: Integer;
+    FUSU_DatAlt: TDate;
+    FUSU_UsuAlt: Integer;
+    FUSU_PerEre: Integer;
 
-    function GetCodEmp: Integer;
-    function GetCodFil: Integer;
-    function GetDatAlt: TDate;
-    function GetDatFin: TDate;
-    function GetDatGer: TDate;
-    function GetDatIni: TDate;
-    function GetIndFin: string;
-    function GetNumCtr: Integer;
-    function GetUsuAlt: Integer;
-    function GetVlrCtr: Double;
+    FUSU_IDINDOLD: Integer;
+    FUSU_IniVigOLD: TDate;
+    FUSU_VigFimOLD: TDate;
+    FUSU_CodEmpOLD: Integer;
+    FUSU_CodFilOLD: Integer;
+    FUSU_CodCliOLD: Integer;
+    FUSU_NumCtrOLD: Integer;
+    FUSU_VlrCtrOLD: Double;
+    FUSU_IndFinOLD: string;
+    FUSU_CodBemOLD: string;
+    FUSU_DatGerOLD: TDate;
+    FUSU_UsuGerOLD: Integer;
+    FUSU_DatAltOLD: TDate;
+    FUSU_UsuAltOLD: Integer;
+    FUSU_PerEreOLD: Integer;
 
-    procedure SetCodEmp(const Value: Integer);
-    procedure SetCodFil(const Value: Integer);
-    procedure SetDatAlt(const Value: TDate);
-    procedure SetDatFin(const Value: TDate);
-    procedure SetDatGer(const Value: TDate);
-    procedure SetDatIni(const Value: TDate);
-    procedure SetIndFin(const Value: string);
-    procedure SetNumCtr(const Value: Integer);
-    procedure SetUsuAlt(const Value: Integer);
-    procedure SetVlrCtr(const Value: Double);
-    function GetCodBem: string;
-    function GetIDLIC: Integer;
-    function GetIDLOC: Integer;
-    function GetUsuGer: Integer;
-    procedure SetCodBem(const Value: string);
-    procedure SetIDLIC(const Value: Integer);
-    procedure SetIDLOC(const Value: Integer);
-    procedure SetUsuGer(const Value: Integer);
-    function GetCodCli: Integer;
-    procedure SetCodCli(const Value: Integer);
-    function GetID: Integer;
-    procedure SetId(const Value: Integer);
+    function GetUSU_IDIND: Integer;
+    procedure SetUSU_IDIND(const pUSU_IDIND: Integer);
+    function GetUSU_IniVig: TDate;
+    procedure SetUSU_IniVig(const pUSU_IniVig: TDate);
+    function GetUSU_VigFim: TDate;
+    procedure SetUSU_VigFim(const pUSU_VigFim: TDate);
+    function GetUSU_CodEmp: Integer;
+    procedure SetUSU_CodEmp(const pUSU_CodEmp: Integer);
+    function GetUSU_CodFil: Integer;
+    procedure SetUSU_CodFil(const pUSU_CodFil: Integer);
+    function GetUSU_CodCli: Integer;
+    procedure SetUSU_CodCli(const pUSU_CodCli: Integer);
+    function GetUSU_NumCtr: Integer;
+    procedure SetUSU_NumCtr(const pUSU_NumCtr: Integer);
+    function GetUSU_VlrCtr: Double;
+    procedure SetUSU_VlrCtr(const pUSU_VlrCtr: Double);
+    function GetUSU_IndFin: string;
+    procedure SetUSU_IndFin(const pUSU_IndFin: string);
+    function GetUSU_CodBem: string;
+    procedure SetUSU_CodBem(const pUSU_CodBem: string);
+    function GetUSU_DatGer: TDate;
+    procedure SetUSU_DatGer(const pUSU_DatGer: TDate);
+    function GetUSU_UsuGer: Integer;
+    procedure SetUSU_UsuGer(const pUSU_UsuGer: Integer);
+    function GetUSU_DatAlt: TDate;
+    procedure SetUSU_DatAlt(const pUSU_DatAlt: TDate);
+    function GetUSU_UsuAlt: Integer;
+    procedure SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
+    function GetUSU_PerEre: Integer;
+    procedure SetUSU_PerEre(const pUSU_PerEre: Integer);
+
+    function GetUSU_IDINDOld: Integer;
+    procedure SetUSU_IDINDOld(const pUSU_IDIND: Integer);
+    function GetUSU_IniVigOld: TDate;
+    procedure SetUSU_IniVigOld(const pUSU_IniVig: TDate);
+    function GetUSU_VigFimOld: TDate;
+    procedure SetUSU_VigFimOld(const pUSU_VigFim: TDate);
+    function GetUSU_CodEmpOld: Integer;
+    procedure SetUSU_CodEmpOld(const pUSU_CodEmp: Integer);
+    function GetUSU_CodFilOld: Integer;
+    procedure SetUSU_CodFilOld(const pUSU_CodFil: Integer);
+    function GetUSU_CodCliOld: Integer;
+    procedure SetUSU_CodCliOld(const pUSU_CodCli: Integer);
+    function GetUSU_NumCtrOld: Integer;
+    procedure SetUSU_NumCtrOld(const pUSU_NumCtr: Integer);
+    function GetUSU_VlrCtrOld: Double;
+    procedure SetUSU_VlrCtrOld(const pUSU_VlrCtr: Double);
+    function GetUSU_IndFinOld: string;
+    procedure SetUSU_IndFinOld(const pUSU_IndFin: string);
+    function GetUSU_CodBemOld: string;
+    procedure SetUSU_CodBemOld(const pUSU_CodBem: string);
+    function GetUSU_DatGerOld: TDate;
+    procedure SetUSU_DatGerOld(const pUSU_DatGer: TDate);
+    function GetUSU_UsuGerOld: Integer;
+    procedure SetUSU_UsuGerOld(const pUSU_UsuGer: Integer);
+    function GetUSU_DatAltOld: TDate;
+    procedure SetUSU_DatAltOld(const pUSU_DatAlt: TDate);
+    function GetUSU_UsuAltOld: Integer;
+    procedure SetUSU_UsuAltOld(const pUSU_UsuAlt: Integer);
+    function GetUSU_PerEreOld: Integer;
+    procedure SetUSU_PerEreOld(const pUSU_PerEre: Integer);
+  protected
+    procedure Registros_OLD(); override;
   public
     constructor Create();
     destructor Destroy(); override;
 
-    property USU_ID: Integer read GetID write SetId;
-    property USU_IniVig: TDate read GetDatIni write SetDatIni;
-    property USU_VigFim: TDate read GetDatFin write SetDatFin;
-    property USU_NumCtr: Integer read GetNumCtr write SetNumCtr;
-    property USU_CodEmp: Integer read GetCodEmp write SetCodEmp;
-    property USU_CodFil: Integer read GetCodFil write SetCodFil;
-    property USU_VlrCtr: Double read GetVlrCtr write SetVlrCtr;
-    property USU_DatGer: TDate read GetDatGer write SetDatGer;
-    property USU_IndFin: string read GetIndFin write SetIndFin;
-    property USU_UsuAlt: Integer read GetUsuAlt write SetUsuAlt;
-    property USU_DatAlt: TDate read GetDatAlt write SetDatAlt;
-    property USU_UsuGer: Integer read GetUsuGer write SetUsuGer;
-    property USU_CodCli: Integer read GetCodCli write SetCodCli;
-    property USU_CodBem: string read GetCodBem write SetCodBem;
-    property USU_IDLOC: Integer read GetIDLOC write SetIDLOC;
-    property USU_IDLIC: Integer read GetIDLIC write SetIDLIC;
+    property USU_IDIND: Integer read GetUSU_IDIND write SetUSU_IDIND;
+    property USU_IniVig: TDate read GetUSU_IniVig write SetUSU_IniVig;
+    property USU_VigFim: TDate read GetUSU_VigFim write SetUSU_VigFim;
+    property USU_CodEmp: Integer read GetUSU_CodEmp write SetUSU_CodEmp;
+    property USU_CodFil: Integer read GetUSU_CodFil write SetUSU_CodFil;
+    property USU_CodCli: Integer read GetUSU_CodCli write SetUSU_CodCli;
+    property USU_NumCtr: Integer read GetUSU_NumCtr write SetUSU_NumCtr;
+    property USU_VlrCtr: Double read GetUSU_VlrCtr write SetUSU_VlrCtr;
+    property USU_IndFin: string read GetUSU_IndFin write SetUSU_IndFin;
+    property USU_CodBem: string read GetUSU_CodBem write SetUSU_CodBem;
+    property USU_DatGer: TDate read GetUSU_DatGer write SetUSU_DatGer;
+    property USU_UsuGer: Integer read GetUSU_UsuGer write SetUSU_UsuGer;
+    property USU_DatAlt: TDate read GetUSU_DatAlt write SetUSU_DatAlt;
+    property USU_UsuAlt: Integer read GetUSU_UsuAlt write SetUSU_UsuAlt;
+    property USU_PerEre: Integer read GetUSU_PerEre write SetUSU_PerEre;
+
+    property OLD_USU_IDIND: Integer read GetUSU_IDINDOLD write SetUSU_IDINDOLD;
+    property OLD_USU_IniVig: TDate read GetUSU_IniVigOLD write SetUSU_IniVigOLD;
+    property OLD_USU_VigFim: TDate read GetUSU_VigFimOLD write SetUSU_VigFimOLD;
+    property OLD_USU_CodEmp: Integer read GetUSU_CodEmpOLD write SetUSU_CodEmpOLD;
+    property OLD_USU_CodFil: Integer read GetUSU_CodFilOLD write SetUSU_CodFilOLD;
+    property OLD_USU_CodCli: Integer read GetUSU_CodCliOLD write SetUSU_CodCliOLD;
+    property OLD_USU_NumCtr: Integer read GetUSU_NumCtrOLD write SetUSU_NumCtrOLD;
+    property OLD_USU_VlrCtr: Double read GetUSU_VlrCtrOLD write SetUSU_VlrCtrOLD;
+    property OLD_USU_IndFin: string read GetUSU_IndFinOLD write SetUSU_IndFinOLD;
+    property OLD_USU_CodBem: string read GetUSU_CodBemOLD write SetUSU_CodBemOLD;
+    property OLD_USU_DatGer: TDate read GetUSU_DatGerOLD write SetUSU_DatGerOLD;
+    property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
+    property OLD_USU_DatAlt: TDate read GetUSU_DatAltOLD write SetUSU_DatAltOLD;
+    property OLD_USU_UsuAlt: Integer read GetUSU_UsuAltOLD write SetUSU_UsuAltOLD;
+    property OLD_USU_PerEre: Integer read GetUSU_PerEreOLD write SetUSU_PerEreOLD;
   end;
 
   T090IND = class(TTabelaUsuario)
   private
-    FIndFin: string;
-    FCodEmp: Word;
-    FDatGer: TDate;
-    FUsuGer: Integer;
-    FObsInd: string;
-    FVlrInd: Extended;
-    FDatIni: TDate;
-    FDatFin: TDate;
-    FUsuAlt: Integer;
-    FDatAlt: TDate;
-    FUsuRes: Integer;
-    FCodDbc: Integer;
-    FSeqCot: Integer;
+    FUSU_IndFin: string;
+    FUSU_CodEmp: Integer;
+    FUSU_DatGer: TDate;
+    FUSU_UsuGer: Integer;
+    FUSU_ObsInd: string;
+    FUSU_DatIni: TDate;
+    FUSU_DatFin: TDate;
+    FUSU_CodDbc: Integer;
+    FUSU_UsuAlt: Integer;
+    FUSU_UsuRes: Integer;
+    FUSU_DatAlt: TDate;
+    FUSU_SeqCot: Integer;
 
-    function GetCodEmp: Word;
-    function GetDatAlt: TDate;
-    function GetDatFin: TDate;
-    function GetDatGer: TDate;
-    function GetDatIni: TDate;
-    function GetIndFin: string;
-    function GetObsInd: string;
-    function GetUsuAlt: Integer;
-    function GetUsuGer: Integer;
-    function GetVlrInd: Extended;
+    FUSU_IndFinOLD: string;
+    FUSU_CodEmpOLD: Integer;
+    FUSU_DatGerOLD: TDate;
+    FUSU_UsuGerOLD: Integer;
+    FUSU_ObsIndOLD: string;
+    FUSU_DatIniOLD: TDate;
+    FUSU_DatFinOLD: TDate;
+    FUSU_CodDbcOLD: Integer;
+    FUSU_UsuAltOLD: Integer;
+    FUSU_UsuResOLD: Integer;
+    FUSU_DatAltOLD: TDate;
+    FUSU_SeqCotOLD: Integer;
 
-    procedure SetCodEmp(const Value: Word);
-    procedure SetDatAlt(const Value: TDate);
-    procedure SetDatFin(const Value: TDate);
-    procedure SetDatGer(const Value: TDate);
-    procedure SetDatIni(const Value: TDate);
-    procedure SetIndFin(const Value: string);
-    procedure SetObsInd(const Value: string);
-    procedure SetUsuAlt(const Value: Integer);
-    procedure SetUsuGer(const Value: Integer);
-    procedure SetVlrInd(const Value: Extended);
-    function GetUsuRes: Integer;
-    procedure SetUsuRes(const Value: Integer);
-    function GetCodDbc: Integer;
-    procedure SetCodDbc(const Value: Integer);
-    function GetSeqCot: Integer;
-    procedure SetSeqCot(const Value: Integer);
+    function GetUSU_IndFin: string;
+    procedure SetUSU_IndFin(const pUSU_IndFin: string);
+    function GetUSU_CodEmp: Integer;
+    procedure SetUSU_CodEmp(const pUSU_CodEmp: Integer);
+    function GetUSU_DatGer: TDate;
+    procedure SetUSU_DatGer(const pUSU_DatGer: TDate);
+    function GetUSU_UsuGer: Integer;
+    procedure SetUSU_UsuGer(const pUSU_UsuGer: Integer);
+    function GetUSU_ObsInd: string;
+    procedure SetUSU_ObsInd(const pUSU_ObsInd: string);
+    function GetUSU_DatIni: TDate;
+    procedure SetUSU_DatIni(const pUSU_DatIni: TDate);
+    function GetUSU_DatFin: TDate;
+    procedure SetUSU_DatFin(const pUSU_DatFin: TDate);
+    function GetUSU_CodDbc: Integer;
+    procedure SetUSU_CodDbc(const pUSU_CodDbc: Integer);
+    function GetUSU_UsuAlt: Integer;
+    procedure SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
+    function GetUSU_UsuRes: Integer;
+    procedure SetUSU_UsuRes(const pUSU_UsuRes: Integer);
+    function GetUSU_DatAlt: TDate;
+    procedure SetUSU_DatAlt(const pUSU_DatAlt: TDate);
+    function GetUSU_SeqCot: Integer;
+    procedure SetUSU_SeqCot(const pUSU_SeqCot: Integer);
+
+    function GetUSU_IndFinOld: string;
+    procedure SetUSU_IndFinOld(const pUSU_IndFin: string);
+    function GetUSU_CodEmpOld: Integer;
+    procedure SetUSU_CodEmpOld(const pUSU_CodEmp: Integer);
+    function GetUSU_DatGerOld: TDate;
+    procedure SetUSU_DatGerOld(const pUSU_DatGer: TDate);
+    function GetUSU_UsuGerOld: Integer;
+    procedure SetUSU_UsuGerOld(const pUSU_UsuGer: Integer);
+    function GetUSU_ObsIndOld: string;
+    procedure SetUSU_ObsIndOld(const pUSU_ObsInd: string);
+    function GetUSU_DatIniOld: TDate;
+    procedure SetUSU_DatIniOld(const pUSU_DatIni: TDate);
+    function GetUSU_DatFinOld: TDate;
+    procedure SetUSU_DatFinOld(const pUSU_DatFin: TDate);
+    function GetUSU_CodDbcOld: Integer;
+    procedure SetUSU_CodDbcOld(const pUSU_CodDbc: Integer);
+    function GetUSU_UsuAltOld: Integer;
+    procedure SetUSU_UsuAltOld(const pUSU_UsuAlt: Integer);
+    function GetUSU_UsuResOld: Integer;
+    procedure SetUSU_UsuResOld(const pUSU_UsuRes: Integer);
+    function GetUSU_DatAltOld: TDate;
+    procedure SetUSU_DatAltOld(const pUSU_DatAlt: TDate);
+    function GetUSU_SeqCotOld: Integer;
+    procedure SetUSU_SeqCotOld(const pUSU_SeqCot: Integer);
+  protected
+    procedure Registros_OLD(); override;
   public
     constructor Create();
     destructor Destroy(); override;
 
-    procedure CarregarIndice(const pTitulo: T301TCR);
+    property USU_IndFin: string read GetUSU_IndFin write SetUSU_IndFin;
+    property USU_CodEmp: Integer read GetUSU_CodEmp write SetUSU_CodEmp;
+    property USU_DatGer: TDate read GetUSU_DatGer write SetUSU_DatGer;
+    property USU_UsuGer: Integer read GetUSU_UsuGer write SetUSU_UsuGer;
+    property USU_ObsInd: string read GetUSU_ObsInd write SetUSU_ObsInd;
+    property USU_DatIni: TDate read GetUSU_DatIni write SetUSU_DatIni;
+    property USU_DatFin: TDate read GetUSU_DatFin write SetUSU_DatFin;
+    property USU_CodDbc: Integer read GetUSU_CodDbc write SetUSU_CodDbc;
+    property USU_UsuAlt: Integer read GetUSU_UsuAlt write SetUSU_UsuAlt;
+    property USU_UsuRes: Integer read GetUSU_UsuRes write SetUSU_UsuRes;
+    property USU_DatAlt: TDate read GetUSU_DatAlt write SetUSU_DatAlt;
+    property USU_SeqCot: Integer read GetUSU_SeqCot write SetUSU_SeqCot;
 
-    property USU_IndFin: string read GetIndFin write SetIndFin;
-    property USU_CodEmp: Word read GetCodEmp write SetCodEmp;
-    property USU_DatGer: TDate read GetDatGer write SetDatGer;
-    property USU_UsuGer: Integer read GetUsuGer write SetUsuGer;
-    property USU_ObsInd: string read GetObsInd write SetObsInd;
-    property USU_VlrInd: Extended  read GetVlrInd write SetVlrInd;
-    property USU_DatIni: TDate read GetDatIni write SetDatIni;
-    property USU_DatFin: TDate read GetDatFin write SetDatFin;
-    property USU_UsuAlt: Integer read GetUsuAlt write SetUsuAlt;
-    property USU_DatAlt: TDate read GetDatAlt write SetDatAlt;
-    property USU_UsuRes: Integer read GetUsuRes write SetUsuRes;
-    property USU_CodDbc: Integer read GetCodDbc write SetCodDbc;
-    property USU_SeqCot: Integer read GetSeqCot write SetSeqCot;
+    property OLD_USU_IndFin: string read GetUSU_IndFinOLD write SetUSU_IndFinOLD;
+    property OLD_USU_CodEmp: Integer read GetUSU_CodEmpOLD write SetUSU_CodEmpOLD;
+    property OLD_USU_DatGer: TDate read GetUSU_DatGerOLD write SetUSU_DatGerOLD;
+    property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
+    property OLD_USU_ObsInd: string read GetUSU_ObsIndOLD write SetUSU_ObsIndOLD;
+    property OLD_USU_DatIni: TDate read GetUSU_DatIniOLD write SetUSU_DatIniOLD;
+    property OLD_USU_DatFin: TDate read GetUSU_DatFinOLD write SetUSU_DatFinOLD;
+    property OLD_USU_CodDbc: Integer read GetUSU_CodDbcOLD write SetUSU_CodDbcOLD;
+    property OLD_USU_UsuAlt: Integer read GetUSU_UsuAltOLD write SetUSU_UsuAltOLD;
+    property OLD_USU_UsuRes: Integer read GetUSU_UsuResOLD write SetUSU_UsuResOLD;
+    property OLD_USU_DatAlt: TDate read GetUSU_DatAltOLD write SetUSU_DatAltOLD;
+    property OLD_USU_SeqCot: Integer read GetUSU_SeqCotOLD write SetUSU_SeqCotOLD;
   end;
 
   T510CAD = class(TTabelaUsuario)
@@ -823,177 +923,58 @@ type
     property USU_DatDsc: TDate read GetDATDSC write SetDATDSC;
   end;
 
-  T090LIC = class(TTabelaUsuario)
+  T000DBC = class(TTabelaUsuario)
   private
-    FIDIND: Integer;
-    FCodEmp: Word;
-    FCodFil: Word;
-    FNumCtr: Integer;
-    FIndFin: string;
+    FUSU_CodDbc: Integer;
+    FUSU_NomDbc: string;
+    FUSU_DatInd: TDate;
+    FUSU_VlrDbc: Double;
+    FUSU_SeqCot: Integer;
 
-    FOLDIDIND: Integer;
-    FOLDCodEmp: Word;
-    FOLDCodFil: Word;
-    FOLDNumCtr: Integer;
-    FOLDIndFin: string;
+    FUSU_CodDbcOLD: Integer;
+    FUSU_NomDbcOLD: string;
+    FUSU_DatIndOLD: TDate;
+    FUSU_VlrDbcOLD: Double;
+    FUSU_SeqCotOLD: Integer;
 
-    function GetCodEmp: Word;
-    function GetCodFil: Word;
-    function GetIDIND: Integer;
-    function GetIndFin: string;
-    function GetNumCtr: Integer;
-    procedure SetCodEmp(const Value: Word);
-    procedure SetCodFil(const Value: Word);
-    procedure SetIDIND(const Value: Integer);
-    procedure SetIndFin(const Value: string);
-    procedure SetNumCtr(const Value: Integer);
+    function GetUSU_CodDbc: Integer;
+    procedure SetUSU_CodDbc(const pUSU_CodDbc: Integer);
+    function GetUSU_NomDbc: string;
+    procedure SetUSU_NomDbc(const pUSU_NomDbc: string);
+    function GetUSU_DatInd: TDate;
+    procedure SetUSU_DatInd(const pUSU_DatInd: TDate);
+    function GetUSU_VlrDbc: Double;
+    procedure SetUSU_VlrDbc(const pUSU_VlrDbc: Double);
+    function GetUSU_SeqCot: Integer;
+    procedure SetUSU_SeqCot(const pUSU_SeqCot: Integer);
 
-    function GetOLDCodEmp: Word;
-    function GetOLDCodFil: Word;
-    function GetOLDIDIND: Integer;
-    function GetOLDIndFin: string;
-    function GetOLDNumCtr: Integer;
-    procedure SetOLDCodEmp(const Value: Word);
-    procedure SetOLDCodFil(const Value: Word);
-    procedure SetOLDIDIND(const Value: Integer);
-    procedure SetOLDIndFin(const Value: string);
-    procedure SetOLDNumCtr(const Value: Integer);
+    function GetUSU_CodDbcOld: Integer;
+    procedure SetUSU_CodDbcOld(const pUSU_CodDbc: Integer);
+    function GetUSU_NomDbcOld: string;
+    procedure SetUSU_NomDbcOld(const pUSU_NomDbc: string);
+    function GetUSU_DatIndOld: TDate;
+    procedure SetUSU_DatIndOld(const pUSU_DatInd: TDate);
+    function GetUSU_VlrDbcOld: Double;
+    procedure SetUSU_VlrDbcOld(const pUSU_VlrDbc: Double);
+    function GetUSU_SeqCotOld: Integer;
+    procedure SetUSU_SeqCotOld(const pUSU_SeqCot: Integer);
   protected
     procedure Registros_OLD(); override;
   public
     constructor Create();
     destructor Destroy(); override;
 
-    property USU_IDIND: Integer read GetIDIND write SetIDIND;
-    property USU_CodEmp: Word read GetCodEmp write SetCodEmp;
-    property USU_CodFil: Word read GetCodFil write SetCodFil;
-    property USU_NumCtr: Integer read GetNumCtr write SetNumCtr;
-    property USU_IndFin: string read GetIndFin write SetIndFin;
-    property USU_OldIDIND: Integer read GetOLDIDIND write SetOLDIDIND;
-    property USU_OldCodEmp: Word read GetOLDCodEmp write SetOLDCodEmp;
-    property USU_OldCodFil: Word read GetOLDCodFil write SetOLDCodFil;
-    property USU_OldNumCtr: Integer read GetOLDNumCtr write SetOLDNumCtr;
-    property USU_OldIndFin: string read GetOLDIndFin write SetOLDIndFin;
-  end;
+    property USU_CodDbc: Integer read GetUSU_CodDbc write SetUSU_CodDbc;
+    property USU_NomDbc: string read GetUSU_NomDbc write SetUSU_NomDbc;
+    property USU_DatInd: TDate read GetUSU_DatInd write SetUSU_DatInd;
+    property USU_VlrDbc: Double read GetUSU_VlrDbc write SetUSU_VlrDbc;
+    property USU_SeqCot: Integer read GetUSU_SeqCot write SetUSU_SeqCot;
 
-  T000dbc = class(TTabelaUsuario)
-  private
-    FCodDbc: Integer;
-    FNomDbc: string;
-    FDscDbc: string;
-    FPerDbc: Char;
-    FNumPer: Word;
-    FFonDbc: string;
-    FDatIni: TDate;
-    FDatFin: TDate;
-    FDiaDbc: Byte;
-    FMesDbc: Byte;
-    FAnoDbc: Word;
-    FVlrDbc: Double;
-    FSeqCot: Integer;
-
-    FOldCodDbc: Integer;
-    FOldNomDbc: string;
-    FOldDscDbc: string;
-    FOldPerDbc: Char;
-    FOldNumPer: Word;
-    FOldFonDbc: string;
-    FOldDatIni: TDate;
-    FOldDatFin: TDate;
-    FOldDiaDbc: Byte;
-    FOldMesDbc: Byte;
-    FOldAnoDbc: Word;
-    FOldVlrDbc: Double;
-    FOldSeqCot: Integer;
-
-    function GetAnoDbc: Word;
-    function GetCodDbc: Integer;
-    function GetDatFin: TDate;
-    function GetDatIni: TDate;
-    function GetDiaDbc: Byte;
-    function GetDscDbc: string;
-    function GetFonDbc: string;
-    function GetMesDbc: Byte;
-    function GetNomDbc: string;
-    function GetNumPer: Word;
-    function GetPerDbc: Char;
-    function GetVlrDbc: Double;
-
-    procedure SetAnoDbc(const Value: Word);
-    procedure SetCodDbc(const Value: Integer);
-    procedure SetDatFin(const Value: TDate);
-    procedure SetDatIni(const Value: TDate);
-    procedure SetDiaDbc(const Value: Byte);
-    procedure SetDscDbc(const Value: string);
-    procedure SetFonDbc(const Value: string);
-    procedure SetMesDbc(const Value: Byte);
-    procedure SetNomDbc(const Value: string);
-    procedure SetNumPer(const Value: Word);
-    procedure SetPerDbc(const Value: Char);
-    procedure SetVlrDbc(const Value: Double);
-
-    function GetOldAnoDbc: Word;
-    function GetOldCodDbc: Integer;
-    function GetOldDatFin: TDate;
-    function GetOldDatIni: TDate;
-    function GetOldDiaDbc: Byte;
-    function GetOldDscDbc: string;
-    function GetOldFonDbc: string;
-    function GetOldMesDbc: Byte;
-    function GetOldNomDbc: string;
-    function GetOldNumPer: Word;
-    function GetOldPerDbc: Char;
-    function GetOldVlrDbc: Double;
-
-    procedure SetOldAnoDbc(const Value: Word);
-    procedure SetOldCodDbc(const Value: Integer);
-    procedure SetOldDatFin(const Value: TDate);
-    procedure SetOldDatIni(const Value: TDate);
-    procedure SetOldDiaDbc(const Value: Byte);
-    procedure SetOldDscDbc(const Value: string);
-    procedure SetOldFonDbc(const Value: string);
-    procedure SetOldMesDbc(const Value: Byte);
-    procedure SetOldNomDbc(const Value: string);
-    procedure SetOldNumPer(const Value: Word);
-    procedure SetOldPerDbc(const Value: Char);
-    procedure SetOldVlrDbc(const Value: Double);
-    function GetOldSeqCot: Integer;
-    function GetSeqCot: Integer;
-    procedure SetOldSeqCot(const Value: Integer);
-    procedure SetSeqCot(const Value: Integer);
- protected
-    procedure Registros_OLD(); override;
- public
-    constructor Create();
-    destructor Destroy; override;
-
-    property USU_CodDbc: Integer read GetCodDbc write SetCodDbc;
-    property USU_NomDbc: string read GetNomDbc write SetNomDbc;
-    property USU_DscDbc: string read GetDscDbc write SetDscDbc;
-    property USU_PerDbc: Char read GetPerDbc write SetPerDbc;
-    property USU_NumPer: Word read GetNumPer write SetNumPer;
-    property USU_FonDbc: string read GetFonDbc write SetFonDbc;
-    property USU_DatIni: TDate read GetDatIni write SetDatIni;
-    property USU_DatFin: TDate read GetDatFin write SetDatFin;
-    property USU_DiaDbc: Byte read GetDiaDbc write SetDiaDbc;
-    property USU_MesDbc: Byte read GetMesDbc write SetMesDbc;
-    property USU_AnoDbc: Word read GetAnoDbc write SetAnoDbc;
-    property USU_VlrDbc: Double read GetVlrDbc write SetVlrDbc;
-    property USU_SeqCot: Integer read GetSeqCot write SetSeqCot;
-
-    property USU_OldCodDbc: Integer read GetOldCodDbc write SetOldCodDbc;
-    property USU_OldNomDbc: string read GetOldNomDbc write SetOldNomDbc;
-    property USU_OldDscDbc: string read GetOldDscDbc write SetOldDscDbc;
-    property USU_OldPerDbc: Char read GetOldPerDbc write SetOldPerDbc;
-    property USU_OldNumPer: Word read GetOldNumPer write SetOldNumPer;
-    property USU_OldFonDbc: string read GetOldFonDbc write SetOldFonDbc;
-    property USU_OldDatIni: TDate read GetOldDatIni write SetOldDatIni;
-    property USU_OldDatFin: TDate read GetOldDatFin write SetOldDatFin;
-    property USU_OldDiaDbc: Byte read GetOldDiaDbc write SetOldDiaDbc;
-    property USU_OldMesDbc: Byte read GetOldMesDbc write SetOldMesDbc;
-    property USU_OldAnoDbc: Word read GetOldAnoDbc write SetOldAnoDbc;
-    property USU_OldVlrDbc: Double read GetOldVlrDbc write SetOldVlrDbc;
-    property USU_OldSeqCot: Integer read GetOldSeqCot write SetOldSeqCot;
+    property OLD_USU_CodDbc: Integer read GetUSU_CodDbcOLD write SetUSU_CodDbcOLD;
+    property OLD_USU_NomDbc: string read GetUSU_NomDbcOLD write SetUSU_NomDbcOLD;
+    property OLD_USU_DatInd: TDate read GetUSU_DatIndOLD write SetUSU_DatIndOLD;
+    property OLD_USU_VlrDbc: Double read GetUSU_VlrDbcOLD write SetUSU_VlrDbcOLD;
+    property OLD_USU_SeqCot: Integer read GetUSU_SeqCotOLD write SetUSU_SeqCotOLD;
   end;
 
   T160CTR = class(TTabelaPadrao)
@@ -1041,6 +1022,8 @@ type
     property VlrTot: Double read GetVlrTot write SetVlrTot;
     property NumTit: Word read GetNumTit write SetNumTit;
   end;
+
+
 
 implementation
 
@@ -1545,12 +1528,12 @@ begin
   xAchou := False;
   x095FOR := nil;
 
-  for i := 0 to pred(Self.Count) do
+  for i := 0 to pred(FIterador.Count) do
   begin
-    if (pTitulo.USU_CgcCpf = (T095FOR(Self[i]).CgcCpf)) then
+    if (pTitulo.USU_CgcCpf = (T095FOR(FIterador[i]).CgcCpf)) then
     begin
       xAchou := True;
-      x095FOR := T095FOR(Self[i]);
+      x095FOR := T095FOR(FIterador[i]);
       Break;
     end;
   end;
@@ -1559,7 +1542,7 @@ begin
   begin
     x095FOR := T095FOR.CreatePersonalizado(pTitulo.USU_CgcCpf);
     x095FOR.CarregarFornecedores;
-    Self.Add(x095FOR);
+    FIterador.Add(x095FOR);
   end;
 
   pTitulo.USU_CodFor := x095FOR.CodFor;
@@ -1616,11 +1599,11 @@ var
 begin
   Result := 0;
 
-  for i := 0 to pred(Self.Count) do
+  for i := 0 to pred(FIterador.Count) do
   begin
-    if (FCgcCpf = (T095FOR(Self[i]).CgcCpf)) then
+    if (FCgcCpf = (T095FOR(FIterador[i]).CgcCpf)) then
     begin
-      Result := T095FOR(Self[i]).CodFor;
+      Result := T095FOR(FIterador[i]).CodFor;
       Break;
     end;
   end;
@@ -1628,21 +1611,22 @@ end;
 
 constructor T095FOR.Create;
 begin
-  inherited Create();
+  inherited Create('E095FOR');
 end;
 
 constructor T095FOR.CreatePersonalizado(const pCgcCpf: Double);
 begin
-  inherited;
+  inherited Create('E095FOR');
 
   Self.CgcCpf := pCgcCpf;
   FLista := TStringList.Create;
+  FIterador := TIterador.Create();
 end;
 
 destructor T095FOR.Destroy;
 begin
-  Self.Clear;
   FreeAndNil(FLista);
+  FreeAndNil(FIterador);
 
   inherited;
 end;
@@ -1672,7 +1656,7 @@ end;
 
 function T095FOR.FornecedoresRaiz: string;
 begin
-  Result := T095FOR(Self[0]).ListaFornecedores;
+  Result := T095FOR(FIterador[0]).ListaFornecedores;
 end;
 
 procedure T095FOR.SetCgcCpf(const pCgcCpf: Double);
@@ -2115,76 +2099,6 @@ begin
   FTolDsc := pTolDsc;
 end;
 
-{ TIteradorCriacaoTitulos }
-
-procedure TIteradorCriacaoTitulos.Criar;
-var
-  i,j: Integer;
-  xServico: sapiens_Synccom_senior_g5_co_mfi_cpa_titulos;
-  xEntrada: titulosGravarTitulosCPIn;
-  xSaida: titulosGravarTitulosCPOut;
-  xTitulos: Array_Of_titulosGravarTitulosCPInTitulos;
-  xRetorno: string;
-begin
-  xServico := Getsapiens_Synccom_senior_g5_co_mfi_cpa_titulos();
-  xEntrada := titulosGravarTitulosCPIn.Create;
-
-  for i := 0 to pred(Self.Count) do
-  begin
-    j := Length(xTitulos);
-    Inc(j);
-    SetLength(xTitulos, j);
-    xTitulos[pred(j)] := titulosGravarTitulosCPInTitulos.Create;
-    xTitulos[pred(j)].CodEmp := TTituloDDA(Self[i]).CodEmp.ToString;
-    xTitulos[pred(j)].CodFil := TTituloDDA(Self[i]).CodFil.ToString;
-    xTitulos[pred(j)].CodTpt := TTituloDDA(Self[i]).CodTpt;
-    xTitulos[pred(j)].NumTit := TTituloDDA(Self[i]).NumTit;
-    xTitulos[pred(j)].codFor := TTituloDDA(Self[i]).CodFor.ToString;
-    xTitulos[pred(j)].CodBar := TTituloDDA(Self[i]).CodBar;
-    xTitulos[pred(j)].CodTns := FListaFilial.DadosFilial(TTituloDDA(Self[i]).CodEmp, TTituloDDA(Self[i]).CodFil).PagTpm;
-    xTitulos[pred(j)].VlrOri := TTituloDDA(Self[i]).VlrOri.ToString;
-    xTitulos[pred(j)].JrsDia := TTituloDDA(Self[i]).JrsDia.ToString;
-    xTitulos[pred(j)].VlrDsc := TTituloDDA(Self[i]).VlrDsc.ToString;
-    xTitulos[pred(j)].VctOri := DateTimeToStr(DataNull(TTituloDDA(Self[i]).VctOri));
-    xTitulos[pred(j)].DatDsc := DateTimeToStr(DataNull(TTituloDDA(Self[i]).DatDsc));
-    xTitulos[pred(j)].datEmi := DateTimeToStr(DataNull(TTituloDDA(Self[i]).DatEmi));
-    xTitulos[pred(j)].datEnt := DateTimeToStr(DataNull(TTituloDDA(Self[i]).DatGer));
-    xTitulos[pred(j)].CodPor := TTituloDDA(Self[i]).CodPor;
-    xTitulos[pred(j)].PerMul := TTituloDDA(Self[i]).PerMul.ToString;
-    xTitulos[pred(j)].TolMul := TTituloDDA(Self[i]).TolMul.ToString;
-    xTitulos[pred(j)].PerJrs := TTituloDDA(Self[i]).PerJrs.ToString;
-    xTitulos[pred(j)].TolJrs := TTituloDDA(Self[i]).TolJrs.ToString;
-    xTitulos[pred(j)].TipJrs := TTituloDDA(Self[i]).TipJrs;
-    xTitulos[pred(j)].CodCrt := TTituloDDA(Self[i]).CodCrt;
-    xTitulos[pred(j)].PerDsc := TTituloDDA(Self[i]).PerDsc.ToString;
-    xTitulos[pred(j)].TolDsc := TTituloDDA(Self[i]).TolDsc.ToString;
-    xTitulos[pred(j)].CodCrp := TTituloDDA(Self[i]).CodCrp;
-    xTitulos[pred(j)].codFpg := TTituloDDA(Self[i]).CodFpg.ToString;
-  end;
-
-  if (Self.Count > 0) then
-  begin
-    xEntrada.titulos := xTitulos;
-    xSaida := xServico.GravarTitulosCP('sapiensweb', 'sapiensweb', 0, xEntrada);
-    xRetorno := xSaida.erroExecucao;
-    xRetorno := xSaida.tipoRetorno;
-    xRetorno := xSaida.mensagemRetorno;
-
-    for i := 0 to High(xSaida.resultado) do
-      Self.GerarLogs(xSaida.resultado[i], i);
-  end;
-end;
-
-procedure TIteradorCriacaoTitulos.GerarLogs(
-  const pRetorno: titulosGravarTitulosCPOutResultado; const pPosicao: Integer);
-var
-  xTitulo: TTituloDDA;
-begin
-  xTitulo := TTituloDDA(Self[pPosicao]);
-  xTitulo.AddLog(pRetorno.resultado);
-  xTitulo.Processar;
-end;
-
 { TIteradorAtualizarTitulos }
 
 procedure TIteradorAtualizarTitulos.Atualizar;
@@ -2359,342 +2273,601 @@ end;
 
 { T160CLP }
 
-constructor T160CLP.Create;
+constructor T160CLP.Create();
 begin
   inherited Create('USU_T160CLP');
 end;
 
-destructor T160CLP.Destroy;
+destructor T160CLP.Destroy();
 begin
   inherited;
 end;
 
-function T160CLP.GetCodBem: string;
+function T160CLP.GetUSU_IDIND: Integer;
 begin
-  Result := FCodBem;
+  Result := FUSU_IDIND;
 end;
 
-function T160CLP.GetCodCli: Integer;
+procedure T160CLP.SetUSU_IDIND(const pUSU_IDIND: Integer);
 begin
-  Result := FCodCli;
+  FUSU_IDIND := pUSU_IDIND;
 end;
 
-function T160CLP.GetCodEmp: Integer;
+function T160CLP.GetUSU_IniVig: TDate;
 begin
-  Result := FCodEmp;
+  Result := FUSU_IniVig;
 end;
 
-function T160CLP.GetCodFil: Integer;
+procedure T160CLP.SetUSU_IniVig(const pUSU_IniVig: TDate);
 begin
-  Result := FCodFil;
+  FUSU_IniVig := pUSU_IniVig;
 end;
 
-function T160CLP.GetDatAlt: TDate;
+function T160CLP.GetUSU_VigFim: TDate;
 begin
-  Result := FDatAlt;
+  Result := FUSU_VigFim;
 end;
 
-function T160CLP.GetDatFin: TDate;
+procedure T160CLP.SetUSU_VigFim(const pUSU_VigFim: TDate);
 begin
-  Result := FDatFin;
+  FUSU_VigFim := pUSU_VigFim;
 end;
 
-function T160CLP.GetDatGer: TDate;
+function T160CLP.GetUSU_CodEmp: Integer;
 begin
-  Result := FDatGer;
+  Result := FUSU_CodEmp;
 end;
 
-function T160CLP.GetDatIni: TDate;
+procedure T160CLP.SetUSU_CodEmp(const pUSU_CodEmp: Integer);
 begin
-  Result := FDatIni;
+  FUSU_CodEmp := pUSU_CodEmp;
 end;
 
-function T160CLP.GetID: Integer;
+function T160CLP.GetUSU_CodFil: Integer;
 begin
-  Result := FID;
+  Result := FUSU_CodFil;
 end;
 
-function T160CLP.GetIDLIC: Integer;
+procedure T160CLP.SetUSU_CodFil(const pUSU_CodFil: Integer);
 begin
-  Result := FIDLIC;
+  FUSU_CodFil := pUSU_CodFil;
 end;
 
-function T160CLP.GetIDLOC: Integer;
+function T160CLP.GetUSU_CodCli: Integer;
 begin
-  Result := FIDLOC;
+  Result := FUSU_CodCli;
 end;
 
-function T160CLP.GetIndFin: string;
+procedure T160CLP.SetUSU_CodCli(const pUSU_CodCli: Integer);
 begin
-  Result := FIndFin;
+  FUSU_CodCli := pUSU_CodCli;
 end;
 
-function T160CLP.GetNumCtr: Integer;
+function T160CLP.GetUSU_NumCtr: Integer;
 begin
-  Result := FNumCtr;
+  Result := FUSU_NumCtr;
 end;
 
-function T160CLP.GetUsuAlt: Integer;
+procedure T160CLP.SetUSU_NumCtr(const pUSU_NumCtr: Integer);
 begin
-  Result := FUsuAlt;
+  FUSU_NumCtr := pUSU_NumCtr;
 end;
 
-function T160CLP.GetUsuGer: Integer;
+function T160CLP.GetUSU_VlrCtr: Double;
 begin
-  Result := FUsuGer;
+  Result := FUSU_VlrCtr;
 end;
 
-function T160CLP.GetVlrCtr: Double;
+procedure T160CLP.SetUSU_VlrCtr(const pUSU_VlrCtr: Double);
 begin
-  Result := FVlrCtr;
+  FUSU_VlrCtr := pUSU_VlrCtr;
 end;
 
-procedure T160CLP.SetCodBem(const Value: string);
+function T160CLP.GetUSU_IndFin: string;
 begin
-  FCodBem := Value;
+  Result := FUSU_IndFin;
 end;
 
-procedure T160CLP.SetCodCli(const Value: Integer);
+procedure T160CLP.SetUSU_IndFin(const pUSU_IndFin: string);
 begin
-  FCodCli := Value;
+  FUSU_IndFin := pUSU_IndFin;
 end;
 
-procedure T160CLP.SetCodEmp(const Value: Integer);
+function T160CLP.GetUSU_CodBem: string;
 begin
-  FCodEmp := Value;
+  Result := FUSU_CodBem;
 end;
 
-procedure T160CLP.SetCodFil(const Value: Integer);
+procedure T160CLP.SetUSU_CodBem(const pUSU_CodBem: string);
 begin
-  FCodFil := Value;
+  FUSU_CodBem := pUSU_CodBem;
 end;
 
-procedure T160CLP.SetDatAlt(const Value: TDate);
+function T160CLP.GetUSU_DatGer: TDate;
 begin
-  FDatAlt := Value;
+  Result := FUSU_DatGer;
 end;
 
-procedure T160CLP.SetDatFin(const Value: TDate);
+procedure T160CLP.SetUSU_DatGer(const pUSU_DatGer: TDate);
 begin
-  FDatFin := Value;
+  FUSU_DatGer := pUSU_DatGer;
 end;
 
-procedure T160CLP.SetDatGer(const Value: TDate);
+function T160CLP.GetUSU_UsuGer: Integer;
 begin
-  FDatGer := Value;
+  Result := FUSU_UsuGer;
 end;
 
-procedure T160CLP.SetDatIni(const Value: TDate);
+procedure T160CLP.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
-  FDatIni := Value;
+  FUSU_UsuGer := pUSU_UsuGer;
 end;
 
-procedure T160CLP.SetId(const Value: Integer);
+function T160CLP.GetUSU_DatAlt: TDate;
 begin
-  FID := Value;
+  Result := FUSU_DatAlt;
 end;
 
-procedure T160CLP.SetIDLIC(const Value: Integer);
+procedure T160CLP.SetUSU_DatAlt(const pUSU_DatAlt: TDate);
 begin
-  FIDLIC := Value;
+  FUSU_DatAlt := pUSU_DatAlt;
 end;
 
-procedure T160CLP.SetIDLOC(const Value: Integer);
+function T160CLP.GetUSU_UsuAlt: Integer;
 begin
-  FIDLOC := Value;
+  Result := FUSU_UsuAlt;
 end;
 
-procedure T160CLP.SetIndFin(const Value: string);
+procedure T160CLP.SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
 begin
-  FIndFin := Value;
+  FUSU_UsuAlt := pUSU_UsuAlt;
 end;
 
-procedure T160CLP.SetNumCtr(const Value: Integer);
+function T160CLP.GetUSU_PerEre: Integer;
 begin
-  FNumCtr := Value;
+  Result := FUSU_PerEre;
 end;
 
-procedure T160CLP.SetUsuAlt(const Value: Integer);
+procedure T160CLP.SetUSU_PerEre(const pUSU_PerEre: Integer);
 begin
-  FUsuAlt := Value;
+  FUSU_PerEre := pUSU_PerEre;
 end;
 
-procedure T160CLP.SetUsuGer(const Value: Integer);
+function T160CLP.GetUSU_IDINDOLD: Integer;
 begin
-  FUsuGer := Value;
+  Result := FUSU_IDINDOLD;
 end;
 
-procedure T160CLP.SetVlrCtr(const Value: Double);
+procedure T160CLP.SetUSU_IDINDOLD(const pUSU_IDIND: Integer);
 begin
-  FVlrCtr := Value;
+  FUSU_IDINDOLD := pUSU_IDIND;
+end;
+
+function T160CLP.GetUSU_IniVigOLD: TDate;
+begin
+  Result := FUSU_IniVigOLD;
+end;
+
+procedure T160CLP.SetUSU_IniVigOLD(const pUSU_IniVig: TDate);
+begin
+  FUSU_IniVigOLD := pUSU_IniVig;
+end;
+
+function T160CLP.GetUSU_VigFimOLD: TDate;
+begin
+  Result := FUSU_VigFimOLD;
+end;
+
+procedure T160CLP.SetUSU_VigFimOLD(const pUSU_VigFim: TDate);
+begin
+  FUSU_VigFimOLD := pUSU_VigFim;
+end;
+
+function T160CLP.GetUSU_CodEmpOLD: Integer;
+begin
+  Result := FUSU_CodEmpOLD;
+end;
+
+procedure T160CLP.SetUSU_CodEmpOLD(const pUSU_CodEmp: Integer);
+begin
+  FUSU_CodEmpOLD := pUSU_CodEmp;
+end;
+
+function T160CLP.GetUSU_CodFilOLD: Integer;
+begin
+  Result := FUSU_CodFilOLD;
+end;
+
+procedure T160CLP.SetUSU_CodFilOLD(const pUSU_CodFil: Integer);
+begin
+  FUSU_CodFilOLD := pUSU_CodFil;
+end;
+
+function T160CLP.GetUSU_CodCliOLD: Integer;
+begin
+  Result := FUSU_CodCliOLD;
+end;
+
+procedure T160CLP.SetUSU_CodCliOLD(const pUSU_CodCli: Integer);
+begin
+  FUSU_CodCliOLD := pUSU_CodCli;
+end;
+
+function T160CLP.GetUSU_NumCtrOLD: Integer;
+begin
+  Result := FUSU_NumCtrOLD;
+end;
+
+procedure T160CLP.SetUSU_NumCtrOLD(const pUSU_NumCtr: Integer);
+begin
+  FUSU_NumCtrOLD := pUSU_NumCtr;
+end;
+
+function T160CLP.GetUSU_VlrCtrOLD: Double;
+begin
+  Result := FUSU_VlrCtrOLD;
+end;
+
+procedure T160CLP.SetUSU_VlrCtrOLD(const pUSU_VlrCtr: Double);
+begin
+  FUSU_VlrCtrOLD := pUSU_VlrCtr;
+end;
+
+function T160CLP.GetUSU_IndFinOLD: string;
+begin
+  Result := FUSU_IndFinOLD;
+end;
+
+procedure T160CLP.SetUSU_IndFinOLD(const pUSU_IndFin: string);
+begin
+  FUSU_IndFinOLD := pUSU_IndFin;
+end;
+
+function T160CLP.GetUSU_CodBemOLD: string;
+begin
+  Result := FUSU_CodBemOLD;
+end;
+
+procedure T160CLP.SetUSU_CodBemOLD(const pUSU_CodBem: string);
+begin
+  FUSU_CodBemOLD := pUSU_CodBem;
+end;
+
+function T160CLP.GetUSU_DatGerOLD: TDate;
+begin
+  Result := FUSU_DatGerOLD;
+end;
+
+procedure T160CLP.SetUSU_DatGerOLD(const pUSU_DatGer: TDate);
+begin
+  FUSU_DatGerOLD := pUSU_DatGer;
+end;
+
+function T160CLP.GetUSU_UsuGerOLD: Integer;
+begin
+  Result := FUSU_UsuGerOLD;
+end;
+
+procedure T160CLP.SetUSU_UsuGerOLD(const pUSU_UsuGer: Integer);
+begin
+  FUSU_UsuGerOLD := pUSU_UsuGer;
+end;
+
+function T160CLP.GetUSU_DatAltOLD: TDate;
+begin
+  Result := FUSU_DatAltOLD;
+end;
+
+procedure T160CLP.SetUSU_DatAltOLD(const pUSU_DatAlt: TDate);
+begin
+  FUSU_DatAltOLD := pUSU_DatAlt;
+end;
+
+function T160CLP.GetUSU_UsuAltOLD: Integer;
+begin
+  Result := FUSU_UsuAltOLD;
+end;
+
+procedure T160CLP.SetUSU_UsuAltOLD(const pUSU_UsuAlt: Integer);
+begin
+  FUSU_UsuAltOLD := pUSU_UsuAlt;
+end;
+
+function T160CLP.GetUSU_PerEreOLD: Integer;
+begin
+  Result := FUSU_PerEreOLD;
+end;
+
+procedure T160CLP.SetUSU_PerEreOLD(const pUSU_PerEre: Integer);
+begin
+  FUSU_PerEreOLD := pUSU_PerEre;
+end;
+
+procedure T160CLP.Registros_OLD();
+begin
+  FUSU_IDINDOLD := FUSU_IDIND;
+  FUSU_IniVigOLD := FUSU_IniVig;
+  FUSU_VigFimOLD := FUSU_VigFim;
+  FUSU_CodEmpOLD := FUSU_CodEmp;
+  FUSU_CodFilOLD := FUSU_CodFil;
+  FUSU_CodCliOLD := FUSU_CodCli;
+  FUSU_NumCtrOLD := FUSU_NumCtr;
+  FUSU_VlrCtrOLD := FUSU_VlrCtr;
+  FUSU_IndFinOLD := FUSU_IndFin;
+  FUSU_CodBemOLD := FUSU_CodBem;
+  FUSU_DatGerOLD := FUSU_DatGer;
+  FUSU_UsuGerOLD := FUSU_UsuGer;
+  FUSU_DatAltOLD := FUSU_DatAlt;
+  FUSU_UsuAltOLD := FUSU_UsuAlt;
+  FUSU_PerEreOLD := FUSU_PerEre;
 end;
 
 { T090IND }
 
-procedure T090IND.CarregarIndice(const pTitulo: T301TCR);
-var
-  x160ctr: T160CTR;
-  x000dbc: T000dbc;
-begin
-  if (Self.USU_VlrInd = 0) then
-  begin
-    x160ctr := T160CTR.Create();
-    x160ctr.CodEmp := pTitulo.CodEmp;
-    x160ctr.CodFil := pTitulo.FilCtr;
-    x160ctr.NumCtr := pTitulo.NumCtr;
-    x160ctr.PropertyForSelect(['CODEMP','CODFIL','NUMCTR'], True);
-    x160ctr.Execute(etSelect);
-
-    x000dbc := T000dbc.Create;
-    x000dbc.USU_CodDbc := Self.USU_CodDbc;
-    x000dbc.Field := 'USU_VLRDBC';
-    x000dbc.Between['USU_DATINI'] := StartOfTheMonth(x160ctr.IniVig);
-    x000dbc.Between['USU_DATINI'] := Date;
-    x000dbc.PropertyForSelect(['USU_CODDBC']);
-    x000dbc.Execute(etSelect, esSUM);
-
-    Self.USU_VlrInd := x000dbc.USU_VlrDbc;
-  end;
-end;
-
-constructor T090IND.Create;
+constructor T090IND.Create();
 begin
   inherited Create('USU_T090IND');
 end;
 
-destructor T090IND.Destroy;
+destructor T090IND.Destroy();
 begin
   inherited;
 end;
 
-function T090IND.GetCodDbc: Integer;
+function T090IND.GetUSU_IndFin: string;
 begin
-  Result := FCodDbc;
+  Result := FUSU_IndFin;
 end;
 
-function T090IND.GetCodEmp: Word;
+procedure T090IND.SetUSU_IndFin(const pUSU_IndFin: string);
 begin
-  Result := FCodEmp;
+  FUSU_IndFin := pUSU_IndFin;
 end;
 
-function T090IND.GetDatAlt: TDate;
+function T090IND.GetUSU_CodEmp: Integer;
 begin
-  Result := FDatAlt;
+  Result := FUSU_CodEmp;
 end;
 
-function T090IND.GetDatFin: TDate;
+procedure T090IND.SetUSU_CodEmp(const pUSU_CodEmp: Integer);
 begin
-  Result := FDatFin;
+  FUSU_CodEmp := pUSU_CodEmp;
 end;
 
-function T090IND.GetDatGer: TDate;
+function T090IND.GetUSU_DatGer: TDate;
 begin
-  Result := FDatGer;
+  Result := FUSU_DatGer;
 end;
 
-function T090IND.GetDatIni: TDate;
+procedure T090IND.SetUSU_DatGer(const pUSU_DatGer: TDate);
 begin
-  Result := FDatIni;
+  FUSU_DatGer := pUSU_DatGer;
 end;
 
-function T090IND.GetIndFin: string;
+function T090IND.GetUSU_UsuGer: Integer;
 begin
-  Result := FIndFin;
+  Result := FUSU_UsuGer;
 end;
 
-function T090IND.GetObsInd: string;
+procedure T090IND.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
-  Result := FObsInd;
+  FUSU_UsuGer := pUSU_UsuGer;
 end;
 
-function T090IND.GetSeqCot: Integer;
+function T090IND.GetUSU_ObsInd: string;
 begin
-  Result := FSeqCot;
+  Result := FUSU_ObsInd;
 end;
 
-function T090IND.GetUsuAlt: Integer;
+procedure T090IND.SetUSU_ObsInd(const pUSU_ObsInd: string);
 begin
-  Result := FUsuAlt;
+  FUSU_ObsInd := pUSU_ObsInd;
 end;
 
-function T090IND.GetUsuGer: Integer;
+function T090IND.GetUSU_DatIni: TDate;
 begin
-  Result := FUsuGer;
+  Result := FUSU_DatIni;
 end;
 
-function T090IND.GetUsuRes: Integer;
+procedure T090IND.SetUSU_DatIni(const pUSU_DatIni: TDate);
 begin
-  Result := FUsuRes;
+  FUSU_DatIni := pUSU_DatIni;
 end;
 
-function T090IND.GetVlrInd: Extended;
+function T090IND.GetUSU_DatFin: TDate;
 begin
-  Result := FVlrInd;
+  Result := FUSU_DatFin;
 end;
 
-procedure T090IND.SetCodDbc(const Value: Integer);
+procedure T090IND.SetUSU_DatFin(const pUSU_DatFin: TDate);
 begin
-  FCodDbc := Value;
+  FUSU_DatFin := pUSU_DatFin;
 end;
 
-procedure T090IND.SetCodEmp(const Value: Word);
+function T090IND.GetUSU_CodDbc: Integer;
 begin
-  FCodEmp := Value;
+  Result := FUSU_CodDbc;
 end;
 
-procedure T090IND.SetDatAlt(const Value: TDate);
+procedure T090IND.SetUSU_CodDbc(const pUSU_CodDbc: Integer);
 begin
-  FDatAlt := Value;
+  FUSU_CodDbc := pUSU_CodDbc;
 end;
 
-procedure T090IND.SetDatFin(const Value: TDate);
+function T090IND.GetUSU_UsuAlt: Integer;
 begin
-  FDatFin := Value;
+  Result := FUSU_UsuAlt;
 end;
 
-procedure T090IND.SetDatGer(const Value: TDate);
+procedure T090IND.SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
 begin
-  FDatGer := Value;
+  FUSU_UsuAlt := pUSU_UsuAlt;
 end;
 
-procedure T090IND.SetDatIni(const Value: TDate);
+function T090IND.GetUSU_UsuRes: Integer;
 begin
-  FDatIni := Value;
+  Result := FUSU_UsuRes;
 end;
 
-procedure T090IND.SetIndFin(const Value: string);
+procedure T090IND.SetUSU_UsuRes(const pUSU_UsuRes: Integer);
 begin
-  FIndFin := Value;
+  FUSU_UsuRes := pUSU_UsuRes;
 end;
 
-procedure T090IND.SetObsInd(const Value: string);
+function T090IND.GetUSU_DatAlt: TDate;
 begin
-  FObsInd := Value;
+  Result := FUSU_DatAlt;
 end;
 
-procedure T090IND.SetSeqCot(const Value: Integer);
+procedure T090IND.SetUSU_DatAlt(const pUSU_DatAlt: TDate);
 begin
-  FSeqCot := Value;
+  FUSU_DatAlt := pUSU_DatAlt;
 end;
 
-procedure T090IND.SetUsuAlt(const Value: Integer);
+function T090IND.GetUSU_SeqCot: Integer;
 begin
-  FUsuAlt := Value;
+  Result := FUSU_SeqCot;
 end;
 
-procedure T090IND.SetUsuGer(const Value: Integer);
+procedure T090IND.SetUSU_SeqCot(const pUSU_SeqCot: Integer);
 begin
-  FUsuGer := Value;
+  FUSU_SeqCot := pUSU_SeqCot;
 end;
 
-procedure T090IND.SetUsuRes(const Value: Integer);
+function T090IND.GetUSU_IndFinOLD: string;
 begin
-  FUsuRes := Value;
+  Result := FUSU_IndFinOLD;
 end;
 
-procedure T090IND.SetVlrInd(const Value: Extended);
+procedure T090IND.SetUSU_IndFinOLD(const pUSU_IndFin: string);
 begin
-  FVlrInd := Value;
+  FUSU_IndFinOLD := pUSU_IndFin;
+end;
+
+function T090IND.GetUSU_CodEmpOLD: Integer;
+begin
+  Result := FUSU_CodEmpOLD;
+end;
+
+procedure T090IND.SetUSU_CodEmpOLD(const pUSU_CodEmp: Integer);
+begin
+  FUSU_CodEmpOLD := pUSU_CodEmp;
+end;
+
+function T090IND.GetUSU_DatGerOLD: TDate;
+begin
+  Result := FUSU_DatGerOLD;
+end;
+
+procedure T090IND.SetUSU_DatGerOLD(const pUSU_DatGer: TDate);
+begin
+  FUSU_DatGerOLD := pUSU_DatGer;
+end;
+
+function T090IND.GetUSU_UsuGerOLD: Integer;
+begin
+  Result := FUSU_UsuGerOLD;
+end;
+
+procedure T090IND.SetUSU_UsuGerOLD(const pUSU_UsuGer: Integer);
+begin
+  FUSU_UsuGerOLD := pUSU_UsuGer;
+end;
+
+function T090IND.GetUSU_ObsIndOLD: string;
+begin
+  Result := FUSU_ObsIndOLD;
+end;
+
+procedure T090IND.SetUSU_ObsIndOLD(const pUSU_ObsInd: string);
+begin
+  FUSU_ObsIndOLD := pUSU_ObsInd;
+end;
+
+function T090IND.GetUSU_DatIniOLD: TDate;
+begin
+  Result := FUSU_DatIniOLD;
+end;
+
+procedure T090IND.SetUSU_DatIniOLD(const pUSU_DatIni: TDate);
+begin
+  FUSU_DatIniOLD := pUSU_DatIni;
+end;
+
+function T090IND.GetUSU_DatFinOLD: TDate;
+begin
+  Result := FUSU_DatFinOLD;
+end;
+
+procedure T090IND.SetUSU_DatFinOLD(const pUSU_DatFin: TDate);
+begin
+  FUSU_DatFinOLD := pUSU_DatFin;
+end;
+
+function T090IND.GetUSU_CodDbcOLD: Integer;
+begin
+  Result := FUSU_CodDbcOLD;
+end;
+
+procedure T090IND.SetUSU_CodDbcOLD(const pUSU_CodDbc: Integer);
+begin
+  FUSU_CodDbcOLD := pUSU_CodDbc;
+end;
+
+function T090IND.GetUSU_UsuAltOLD: Integer;
+begin
+  Result := FUSU_UsuAltOLD;
+end;
+
+procedure T090IND.SetUSU_UsuAltOLD(const pUSU_UsuAlt: Integer);
+begin
+  FUSU_UsuAltOLD := pUSU_UsuAlt;
+end;
+
+function T090IND.GetUSU_UsuResOLD: Integer;
+begin
+  Result := FUSU_UsuResOLD;
+end;
+
+procedure T090IND.SetUSU_UsuResOLD(const pUSU_UsuRes: Integer);
+begin
+  FUSU_UsuResOLD := pUSU_UsuRes;
+end;
+
+function T090IND.GetUSU_DatAltOLD: TDate;
+begin
+  Result := FUSU_DatAltOLD;
+end;
+
+procedure T090IND.SetUSU_DatAltOLD(const pUSU_DatAlt: TDate);
+begin
+  FUSU_DatAltOLD := pUSU_DatAlt;
+end;
+
+function T090IND.GetUSU_SeqCotOLD: Integer;
+begin
+  Result := FUSU_SeqCotOLD;
+end;
+
+procedure T090IND.SetUSU_SeqCotOLD(const pUSU_SeqCot: Integer);
+begin
+  FUSU_SeqCotOLD := pUSU_SeqCot;
+end;
+
+procedure T090IND.Registros_OLD();
+begin
+  FUSU_IndFinOLD := FUSU_IndFin;
+  FUSU_CodEmpOLD := FUSU_CodEmp;
+  FUSU_DatGerOLD := FUSU_DatGer;
+  FUSU_UsuGerOLD := FUSU_UsuGer;
+  FUSU_ObsIndOLD := FUSU_ObsInd;
+  FUSU_DatIniOLD := FUSU_DatIni;
+  FUSU_DatFinOLD := FUSU_DatFin;
+  FUSU_CodDbcOLD := FUSU_CodDbc;
+  FUSU_UsuAltOLD := FUSU_UsuAlt;
+  FUSU_UsuResOLD := FUSU_UsuRes;
+  FUSU_DatAltOLD := FUSU_DatAlt;
+  FUSU_SeqCotOLD := FUSU_SeqCot;
 end;
 
 { T510CAD }
@@ -3392,420 +3565,126 @@ begin
   FVlrRea := Value;
 end;
 
-{ T090LIC }
+{ T000DBC }
 
-constructor T090LIC.Create;
-begin
-  inherited Create('USU_T090LIC');
-end;
-
-destructor T090LIC.Destroy;
-begin
-  inherited;
-end;
-
-function T090LIC.GetCodEmp: Word;
-begin
-  Result := FCodEmp;
-end;
-
-function T090LIC.GetCodFil: Word;
-begin
-  Result := FCodFil;
-end;
-
-function T090LIC.GetIDIND: Integer;
-begin
-  Result := FIDIND;
-end;
-
-function T090LIC.GetIndFin: string;
-begin
-  Result := FIndFin;
-end;
-
-function T090LIC.GetNumCtr: Integer;
-begin
-  Result := FNumCtr;
-end;
-
-function T090LIC.GetOLDCodEmp: Word;
-begin
-  Result := FOLDCodEmp;
-end;
-
-function T090LIC.GetOLDCodFil: Word;
-begin
-  Result := FOLDCodFil;
-end;
-
-function T090LIC.GetOLDIDIND: Integer;
-begin
-  Result := FOLDIDIND;
-end;
-
-function T090LIC.GetOLDIndFin: string;
-begin
-  Result := FOLDIndFin;
-end;
-
-function T090LIC.GetOLDNumCtr: Integer;
-begin
-    Result := FOLDNumCtr;
-end;
-
-procedure T090LIC.Registros_OLD;
-begin
-  inherited;
-
-  FOLDIDIND := FIDIND;
-  FOLDCodEmp := FCodEmp;
-  FOLDCodFil := FCodFil;
-  FOLDNumCtr := FNumCtr;
-  FOLDIndFin := FIndFin;
-end;
-
-procedure T090LIC.SetCodEmp(const Value: Word);
-begin
-  FCodEmp := Value;
-end;
-
-procedure T090LIC.SetCodFil(const Value: Word);
-begin
-  FCodFil := Value;
-end;
-
-procedure T090LIC.SetIDIND(const Value: Integer);
-begin
-  FIDIND := Value;
-end;
-
-procedure T090LIC.SetIndFin(const Value: string);
-begin
-  FIndFin := Value;
-end;
-
-procedure T090LIC.SetNumCtr(const Value: Integer);
-begin
-  FNumCtr := Value;
-end;
-
-procedure T090LIC.SetOLDCodEmp(const Value: Word);
-begin
-  FOLDIDIND := Value;
-end;
-
-procedure T090LIC.SetOLDCodFil(const Value: Word);
-begin
-  FOLDCodFil := Value;
-end;
-
-procedure T090LIC.SetOLDIDIND(const Value: Integer);
-begin
-  FOLDIDIND := Value;
-end;
-
-procedure T090LIC.SetOLDIndFin(const Value: string);
-begin
-  FOLDIndFin := Value;
-end;
-
-procedure T090LIC.SetOLDNumCtr(const Value: Integer);
-begin
-  FOLDNumCtr := Value;
-end;
-
-{ T000dbc }
-
-constructor T000dbc.Create;
+constructor T000DBC.Create();
 begin
   inherited Create('USU_T000DBC');
 
   BlockProperty(['USU_ID']);
 end;
 
-destructor T000dbc.Destroy;
+destructor T000DBC.Destroy();
 begin
   inherited;
 end;
-
-function T000dbc.GetAnoDbc: Word;
+function T000DBC.GetUSU_CodDbc: Integer;
 begin
-  Result := FAnoDbc;
+  Result := FUSU_CodDbc;
 end;
 
-function T000dbc.GetCodDbc: Integer;
+procedure T000DBC.SetUSU_CodDbc(const pUSU_CodDbc: Integer);
 begin
-  Result := FCodDbc;
+  FUSU_CodDbc := pUSU_CodDbc;
 end;
 
-function T000dbc.GetDatFin: TDate;
+function T000DBC.GetUSU_NomDbc: string;
 begin
-  Result := FDatIni;
+  Result := FUSU_NomDbc;
 end;
 
-function T000dbc.GetDatIni: TDate;
+procedure T000DBC.SetUSU_NomDbc(const pUSU_NomDbc: string);
 begin
-  Result := FDatIni;
+  FUSU_NomDbc := pUSU_NomDbc;
 end;
 
-function T000dbc.GetDiaDbc: Byte;
+function T000DBC.GetUSU_DatInd: TDate;
 begin
-  Result := FDiaDbc;
+  Result := FUSU_DatInd;
 end;
 
-function T000dbc.GetDscDbc: string;
+procedure T000DBC.SetUSU_DatInd(const pUSU_DatInd: TDate);
 begin
-  Result := FDscDbc;
+  FUSU_DatInd := pUSU_DatInd;
 end;
 
-function T000dbc.GetFonDbc: string;
+function T000DBC.GetUSU_VlrDbc: Double;
 begin
-  Result := FFonDbc;
+  Result := FUSU_VlrDbc;
 end;
 
-function T000dbc.GetMesDbc: Byte;
+procedure T000DBC.SetUSU_VlrDbc(const pUSU_VlrDbc: Double);
 begin
-  Result := FMesDbc;
+  FUSU_VlrDbc := pUSU_VlrDbc;
 end;
 
-function T000dbc.GetNomDbc: string;
+function T000DBC.GetUSU_SeqCot: Integer;
 begin
-  Result := FNomDbc;
+  Result := FUSU_SeqCot;
 end;
 
-function T000dbc.GetNumPer: Word;
+procedure T000DBC.SetUSU_SeqCot(const pUSU_SeqCot: Integer);
 begin
-  Result := FNumPer;
+  FUSU_SeqCot := pUSU_SeqCot;
 end;
 
-function T000dbc.GetOldAnoDbc: Word;
+function T000DBC.GetUSU_CodDbcOLD: Integer;
 begin
-  Result := FAnoDbc;
+  Result := FUSU_CodDbcOLD;
 end;
 
-function T000dbc.GetOldCodDbc: Integer;
+procedure T000DBC.SetUSU_CodDbcOLD(const pUSU_CodDbc: Integer);
 begin
-  Result := FCodDbc;
+  FUSU_CodDbcOLD := pUSU_CodDbc;
 end;
 
-function T000dbc.GetOldDatFin: TDate;
+function T000DBC.GetUSU_NomDbcOLD: string;
 begin
-  Result := FDatFin;
+  Result := FUSU_NomDbcOLD;
 end;
 
-function T000dbc.GetOldDatIni: TDate;
+procedure T000DBC.SetUSU_NomDbcOLD(const pUSU_NomDbc: string);
 begin
-  Result := FDatIni;
+  FUSU_NomDbcOLD := pUSU_NomDbc;
 end;
 
-function T000dbc.GetOldDiaDbc: Byte;
+function T000DBC.GetUSU_DatIndOLD: TDate;
 begin
-  Result := FDiaDbc;
+  Result := FUSU_DatIndOLD;
 end;
 
-function T000dbc.GetOldDscDbc: string;
+procedure T000DBC.SetUSU_DatIndOLD(const pUSU_DatInd: TDate);
 begin
-  Result := FDscDbc;
+  FUSU_DatIndOLD := pUSU_DatInd;
 end;
 
-function T000dbc.GetOldFonDbc: string;
+function T000DBC.GetUSU_VlrDbcOLD: Double;
 begin
-  Result := FFonDbc;
+  Result := FUSU_VlrDbcOLD;
 end;
 
-function T000dbc.GetOldMesDbc: Byte;
+procedure T000DBC.SetUSU_VlrDbcOLD(const pUSU_VlrDbc: Double);
 begin
-  Result := FMesDbc;
+  FUSU_VlrDbcOLD := pUSU_VlrDbc;
 end;
 
-function T000dbc.GetOldNomDbc: string;
+function T000DBC.GetUSU_SeqCotOLD: Integer;
 begin
-  Result := FNomDbc;
+  Result := FUSU_SeqCotOLD;
 end;
 
-function T000dbc.GetOldNumPer: Word;
+procedure T000DBC.SetUSU_SeqCotOLD(const pUSU_SeqCot: Integer);
 begin
-  Result := FNumPer;
+  FUSU_SeqCotOLD := pUSU_SeqCot;
 end;
 
-function T000dbc.GetOldPerDbc: Char;
+procedure T000DBC.Registros_OLD();
 begin
-  Result := FPerDbc;
-end;
-
-function T000dbc.GetOldSeqCot: Integer;
-begin
-  Result := FOldSeqCot;
-end;
-
-function T000dbc.GetOldVlrDbc: Double;
-begin
-  Result := FVlrDbc;
-end;
-
-function T000dbc.GetPerDbc: Char;
-begin
-    Result := FPerDbc;
-end;
-
-function T000dbc.GetSeqCot: Integer;
-begin
-  Result := FSeqCot;
-end;
-
-function T000dbc.GetVlrDbc: Double;
-begin
-  Result := FVlrDbc;
-end;
-
-procedure T000dbc.Registros_OLD;
-begin
-  inherited;
-
-  FOldCodDbc := FCodDbc;
-  FOldNomDbc := FNomDbc;
-  FOldDscDbc := FDscDbc;
-  FOldPerDbc := FPerDbc;
-  FOldNumPer := FNumPer;
-  FOldFonDbc := FFonDbc;
-  FOldDatIni := FDatIni;
-  FOldDatFin := FDatFin;
-  FOldDiaDbc := FDiaDbc;
-  FOldMesDbc := FMesDbc;
-  FOldAnoDbc := FAnoDbc;
-  FOldVlrDbc := FVlrDbc;
-  FOldSeqCot := FSeqCot;
-end;
-
-procedure T000dbc.SetAnoDbc(const Value: Word);
-begin
-  FAnoDbc := Value;
-end;
-
-procedure T000dbc.SetCodDbc(const Value: Integer);
-begin
-  FCodDbc := Value;
-end;
-
-procedure T000dbc.SetDatFin(const Value: TDate);
-begin
-  FDatFin := Value;
-end;
-
-procedure T000dbc.SetDatIni(const Value: TDate);
-begin
-  FDatIni := Value;
-end;
-
-procedure T000dbc.SetDiaDbc(const Value: Byte);
-begin
-  FDiaDbc := Value;
-end;
-
-procedure T000dbc.SetDscDbc(const Value: string);
-begin
-  FDscDbc := Value;
-end;
-
-procedure T000dbc.SetFonDbc(const Value: string);
-begin
-  FFonDbc := Value;
-end;
-
-procedure T000dbc.SetMesDbc(const Value: Byte);
-begin
-  FMesDbc := Value;
-end;
-
-procedure T000dbc.SetNomDbc(const Value: string);
-begin
-  FNomDbc := Value;
-end;
-
-procedure T000dbc.SetNumPer(const Value: Word);
-begin
-  FNumPer := Value;
-end;
-
-procedure T000dbc.SetOldAnoDbc(const Value: Word);
-begin
-  FOldAnoDbc := Value;
-end;
-
-procedure T000dbc.SetOldCodDbc(const Value: Integer);
-begin
-  FOldCodDbc := Value;
-end;
-
-procedure T000dbc.SetOldDatFin(const Value: TDate);
-begin
-  FOldDatFin := Value;
-end;
-
-procedure T000dbc.SetOldDatIni(const Value: TDate);
-begin
-  FOldDatIni := Value;
-end;
-
-procedure T000dbc.SetOldDiaDbc(const Value: Byte);
-begin
-  FOldDiaDbc := Value;
-end;
-
-procedure T000dbc.SetOldDscDbc(const Value: string);
-begin
-  FOldDscDbc := Value;
-end;
-
-procedure T000dbc.SetOldFonDbc(const Value: string);
-begin
-  FOldFonDbc := Value;
-end;
-
-procedure T000dbc.SetOldMesDbc(const Value: Byte);
-begin
-  FOldMesDbc := Value;
-end;
-
-procedure T000dbc.SetOldNomDbc(const Value: string);
-begin
-  FOldNomDbc := Value;
-end;
-
-procedure T000dbc.SetOldNumPer(const Value: Word);
-begin
-  FOldNumPer := Value;
-end;
-
-procedure T000dbc.SetOldPerDbc(const Value: Char);
-begin
-  FOldPerDbc := Value;
-end;
-
-procedure T000dbc.SetOldSeqCot(const Value: Integer);
-begin
-  FOldSeqCot := Value;
-end;
-
-procedure T000dbc.SetOldVlrDbc(const Value: Double);
-begin
-  FOldVlrDbc := Value;
-end;
-
-procedure T000dbc.SetPerDbc(const Value: Char);
-begin
-  FPerDbc := Value;
-end;
-
-procedure T000dbc.SetSeqCot(const Value: Integer);
-begin
-  FSeqCot := Value;
-end;
-
-procedure T000dbc.SetVlrDbc(const Value: Double);
-begin
-  FVlrDbc := Value;
+  FUSU_CodDbcOLD := FUSU_CodDbc;
+  FUSU_NomDbcOLD := FUSU_NomDbc;
+  FUSU_DatIndOLD := FUSU_DatInd;
+  FUSU_VlrDbcOLD := FUSU_VlrDbc;
+  FUSU_SeqCotOLD := FUSU_SeqCot;
 end;
 
 { T160CTR }

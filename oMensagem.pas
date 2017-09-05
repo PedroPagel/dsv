@@ -3,7 +3,7 @@ unit oMensagem;
 interface
 
 uses
-  oHButton, Vcl.Forms, Vcl.Controls, System.TypInfo, Vcl.Dialogs,
+  Vcl.Forms, Vcl.Controls, System.TypInfo, Vcl.Dialogs,
   System.SysUtils;
 
 type
@@ -23,7 +23,7 @@ type
 implementation
 
 uses
-  Vcl.StdCtrls, oBase;
+  Vcl.StdCtrls, oBase, oHButton;
 
 { THMessage }
 

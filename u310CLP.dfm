@@ -39,7 +39,7 @@ object F310CLP: TF310CLP
         Width = 176
         Height = 153
         Align = alRight
-        TabOrder = 1
+        TabOrder = 2
         object Mostrar: TButton
           Left = 13
           Top = 12
@@ -242,6 +242,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodFil: THButtonedEdit
           Left = 90
@@ -266,6 +267,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodCli: THButtonedEdit
           Left = 89
@@ -290,6 +292,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object DDatIni: THDateTimePicker
           Left = 90
@@ -330,7 +333,7 @@ object F310CLP: TF310CLP
         Height = 153
         Align = alLeft
         Caption = 'T'#237'tulo(s) - N'#227'o Ligado(s)'
-        TabOrder = 2
+        TabOrder = 1
         object Label8: TLabel
           Left = 194
           Top = 128
@@ -441,6 +444,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BEVlrIni: THButtonedEdit
           Left = 78
@@ -461,6 +465,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodFor: THButtonedEdit
           Left = 78
@@ -485,6 +490,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BETitFil: THButtonedEdit
           Left = 78
@@ -509,6 +515,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodEmp: THButtonedEdit
           Left = 78
@@ -533,6 +540,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object DVenFim: THDateTimePicker
           Left = 206
@@ -547,7 +555,7 @@ object F310CLP: TF310CLP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 6
         end
         object DVenIni: THDateTimePicker
           Left = 79
@@ -562,7 +570,7 @@ object F310CLP: TF310CLP
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 5
         end
       end
       object GBBem: TGroupBox
@@ -619,6 +627,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
         object BECodBem: THButtonedEdit
           Left = 80
@@ -641,6 +650,7 @@ object F310CLP: TF310CLP
           isAlfa = False
           isFloat = False
           OpenDialog = False
+          Required = False
         end
       end
     end
@@ -902,6 +912,10 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0
@@ -1126,6 +1140,10 @@ object F310CLP: TF310CLP
       object LigacaoBem: TTabSheet
         Caption = 'Liga'#231#227'o Bem x Bem'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel15: TPanel
           Left = 0
           Top = 0

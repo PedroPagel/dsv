@@ -28,6 +28,8 @@ type
     Button1: TButton;
     Label6: TLabel;
     ckHBASE: TCheckBox;
+    cbBase: TComboBox;
+    Label7: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ExecutarClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -59,6 +61,7 @@ var
   xArquivo: string;
   xCampo: string;
   xQuery: THQuery;
+  xBase: string;
 
   function MontarTipo(const pTipo: TFieldType): string;
   begin
@@ -185,6 +188,15 @@ begin
     Exit;
   end;
 
+  case cbBase.ItemIndex of
+    0: xBase := 'SENIOR52';
+    1: xBase := 'SENIOR53';
+    2: xBase := 'SENIOR54';
+  end;
+
+  FOracleConnection.Close;
+  FOracleConnection.Conexao(xBase);
+
   BENomTab.Text := StringReplace(BENomTab.Text, Char(39), '', [rfReplaceAll]);
   try
     if (IsNull(BEDirFil.Text)) then
@@ -208,7 +220,7 @@ begin
                       'FROM R998FLD, ALL_TAB_COLUMNS '+
                       'WHERE '+
                         'UPPER(TABLE_NAME)= :TABELA AND '+
-                        'OWNER = ''SENIOR52'' AND '+
+                        'OWNER = :BASE AND '+
                         'R998FLD.TBLNAM = TABLE_NAME AND '+
                         'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME '+
                       'ORDER BY '+
@@ -216,6 +228,7 @@ begin
 
     MontarCabecalho();
     xQuery.ParamByName('TABELA').Value := BENomTab.Text;
+    xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
     xQuery.Open;
 
     //VARIAVEIS

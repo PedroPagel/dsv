@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, wsBancoCentral, DateUtils, oSubSystemFacade;
+  oTabelas,  DateUtils, oSubSystemFacade;
 
 type
   TFacade = class

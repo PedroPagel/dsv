@@ -3,8 +3,8 @@ object FGerCla: TFGerCla
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Gerador de Classe'
-  ClientHeight = 213
-  ClientWidth = 445
+  ClientHeight = 274
+  ClientWidth = 443
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,10 +19,12 @@ object FGerCla: TFGerCla
   object pnl1: TPanel
     Left = 0
     Top = 0
-    Width = 445
-    Height = 213
+    Width = 443
+    Height = 274
     Align = alClient
     TabOrder = 0
+    ExplicitWidth = 445
+    ExplicitHeight = 213
     object Label1: TLabel
       Left = 16
       Top = 32
@@ -39,14 +41,14 @@ object FGerCla: TFGerCla
     end
     object Label3: TLabel
       Left = 50
-      Top = 113
+      Top = 140
       Width = 44
       Height = 13
       Caption = 'Heran'#231'a:'
     end
     object Label4: TLabel
       Left = 49
-      Top = 140
+      Top = 167
       Width = 45
       Height = 13
       Caption = 'Caminho:'
@@ -60,9 +62,16 @@ object FGerCla: TFGerCla
     end
     object Label6: TLabel
       Left = 254
-      Top = 113
+      Top = 140
       Width = 3
       Height = 13
+    end
+    object Label7: TLabel
+      Left = 67
+      Top = 113
+      Width = 27
+      Height = 13
+      Caption = 'Base:'
     end
     object ENomObj: TEdit
       Left = 100
@@ -85,17 +94,18 @@ object FGerCla: TFGerCla
       isAlfa = False
       isFloat = False
       OpenDialog = False
+      Required = False
     end
     object cbHeranca: TComboBox
       Left = 100
-      Top = 110
+      Top = 137
       Width = 145
       Height = 21
       Hint = 'Mantenha nenhum se n'#227'o for usar a BPL HBase.bpl!'
       Style = csDropDownList
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 3
+      TabOrder = 4
       Items.Strings = (
         'Tabela de Usu'#225'rio'
         'Tabela Sistema'
@@ -103,16 +113,16 @@ object FGerCla: TFGerCla
     end
     object Executar: TButton
       Left = 170
-      Top = 164
+      Top = 191
       Width = 75
       Height = 25
       Caption = '&Executar'
-      TabOrder = 4
+      TabOrder = 6
       OnClick = ExecutarClick
     end
     object BEDirFil: THButtonedEdit
       Left = 100
-      Top = 137
+      Top = 164
       Width = 321
       Height = 21
       ReadOnly = True
@@ -123,6 +133,7 @@ object FGerCla: TFGerCla
       isAlfa = False
       isFloat = False
       OpenDialog = True
+      Required = False
     end
     object ENomUni: TEdit
       Left = 100
@@ -133,11 +144,11 @@ object FGerCla: TFGerCla
     end
     object Button1: TButton
       Left = 320
-      Top = 164
+      Top = 191
       Width = 75
       Height = 25
       Caption = '&Sair'
-      TabOrder = 6
+      TabOrder = 7
       OnClick = Button1Click
     end
     object ckHBASE: TCheckBox
@@ -146,7 +157,22 @@ object FGerCla: TFGerCla
       Width = 97
       Height = 17
       Caption = 'Usar HBASE'
-      TabOrder = 7
+      TabOrder = 8
+    end
+    object cbBase: TComboBox
+      Left = 100
+      Top = 110
+      Width = 145
+      Height = 21
+      Hint = 'Mantenha nenhum se n'#227'o for usar a BPL HBase.bpl!'
+      Style = csDropDownList
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 3
+      Items.Strings = (
+        'SENIOR52'
+        'SENIOR53'
+        'SENIOR55')
     end
   end
 end

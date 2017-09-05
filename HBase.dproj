@@ -23,8 +23,18 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='OSX32' and '$(Base)'=='true') or '$(Base_OSX32)'!=''">
+        <Base_OSX32>true</Base_OSX32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
         <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
@@ -58,16 +68,25 @@
         <DCC_K>false</DCC_K>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_iOSDevice)'!=''">
+        <DCC_UsePackage>xmlrtl;rtl;DbxCommonDriver;dbrtl;dbexpress;soaprtl;inet;dsnap;fmx;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_iOSSimulator)'!=''">
+        <DCC_UsePackage>xmlrtl;rtl;DbxCommonDriver;dbrtl;dbexpress;soaprtl;inet;dsnap;fmx;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_OSX32)'!=''">
+        <DCC_UsePackage>xmlrtl;rtl;DbxCommonDriver;dbrtl;dbexpress;soaprtl;inet;dsnap;fmx;DBXOracleDriver;$(DCC_UsePackage)</DCC_UsePackage>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <DCC_UsePackage>xmlrtl;rtl;vcl;DbxCommonDriver;dbrtl;dbexpress;soaprtl;inet;dsnap;fmx;vcldb;adortl;DBXOracleDriver;vclactnband;vclx;vclimg;HBaseComponente;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_UsePackage>xmlrtl;rtl;vcl;DbxCommonDriver;dbrtl;dbexpress;soaprtl;inet;dsnap;fmx;vcldb;adortl;DBXOracleDriver;vclactnband;vclx;vclimg;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -108,16 +127,20 @@
         <DCCReference Include="oBase.pas"/>
         <DCCReference Include="oLayout.pas"/>
         <DCCReference Include="oQuery.pas"/>
-        <DCCReference Include="oTabelas.pas"/>
-        <DCCReference Include="wsCPAlterar.pas"/>
-        <DCCReference Include="wsCPATitulos.pas"/>
+        <DCCReference Include="oReader.pas"/>
         <DCCReference Include="wsCRAlterar.pas"/>
         <DCCReference Include="oTitulo.pas"/>
-        <DCCReference Include="oReader.pas"/>
-        <DCCReference Include="wsBancoCentral.pas"/>
-        <DCCReference Include="o420ocp.pas"/>
+        <DCCReference Include="oTabelas.pas"/>
         <DCCReference Include="o133mau.pas"/>
         <DCCReference Include="o133vem.pas"/>
+        <DCCReference Include="o420ocp.pas"/>
+        <DCCReference Include="o501tcp.pas"/>
+        <DCCReference Include="o998fld.pas"/>
+        <DCCReference Include="o998rfl.pas"/>
+        <DCCReference Include="o120ped.pas"/>
+        <DCCReference Include="o120ipd.pas"/>
+        <DCCReference Include="o075pro.pas"/>
+        <DCCReference Include="o085cli.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

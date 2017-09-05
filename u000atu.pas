@@ -24,7 +24,7 @@ var
 implementation
 
 uses
-  oBase, oMensagem;
+  oBase, oMensagem, Soap.SOAPHTTPClient;
 
 {$R *.dfm}
 
@@ -41,7 +41,6 @@ begin
       xFacade.Contrato := StrToInt(ParamStr(4));
       xFacade.Indice := ParamStr(5);
     end;
-
     xFacade.Executar();
   finally
     FreeAndNil(xFacade);

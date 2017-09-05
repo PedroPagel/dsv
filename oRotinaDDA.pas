@@ -37,7 +37,6 @@ type
     FListaArmazenamento: TIterador;
     FListaTituloGeral: TIterador;
     FListaTituloBanco: TIteradorAtualizarTitulos;
-    FListaTituloGerar: TIteradorCriacaoTitulos;
     FListaEspecieTitulo: TIteradorEspecieTitulo;
 
     F510AGE: T510AGE;
@@ -287,7 +286,6 @@ begin
   FListaArmazenamento := TIterador.Create;
   FListaTituloGeral := TIterador.Create;
   FListaTituloBanco := TIteradorAtualizarTitulos.Create;
-  FListaTituloGerar := TIteradorCriacaoTitulos.Create;
   FListaFilial := TListaFilial.Create;
 
   F095FOR := T095FOR.Create();
@@ -313,7 +311,6 @@ begin
   FreeAndNil(FListaArmazenamento);
   FreeAndNil(FListaTituloGeral);
   FreeAndNil(FListaTituloBanco);
-  FreeAndNil(FListaTituloGerar);
   FreeAndNil(FListaFilial);
   FreeAndNil(FListaEspecieTitulo);
 

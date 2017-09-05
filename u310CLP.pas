@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids,
   Vcl.ExtCtrls, oButtonedEdit, oDataSetGrid, Vcl.ComCtrls, oConsulta, System.Contnrs,
   Vcl.Mask, Vcl.DBCtrls, Vcl.Menus, CommCtrl, o310clp, Winapi.Windows, Data.DB,
-  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, wsBancoCentral, oDateTimePicker;
+  Vcl.Tabs, Vcl.DockTabSet, oMensagem, oHButton, oDateTimePicker;
 
 CONST
   CGRIDLIG = 1;
@@ -353,8 +353,6 @@ begin
   LTotOri.Caption := '0.00';
   LTotRea.Caption := '0.00';
 
-  FGridTit.Clear;
-  FGridTit.Refresh;
   FGridCon.Clear;
   FGridRea.Clear;
   FGridLig.Clear;
@@ -363,6 +361,8 @@ begin
   FGridBem.Clear;
   FGridBlg.Clear;
   FGridBnl.Clear;
+  FGridTit.Clear;
+  FGridTit.Update;
 
   PGControl.TabIndex := 0;
   PGControlChange(Self);
@@ -445,8 +445,15 @@ procedure TF310CLP.MarcarDesmarcar(const pValue: Byte);
 begin
   if (PGControl.TabIndex = 0) then
   begin
-    FGridCon.CheckFields('Check', pValue);
     FIteradorReajuste.MarcarDesmarcar(pValue);
+    FGridCon.Disconnect;
+    FGridCon.First;
+    while not(FGridCon.Eof) do
+    begin
+      FGridCon.FindField('Check').AsInteger := TControle(FIteradorReajuste[pred(FGridCon.Line)]).Check;
+      FGridCon.Next;
+    end;
+    FGridCon.Connect;
 
     if (pValue = 0) then
     begin
@@ -558,7 +565,7 @@ begin
   FControladorBem.Condicao := MontarCondicao();
   FControladorBem.Mostrar;
 
-  if (FControladorBem.LstLigado.Count > 0) then
+  if (FControladorBem.LstLigado.Count > 0) or (FControladorBem.LstNaoLigado.Count > 0) then
   begin
     for i := 0 to pred(FControladorBem.LstLigado.Count) do
     begin
@@ -1028,7 +1035,7 @@ begin
 
   //Contrato - tab 1
   BECodCli.CreateLookup();
-  BECodCli.Filter := 'CODCLI IN (SELECT USU_CODCLI FROM USU_T095LOC)';
+  BECodCli.Filter := 'USU_LOCCLP = ''S''';
 
   BECodFil.CreateLookup();
   BENumCtr.CreateLookup();
@@ -1070,6 +1077,8 @@ begin
   BECodEmp.CreateLookup();
   BETitFil.CreateLookup();
   BECodFor.CreateLookup();
+
+  BETitFil.AddFilterLookup(BECodEmp);
   BECodFor.Filter := 'E095FOR.CODFOR IN (SELECT E501TCP.CODFOR FROM E501TCP WHERE CODTPT IN (''39'',''64''))';
 
   FGridClp.Init('USU_T160CLP', F310CLP);
@@ -1243,6 +1252,7 @@ var
 begin
   xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
   x301tcr := T301TCR(xControle.Ajuste[pred(FGridRea.Line)]);
+
   x301tcr.Check := iff(x301tcr.Check = 1, 0, 1);
   FGridRea.FindField('Check').AsInteger := x301tcr.Check;
 
@@ -1266,7 +1276,9 @@ procedure TF310CLP.FGridReaIndNovChange;
 begin
   if (FGridRea.FindField('Check').AsInteger = 1) then
   begin
-    FIteradorReajuste.RemoverCalculos := False;
+    FIteradorReajuste.RemoverCalculos := (((FGridRea.FindField('IndNov').AsFloat = 0) and (FGridRea.FindField('IndRea').AsFloat < 0)) or
+      ((FGridRea.FindField('IndRea').AsFloat = 0) and (FGridRea.FindField('IndNov').AsFloat = 0)));
+
     CalcularReajuste(iff(FGridRea.FindField('IndNov').AsFloat = 0, FGridRea.FindField('IndRea').AsFloat,
       FGridRea.FindField('IndNov').AsFloat));
     FGridRea.FindField('VlrOri').AsFloat := T301TCR(TControle(FIteradorReajuste[pred(FGridCon.Line)]).Ajuste[pred(FGridRea.Line)]).VlrOri;
