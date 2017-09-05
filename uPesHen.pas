@@ -22,6 +22,7 @@ type
     Label2: TLabel;
     CBFiltrar: TCheckBox;
     CBFiltros: TComboBox;
+    FLeftTable: TForm;
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SairClick(Sender: TObject);
@@ -32,8 +33,11 @@ type
     FField: string;
     FieldName: string;
     FRetorno: Variant;
+    FLeftClick: Boolean;
   public
     function Return(): Variant;
+    procedure AddLeftTableForm(const pForm: TForm);
+    procedure ShowLeftTableData();
     procedure ShowData(const pTable: string; const pField: string; const pIndexFields: string = ''; const pFilter: string = '');
   published
     procedure FGridPesTitleClick(Column: TColumn);
@@ -45,9 +49,14 @@ var
 implementation
 
 uses
-  oBase;
+  oBase, oMensagem, u000cad;
 
 {$R *.dfm}
+
+procedure TFPesHen.AddLeftTableForm(const pForm: TForm);
+begin
+  FLeftTable := pForm;
+end;
 
 procedure TFPesHen.CBFiltrarClick(Sender: TObject);
 begin
@@ -84,7 +93,12 @@ procedure TFPesHen.OKClick(Sender: TObject);
 begin
   if not(FGridPes.GridTitleClick()) then
   begin
-    FRetorno := FGridPes.Selected(FField);
+    if (FLeftClick) then
+      TF000CAD(FLeftTable).ValidarCamposChave(FGridPes)
+    else
+      FRetorno := FGridPes.Selected(FField);
+
+    FLeftClick := False;
     Close;
   end;
 end;
@@ -106,9 +120,30 @@ begin
   FGridPes.Init(pTable, Self, pIndexFields, pFilter);
   FGridPes.OrderTitles := True;
   FGridPes.CreateDataSet;
-  FGridPes.ShowSearch();
   CBFiltros.ItemIndex := 0;
-  ShowModal;
+
+  if (FGridPes.ShowSearch) then
+    ShowModal
+  else
+    CMessage('Não houve informações a listar!', mtErrorInform);
+end;
+
+procedure TFPesHen.ShowLeftTableData;
+var
+  xForm: TF000CAD;
+begin
+  xForm := TF000CAD(FLeftTable);
+
+  FGridPes.Init(xForm.NomeClasse, xForm, '', '');
+  FGridPes.OrderTitles := True;
+  FGridPes.CreateDataSet;
+  CBFiltros.ItemIndex := 0;
+  FLeftClick := True;
+
+  if (FGridPes.ShowSearch) then
+    ShowModal
+  else
+    CMessage('Não houve informações a listar!', mtErrorInform);
 end;
 
 end.

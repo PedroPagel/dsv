@@ -11,17 +11,20 @@ uses
 type
   TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists);
   tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
-  tTitulo = (tTContasPagar, tTContasReceber);
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
-
-  TArrayOfString = array of string;
+  tTitulo = (tTContasPagar, tTContasReceber);
+  tTableType = (ttUsuario, ttPadrao);
+  tDayOfWeek = (dwNenhum, dwDomingo, dwSegundaFeira, dwTercaFeira, dwQuartaFeira,
+                dwQuintaFeira, dwSextaFeira, dwSabado);
 
   TBetweenRegister = record
     Name: array of string;
     Data: array of TDate;
   end;
 
-  TTable = class
+  TArrayOfString = array of string;
+
+  TTable = class(TInterfacedPersistent)
   private
     FCheck: Byte;
     FField: string;
@@ -40,7 +43,6 @@ type
     FLimitField: array of string;
     FBlockList: array of string;
     FBetween: TBetweenRegister;
-    FLine: TTableState;
 
     procedure Insert();
     procedure Update();
@@ -49,13 +51,13 @@ type
     procedure DefinirParametros();
     procedure MontarEstadoInsert();
     procedure MontarEstadoDelete();
-    procedure AtribuirValoresSelect();
     procedure MontarComandoBetween();
 
     function GetCheck: Byte;
     function Select(): Boolean;
     function MAXSelect(): string;
     function SUMSelect(): string;
+    function COUNTSelect(): string;
     function MontarEstadoUpdate(): string;
     function MontarEstadoSelect(): Boolean;
     function MontarComandoSelect(): string;
@@ -66,25 +68,30 @@ type
     procedure ExecutarMesesEntre();
     function GetBetween(const pName: string): TDate;
     procedure SetBetween(const pName: string; const Value: TDate);
-    function GetLine: TTableState;
-    procedure SetLine(const Value: TTableState);
   protected
     procedure Registros_OLD(); virtual; abstract;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
+    procedure AtribuirValoresSelect();
     procedure Start();
     procedure Close();
     procedure First();
+    procedure Last();
+    procedure ClearFields();
+    procedure Init(const pTabela: string);
     procedure AddTable(const pTables: array of string);
     procedure BlockProperty(const pField: array of string);
     procedure FieldsForUpdate(const pField: array of string);
     procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
     procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
-    procedure Execute(); overload;
 
     function Next(): Boolean;
+    function Count: Integer;
+    function Prior(): Boolean;
+    function TableType: tTableType; virtual; abstract;
+    function SetTableToRecord(const pTabela: string): THQuery;
     function GenerateID(const pField: string): Integer; virtual; abstract;
     function MonthsBetween(const pInicial, pFinal: string): Word; overload;
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
@@ -94,7 +101,6 @@ type
 
     property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
-    property LineState: TTableState read GetLine write SetLine;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
   end;
@@ -106,6 +112,7 @@ type
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
+    function TableType: tTableType; override;
     function GenerateID(const pField: string): Integer; override;
   end;
 
@@ -124,6 +131,7 @@ type
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
+    function TableType: tTableType; override;
     function GenerateID(const pField: string): Integer; override;
 
     property USU_ID: Integer read GetId write SetId;
@@ -139,8 +147,13 @@ type
   private
     FFields: array of string;
     FIndex: TStringList;
+    FBaseClass: TClass;
+    Findexed: Boolean;
+
+    function GetIndexed: Boolean;
+    procedure SetIndexed(const Value: Boolean);
   public
-    constructor Create(const pIndice: Boolean = False);
+    constructor Create(const pBaseClass: TClass = nil);
     destructor Destroy(); override;
 
     function Selecionados(): Boolean;
@@ -148,11 +161,14 @@ type
     function IndexOfFields(const pObj: TObject): Boolean;
 
     procedure IndexFields(const pFields: array of string);
+    procedure ShiftValues(const pInput: TObject); //metodo novo, adiciona os dados de um objeto gemeo
     procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
     procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
 
     class procedure Repassar(const pObjEntrada: TObject;
       const pObjeSaida: TObject);
+
+    property indexed: Boolean read GetIndexed write SetIndexed;
   end;
 
   TFilial = class(TTabelaPadrao)
@@ -237,6 +253,32 @@ type
     procedure Conexao(const pBase: string);
     function BaseConexao(): string;
     function MontarURL(const pType: PTypeInfo): string;
+  end;
+
+  TData = class
+  private
+    FDia: Word;
+    FMes: Word;
+    FAno: Word;
+    FData: TDate;
+    FDiaDaSemana: Boolean;
+    FDayOfWeek: tDayOfWeek;
+
+    function GetDayOfWeek: tDayOfWeek;
+
+    procedure SetData(const Value: TDate);
+    function GetData: TDate;
+  public
+    constructor Create(const pData: TDate = 0);
+    destructor Destroy; override;
+
+    procedure IncDays(const pValue: Integer);
+
+    property Data: TDate read GetData write SetData;
+    property Dia: Word read FDia;
+    property Mes: Word read FMes;
+    property Ano: Word read FAno;
+    property DiaDaSemana: Boolean read FDiaDaSemana write FDiaDaSemana;
   end;
 
 procedure StartTransaction();
@@ -516,33 +558,33 @@ var
   xProperty: TRttiProperty;
 begin
   try
-  for xProperty in FType.GetProperties do
-  begin
-    if NegarCampo(xProperty.Name) then
+    for xProperty in FType.GetProperties do
     begin
-      case xProperty.PropertyType.TypeKind of
-        tkInteger:
-          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsInteger);
+      if NegarCampo(xProperty.Name) then
+      begin
+        case xProperty.PropertyType.TypeKind of
+          tkInteger:
+            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsInteger);
 
-        tkFloat:
-          if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-            xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name)
-              .AsDateTime))
-          else
-            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
+          tkFloat:
+            if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+              xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name)
+                .AsDateTime))
+            else
+              xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
 
-        tkWChar, tkChar:
-        begin
-          if (Length(FQuery.FindField(xProperty.Name).AsString) > 0) then
-            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1])
-          else
-            xProperty.SetValue(Self, ' ');
+          tkWChar, tkChar:
+          begin
+            if (Length(FQuery.FindField(xProperty.Name).AsString) > 0) then
+              xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1])
+            else
+              xProperty.SetValue(Self, ' ');
+          end;
+        else
+          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
         end;
-      else
-        xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
       end;
     end;
-  end;
   except
     on e: exception do
       raise;
@@ -553,20 +595,9 @@ end;
 
 constructor TTable.Create(const pTabela: string);
 begin
-  FTabela := pTabela;
-  FUseParam := True;
-  FSetFields := False;
-  FLine := etNone;
-  FSelect := esNormal;
-  FCondicao := EmptyStr;
-  FInsertValue := EmptyStr;
-  FTables := EmptyStr;
+  inherited Create();
 
-  FillChar(FFields, sizeOf(FFields), 0);
-  FillChar(FBlockList, sizeOf(FBlockList), 0);
-  FillChar(FLimitField, sizeOf(FLimitField), 0);
-
-  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState']);
+  Init(pTabela);
 end;
 
 procedure TTable.BlockProperty(const pField: array of string);
@@ -599,6 +630,19 @@ begin
   end;
 end;
 
+function TTable.Prior(): Boolean;
+begin
+  Result := not(FQuery.Bof);
+
+  if (Result) then
+  begin
+    AtribuirValoresSelect();
+    FQuery.Prior;
+  end
+  else
+    FQuery.Close;
+end;
+
 procedure TTable.PropertyForSelect(const pField: array of string;
   const pAND: Boolean = False);
 var
@@ -611,7 +655,7 @@ begin
     SetLength(FFields, j);
     FFields[pred(j)] := pField[i];
 
-    FCondicao := FCondicao + pField[i] +
+    FCondicao := FCondicao + FTabela + '.' + pField[i] +
       Format(iff(FUseParam, ' = :%s', ' = %s'), [pField[i]]) +
       iff(pAND, ' AND ', ',');
 
@@ -674,7 +718,7 @@ begin
         end;
     else
       FQuery.ParamByName(FFields[i]).Value :=
-        xPropriedade.GetValue(Self).ToString;
+       UpperCase(xPropriedade.GetValue(Self).ToString);
     end;
   end;
 end;
@@ -709,11 +753,6 @@ begin
 
   if (FUseParam) then
     DefinirParametros();
-end;
-
-procedure TTable.Execute();
-begin
-
 end;
 
 function TTable.Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
@@ -783,6 +822,21 @@ begin
   FreeAndNil(FQuery);
 end;
 
+function TTable.Count: Integer;
+begin
+  Result := FQuery.Count;
+end;
+
+function TTable.COUNTSelect: string;
+begin
+  Result := Format('SELECT COUNT(1) FROM %s', [FTabela]);
+
+  if not(IsNull(FCondicao)) then
+    Result := Format('%s WHERE %s', [Result, FCondicao]);
+
+  FQuery.LockType := ltReadOnly;
+end;
+
 function TTable.GetBetween(const pName: string): TDate;
 var
   i: Byte;
@@ -799,11 +853,6 @@ begin
   Result := FCheck;
 end;
 
-function TTable.GetLine: TTableState;
-begin
-  Result := FLine;
-end;
-
 procedure TTable.Start;
 begin
   FillChar(FFields, sizeOf(FFields), 0);
@@ -812,9 +861,36 @@ begin
   FCondicao := EmptyStr;
 end;
 
+procedure TTable.Init(const pTabela: string);
+begin
+  FTabela := pTabela;
+  FUseParam := True;
+  FSetFields := False;
+  FSelect := esNormal;
+  FCondicao := EmptyStr;
+  FInsertValue := EmptyStr;
+  FTables := EmptyStr;
+
+  FillChar(FFields, sizeOf(FFields), 0);
+  FillChar(FBlockList, sizeOf(FBlockList), 0);
+  FillChar(FLimitField, sizeOf(FLimitField), 0);
+
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState']);
+end;
+
 procedure TTable.Insert();
 begin
   Self.MontarEstadoInsert();
+end;
+
+procedure TTable.Last();
+begin
+  FQuery.Last;
+
+  if (not(FQuery.Bof)) then
+  begin
+    AtribuirValoresSelect();
+  end;
 end;
 
 function TTable.LiberarCampo(const pNome: string): Boolean;
@@ -851,6 +927,34 @@ begin
 
   FCondicao := EmptyStr;
   FSelect := esNormal;
+end;
+
+procedure TTable.ClearFields;
+var
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+begin
+  xType := xContext.GetType(Self.ClassType);
+
+  for xProperty in xType.GetProperties do
+  begin
+    if NegarCampo(xProperty.Name) then
+    begin
+      case xProperty.PropertyType.TypeKind of
+        tkInteger:
+          xProperty.SetValue(Self, 0);
+
+        tkFloat:
+          xProperty.SetValue(Self, 0);
+
+        tkWChar, tkChar:
+          xProperty.SetValue(Self, emptyStr);
+      else
+        xProperty.SetValue(Self, emptyStr);
+      end;
+    end;
+  end;
 end;
 
 procedure TTable.MontarEstadoInsert();
@@ -1132,9 +1236,13 @@ begin
   end;
 end;
 
-procedure TTable.First;
+procedure TTable.First();
 begin
   FQuery.First;
+  if (not(FQuery.Eof)) then
+  begin
+    AtribuirValoresSelect();
+  end;
 end;
 
 function TTable.Next(): Boolean;
@@ -1144,7 +1252,6 @@ begin
   if (Result) then
   begin
     AtribuirValoresSelect();
-    FLine := etExists;
     FQuery.Next;
   end
   else
@@ -1164,6 +1271,9 @@ begin
 
     esSUM:
       FQuery.Command := SUMSelect;
+
+    esCOUNT:
+      FQuery.Command := COUNTSelect;
   end;
 
   MontarComandoBetween;
@@ -1189,9 +1299,16 @@ begin
   FCheck := Value;
 end;
 
-procedure TTable.SetLine(const Value: TTableState);
+function TTable.SetTableToRecord(const pTabela: string): THQuery;
 begin
-  FLine := Value;
+  FQuery := THQuery.CreatePersonalizado();
+  FContext := TRttiContext.Create;
+  FType := FContext.GetType(Self.ClassType);
+  FTabela := pTabela;
+
+  FQuery.Command := MontarComandoSelect();
+
+  Result := FQuery;
 end;
 
 function TTable.SUMSelect: string;
@@ -1211,12 +1328,11 @@ end;
 
 { TIterador }
 
-constructor TIterador.Create(const pIndice: Boolean);
+constructor TIterador.Create(const pBaseClass: TClass = nil);
 begin
   inherited Create;
 
-  if (pIndice) then
-    FIndex := TStringList.Create;
+  FBaseClass := pBaseClass;
 end;
 
 destructor TIterador.Destroy;
@@ -1233,6 +1349,11 @@ begin
   except
     Result := False;
   end;
+end;
+
+function TIterador.GetIndexed: Boolean;
+begin
+  Result := Findexed;
 end;
 
 procedure TIterador.IndexFields(const pFields: array of string);
@@ -1377,6 +1498,37 @@ begin
     if (Result) then
       Break;
   end;
+end;
+
+procedure TIterador.SetIndexed(const Value: Boolean);
+begin
+  if (Value) then
+    FIndex := TStringList.Create;
+
+  Findexed := Value;
+end;
+
+//para ser usada, a classe deve ter uma unit seperada.
+procedure TIterador.ShiftValues(const pInput: TObject);
+var
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xNewObj: TObject;
+  xClass: TPersistentClass;
+begin
+  xClass := GetClass(FBaseClass.ClassName);
+  xNewObj := (xClass.Create) as TObject;
+
+  xType := xContext.GetType(xNewObj.ClassType);
+
+  for xProperty in xType.GetProperties do
+  begin
+    if (AllowedTypeKind(xProperty.PropertyType.TypeKind)) then
+      xProperty.SetValue(xNewObj, xContext.GetType(pInput.ClassType).GetProperty(xProperty.Name).GetValue(pInput));
+  end;
+
+  Self.Add(xNewObj);
 end;
 
 { TFilial }
@@ -1600,6 +1752,11 @@ begin
   //nada
 end;
 
+function TTabelaPadrao.TableType: tTableType;
+begin
+  Result := ttPadrao;
+end;
+
 { TTabelaUsuario }
 
 constructor TTabelaUsuario.Create(const pTabela: string);
@@ -1658,6 +1815,11 @@ end;
 procedure TTabelaUsuario.SetOldId(const Value: Integer);
 begin
   FOldId := Value;
+end;
+
+function TTabelaUsuario.TableType: tTableType;
+begin
+  Result := ttUsuario;
 end;
 
 { TConnectionBase }
@@ -1731,6 +1893,72 @@ begin
 
   if (AnsiSameText(FBase, 'SENIOR55'))  then
     Result := Format('http://sch:8484/g5-senior-services/%s', [pType.Name]);
+end;
+
+{ TData }
+
+constructor TData.Create(const pData: TDate = 0);
+begin
+  inherited Create;
+
+  Data := iff(pData = 0, Date, pData);
+  FDiaDaSemana := False;
+end;
+
+destructor TData.Destroy;
+begin
+  inherited;
+end;
+
+function TData.GetData: TDate;
+begin
+  if (FAno > 0) then
+    FData := EncodeDate(FAno, FMes, FDia);
+
+  Result := FData;
+end;
+
+procedure TData.IncDays(const pValue: Integer);
+var
+  xDias: Integer;
+  xLoop: Integer;
+begin
+  xLoop := pValue;
+
+  while (xLoop > 0) do
+  begin
+    xDias := MonthDays[IsLeapYear(FAno), FMes];
+    Inc(FDia);
+    Dec(xLoop);
+
+    if ((xLoop = 0) and (FDiaDaSemana)) then
+      if (Self.GetDayOfWeek in [dwDomingo, dwSabado]) then
+        Inc(xLoop);
+
+    if (FDia > xDias) then
+    begin
+      FDia := 1;
+      Inc(FMes);
+
+      if (FMes > 12) then
+      begin
+        FMes := 1;
+        Inc(FAno);
+      end;
+    end;
+  end;
+end;
+
+procedure TData.SetData(const Value: TDate);
+begin
+  FData := Value;
+
+  DecodeDate(VAlue, FAno, FMes, FDia);
+end;
+
+function TData.GetDayOfWeek: tDayOfWeek;
+begin
+  Result := tDayOfWeek(DayOfWeek(Data))
 end;
 
 end.

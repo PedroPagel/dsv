@@ -35,6 +35,7 @@ begin
   BEDirFin.CreateLookup;
 
   FControladorImportacao := TControladorImportacao.Create;
+  BEDirFin.GetDirectory := False;
 end;
 
 procedure TF000IMP.ImportarClick(Sender: TObject);

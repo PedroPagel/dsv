@@ -71,6 +71,7 @@ type
     FGridState: TGridState;
     FFieldState: TGridState;
     FEnterLine: TEnterLine;
+    FLeftTable: TForm;
 
     function DesmontaID(const pString: string): string;
     function GetAllowNewLine: Boolean;
@@ -112,7 +113,6 @@ type
     procedure First();
     procedure Next();
     procedure Finalize();
-    procedure ShowSearch();
     procedure CreateDataSet();
     procedure AddFields(const pObj: TObject);
     procedure Visible(const pField: string; pValue: Boolean);
@@ -128,6 +128,7 @@ type
     function Eof: Boolean;
     function Count: Integer;
     function Line: Integer;
+    function ShowSearch(): Boolean;
     function FindField(const pFieldName: string): TField;
     function Selected(const pField: string): Variant;
     function GridTitleClick(): Boolean;
@@ -136,6 +137,7 @@ type
     procedure Disconnect;
     procedure Connect;
     procedure Delete;
+    procedure AddLeftTableForm(const pForm: TForm);
 
     property Like: Boolean read FLike write FLike;
     property OrderTitles: Boolean read FOrderTitles write FOrderTitles;
@@ -232,7 +234,7 @@ end;
 
 procedure TDataSetGrid.Next;
 begin
-  Self.DataSource.DataSet.Next;
+  FClientDataSet.Next;
 end;
 
 procedure TDataSetGrid.NumericField(const pField: string; const pMask: string);
@@ -535,6 +537,11 @@ begin
   FGridState := gsInsert;
   FClientDataSet.Post;
   Inc(FCount);
+end;
+
+procedure TDataSetGrid.AddLeftTableForm(const pForm: TForm);
+begin
+  FLeftTable := pForm;
 end;
 
 procedure TDataSetGrid.FieldPosition(const pField: string;
@@ -1095,7 +1102,7 @@ begin
   end;
 end;
 
-procedure TDataSetGrid.ShowSearch;
+function TDataSetGrid.ShowSearch: Boolean;
 var
   i: Integer;
 begin
@@ -1118,6 +1125,7 @@ begin
     FQueryField.Next;
   end;
 
+  Result := (FQueryField.Count > 0);
   Self.DataSource.DataSet := FClientDataSet;
   Self.DataSource.DataSet.First;
 end;

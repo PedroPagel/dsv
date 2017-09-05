@@ -18,7 +18,9 @@ type
     constructor CreatePersonalizado(const pTabelaUsuario: Boolean = False);
     destructor Destroy(); override;
 
+    function Count: Integer;
     function ParamByName(const Value: WideString): TParameter;
+
     procedure ReadQuery(const pObj: TObject);
     procedure Reset();
   published
@@ -31,6 +33,11 @@ uses
   oBase, System.Rtti, System.TypInfo;
 
 { THQuery }
+
+function THQuery.Count: Integer;
+begin
+  Result := RecordCount;
+end;
 
 constructor THQuery.CreatePersonalizado(const pTabelaUsuario: Boolean = False);
 begin

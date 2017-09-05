@@ -45,14 +45,14 @@ requires
   HBase;
 
 contains
-  uPesHen in 'uPesHen.pas' {FPesHen},
   oMensagem in 'oMensagem.pas',
   oHButton in 'oHButton.pas',
   oDataSetGrid in 'oDataSetGrid.pas',
   oButtonedEdit in 'oButtonedEdit.pas',
-  oDateTimePicker in 'oDateTimePicker.pas';
+  oDateTimePicker in 'oDateTimePicker.pas',
+  uPesHen in 'uPesHen.pas' {FPesHen},
+  oMemo in 'oMemo.pas',
+  oPanel in 'oPanel.pas',
+  u000cad in 'u000cad.pas' {F000CAD};
 
 end.
-
-
-

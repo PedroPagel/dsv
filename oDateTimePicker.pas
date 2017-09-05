@@ -15,6 +15,8 @@ type
     FDate: TDate;
     FDateHandler: TDate;
     FDatePressed: Boolean;
+    FDataBaseTable: string;
+    FDataBaseField: string;
 
     procedure EnterField(Sender: TObject);
     procedure ExitField(Sender: TObject);
@@ -33,6 +35,8 @@ type
     property Date: TDateTime read GetDate write SetDate;
   published
     { Published declarations }
+    property DataBaseTable: string read FDataBaseTable write FDataBaseTable;
+    property DataBaseField: string read FDataBaseField write FDataBaseField;
   end;
 
 procedure Register;

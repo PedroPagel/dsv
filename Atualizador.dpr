@@ -10,7 +10,7 @@ uses
   u000atu in 'u000atu.pas' {F000ATU},
   oSubSystemFacade in 'oSubSystemFacade.pas',
   oFacadeAtualizador in 'oFacadeAtualizador.pas',
-  wsBancoCentral in 'wsBancoCentral.pas';
+  wsControleLocacao in 'wsControleLocacao.pas';
 
 {$R *.res}
 begin

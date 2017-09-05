@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oTitulo, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, o501tcp;
+  oTabelas, o501tcp, System.DateUtils;
 
 type
   tSelecaoCheck = (scSemDados, scLigacao, scPossuiLigacao, scApenasRemover, scNaoLigado, scSomaNaoLigado);
@@ -20,6 +20,7 @@ type
     FBonCtr: Extended;
     FReaCtr: Extended;
     F090IND: T090IND;
+    FVlrInd: Double;
 
     function GetTitulo: TIterador;
     procedure SetTitulo(const Value: TIterador);
@@ -33,11 +34,16 @@ type
     procedure SetLigacao(const Value: TIterador);
 
     procedure AdicionarMovimento(const p160MOV: T160MOV);
+    function GetVlrInd: Double;
+    procedure SetVlrInd(const Value: Double);
+
+    function PeriodicidadeInicial(const pData: TDate): TDate;
+    function DiminuirPeriodo(const pData: TDate; const pMeses: Integer): TDate;
   public
     constructor Create();
     destructor Destroy(); override;
 
-    procedure CarregarIndice();
+    procedure CarregarIndice(const pTitulo: T301TCR);
     procedure InserirContrato();
     procedure RemoverContrato();
     procedure AdicionarTitulosReajuste();
@@ -51,6 +57,7 @@ type
     property Ajuste: TIterador read GetAjuste write SetAjuste;
     property TotOri: Extended read GetTotOri write SetTotOri;
     property TotRea: Extended read GetTotRea write SetToRea;
+    property VlrInd: Double read GetVlrInd write SetVlrInd;
   end;
 
   TTituloControle = class(T301TCR)
@@ -75,7 +82,7 @@ type
     function GetVlrBon: Currency;
     procedure SetVlrBon(const Value: Currency);
   public
-    constructor Create(const p090IND: T090IND; const pTitulo: T301TCR);
+    constructor Create(const pControle: TControle; const pTitulo: T301TCR);
     destructor Destroy(); override;
 
     property IndFin: string read GetIndFin write SetIndFin;
@@ -294,13 +301,13 @@ begin
                                  'E160CTR.CODEMP','E160CTR.CODFIL','E160CTR.NUMCTR','E301TCR.CODTPT','E160CTR.CODCLI'], True));
 
     xQueryTitulo.Execute(etSelect, esLoop);
-    F090IND.CarregarIndice(xQueryTitulo);
+    Self.CarregarIndice(xQueryTitulo);
 
     while (xQueryTitulo.Next) do
       if (SituacaoTitulo(xQueryTitulo.SitTit)) and (xQueryTitulo.VlrOri = xQueryTitulo.VlrAbe) then
       begin
         FTotOri := FTotOri + xQueryTitulo.VlrOri;
-        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(F090IND, xQueryTitulo));
+        FAjuste.IterarAdd(xQueryTitulo, TTituloControle.Create(Self, xQueryTitulo));
       end;
   finally
     FreeAndNil(xQueryTitulo);
@@ -313,45 +320,62 @@ begin
   Result := FBonCtr;
 end;
 
-procedure TControle.CarregarIndice;
+procedure TControle.CarregarIndice(const pTitulo: T301TCR);
 var
-  x090LIC: T090LIC;
+  x160ctr: T160CTR;
+  x000dbc: T000dbc;
 begin
-  x090LIC := T090LIC.Create;
-  try
-    x090LIC.USU_CodEmp := Self.USU_CodEmp;
-    x090LIC.USU_CodFil := Self.USU_CodFil;
-    x090LIC.USU_NumCtr := Self.USU_NumCtr;
-    x090LIC.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMCTR'], True);
+  F090IND := T090IND.Create;
+  F090IND.USU_ID := Self.USU_IDIND;
+  F090IND.PropertyForSelect(['USU_ID']);
+  F090IND.Execute(etSelect);
 
-    if (x090LIC.Execute(etSelect)) then
-    begin
-      F090IND := T090IND.Create();
-      F090IND.USU_ID := x090LIC.USU_IDIND;
-      F090IND.PropertyForSelect(['USU_ID']);
-      F090IND.Execute(etSelect);
-    end
-    else
-      CMessage(Format('Não existe índice ligado ao contrato: %s da empresa: %s e filial: %s.',
-      [IntToStr(Self.USU_NumCtr), IntToStr(Self.USU_CodEmp), IntToStr(USU_CodFil)]),
-        mtExceptError, True, 'Será necessário incluir uma ligação de um índice ao contrato!');
-  finally
-    FreeAndNil(x090LIC);
-  end;
+  x160ctr := T160CTR.Create();
+  x160ctr.CodEmp := pTitulo.CodEmp;
+  x160ctr.CodFil := pTitulo.FilCtr;
+  x160ctr.NumCtr := pTitulo.NumCtr;
+  x160ctr.PropertyForSelect(['CODEMP','CODFIL','NUMCTR'], True);
+  x160ctr.Execute(etSelect);
+
+  x000dbc := T000dbc.Create;
+  x000dbc.USU_CodDbc := F090IND.USU_CodDbc;
+  x000dbc.Field := 'USU_VLRDBC';
+  x000dbc.Between['USU_DATIND'] := PeriodicidadeInicial(StartOfTheMonth(x160ctr.IniVig));
+  x000dbc.Between['USU_DATIND'] := Date;
+  x000dbc.PropertyForSelect(['USU_CODDBC']);
+  x000dbc.Execute(etSelect, esSUM);
+
+  Self.VlrInd := x000dbc.USU_VlrDbc;
 end;
 
 constructor TControle.Create;
 begin
   inherited Create();
 
-  BlockProperty(['ID','Check','Titulo', 'Ajuste','TotOri','TotRea', 'Ligacao']);
-  FTitulo := TIterador.Create(True);
+  BlockProperty(['ID','Check','Titulo', 'Ajuste','TotOri','TotRea', 'Ligacao','VlrInd']);
+  FTitulo := TIterador.Create();
+  FTitulo.indexed := True;
+
   FTitulo.IndexFields(['USU_CodEmp','USU_CodFil','USU_NumTit','USU_CodTpt']);
 
   FBonCtr := 0;
   FReaCtr := 0;
   FAjuste := TIterador.Create;
   FLigacao := TIterador.Create;
+end;
+
+function TControle.PeriodicidadeInicial(const pData: TDate): TDate;
+begin
+  Result := 0;
+
+  case (Self.USU_PerEre) of
+    0,1,2,3: Result := 0;
+    4: Result := DiminuirPeriodo(pData, 1);
+    5: Result := DiminuirPeriodo(pData, 2);
+    6: Result := DiminuirPeriodo(pData, 3);
+    7: Result := DiminuirPeriodo(pData, 6);
+    8: Result := DiminuirPeriodo(pData, 12);
+  end;
 end;
 
 destructor TControle.Destroy;
@@ -366,6 +390,24 @@ begin
   FreeAndNil(F090IND);
 
   inherited;
+end;
+
+function TControle.DiminuirPeriodo(const pData: TDate; const pMeses: Integer): TDate;
+var
+  i: Integer;
+begin
+  i := pMeses;
+  Result := StartOfTheMonth(Date);
+
+  while not(i = 0) do
+  begin
+    Dec(i);
+
+    if (IncMonth(Result, -1) <= pData) then
+      Break;
+
+    Result := IncMonth(Result, -1);
+  end;
 end;
 
 function TControle.GetAjuste: TIterador;
@@ -391,6 +433,11 @@ end;
 function TControle.GetTotRea: Extended;
 begin
   Result := FTotRea;
+end;
+
+function TControle.GetVlrInd: Double;
+begin
+  Result := FVlrInd;
 end;
 
 procedure TControle.InserirContrato();
@@ -463,6 +510,11 @@ begin
   FTotOri := Value;
 end;
 
+procedure TControle.SetVlrInd(const Value: Double);
+begin
+  FVlrInd := Value;
+end;
+
 { TIteradorControle }
 
 procedure TIteradorControle.AdicionarTitulosDespesas();
@@ -471,7 +523,7 @@ var
 begin
   xQueryTitulo := T501TCP.Create();
   try
-    xQueryTitulo.AddToCommand(FFiltraTitulo + 'E501TCP.CODTPT IN (''64'',''39'') AND E501TCP.SITTIT LIKE ''A%'' AND (USU_IDCLP = 0)');
+    xQueryTitulo.AddToCommand(FFiltraTitulo + 'E501TCP.CODTPT IN (''75'',''39'') AND E501TCP.SITTIT LIKE ''A%'' AND (USU_IDCLP = 0)');
     xQueryTitulo.Execute(etSelect, esLoop);
 
     while (xQueryTitulo.Next) do
@@ -500,10 +552,7 @@ begin
       Self.Iterar(xQueryReajuste, xControle);
 
       if (FTitulo = tTContasReceber) then
-      begin
-        xControle.CarregarIndice;
         xControle.AdicionarTitulosReajuste()
-      end
       else
         xControle.AdicionarTitulosLigados();
 
@@ -637,6 +686,10 @@ begin
     begin
       for j := 0 to pred(TControle(Self[i]).Titulo.Count) do
         T501TCP(TControle(Self[i]).Titulo[j]).Check := pValue;
+
+      if (pValue = 1) then
+        if not(TControle(Self[i]).Titulo.Selecionados) then
+          TControle(Self[i]).Check := 0;
     end
     else
     begin
@@ -645,14 +698,20 @@ begin
       for j := 0 to pred(TControle(Self[i]).Ajuste.Count) do
       begin
         xTituloControle := TTituloControle(TControle(Self[i]).Ajuste[j]);
+        if (xTituloControle.IndRea > 0) then
+        begin
+          FIndexCtr := i;
+          FIndexTit := j;
+          FValorIndice := iff(xTituloControle.IndNov > 0, xTituloControle.IndNov, xTituloControle.IndRea);
+          CalcularAjustes();
 
-        FIndexCtr := i;
-        FIndexTit := j;
-        FValorIndice := iff(xTituloControle.IndNov > 0, xTituloControle.IndNov, xTituloControle.IndRea);
-        CalcularAjustes();
-
-        xTituloControle.Check := pValue;
+          xTituloControle.Check := pValue;
+        end;
       end;
+
+      if (pValue = 1) then
+        if not(TControle(Self[i]).Ajuste.Selecionados) then
+          TControle(Self[i]).Check := 0;
     end;
   end;
 end;
@@ -818,7 +877,7 @@ var
 begin
   xTituloReajuste := TTituloControle(TControle(Self[FIndexCtr]).Ajuste[FIndexTit]);
 
-  if (FRemoverCalculos) or ((FValorIndice > 0) and (FValorIndice <> xTituloReajuste.OLD_IndNov)) then
+  if (FRemoverCalculos) or ((FValorIndice <> 0) and (FValorIndice <> xTituloReajuste.OLD_IndNov)) then
     TControle(Self[FIndexCtr]).TotRea := (TControle(Self[FIndexCtr]).TotRea - (xTituloReajuste.VlrOri - xTituloReajuste.VlrIni));
 
   xTituloReajuste.VlrOri := iff(not(FRemoverCalculos), ((xTituloReajuste.VlrIni * (FValorIndice * 0.01))
@@ -949,12 +1008,12 @@ end;
 
 { TTituloControle }
 
-constructor TTituloControle.Create(const p090IND: T090IND; const pTitulo: T301TCR);
+constructor TTituloControle.Create(const pControle: TControle; const pTitulo: T301TCR);
 begin
   inherited Create();
 
-  Self.IndRea := p090IND.USU_VlrInd;
-  Self.IndFin := p090IND.USU_IndFin;
+  Self.IndRea := pControle.VlrInd;
+  Self.IndFin := pControle.USU_IndFin;
   FVlrIni := pTitulo.VlrOri;
 end;
 
@@ -1177,18 +1236,11 @@ procedure TControladorBem.Mostrar;
 var
   xIteradorBem: TIteradorBem;
   x670BEM: T670BEM;
-
-  function MontarCondicao: string;
-  begin
-    Result := FCondicao + ' OR (E670BEM.USU_IDLIB = 0)';
-  end;
-
 begin
   x670BEM := T670BEM.Create;
   try
     x670BEM.USU_BemClp := 'S';
     x670BEM.PropertyForSelect(['USU_BEMCLP']);
-    x670BEM.AddToCommand(MontarCondicao, False);
     x670BEM.Execute(etSelect, esLoop);
 
     while (x670BEM.Next) do
@@ -1381,22 +1433,47 @@ end;
 procedure TIteradorBem.Excluir;
 var
   x670LIB: T670LIB;
+  xDelete: T670LIB;
+  x670BEM: T670BEM;
 begin
-  x670LIB := T670LIB.Create;
-  x670LIB.USU_IDLIG := Self.USU_IDLIB;
-  x670LIB.PropertyForSelect(['USU_IDLIG']);
-  x670LIB.Execute(estDelete);
+  xDelete := nil;
+  x670LIB := nil;
+  x670BEM := nil;
+  try
+    xDelete := T670LIB.Create;
+    x670LIB := T670LIB.Create;
+    x670BEM := T670BEM.Create;
 
-  x670LIB.USU_ID := Self.USU_IDLIB;
-  x670LIB.PropertyForSelect(['USU_ID']);
-  x670LIB.Execute(estDelete);
+    x670LIB.USU_IDLIG := Self.USU_IDLIB;
+    x670LIB.PropertyForSelect(['USU_IDLIG']);
+    x670LIB.Execute(etSelect, esLoop);
 
-  Self.Start;
-  Self.USU_BemPri := 'N';
-  Self.USU_IDLIB := 0;
-  Self.PropertyForSelect(['CODEMP','CODBEM'], True);
-  Self.FieldsForUpdate(['USU_BEMPRI', 'USU_IDLIB']);
-  Self.Execute(estUpdate);
+    while (x670LIB.Next) do
+    begin
+      FListaBLG.Iterar(x670LIB, xDelete);
+      xDelete.PropertyForSelect(['USU_ID']);
+      xDelete.Execute(estDelete);
+
+      x670BEM.CodEmp := x670LIB.USU_CodEmp;
+      x670BEM.CodBem := x670LIB.USU_CodBem;
+      x670BEM.USU_IDLIB := 0;
+      x670BEM.USU_BemPri := 'N';
+      x670BEM.PropertyForSelect(['CODEMP','CODBEM'], True);
+      x670BEM.FieldsForUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+      x670BEM.Execute(estUpdate);
+    end;
+
+    Self.Start;
+    Self.USU_BemPri := 'N';
+    Self.USU_IDLIB := 0;
+    Self.PropertyForSelect(['CODEMP','CODBEM'], True);
+    Self.FieldsForUpdate(['USU_BEMPRI', 'USU_IDLIB']);
+    Self.Execute(estUpdate);
+  finally
+    FreeAndNil(xDelete);
+    FreeAndNil(x670LIB);
+    FreeAndNil(x670BEM);
+  end;
 end;
 
 function TIteradorBem.GetLista: TIterador;

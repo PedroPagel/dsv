@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, wsBancoCentral, DateUtils, oTitulo;
+  oTabelas, wsControleLocacao, DateUtils, oTitulo;
 
 type
   TIteracaoDadosFacade = class; //foward
@@ -18,9 +18,9 @@ type
 
   TSubFacadeConsumoBancoCentral = class
   private
-    FServico: sapiens_Synccom_sernior_g5_co_fin_bancocentral;
-    FEntrada: bancocentralConsumirValorIn;
-    FConsumo: bancocentralConsumirValorOut;
+    FServico: sapiens_Synccom_sernior_g5_co_fin_controlelocacao;
+    FEntrada: controlelocacaoConsumirValorIn;
+    FConsumo: controlelocacaoConsumirValorOut;
 
     function GetCodigo: Integer;
     procedure SetCodigo(const Value: Integer);
@@ -34,13 +34,12 @@ type
 
     property Codigo: Integer read GetCodigo write SetCodigo;
     property Data: TDate read GetData write SetData;
-    property Consumo: bancocentralConsumirValorOut read FConsumo;
+    property Consumo: controlelocacaoConsumirValorOut read FConsumo;
   end;
 
   TSubFacedeIndices = class(TIterador)
   private
     F090IND: T090IND;
-    F090LIC: T090LIC;
     F301TCR: T301TCR;
 
     function ContratoAberto(const pIteracaoDadosFacade: TIteracaoDadosFacade): Boolean;
@@ -73,7 +72,7 @@ type
   private
     F000DBC: T000dbc;
 
-    function Periodicidade(const pSigla: Char): Byte;
+//    function Periodicidade(const pSigla: Char): Byte;
 
     procedure Carregar(const p000dbc: T000dbc; const pWS: TSubFacadeConsumoBancoCentral);
   public
@@ -105,8 +104,8 @@ constructor TSubFacadeConsumoBancoCentral.Create;
 begin
   inherited;
 
-  FServico := Getsapiens_Synccom_sernior_g5_co_fin_bancocentral();
-  FEntrada := bancocentralConsumirValorIn.Create;
+  FServico := Getsapiens_Synccom_sernior_g5_co_fin_controlelocacao();
+  FEntrada := controlelocacaoConsumirValorIn.Create;
 end;
 
 destructor TSubFacadeConsumoBancoCentral.Destroy;
@@ -171,10 +170,10 @@ end;
 
 constructor TSubFacedeIndices.Create;
 begin
-  inherited Create(True);
+  inherited Create();
+  Self.indexed := True;
 
   F090IND := T090IND.Create();
-  F090LIC := T090LIC.Create();
   F301TCR := T301TCR.Create();
 
   Self.IndexFields(['USU_CODDBC']);
@@ -200,8 +199,6 @@ destructor TSubFacedeIndices.Destroy;
 begin
   inherited;
 
-  FreeAndNil(F090LIC);
-  FreeAndNil(F090LIC);
   FreeAndNil(F301TCR);
 end;
 
@@ -209,7 +206,7 @@ function TSubFacedeIndices.ProcessoAgendado: TIteracaoDadosFacade;
 begin
   Result := nil;
 
-  F090LIC.USU_CodEmp := FLogEmp;
+  {F090LIC.USU_CodEmp := FLogEmp;
   F090LIC.PropertyForSelect(['USU_CODEMP'], True);
   F090LIC.Execute(etSelect, esLoop);
 
@@ -230,7 +227,7 @@ begin
   end;
 
   F090LIC.Close;
-  F090IND.Close;
+  F090IND.Close;                     }
 end;
 
 { TSubFacedeCodigosBancoCentral }
@@ -249,11 +246,11 @@ begin
     F000DBC.USU_SeqCot := 1;
     F000DBC.PropertyForSelect(['USU_CODDBC','USU_SEQCOT'], True);
     F000DBC.Execute(etSelect);
-
+                                        {
     F000DBC.Start;
     F000DBC.Field := 'USU_SEQCOT';
     F000DBC.PropertyForSelect(['USU_CODDBC']);
-    F000DBC.Execute(etSelect, esMAX);
+    F000DBC.Execute(etSelect, esMAX);  }
 
     MontarPeriodo(xDadosFacade);
   end;
@@ -312,7 +309,7 @@ begin
     while (F000DBC.Next) do
       //A entrada do codigo do BC nao conta
       if (F000DBC.USU_SeqCot > 1) then
-        FData.Add(DateToStr(StartOfTheMonth(F000DBC.USU_DatIni)));
+        FData.Add(DateToStr(StartOfTheMonth(F000DBC.USU_DatInd)));
 
     FListaFacade[pred(i)].Meses := TStringList.Create;
 
@@ -338,16 +335,6 @@ begin
   pWS.ValorConsumo;
   p000dbc.USU_SeqCot := (p000dbc.USU_SeqCot + 1);
   p000dbc.USU_NomDbc := pWS.Consumo.Grid[0].nomeAbreviado;
-  p000dbc.USU_DscDbc := pWS.Consumo.Grid[0].nomeCompleto;
-  p000dbc.USU_PerDbc := pWS.Consumo.Grid[0].periodicidade[1];
-  p000dbc.USU_FonDbc := pWS.Consumo.Grid[0].fonte;
-  p000dbc.USU_DatIni := pWS.Data;
-  p000dbc.USU_DatFin := pWS.Data;
-  p000dbc.USU_DiaDbc := StrToInt(pWS.Consumo.Grid[0].dia);
-  p000dbc.USU_MesDbc := StrToInt(pWS.Consumo.Grid[0].mes);
-  p000dbc.USU_AnoDbc := StrToInt(pWS.Consumo.Grid[0].ano);
-  p000dbc.USU_VlrDbc := StrToFloat(pWS.Consumo.Grid[0].valor);
-  p000dbc.USU_NumPer := Periodicidade(pWS.Consumo.Grid[0].periodicidadeSigla[1]);
   p000dbc.Execute(estInsert);
 end;
 
@@ -384,7 +371,7 @@ begin
     end;
   end;
 end;
-
+        {
 function TSubFaceAtualizarDados.Periodicidade(const pSigla: Char): Byte;
 begin
   Result := 0;
@@ -398,7 +385,7 @@ begin
     'B': Result := 5;
     'T': Result := 6;
   end;
-end;
+end;   }
 
 { TIteracaoDadosFacade }
 

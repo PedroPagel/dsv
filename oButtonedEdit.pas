@@ -17,6 +17,7 @@ type
     FIndexFields: string;
     FLookup: Boolean;
     FPesHen: TFPesHen;
+    FLeftTable: TForm;
     FField: string;
     FFilter: string;
     FString: string;
@@ -28,6 +29,10 @@ type
     FForm: TForm;
     FOpenDialog: Boolean;
     FGetDirectory: Boolean;
+    FRequired: Boolean;
+    FDataBaseRegisters: Boolean;
+    FDataBaseTable: string;
+    FDataBaseField: string;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -39,7 +44,8 @@ type
     procedure SetField(const Value: string);
     function GetFilter: string;
     procedure SetFilter(const Value: string);
-    procedure LookupData(Sender: TObject);
+    procedure RightDataClick(Sender: TObject);
+    procedure LeftDataClick(Sender: TObject);
 
     function Filters(): string;
     procedure ExitButton(Sender: TObject);
@@ -54,8 +60,9 @@ type
 
     procedure CreateLookup();
     procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
-
+    procedure AddLeftTableForm(const pForm: TForm);
     property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
+    property DataBaseRegisters: Boolean read FDataBaseRegisters write FDataBaseRegisters;
   published
     property IndexFields: string read GetIndexFields write SetIndexFields;
     property Table: string read GetTable write SetTable;
@@ -67,6 +74,9 @@ type
     property isAlfa: Boolean read FAlfa write FAlfa;
     property isFloat: Boolean read FIsFloat write FIsFloat;
     property OpenDialog: Boolean read FOpenDialog write FOpenDialog;
+    property DataBaseTable: string read FDataBaseTable write FDataBaseTable;
+    property DataBaseField: string read FDataBaseField write FDataBaseField;
+    property Required: Boolean read FRequired write FRequired;
   end;
 
 procedure Register;
@@ -76,7 +86,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs,
-  System.SysUtils, Vcl.FileCtrl;
+  System.SysUtils, Vcl.FileCtrl, u000cad;
 
 procedure Register;
 begin
@@ -151,10 +161,15 @@ begin
   FIterator.Add(pFilterLookup);
 end;
 
+procedure THButtonedEdit.AddLeftTableForm(const pForm: TForm);
+begin
+  FLeftTable := pForm;
+end;
+
 procedure THButtonedEdit.CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (Key = VK_F3) then
-    LookupData(Self);
+    RightDataClick(Self);
 end;
 
 constructor THButtonedEdit.Create(AOwner: TComponent);
@@ -170,22 +185,40 @@ begin
   FOpenDialog := False;
 end;
 
-procedure THButtonedEdit.CreateLookup;
+procedure THButtonedEdit.CreateLookup();
 var
   xImage: TImageList;
   xBtmp: TBitmap;
 begin
   if (FLookup) then
-  begin
     FGetDirectory := True;
-    Self.RightButton.ImageIndex := 0;
-    Self.RightButton.Visible := True;
-    Self.OnRightButtonClick := LookupData;
 
-    xBtmp := TBitmap.Create;
-    xImage := TImageList.Create(nil);
-    xBtmp.Handle := LoadBitmap(HInstance, 'lupa');
-    xImage.Add(xBtmp, nil);
+  Self.RightButton.ImageIndex := 0;
+  Self.RightButton.PressedImageIndex := 1;
+  Self.RightButton.Visible := FLookup;
+  Self.OnRightButtonClick := RightDataClick;
+
+  xBtmp := TBitmap.Create;
+  xImage := TImageList.Create(nil);
+  xBtmp.Handle := LoadBitmap(HInstance, 'lupa');
+  xImage.Add(xBtmp, nil);
+
+  xBtmp.Handle := LoadBitmap(HInstance, 'lupa2');
+  xImage.Add(xBtmp, nil);
+
+  Self.LeftButton.ImageIndex := 2;
+  Self.LeftButton.PressedImageIndex := 3;
+  Self.LeftButton.Visible := FDataBaseRegisters;
+  Self.OnLeftButtonClick := LeftDataClick;
+
+  xBtmp.Handle := LoadBitmap(HInstance, 'flecha');
+  xImage.Add(xBtmp, nil);
+
+  xBtmp.Handle := LoadBitmap(HInstance, 'flecha2');
+  xImage.Add(xBtmp, nil);
+
+  if (FDataBaseRegisters) or (FLookup) then
+  begin
     Self.Images := xImage;
 
     if not(FOpenDialog) then
@@ -218,7 +251,7 @@ begin
 
   for i := 0 to pred(FIterator.Count) do
     if not(IsNull(THButtonedEdit(FIterator[i]).Text)) then
-      Result := Result + (THButtonedEdit(FIterator[i]).Field + ' = ' + THButtonedEdit(FIterator[i]).Text) + ' AND ';
+      Result := Result + (THButtonedEdit(FIterator[i]).Field + ' IN (' + THButtonedEdit(FIterator[i]).Text) + ') AND ';
 
   UltimoCaracter(Result, 'AND ', True, 4)
 end;
@@ -272,7 +305,13 @@ begin
   end;
 end;
 
-procedure THButtonedEdit.LookupData(Sender: TObject);
+procedure THButtonedEdit.LeftDataClick(Sender: TObject);
+begin
+  FPesHen.AddLeftTableForm(FLeftTable);
+  FPesHen.ShowLeftTableData();
+end;
+
+procedure THButtonedEdit.RightDataClick(Sender: TObject);
 var
   xDialog: TOpenDialog;
   xDiretorio: string;
@@ -282,7 +321,10 @@ begin
     FPesHen.ShowData(FTable, FField, FIndexFields,  FFilter + Filters);
 
     if (FAvoidSelections) then
-      Self.Text := String(FPesHen.Return)
+    begin
+      if not(IsNull(String(FPesHen.Return))) then
+        Self.Text := StringReplace(String(FPesHen.Return), Chr(39), '', [rfReplaceAll]);
+    end
     else
       Self.Text := iff(not(IsNull(Self.Text)), Self.Text +','+ String(FPesHen.Return), String(FPesHen.Return));
   end

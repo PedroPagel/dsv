@@ -9,32 +9,23 @@
         <Projects Include="HBaseComponente.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="ControleFrotas.dproj">
+        <Projects Include="ConsultaDDA.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="ConsultaDDA.dproj">
-            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
-        </Projects>
         <Projects Include="ProcessoDDA.dproj">
-            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
+            <Dependencies/>
         </Projects>
-        <Projects Include="ControleLocacao.dproj">
+        <Projects Include="HProject.dproj">
             <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
         </Projects>
         <Projects Include="Importador.dproj">
-            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
-        </Projects>
-        <Projects Include="Atualizador.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="CGerador.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="Executer.dproj">
-            <Dependencies>HBase.dproj</Dependencies>
-        </Projects>
-        <Projects Include="p600RCU.dproj">
-            <Dependencies>HBase.dproj;HBaseComponente.dproj</Dependencies>
+            <Dependencies/>
         </Projects>
     </ItemGroup>
     <ProjectExtensions>
@@ -62,59 +53,41 @@
     <Target Name="HBaseComponente:Make">
         <MSBuild Projects="HBaseComponente.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ControleFrotas">
-        <MSBuild Projects="ControleFrotas.dproj"/>
-    </Target>
-    <Target Name="ControleFrotas:Clean">
-        <MSBuild Projects="ControleFrotas.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="ControleFrotas:Make">
-        <MSBuild Projects="ControleFrotas.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="ConsultaDDA" DependsOnTargets="HBase;HBaseComponente">
+    <Target Name="ConsultaDDA">
         <MSBuild Projects="ConsultaDDA.dproj"/>
     </Target>
-    <Target Name="ConsultaDDA:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
+    <Target Name="ConsultaDDA:Clean">
         <MSBuild Projects="ConsultaDDA.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ConsultaDDA:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
+    <Target Name="ConsultaDDA:Make">
         <MSBuild Projects="ConsultaDDA.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ProcessoDDA" DependsOnTargets="HBase;HBaseComponente">
+    <Target Name="ProcessoDDA">
         <MSBuild Projects="ProcessoDDA.dproj"/>
     </Target>
-    <Target Name="ProcessoDDA:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
+    <Target Name="ProcessoDDA:Clean">
         <MSBuild Projects="ProcessoDDA.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ProcessoDDA:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
+    <Target Name="ProcessoDDA:Make">
         <MSBuild Projects="ProcessoDDA.dproj" Targets="Make"/>
     </Target>
-    <Target Name="ControleLocacao" DependsOnTargets="HBase;HBaseComponente">
-        <MSBuild Projects="ControleLocacao.dproj"/>
+    <Target Name="HProject" DependsOnTargets="HBase;HBaseComponente">
+        <MSBuild Projects="HProject.dproj"/>
     </Target>
-    <Target Name="ControleLocacao:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
-        <MSBuild Projects="ControleLocacao.dproj" Targets="Clean"/>
+    <Target Name="HProject:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
+        <MSBuild Projects="HProject.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="ControleLocacao:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
-        <MSBuild Projects="ControleLocacao.dproj" Targets="Make"/>
+    <Target Name="HProject:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
+        <MSBuild Projects="HProject.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Importador" DependsOnTargets="HBase;HBaseComponente">
+    <Target Name="Importador">
         <MSBuild Projects="Importador.dproj"/>
     </Target>
-    <Target Name="Importador:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
+    <Target Name="Importador:Clean">
         <MSBuild Projects="Importador.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Importador:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
+    <Target Name="Importador:Make">
         <MSBuild Projects="Importador.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="Atualizador">
-        <MSBuild Projects="Atualizador.dproj"/>
-    </Target>
-    <Target Name="Atualizador:Clean">
-        <MSBuild Projects="Atualizador.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="Atualizador:Make">
-        <MSBuild Projects="Atualizador.dproj" Targets="Make"/>
     </Target>
     <Target Name="CGerador">
         <MSBuild Projects="CGerador.dproj"/>
@@ -125,32 +98,23 @@
     <Target Name="CGerador:Make">
         <MSBuild Projects="CGerador.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Executer" DependsOnTargets="HBase">
+    <Target Name="Executer">
         <MSBuild Projects="Executer.dproj"/>
     </Target>
-    <Target Name="Executer:Clean" DependsOnTargets="HBase:Clean">
+    <Target Name="Executer:Clean">
         <MSBuild Projects="Executer.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Executer:Make" DependsOnTargets="HBase:Make">
+    <Target Name="Executer:Make">
         <MSBuild Projects="Executer.dproj" Targets="Make"/>
     </Target>
-    <Target Name="p600RCU" DependsOnTargets="HBase;HBaseComponente">
-        <MSBuild Projects="p600RCU.dproj"/>
-    </Target>
-    <Target Name="p600RCU:Clean" DependsOnTargets="HBase:Clean;HBaseComponente:Clean">
-        <MSBuild Projects="p600RCU.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="p600RCU:Make" DependsOnTargets="HBase:Make;HBaseComponente:Make">
-        <MSBuild Projects="p600RCU.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="HBase;HBaseComponente;ControleFrotas;ConsultaDDA;ProcessoDDA;ControleLocacao;Importador;Atualizador;CGerador;Executer;p600RCU"/>
+        <CallTarget Targets="HBase;HBaseComponente;ConsultaDDA;ProcessoDDA;HProject;Importador;CGerador;Executer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ControleFrotas:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;ControleLocacao:Clean;Importador:Clean;Atualizador:Clean;CGerador:Clean;Executer:Clean;p600RCU:Clean"/>
+        <CallTarget Targets="HBase:Clean;HBaseComponente:Clean;ConsultaDDA:Clean;ProcessoDDA:Clean;HProject:Clean;Importador:Clean;CGerador:Clean;Executer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ControleFrotas:Make;ConsultaDDA:Make;ProcessoDDA:Make;ControleLocacao:Make;Importador:Make;Atualizador:Make;CGerador:Make;Executer:Make;p600RCU:Make"/>
+        <CallTarget Targets="HBase:Make;HBaseComponente:Make;ConsultaDDA:Make;ProcessoDDA:Make;HProject:Make;Importador:Make;CGerador:Make;Executer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

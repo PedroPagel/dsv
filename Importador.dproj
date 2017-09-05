@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>Importador.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -100,9 +100,21 @@
             <Form>F000IMP</Form>
         </DCCReference>
         <DCCReference Include="o000dbc.pas"/>
-        <RcItem Include="..\..\..\Downloads\lupa.bmp">
+        <RcItem Include="..\..\Icones\flecha.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>flecha</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\Icones\flecha2.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>flecha2</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\Icones\lupa.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>lupa</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\Icones\lupa2.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>lupa2</ResourceId>
         </RcItem>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, wsBancoCentral, DateUtils, oSubFacadeImportador, Vcl.ExtCtrls,
+  oTabelas, DateUtils, oSubFacadeImportador, Vcl.ExtCtrls,
   Vcl.Forms, uTimeFacade;
 
 type
