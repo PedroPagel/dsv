@@ -1,5 +1,7 @@
 program HProject;
 
+
+
 {$R *.dres}
 
 uses
@@ -50,7 +52,7 @@ begin
         Application.Terminate;
       end
       else
-      if ('TF510CON' = TF510CON.ClassName) then
+      if (ParamStr(2) = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
         Application.Run;

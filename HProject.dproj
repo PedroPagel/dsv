@@ -88,7 +88,7 @@
         <DCC_DebugInformation>false</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Icon_MainIcon>ReajusteTitulo_Icon.ico</Icon_MainIcon>
+        <Icon_MainIcon>HProject_Icon.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
@@ -120,23 +120,23 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="oConsulta.pas"/>
-        <RcItem Include="..\..\..\Downloads\lupa.bmp">
-            <ResourceType>BITMAP</ResourceType>
-            <ResourceId>lupa</ResourceId>
-        </RcItem>
-        <RcItem Include="..\..\..\Desktop\flecha.bmp">
+        <None Include="ModelSupport_HProject\default.txaPackage"/>
+        <RcItem Include="..\..\Icones\flecha.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>flecha</ResourceId>
         </RcItem>
-        <RcItem Include="..\..\..\Desktop\flecha2.bmp">
+        <RcItem Include="..\..\Icones\flecha2.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>flecha2</ResourceId>
         </RcItem>
-        <RcItem Include="..\..\..\Downloads\lupa2.bmp">
+        <RcItem Include="..\..\Icones\lupa.bmp">
+            <ResourceType>BITMAP</ResourceType>
+            <ResourceId>lupa</ResourceId>
+        </RcItem>
+        <RcItem Include="..\..\Icones\lupa2.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>lupa2</ResourceId>
         </RcItem>
-        <None Include="ModelSupport_HProject\default.txaPackage"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
