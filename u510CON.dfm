@@ -151,12 +151,14 @@ object F510CON: TF510CON
         end
       end
       object GroupBox1: TGroupBox
-        Left = 360
+        Left = 353
         Top = 1
-        Width = 510
-        Height = 145
+        Width = 506
+        Height = 150
+        Align = alRight
         Caption = 'T'#237'tulo(s)'
         TabOrder = 1
+        ExplicitLeft = 352
         object Label9: TLabel
           Left = 211
           Top = 82
@@ -439,14 +441,16 @@ object F510CON: TF510CON
         end
       end
       object GroupBox2: TGroupBox
-        Left = 2
+        Left = 1
         Top = 1
-        Width = 357
-        Height = 146
+        Width = 352
+        Height = 150
+        Align = alClient
         Caption = 'Armazenamento'
         TabOrder = 0
+        ExplicitWidth = 364
         object Label2: TLabel
-          Left = 58
+          Left = 52
           Top = 28
           Width = 46
           Height = 13
@@ -459,7 +463,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label10: TLabel
-          Left = 228
+          Left = 222
           Top = 56
           Width = 6
           Height = 13
@@ -472,7 +476,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label11: TLabel
-          Left = 8
+          Left = 2
           Top = 82
           Width = 96
           Height = 13
@@ -485,7 +489,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label12: TLabel
-          Left = 59
+          Left = 53
           Top = 106
           Width = 45
           Height = 13
@@ -498,7 +502,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label13: TLabel
-          Left = 20
+          Left = 14
           Top = 55
           Width = 84
           Height = 13
@@ -511,7 +515,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object Label14: TLabel
-          Left = 228
+          Left = 222
           Top = 81
           Width = 6
           Height = 13
@@ -524,7 +528,7 @@ object F510CON: TF510CON
           ParentFont = False
         end
         object BECodPor: THButtonedEdit
-          Left = 110
+          Left = 104
           Top = 25
           Width = 121
           Height = 21
@@ -549,7 +553,7 @@ object F510CON: TF510CON
           Required = False
         end
         object cbSituacaoArm: TComboBox
-          Left = 110
+          Left = 104
           Top = 106
           Width = 145
           Height = 21
@@ -570,7 +574,7 @@ object F510CON: TF510CON
             'Todos')
         end
         object DDatIni: THDateTimePicker
-          Left = 110
+          Left = 104
           Top = 52
           Width = 112
           Height = 21
@@ -586,7 +590,7 @@ object F510CON: TF510CON
           TabOrder = 2
         end
         object DDatFim: THDateTimePicker
-          Left = 240
+          Left = 234
           Top = 52
           Width = 112
           Height = 21
@@ -602,7 +606,7 @@ object F510CON: TF510CON
           TabOrder = 3
         end
         object DFinIni: THDateTimePicker
-          Left = 110
+          Left = 104
           Top = 78
           Width = 112
           Height = 21
@@ -618,7 +622,7 @@ object F510CON: TF510CON
           TabOrder = 4
         end
         object DFinFim: THDateTimePicker
-          Left = 240
+          Left = 234
           Top = 78
           Width = 112
           Height = 21

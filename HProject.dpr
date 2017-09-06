@@ -30,7 +30,6 @@ begin
 
     if (System.ParamCount > 0) then
     begin
-      //if ('TF000CRM' = TF000CRM.ClassName) then
       if (ParamStr(2) = TF000CRM.ClassName) then
       begin
         Application.ShowMainForm := False;
@@ -51,7 +50,7 @@ begin
         Application.Terminate;
       end
       else
-      if (ParamStr(2) = TF510CON.ClassName) then
+      if ('TF510CON' = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
         Application.Run;

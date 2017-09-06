@@ -568,13 +568,8 @@ procedure TF510CON.FormCreate(Sender: TObject);
 begin
   if (System.ParamCount > 0) then
   begin
-    FLogEmp := StrToInt(ParamStr(2));
-    FLogUsu := StrToInt(ParamStr(3));
-  end
-  else
-  begin
-    FLogEmp := 1;
-    FLogUsu := 1403;
+    FLogEmp := StrToInt(ParamStr(3));
+    FLogUsu := StrToInt(ParamStr(4));
   end;
 
   DDatIni.Start;

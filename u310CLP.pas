@@ -1020,7 +1020,7 @@ end;
 procedure TF310CLP.FormCreate(Sender: TObject);
 begin
   if (System.ParamCount > 0) then
-    FLogEmp := StrToInt(ParamStr(2))
+    FLogEmp := StrToInt(ParamStr(3))
   else
     FLogEmp := 1;
 
