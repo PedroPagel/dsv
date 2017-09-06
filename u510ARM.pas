@@ -34,8 +34,8 @@ begin
   try
     if (System.ParamCount > 1) then
     begin
-      FLogEmp := StrToInt(ParamStr(2));
-      FLogFil := StrToInt(ParamStr(3));
+      FLogEmp := StrToInt(ParamStr(3));
+      FLogFil := StrToInt(ParamStr(4));
     end;
 
     xArmazenamento := TArmazenamento.Create();

@@ -22,6 +22,7 @@ type
   TFieldPosition = record
     Name: string;
     NewPos: Integer;
+    OldPos: Integer;
   end;
 
   TLookupFields = record
@@ -85,7 +86,8 @@ type
     procedure ChangeData(Sender: TObject; Field: TField);
     procedure CreateFieldOrder(const pIndexFields: string);
     procedure SetAllowNewLine(const Value: Boolean);
-    procedure ChangePosition(const pField: string);
+    procedure GetOldPosition(const pField: string);
+    procedure ChangePosition();
     procedure TitleClickOrder(Column: TColumn);
     procedure ButtonClick(Sender: TObject);
     procedure CheckClick(Column: TColumn);
@@ -416,7 +418,16 @@ begin
   FGridState := gsBrowse;
 end;
 
-procedure TDataSetGrid.ChangePosition(const pField: string);
+procedure TDataSetGrid.ChangePosition;
+var
+  i: Integer;
+begin
+  if (Length(FListFieldPosition) > 0) then
+    for i := 0 to High(FListFieldPosition) do
+      Self.ColumnMoved(FListFieldPosition[i].OldPos, FListFieldPosition[i].NewPos);
+end;
+
+procedure TDataSetGrid.GetOldPosition(const pField: string);
 var
   i: Integer;
 begin
@@ -425,7 +436,7 @@ begin
     begin
       if (AnsiSameText(pField, FListFieldPosition[i].Name)) then
       begin
-        Self.ColumnMoved(FColumn, FListFieldPosition[i].NewPos);
+        FListFieldPosition[i].OldPos := FColumn;
         Break;
       end;
     end;
@@ -1021,7 +1032,7 @@ begin
 
       Inc(FColumn);
 
-      ChangePosition(xCampo);
+      GetOldPosition(xCampo);
     end;
 
     SetFields(xCampo, (FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
@@ -1032,6 +1043,7 @@ begin
 
   xQuery.Close;
   UltimoCaracter(FFieldList, ',');
+  ChangePosition();
 
   FClientDataSet.CreateDataSet;
   Self.DataSource.DataSet := FClientDataSet;
