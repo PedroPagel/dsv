@@ -21,7 +21,9 @@ uses
   u510ARM in 'u510ARM.pas' {F510ARM},
   oRotinaDDA in 'oRotinaDDA.pas',
   u510CON in 'u510CON.pas' {F510CON},
-  oConsulta in 'oConsulta.pas';
+  oConsulta in 'oConsulta.pas',
+  u073vet in 'u073vet.pas' {F073VET},
+  o073vet in 'o073vet.pas';
 
 {$R *.res}
 begin
@@ -30,13 +32,14 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    if (System.ParamCount > 0) then
+    //if (System.ParamCount > 0) then
     begin
       if (ParamStr(2) = TF000CRM.ClassName) then
       begin
         Application.ShowMainForm := False;
         Application.CreateForm(TF000CRM, F000CRM);
-        Application.Terminate;
+  Application.CreateForm(TF073VET, F073VET);
+  Application.Terminate;
       end
       else
       if (ParamStr(2) = TF310CLP.ClassName) then
@@ -55,6 +58,12 @@ begin
       if (ParamStr(2) = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
+        Application.Run;
+      end
+      else
+      if ('TF073VET' = TF073VET.ClassName) then
+      begin
+        Application.CreateForm(TF073VET, F073VET);
         Application.Run;
       end;
     end;

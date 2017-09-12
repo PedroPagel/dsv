@@ -3,11 +3,13 @@ unit oButtonedEdit;
 interface
 
 uses
-  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, uPesHen,
-  Winapi.Windows, Vcl.ComCtrls, System.Rtti,  Vcl.Forms, oBase, Vcl.Dialogs;
+  System.Classes, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, uPesHen, Vcl.ValEdit,
+  Winapi.Windows, Vcl.ComCtrls, System.Rtti,  Vcl.Forms, oBase, Vcl.Dialogs,
+  oValueListEditor;
 
 type
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
+  TRightClick = procedure(Sender: TObject; const pObjectName: string) of Object;
   TProcedure = procedure() of Object;
 
   THButtonedEdit = class(TButtonedEdit)
@@ -33,6 +35,9 @@ type
     FDataBaseRegisters: Boolean;
     FDataBaseTable: string;
     FDataBaseField: string;
+    FENumerator: string;
+    FValueList: THValueListEditor;
+    FRightClick: TRightClick;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -53,16 +58,20 @@ type
     procedure CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckMethod(const pCheckMethod: TCheckMethod);
     procedure Value(const pKey: String);
+    procedure CriarValueList();
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
     procedure CreateLookup();
+    procedure CheckEnum();
     procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
     procedure AddLeftTableForm(const pForm: TForm);
+
     property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
     property DataBaseRegisters: Boolean read FDataBaseRegisters write FDataBaseRegisters;
+    property OnClickLookup: TRightClick read FRightClick write FRightClick;
   published
     property IndexFields: string read GetIndexFields write SetIndexFields;
     property Table: string read GetTable write SetTable;
@@ -77,6 +86,7 @@ type
     property DataBaseTable: string read FDataBaseTable write FDataBaseTable;
     property DataBaseField: string read FDataBaseField write FDataBaseField;
     property Required: Boolean read FRequired write FRequired;
+    property ENumerator: string read FENumerator write FENumerator;
   end;
 
 procedure Register;
@@ -86,7 +96,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs,
-  System.SysUtils, Vcl.FileCtrl, u000cad;
+  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, Grids;
 
 procedure Register;
 begin
@@ -94,6 +104,12 @@ begin
 end;
 
 { THButtonedEdit }
+
+procedure THButtonedEdit.CheckEnum;
+begin
+  if (Assigned(FValueList)) then
+   FValueList.Close;
+end;
 
 procedure THButtonedEdit.CheckMethod(const pCheckMethod: TCheckMethod);
 var
@@ -217,12 +233,37 @@ begin
   xBtmp.Handle := LoadBitmap(HInstance, 'flecha2');
   xImage.Add(xBtmp, nil);
 
-  if (FDataBaseRegisters) or (FLookup) then
+  if ((FDataBaseRegisters) or (FLookup)) then
   begin
     Self.Images := xImage;
 
+    if not(IsNull(FENumerator)) then
+      CriarValueList
+    else
     if not(FOpenDialog) then
       FPesHen := TFPesHen.Create(nil);
+  end;
+end;
+
+procedure THButtonedEdit.CriarValueList;
+var
+  x998lsf: T998LSF;
+begin
+  x998lsf := nil;
+  try
+    x998lsf := T998LSF.Create;
+    FValueList := THValueListEditor.Create(Self);
+    FValueList.Parent := FForm;
+    FValueList.Name := 'LookupEnum'+ Self.Name;
+
+    x998lsf.LSTNAM := FENumerator;
+    x998lsf.PropertyForSelect(['LSTNAM']);
+    x998lsf.Execute(etSelect, esLoop);
+
+    while (x998lsf.Next) do
+      FValueList.AddRow(x998lsf.KEYNAM, x998lsf.ValKey);
+  finally
+    FreeAndNil(x998lsf);
   end;
 end;
 
@@ -316,45 +357,53 @@ var
   xDialog: TOpenDialog;
   xDiretorio: string;
 begin
-  if (FLookup) and not(FOpenDialog) then
+  if not(Assigned(FValueList)) then
   begin
-    FPesHen.ShowData(FTable, FField, FIndexFields,  FFilter + Filters);
-
-    if (FAvoidSelections) then
+    if (FLookup) and not(FOpenDialog) then
     begin
-      if not(IsNull(String(FPesHen.Return))) then
-        Self.Text := StringReplace(String(FPesHen.Return), Chr(39), '', [rfReplaceAll]);
-    end
-    else
-      Self.Text := iff(not(IsNull(Self.Text)), Self.Text +','+ String(FPesHen.Return), String(FPesHen.Return));
-  end
-  else
-  if Assigned(FPesHen) then
-    FPesHen.Free;
+      FPesHen.ShowData(FTable, FField, FIndexFields,  FFilter + Filters);
 
-  if (FOpenDialog) and (FLookup) then
-  begin
-    xDialog := TOpenDialog.Create(Self);
-    try
-      if (FGetDirectory) then
+      if (FAvoidSelections) then
       begin
-        SelectDirectory('Selecione uma pasta', 'C:\', xDiretorio);
-        Self.Text := xDiretorio;
+        if not(IsNull(String(FPesHen.Return))) then
+          Self.Text := StringReplace(String(FPesHen.Return), Chr(39), '', [rfReplaceAll]);
       end
       else
-      begin
-        xDialog.Filter := 'Tipos |*.RET;*.TXT';
+        Self.Text := iff(not(IsNull(Self.Text)), Self.Text +','+ String(FPesHen.Return), String(FPesHen.Return));
+    end
+    else
+    if Assigned(FPesHen) then
+      FPesHen.Free;
 
-        //xDialog.InitialDir := GetCurrentDir;
-        xDialog.Execute();
+    if (FOpenDialog) and (FLookup) then
+    begin
+      xDialog := TOpenDialog.Create(Self);
+      try
+        if (FGetDirectory) then
+        begin
+          SelectDirectory('Selecione uma pasta', 'C:\', xDiretorio);
+          Self.Text := xDiretorio;
+        end
+        else
+        begin
+          xDialog.Filter := 'Tipos |*.RET;*.TXT';
 
-        if (xDialog.Files.Count > 0) then
-          Self.Text := xDialog.Files[0];
+          //xDialog.InitialDir := GetCurrentDir;
+          xDialog.Execute();
+
+          if (xDialog.Files.Count > 0) then
+            Self.Text := xDialog.Files[0];
+        end;
+      finally
+        FreeAndNil(xDialog);
       end;
-    finally
-      FreeAndNil(xDialog);
     end;
-  end;
+  end
+  else
+    FValueList.ShowEnum(Self);
+
+  if (Assigned(FRightClick)) then
+    FRightClick(Self, FValueList.Name);
 end;
 
 procedure THButtonedEdit.SetField(const Value: string);

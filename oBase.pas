@@ -717,8 +717,7 @@ begin
               .AsExtended;
         end;
     else
-      FQuery.ParamByName(FFields[i]).Value :=
-       UpperCase(xPropriedade.GetValue(Self).ToString);
+      FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).ToString;
     end;
   end;
 end;

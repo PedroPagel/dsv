@@ -1,6 +1,7 @@
 object F000CAD: TF000CAD
   Left = 0
   Top = 0
+  ActiveControl = Alterar
   Caption = ' Cadastro(s) - Controle de Loca'#231#227'o'
   ClientHeight = 694
   ClientWidth = 618
@@ -11,6 +12,7 @@ object F000CAD: TF000CAD
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  OnCreate = FormCreate
   OnMouseActivate = FormMouseActivate
   PixelsPerInch = 96
   TextHeight = 13

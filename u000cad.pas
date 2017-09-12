@@ -6,7 +6,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls,
   Vcl.DBCtrls, oButtonedEdit, Datasnap.DBClient, Data.DB, oBase, oDataSetGrid,
-  oDateTimePicker, oMensagem, System.Rtti, System.TypInfo, oMemo, oPanel;
+  oDateTimePicker, oMensagem, System.Rtti, System.TypInfo, oMemo, oPanel,
+  Vcl.AppEvnts;
 
 type
   tEstadoRotina = (erIniciar, erAtualizar, erInserir, erSelecao, erCancelar, erNavegar);
@@ -74,6 +75,8 @@ type
     procedure CabecalhoEnter(Sender: TObject);
     procedure PGControlChanging(Sender: TObject; var AllowChange: Boolean);
     procedure PGControlChange(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure ApplicationEvents1Hint(Sender: TObject);
   private
     { Private declarations }
     FCamposSelect: array of string;
@@ -91,10 +94,13 @@ type
     FCancelar: Boolean;
     FIndexPage: Integer;
     FPosicaoRotina: tPosicao;
+    FUltimoComponente: string;
+    FButtonEdit: string;
 
     procedure IniciarCabecalhoChave(const pFocus: Boolean = False);
     procedure VerificarCampos();
     procedure CarregarTabelasExtras(const pTabela: TTable = nil);
+    procedure LookupClick(Sender: TObject; const pObjectName: string);
     procedure AoAlterar(Sender: TObject);
     procedure CarregarRelacionamentos();
     procedure RelacionarTabelas(const pTable: TTabelasExtras);
@@ -266,7 +272,10 @@ begin
         THDateTimePicker(Self.Components[i]).OnChange := AoAlterar;
 
       if (Self.Components[i].ClassType = THButtonedEdit) then
+      begin
         THButtonedEdit(Self.Components[i]).OnChange := AoAlterar;
+        THButtonedEdit(Self.Components[i]).OnClickLookup := LookupClick;
+      end;
 
       if (Self.Components[i].ClassType = THButtonedEdit) then
         case xProperty.PropertyType.TypeKind of
@@ -524,6 +533,13 @@ begin
     if (FPosicaoRotina = psPadrao) then
       MontaAltear(FCamposPadrao, True);
   end;
+end;
+
+procedure TF000CAD.ApplicationEvents1Hint(Sender: TObject);
+var
+  xName: string;
+begin
+  xName := TComponent(Sender).Name;
 end;
 
 procedure TF000CAD.BotoesEnter(Sender: TObject);
@@ -1154,12 +1170,22 @@ begin
   end;
 end;
 
+procedure TF000CAD.FormCreate(Sender: TObject);
+begin
+  FUltimoComponente := EmptyStr;
+  FButtonEdit := EmptyStr;
+end;
+
 procedure TF000CAD.FormMouseActivate(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y, HitTest: Integer;
   var MouseActivate: TMouseActivate);
 begin
   if ((Button = mbLeft)  and (FSair)) then
     Close;
+
+  if Assigned(ActiveControl) and  not(IsNull(FButtonEdit)) and
+    ((AnsiSameText(FButtonEdit, ActiveControl.Name)) or (AnsiSameText(FUltimoComponente, ActiveControl.Name))) then
+    THButtonedEdit(Self.FindComponent(FButtonEdit)).CheckEnum;
 end;
 
 procedure TF000CAD.IniciarCabecalhoChave(const pFocus: Boolean = False);
@@ -1256,6 +1282,12 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TF000CAD.LookupClick(Sender: TObject; const pObjectName: string);
+begin
+  FUltimoComponente := pObjectName;
+  FButtonEdit := THButtonedEdit(Sender).Name;
 end;
 
 function TF000CAD.NomeCampo(const pComp: TComponent): string;
