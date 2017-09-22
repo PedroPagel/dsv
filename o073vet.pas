@@ -13,26 +13,24 @@ type
     FUSU_CodEmp: Integer;
     FUSU_CodFil: Integer;
     FUSU_CodFor: Integer;
-    FUSU_DiaCor: Char;
-    FUSU_VenFat: Char;
-    FUSU_PrzVen: Char;
-    FUSU_ConVen: string;
-    FUSU_MeiTns: Integer;
-    FUSU_ID: Integer;
-    FUSU_DiaIni: string;
-    FUSU_DiaFin: string;
+    FUSU_ObsVet: string;
+    FUSU_UsuGer: Integer;
+    FUSU_DatGer: TDate;
+    FUSU_UsuAlt: Integer;
+    FUSU_ConVet: Integer;
+    FUSU_DatAlt: TDate;
+    FUSU_DiaSem: Integer;
 
     FUSU_CodEmpOLD: Integer;
     FUSU_CodFilOLD: Integer;
     FUSU_CodForOLD: Integer;
-    FUSU_DiaCorOLD: Char;
-    FUSU_VenFatOLD: Char;
-    FUSU_PrzVenOLD: Char;
-    FUSU_ConVenOLD: string;
-    FUSU_MeiTnsOLD: Integer;
-    FUSU_IDOLD: Integer;
-    FUSU_DiaIniOLD: string;
-    FUSU_DiaFinOLD: string;
+    FUSU_ObsVetOLD: string;
+    FUSU_UsuGerOLD: Integer;
+    FUSU_DatGerOLD: TDate;
+    FUSU_UsuAltOLD: Integer;
+    FUSU_ConVetOLD: Integer;
+    FUSU_DatAltOLD: TDate;
+    FUSU_DiaSemOLD: Integer;
 
     function GetUSU_CodEmp: Integer;
     procedure SetUSU_CodEmp(const pUSU_CodEmp: Integer);
@@ -40,22 +38,20 @@ type
     procedure SetUSU_CodFil(const pUSU_CodFil: Integer);
     function GetUSU_CodFor: Integer;
     procedure SetUSU_CodFor(const pUSU_CodFor: Integer);
-    function GetUSU_DiaCor: Char;
-    procedure SetUSU_DiaCor(const pUSU_DiaCor: Char);
-    function GetUSU_VenFat: Char;
-    procedure SetUSU_VenFat(const pUSU_VenFat: Char);
-    function GetUSU_PrzVen: Char;
-    procedure SetUSU_PrzVen(const pUSU_PrzVen: Char);
-    function GetUSU_ConVen: string;
-    procedure SetUSU_ConVen(const pUSU_ConVen: string);
-    function GetUSU_MeiTns: Integer;
-    procedure SetUSU_MeiTns(const pUSU_MeiTns: Integer);
-    function GetUSU_ID: Integer;
-    procedure SetUSU_ID(const pUSU_ID: Integer);
-    function GetUSU_DiaIni: string;
-    procedure SetUSU_DiaIni(const pUSU_DiaIni: string);
-    function GetUSU_DiaFin: string;
-    procedure SetUSU_DiaFin(const pUSU_DiaFin: string);
+    function GetUSU_ObsVet: string;
+    procedure SetUSU_ObsVet(const pUSU_ObsVet: string);
+    function GetUSU_UsuGer: Integer;
+    procedure SetUSU_UsuGer(const pUSU_UsuGer: Integer);
+    function GetUSU_DatGer: TDate;
+    procedure SetUSU_DatGer(const pUSU_DatGer: TDate);
+    function GetUSU_UsuAlt: Integer;
+    procedure SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
+    function GetUSU_ConVet: Integer;
+    procedure SetUSU_ConVet(const pUSU_ConVet: Integer);
+    function GetUSU_DatAlt: TDate;
+    procedure SetUSU_DatAlt(const pUSU_DatAlt: TDate);
+    function GetUSU_DiaSem: Integer;
+    procedure SetUSU_DiaSem(const pUSU_DiaSem: Integer);
 
     function GetUSU_CodEmpOld: Integer;
     procedure SetUSU_CodEmpOld(const pUSU_CodEmp: Integer);
@@ -63,22 +59,20 @@ type
     procedure SetUSU_CodFilOld(const pUSU_CodFil: Integer);
     function GetUSU_CodForOld: Integer;
     procedure SetUSU_CodForOld(const pUSU_CodFor: Integer);
-    function GetUSU_DiaCorOld: Char;
-    procedure SetUSU_DiaCorOld(const pUSU_DiaCor: Char);
-    function GetUSU_VenFatOld: Char;
-    procedure SetUSU_VenFatOld(const pUSU_VenFat: Char);
-    function GetUSU_PrzVenOld: Char;
-    procedure SetUSU_PrzVenOld(const pUSU_PrzVen: Char);
-    function GetUSU_ConVenOld: string;
-    procedure SetUSU_ConVenOld(const pUSU_ConVen: string);
-    function GetUSU_MeiTnsOld: Integer;
-    procedure SetUSU_MeiTnsOld(const pUSU_MeiTns: Integer);
-    function GetUSU_IDOld: Integer;
-    procedure SetUSU_IDOld(const pUSU_ID: Integer);
-    function GetUSU_DiaIniOld: string;
-    procedure SetUSU_DiaIniOld(const pUSU_DiaIni: string);
-    function GetUSU_DiaFinOld: string;
-    procedure SetUSU_DiaFinOld(const pUSU_DiaFin: string);
+    function GetUSU_ObsVetOld: string;
+    procedure SetUSU_ObsVetOld(const pUSU_ObsVet: string);
+    function GetUSU_UsuGerOld: Integer;
+    procedure SetUSU_UsuGerOld(const pUSU_UsuGer: Integer);
+    function GetUSU_DatGerOld: TDate;
+    procedure SetUSU_DatGerOld(const pUSU_DatGer: TDate);
+    function GetUSU_UsuAltOld: Integer;
+    procedure SetUSU_UsuAltOld(const pUSU_UsuAlt: Integer);
+    function GetUSU_ConVetOld: Integer;
+    procedure SetUSU_ConVetOld(const pUSU_ConVet: Integer);
+    function GetUSU_DatAltOld: TDate;
+    procedure SetUSU_DatAltOld(const pUSU_DatAlt: TDate);
+    function GetUSU_DiaSemOld: Integer;
+    procedure SetUSU_DiaSemOld(const pUSU_DiaSem: Integer);
   protected
     procedure Registros_OLD(); override;
   public
@@ -88,26 +82,24 @@ type
     property USU_CodEmp: Integer read GetUSU_CodEmp write SetUSU_CodEmp;
     property USU_CodFil: Integer read GetUSU_CodFil write SetUSU_CodFil;
     property USU_CodFor: Integer read GetUSU_CodFor write SetUSU_CodFor;
-    property USU_DiaCor: Char read GetUSU_DiaCor write SetUSU_DiaCor;
-    property USU_VenFat: Char read GetUSU_VenFat write SetUSU_VenFat;
-    property USU_PrzVen: Char read GetUSU_PrzVen write SetUSU_PrzVen;
-    property USU_ConVen: string read GetUSU_ConVen write SetUSU_ConVen;
-    property USU_MeiTns: Integer read GetUSU_MeiTns write SetUSU_MeiTns;
-    property USU_ID: Integer read GetUSU_ID write SetUSU_ID;
-    property USU_DiaIni: string read GetUSU_DiaIni write SetUSU_DiaIni;
-    property USU_DiaFin: string read GetUSU_DiaFin write SetUSU_DiaFin;
+    property USU_ObsVet: string read GetUSU_ObsVet write SetUSU_ObsVet;
+    property USU_UsuGer: Integer read GetUSU_UsuGer write SetUSU_UsuGer;
+    property USU_DatGer: TDate read GetUSU_DatGer write SetUSU_DatGer;
+    property USU_UsuAlt: Integer read GetUSU_UsuAlt write SetUSU_UsuAlt;
+    property USU_ConVet: Integer read GetUSU_ConVet write SetUSU_ConVet;
+    property USU_DatAlt: TDate read GetUSU_DatAlt write SetUSU_DatAlt;
+    property USU_DiaSem: Integer read GetUSU_DiaSem write SetUSU_DiaSem;
 
     property OLD_USU_CodEmp: Integer read GetUSU_CodEmpOLD write SetUSU_CodEmpOLD;
     property OLD_USU_CodFil: Integer read GetUSU_CodFilOLD write SetUSU_CodFilOLD;
     property OLD_USU_CodFor: Integer read GetUSU_CodForOLD write SetUSU_CodForOLD;
-    property OLD_USU_DiaCor: Char read GetUSU_DiaCorOLD write SetUSU_DiaCorOLD;
-    property OLD_USU_VenFat: Char read GetUSU_VenFatOLD write SetUSU_VenFatOLD;
-    property OLD_USU_PrzVen: Char read GetUSU_PrzVenOLD write SetUSU_PrzVenOLD;
-    property OLD_USU_ConVen: string read GetUSU_ConVenOLD write SetUSU_ConVenOLD;
-    property OLD_USU_MeiTns: Integer read GetUSU_MeiTnsOLD write SetUSU_MeiTnsOLD;
-    property OLD_USU_ID: Integer read GetUSU_IDOLD write SetUSU_IDOLD;
-    property OLD_USU_DiaIni: string read GetUSU_DiaIniOLD write SetUSU_DiaIniOLD;
-    property OLD_USU_DiaFin: string read GetUSU_DiaFinOLD write SetUSU_DiaFinOLD;
+    property OLD_USU_ObsVet: string read GetUSU_ObsVetOLD write SetUSU_ObsVetOLD;
+    property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
+    property OLD_USU_DatGer: TDate read GetUSU_DatGerOLD write SetUSU_DatGerOLD;
+    property OLD_USU_UsuAlt: Integer read GetUSU_UsuAltOLD write SetUSU_UsuAltOLD;
+    property OLD_USU_ConVet: Integer read GetUSU_ConVetOLD write SetUSU_ConVetOLD;
+    property OLD_USU_DatAlt: TDate read GetUSU_DatAltOLD write SetUSU_DatAltOLD;
+    property OLD_USU_DiaSem: Integer read GetUSU_DiaSemOLD write SetUSU_DiaSemOLD;
   end;
 
 implementation
@@ -123,6 +115,7 @@ destructor T073VET.Destroy();
 begin
   inherited;
 end;
+
 function T073VET.GetUSU_CodEmp: Integer;
 begin
   Result := FUSU_CodEmp;
@@ -153,84 +146,74 @@ begin
   FUSU_CodFor := pUSU_CodFor;
 end;
 
-function T073VET.GetUSU_DiaCor: Char;
+function T073VET.GetUSU_ObsVet: string;
 begin
-  Result := FUSU_DiaCor;
+  Result := FUSU_ObsVet;
 end;
 
-procedure T073VET.SetUSU_DiaCor(const pUSU_DiaCor: Char);
+procedure T073VET.SetUSU_ObsVet(const pUSU_ObsVet: string);
 begin
-  FUSU_DiaCor := pUSU_DiaCor;
+  FUSU_ObsVet := pUSU_ObsVet;
 end;
 
-function T073VET.GetUSU_VenFat: Char;
+function T073VET.GetUSU_UsuGer: Integer;
 begin
-  Result := FUSU_VenFat;
+  Result := FUSU_UsuGer;
 end;
 
-procedure T073VET.SetUSU_VenFat(const pUSU_VenFat: Char);
+procedure T073VET.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
-  FUSU_VenFat := pUSU_VenFat;
+  FUSU_UsuGer := pUSU_UsuGer;
 end;
 
-function T073VET.GetUSU_PrzVen: Char;
+function T073VET.GetUSU_DatGer: TDate;
 begin
-  Result := FUSU_PrzVen;
+  Result := FUSU_DatGer;
 end;
 
-procedure T073VET.SetUSU_PrzVen(const pUSU_PrzVen: Char);
+procedure T073VET.SetUSU_DatGer(const pUSU_DatGer: TDate);
 begin
-  FUSU_PrzVen := pUSU_PrzVen;
+  FUSU_DatGer := pUSU_DatGer;
 end;
 
-function T073VET.GetUSU_ConVen: string;
+function T073VET.GetUSU_UsuAlt: Integer;
 begin
-  Result := FUSU_ConVen;
+  Result := FUSU_UsuAlt;
 end;
 
-procedure T073VET.SetUSU_ConVen(const pUSU_ConVen: string);
+procedure T073VET.SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
 begin
-  FUSU_ConVen := pUSU_ConVen;
+  FUSU_UsuAlt := pUSU_UsuAlt;
 end;
 
-function T073VET.GetUSU_MeiTns: Integer;
+function T073VET.GetUSU_ConVet: Integer;
 begin
-  Result := FUSU_MeiTns;
+  Result := FUSU_ConVet;
 end;
 
-procedure T073VET.SetUSU_MeiTns(const pUSU_MeiTns: Integer);
+procedure T073VET.SetUSU_ConVet(const pUSU_ConVet: Integer);
 begin
-  FUSU_MeiTns := pUSU_MeiTns;
+  FUSU_ConVet := pUSU_ConVet;
 end;
 
-function T073VET.GetUSU_ID: Integer;
+function T073VET.GetUSU_DatAlt: TDate;
 begin
-  Result := FUSU_ID;
+  Result := FUSU_DatAlt;
 end;
 
-procedure T073VET.SetUSU_ID(const pUSU_ID: Integer);
+procedure T073VET.SetUSU_DatAlt(const pUSU_DatAlt: TDate);
 begin
-  FUSU_ID := pUSU_ID;
+  FUSU_DatAlt := pUSU_DatAlt;
 end;
 
-function T073VET.GetUSU_DiaIni: string;
+function T073VET.GetUSU_DiaSem: Integer;
 begin
-  Result := FUSU_DiaIni;
+  Result := FUSU_DiaSem;
 end;
 
-procedure T073VET.SetUSU_DiaIni(const pUSU_DiaIni: string);
+procedure T073VET.SetUSU_DiaSem(const pUSU_DiaSem: Integer);
 begin
-  FUSU_DiaIni := pUSU_DiaIni;
-end;
-
-function T073VET.GetUSU_DiaFin: string;
-begin
-  Result := FUSU_DiaFin;
-end;
-
-procedure T073VET.SetUSU_DiaFin(const pUSU_DiaFin: string);
-begin
-  FUSU_DiaFin := pUSU_DiaFin;
+  FUSU_DiaSem := pUSU_DiaSem;
 end;
 
 function T073VET.GetUSU_CodEmpOLD: Integer;
@@ -263,84 +246,74 @@ begin
   FUSU_CodForOLD := pUSU_CodFor;
 end;
 
-function T073VET.GetUSU_DiaCorOLD: Char;
+function T073VET.GetUSU_ObsVetOLD: string;
 begin
-  Result := FUSU_DiaCorOLD;
+  Result := FUSU_ObsVetOLD;
 end;
 
-procedure T073VET.SetUSU_DiaCorOLD(const pUSU_DiaCor: Char);
+procedure T073VET.SetUSU_ObsVetOLD(const pUSU_ObsVet: string);
 begin
-  FUSU_DiaCorOLD := pUSU_DiaCor;
+  FUSU_ObsVetOLD := pUSU_ObsVet;
 end;
 
-function T073VET.GetUSU_VenFatOLD: Char;
+function T073VET.GetUSU_UsuGerOLD: Integer;
 begin
-  Result := FUSU_VenFatOLD;
+  Result := FUSU_UsuGerOLD;
 end;
 
-procedure T073VET.SetUSU_VenFatOLD(const pUSU_VenFat: Char);
+procedure T073VET.SetUSU_UsuGerOLD(const pUSU_UsuGer: Integer);
 begin
-  FUSU_VenFatOLD := pUSU_VenFat;
+  FUSU_UsuGerOLD := pUSU_UsuGer;
 end;
 
-function T073VET.GetUSU_PrzVenOLD: Char;
+function T073VET.GetUSU_DatGerOLD: TDate;
 begin
-  Result := FUSU_PrzVenOLD;
+  Result := FUSU_DatGerOLD;
 end;
 
-procedure T073VET.SetUSU_PrzVenOLD(const pUSU_PrzVen: Char);
+procedure T073VET.SetUSU_DatGerOLD(const pUSU_DatGer: TDate);
 begin
-  FUSU_PrzVenOLD := pUSU_PrzVen;
+  FUSU_DatGerOLD := pUSU_DatGer;
 end;
 
-function T073VET.GetUSU_ConVenOLD: string;
+function T073VET.GetUSU_UsuAltOLD: Integer;
 begin
-  Result := FUSU_ConVenOLD;
+  Result := FUSU_UsuAltOLD;
 end;
 
-procedure T073VET.SetUSU_ConVenOLD(const pUSU_ConVen: string);
+procedure T073VET.SetUSU_UsuAltOLD(const pUSU_UsuAlt: Integer);
 begin
-  FUSU_ConVenOLD := pUSU_ConVen;
+  FUSU_UsuAltOLD := pUSU_UsuAlt;
 end;
 
-function T073VET.GetUSU_MeiTnsOLD: Integer;
+function T073VET.GetUSU_ConVetOLD: Integer;
 begin
-  Result := FUSU_MeiTnsOLD;
+  Result := FUSU_ConVetOLD;
 end;
 
-procedure T073VET.SetUSU_MeiTnsOLD(const pUSU_MeiTns: Integer);
+procedure T073VET.SetUSU_ConVetOLD(const pUSU_ConVet: Integer);
 begin
-  FUSU_MeiTnsOLD := pUSU_MeiTns;
+  FUSU_ConVetOLD := pUSU_ConVet;
 end;
 
-function T073VET.GetUSU_IDOLD: Integer;
+function T073VET.GetUSU_DatAltOLD: TDate;
 begin
-  Result := FUSU_IDOLD;
+  Result := FUSU_DatAltOLD;
 end;
 
-procedure T073VET.SetUSU_IDOLD(const pUSU_ID: Integer);
+procedure T073VET.SetUSU_DatAltOLD(const pUSU_DatAlt: TDate);
 begin
-  FUSU_IDOLD := pUSU_ID;
+  FUSU_DatAltOLD := pUSU_DatAlt;
 end;
 
-function T073VET.GetUSU_DiaIniOLD: string;
+function T073VET.GetUSU_DiaSemOLD: Integer;
 begin
-  Result := FUSU_DiaIniOLD;
+  Result := FUSU_DiaSemOLD;
 end;
 
-procedure T073VET.SetUSU_DiaIniOLD(const pUSU_DiaIni: string);
+procedure T073VET.SetUSU_DiaSemOLD(const pUSU_DiaSem: Integer);
 begin
-  FUSU_DiaIniOLD := pUSU_DiaIni;
-end;
-
-function T073VET.GetUSU_DiaFinOLD: string;
-begin
-  Result := FUSU_DiaFinOLD;
-end;
-
-procedure T073VET.SetUSU_DiaFinOLD(const pUSU_DiaFin: string);
-begin
-  FUSU_DiaFinOLD := pUSU_DiaFin;
+  FUSU_DiaSemOLD := pUSU_DiaSem;
 end;
 
 procedure T073VET.Registros_OLD();
@@ -348,14 +321,13 @@ begin
   FUSU_CodEmpOLD := FUSU_CodEmp;
   FUSU_CodFilOLD := FUSU_CodFil;
   FUSU_CodForOLD := FUSU_CodFor;
-  FUSU_DiaCorOLD := FUSU_DiaCor;
-  FUSU_VenFatOLD := FUSU_VenFat;
-  FUSU_PrzVenOLD := FUSU_PrzVen;
-  FUSU_ConVenOLD := FUSU_ConVen;
-  FUSU_MeiTnsOLD := FUSU_MeiTns;
-  FUSU_IDOLD := FUSU_ID;
-  FUSU_DiaIniOLD := FUSU_DiaIni;
-  FUSU_DiaFinOLD := FUSU_DiaFin;
+  FUSU_ObsVetOLD := FUSU_ObsVet;
+  FUSU_UsuGerOLD := FUSU_UsuGer;
+  FUSU_DatGerOLD := FUSU_DatGer;
+  FUSU_UsuAltOLD := FUSU_UsuAlt;
+  FUSU_ConVetOLD := FUSU_ConVet;
+  FUSU_DatAltOLD := FUSU_DatAlt;
+  FUSU_DiaSemOLD := FUSU_DiaSem;
 end;
 
 end.

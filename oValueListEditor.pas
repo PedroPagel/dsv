@@ -18,6 +18,7 @@ type
     procedure EnumClick(Sender: TObject);
     procedure EnumEnter(Sender: TObject);
     procedure EnumExit(Sender: TObject);
+    procedure EnumDblClick(Sender: TObject);
     procedure KeyPressEnum(Sender: TObject; var Key: Char);
   protected
     { Protected declarations }
@@ -41,7 +42,7 @@ procedure Register;
 implementation
 
 uses
-  Winapi.Windows, oBase, oButtonedEdit;
+  Winapi.Windows, oBase, oButtonedEdit, oPanel;
 
 procedure Register;
 begin
@@ -84,6 +85,7 @@ begin
   Self.OnExit := EnumExit;
   Self.OnMouseEnter := EnumEnter;
   Self.OnMouseLeave := EnumExit;
+  Self.OnDblClick := EnumDblClick;
 
   Self.Options := [goFixedVertLine,goFixedHorzLine,goVertLine,goHorzLine, goTabs, goDrawFocusSelected,
   goColSizing,goAlwaysShowEditor,goThumbTracking, goRowSelect, goFixedColClick, goEditing];
@@ -97,6 +99,12 @@ end;
 procedure THValueListEditor.EnumClick(Sender: TObject);
 begin
   FCanClose := False;
+end;
+
+procedure THValueListEditor.EnumDblClick(Sender: TObject);
+begin
+  THButtonedEdit(FOwner).Text := Self.GetCell(0, Self.Row);
+  Self.Visible := False;
 end;
 
 procedure THValueListEditor.EnumEnter(Sender: TObject);
@@ -117,6 +125,12 @@ begin
   begin
     Self.Visible := False;
     THButtonedEdit(FOwner).SetFocus;
+  end;
+
+  if (Ord(key) = 13) then
+  begin
+    THButtonedEdit(FOwner).Text := Self.GetCell(0, Self.Row);
+    Self.Visible := False;
   end;
 end;
 

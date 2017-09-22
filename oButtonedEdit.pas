@@ -253,7 +253,7 @@ begin
   try
     x998lsf := T998LSF.Create;
     FValueList := THValueListEditor.Create(Self);
-    FValueList.Parent := FForm;
+    FValueList.Parent := Self.Parent;
     FValueList.Name := 'LookupEnum'+ Self.Name;
 
     x998lsf.LSTNAM := FENumerator;

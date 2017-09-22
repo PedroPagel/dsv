@@ -1,7 +1,6 @@
 object F000CAD: TF000CAD
   Left = 0
   Top = 0
-  ActiveControl = Alterar
   Caption = ' Cadastro(s) - Controle de Loca'#231#227'o'
   ClientHeight = 694
   ClientWidth = 618
@@ -127,19 +126,7 @@ object F000CAD: TF000CAD
       Width = 527
       Height = 692
       Align = alClient
-      Caption = 'Panel4'
       TabOrder = 0
-      object PGControl: TPageControl
-        Left = 1
-        Top = 97
-        Width = 525
-        Height = 594
-        Align = alClient
-        TabOrder = 1
-        OnChange = PGControlChange
-        OnChanging = PGControlChanging
-        OnEnter = PGControlEnter
-      end
       object Cabecalho: THPanel
         Left = 1
         Top = 1
@@ -147,7 +134,16 @@ object F000CAD: TF000CAD
         Height = 96
         Align = alTop
         TabOrder = 0
-        OnEnter = CabecalhoEnter
+        OnExit = CabecalhoExit
+      end
+      object Geral: THPanel
+        Left = 1
+        Top = 97
+        Width = 525
+        Height = 594
+        Align = alClient
+        TabOrder = 1
+        OnEnter = GeralEnter
       end
     end
   end
