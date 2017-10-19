@@ -3,7 +3,7 @@ unit oFacadeWebServicesCRM;
 interface
 
 uses
-  System.Classes, oTitulo, oBase, System.SysUtils, Data.Db, System.Contnrs,
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
   WConnect_WSDL, Xml.XMLDoc, Vcl.Forms, oMensagem;
 
 type

@@ -19,9 +19,10 @@ uses
   WConnect_WSDL in 'WConnect_WSDL.pas',
   oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
   u510ARM in 'u510ARM.pas' {F510ARM},
-  oRotinaDDA in 'oRotinaDDA.pas',
+  oArmazenamento in 'oArmazenamento.pas',
   u510CON in 'u510CON.pas' {F510CON},
-  oConsulta in 'oConsulta.pas';
+  oConsulta in 'oConsulta.pas',
+  u510lay in 'u510lay.pas' {F510LAY};
 
 {$R *.res}
 begin
@@ -55,6 +56,12 @@ begin
       if (ParamStr(2) = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
+        Application.Run;
+      end
+      else
+      if (ParamStr(2) = TF510LAY.ClassName) then
+      begin
+        Application.CreateForm(TF510LAY, F510LAY);
         Application.Run;
       end;
     end;

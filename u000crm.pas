@@ -27,9 +27,6 @@ implementation
 
 procedure TF000CRM.FormCreate(Sender: TObject);
 begin
-  FOracleConnection.Close;
-  FOracleConnection.Conexao('SENIOR52');
-
   FFacadeControladoraCRM := TFacadeControladoraCRM.Create;
   try
     try

@@ -3,8 +3,8 @@ object F510CON: TF510CON
   Top = 0
   BorderStyle = bsSingle
   Caption = '   T'#237'tulos do Processo Agendado - DDA'
-  ClientHeight = 663
-  ClientWidth = 1038
+  ClientHeight = 755
+  ClientWidth = 1050
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,14 +21,14 @@ object F510CON: TF510CON
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 1038
-    Height = 663
+    Width = 1050
+    Height = 755
     Align = alClient
     TabOrder = 0
     object Splitter2: TSplitter
       Left = 1
-      Top = 302
-      Width = 1036
+      Top = 323
+      Width = 1048
       Height = 3
       Cursor = crVSplit
       Align = alTop
@@ -37,8 +37,8 @@ object F510CON: TF510CON
     end
     object Splitter1: TSplitter
       Left = 1
-      Top = 555
-      Width = 1036
+      Top = 576
+      Width = 1048
       Height = 3
       Cursor = crVSplit
       Align = alTop
@@ -48,15 +48,15 @@ object F510CON: TF510CON
     object Panel2: TPanel
       Left = 1
       Top = 1
-      Width = 1036
-      Height = 152
+      Width = 1048
+      Height = 173
       Align = alTop
       TabOrder = 0
       object Panel10: TPanel
-        Left = 859
+        Left = 871
         Top = 1
         Width = 176
-        Height = 150
+        Height = 171
         Align = alRight
         TabOrder = 2
         object Mostrar: TButton
@@ -151,14 +151,13 @@ object F510CON: TF510CON
         end
       end
       object GroupBox1: TGroupBox
-        Left = 353
+        Left = 365
         Top = 1
         Width = 506
-        Height = 150
+        Height = 171
         Align = alRight
         Caption = 'T'#237'tulo(s)'
         TabOrder = 1
-        ExplicitLeft = 352
         object Label9: TLabel
           Left = 211
           Top = 82
@@ -443,15 +442,14 @@ object F510CON: TF510CON
       object GroupBox2: TGroupBox
         Left = 1
         Top = 1
-        Width = 352
-        Height = 150
+        Width = 364
+        Height = 171
         Align = alClient
         Caption = 'Armazenamento'
         TabOrder = 0
-        ExplicitWidth = 364
         object Label2: TLabel
           Left = 52
-          Top = 28
+          Top = 55
           Width = 46
           Height = 13
           Caption = 'Portador:'
@@ -464,7 +462,7 @@ object F510CON: TF510CON
         end
         object Label10: TLabel
           Left = 222
-          Top = 56
+          Top = 83
           Width = 6
           Height = 13
           Caption = 'a'
@@ -477,7 +475,7 @@ object F510CON: TF510CON
         end
         object Label11: TLabel
           Left = 2
-          Top = 82
+          Top = 109
           Width = 96
           Height = 13
           Caption = 'Finaliza'#231#227'o Arquivo:'
@@ -490,7 +488,7 @@ object F510CON: TF510CON
         end
         object Label12: TLabel
           Left = 53
-          Top = 106
+          Top = 133
           Width = 45
           Height = 13
           Caption = 'Situa'#231#227'o:'
@@ -503,7 +501,7 @@ object F510CON: TF510CON
         end
         object Label13: TLabel
           Left = 14
-          Top = 55
+          Top = 82
           Width = 84
           Height = 13
           Caption = 'Gera'#231#227'o Arquivo:'
@@ -516,7 +514,7 @@ object F510CON: TF510CON
         end
         object Label14: TLabel
           Left = 222
-          Top = 81
+          Top = 108
           Width = 6
           Height = 13
           Caption = 'a'
@@ -527,9 +525,22 @@ object F510CON: TF510CON
           Font.Style = []
           ParentFont = False
         end
+        object Label15: TLabel
+          Left = 52
+          Top = 28
+          Width = 41
+          Height = 13
+          Caption = 'Arquivo:'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object BECodPor: THButtonedEdit
           Left = 104
-          Top = 25
+          Top = 52
           Width = 121
           Height = 21
           Font.Charset = DEFAULT_CHARSET
@@ -554,7 +565,7 @@ object F510CON: TF510CON
         end
         object cbSituacaoArm: TComboBox
           Left = 104
-          Top = 106
+          Top = 133
           Width = 145
           Height = 21
           Style = csDropDownList
@@ -566,7 +577,7 @@ object F510CON: TF510CON
           Font.Style = []
           ParentBiDiMode = False
           ParentFont = False
-          TabOrder = 0
+          TabOrder = 6
           OnChange = cbSituacaoArmChange
           Items.Strings = (
             'Armazenados'
@@ -575,7 +586,7 @@ object F510CON: TF510CON
         end
         object DDatIni: THDateTimePicker
           Left = 104
-          Top = 52
+          Top = 79
           Width = 112
           Height = 21
           Date = 42936.423708888890000000
@@ -591,7 +602,7 @@ object F510CON: TF510CON
         end
         object DDatFim: THDateTimePicker
           Left = 234
-          Top = 52
+          Top = 79
           Width = 112
           Height = 21
           Date = 42936.423708888890000000
@@ -607,7 +618,7 @@ object F510CON: TF510CON
         end
         object DFinIni: THDateTimePicker
           Left = 104
-          Top = 78
+          Top = 105
           Width = 112
           Height = 21
           Date = 42936.423708888890000000
@@ -623,7 +634,7 @@ object F510CON: TF510CON
         end
         object DFinFim: THDateTimePicker
           Left = 234
-          Top = 78
+          Top = 105
           Width = 112
           Height = 21
           Date = 42936.423708888890000000
@@ -637,12 +648,36 @@ object F510CON: TF510CON
           ParentFont = False
           TabOrder = 5
         end
+        object BENomArq: THButtonedEdit
+          Left = 104
+          Top = 25
+          Width = 242
+          Height = 21
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          RightButton.ImageIndex = 0
+          RightButton.Visible = True
+          TabOrder = 0
+          Table = 'USU_T510ARM'
+          Lookup = True
+          Field = 'USU_NomArq'
+          AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
+          OpenDialog = False
+          Required = False
+        end
       end
     end
     object Panel3: TPanel
       Left = 1
-      Top = 153
-      Width = 1036
+      Top = 174
+      Width = 1048
       Height = 149
       Align = alTop
       Caption = 'Panel3'
@@ -650,7 +685,7 @@ object F510CON: TF510CON
       object Panel6: TPanel
         Left = 1
         Top = 1
-        Width = 1034
+        Width = 1046
         Height = 16
         Align = alTop
         Caption = 'Armazenamento(s)'
@@ -665,7 +700,7 @@ object F510CON: TF510CON
       object FGridArm: TDataSetGrid
         Left = 1
         Top = 17
-        Width = 1034
+        Width = 1046
         Height = 131
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -687,16 +722,16 @@ object F510CON: TF510CON
     end
     object Panel5: TPanel
       Left = 1
-      Top = 558
-      Width = 1036
-      Height = 104
+      Top = 579
+      Width = 1048
+      Height = 175
       Align = alClient
       Caption = 'Panel5'
       TabOrder = 2
       object Panel8: TPanel
         Left = 1
         Top = 1
-        Width = 1034
+        Width = 1046
         Height = 16
         Align = alTop
         Caption = 'Associado(s)'
@@ -711,8 +746,8 @@ object F510CON: TF510CON
       object FGridAss: TDataSetGrid
         Left = 1
         Top = 17
-        Width = 1034
-        Height = 86
+        Width = 1046
+        Height = 157
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -731,15 +766,15 @@ object F510CON: TF510CON
     end
     object Panel7: TPanel
       Left = 1
-      Top = 305
-      Width = 1036
+      Top = 326
+      Width = 1048
       Height = 250
       Align = alTop
       TabOrder = 3
       object Panel4: TPanel
         Left = 1
         Top = 1
-        Width = 1034
+        Width = 1046
         Height = 16
         Align = alTop
         Caption = 'T'#237'tulo(s)'
@@ -754,7 +789,7 @@ object F510CON: TF510CON
       object FGridTit: TDataSetGrid
         Left = 1
         Top = 17
-        Width = 1034
+        Width = 1046
         Height = 196
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
@@ -776,7 +811,7 @@ object F510CON: TF510CON
       object Panel9: TPanel
         Left = 1
         Top = 213
-        Width = 1034
+        Width = 1046
         Height = 36
         Align = alBottom
         TabOrder = 2

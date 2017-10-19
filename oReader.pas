@@ -3,7 +3,7 @@ unit oReader;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Contnrs, Winapi.Windows, oBase;
+  System.Classes, System.SysUtils, System.Contnrs, Winapi.Windows, oBase, oTabelas;
 
 type
   TFileReader = class
@@ -34,7 +34,6 @@ implementation
 procedure TFileReader.Assingn(const pPath: string; const pNotFullPath: Boolean);
 begin
   AssignFile(FText, iff(pNotFullPath, pPath+FPath.Name, FRead));
-  //FPath.Size;
 end;
 
 procedure TFileReader.BeginRead;

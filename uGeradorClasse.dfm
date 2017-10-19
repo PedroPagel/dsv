@@ -23,8 +23,6 @@ object FGerCla: TFGerCla
     Height = 274
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 445
-    ExplicitHeight = 213
     object Label1: TLabel
       Left = 16
       Top = 32

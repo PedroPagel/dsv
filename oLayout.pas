@@ -3,9 +3,11 @@ unit oLayout;
 interface
 
 uses
-  System.Rtti, System.Classes, SysUtils, System.TypInfo;
+  System.Rtti, System.Classes, SysUtils, System.TypInfo, o510age;
 
 type
+  TRegistroLayout = (rlHeader, rlLote, rlDetalhe, rlFinalLote, rlFinal);
+
   TDados = record
     Campo: string;
     Valor: string;
@@ -18,25 +20,30 @@ type
     Tamanho: Integer;
     Campo: string;
     Registro1: Char;
+    RegLay: TRegistroLayout;
+    CgcCpf: Double;
+    AdicionarRegistro: Boolean;
   end;
 
   TArrayDados = array of TDados;
 
   TLayout = class
   private
-    FCodReg: TCodReg;
     FListaDados: TArrayDados;
 
     function ConversorData(const pData: string): TDateTime;
   public
-    constructor Create(const pRegistro: TCodReg);
+    constructor Create(const pIDAGE: Integer);
     destructor Destroy; override;
 
-    function AdicionarLinhas(const pLinha: string; const pObj: TObject): Boolean;
+    function AdicionarLinhas(const pLinha: string; const pObj: TObject; const pRegistro: TCodReg): TCodReg;
     procedure AdicionarCampos(const pNome: string; const pPosicao,pTamanho: Integer);
   end;
 
 implementation
+
+uses
+  o510lay, oBase;
 
 { TLayout }
 
@@ -58,13 +65,15 @@ end;
   Funcao que adiciona os campos do arquivo de retorno do DDA conforme o layout
   do Itau. O layout é montado no titulo pelo AdicionarCampos.
 }
-function TLayout.AdicionarLinhas(const pLinha: string; const pObj: TObject): Boolean;
+function TLayout.AdicionarLinhas(const pLinha: string; const pObj: TObject;
+  const pRegistro: TCodReg): TCodReg;
 var
   xContext : TRttiContext;
   xType : TRttiType;
   xProperty : TRttiProperty;
-  xRegistro: string;
   xCurrency: Currency;
+  xRegistro: TCodReg;
+  xTipo: string;
 
   procedure ArquivoParaDados();
   var
@@ -102,21 +111,46 @@ var
   end;
 
 begin
-  xRegistro := Copy(pLinha, FCodReg.Posicao, FCodReg.Tamanho);
-  Result := AnsiSameText(FCodReg.Registro1, xRegistro);
+  xTipo := Copy(pLinha, 8, 1);
+  xRegistro := pRegistro;
 
-  if (Result) then
-  begin
-    xContext  := TRttiContext.Create;
-    try
-      xType := xContext.GetType(pObj.ClassType);
-
-      for xProperty in xType.GetProperties do
-        ArquivoParaDados();
-    finally
-      xContext.Free;
+  case StrToInt(xTipo) of
+    0:
+    begin
+      xRegistro.RegLay := rlHeader;
+      xRegistro.CgcCpf := StrToFloat(Copy(pLinha, 19, 14));
     end;
+
+    1:
+    begin
+      xRegistro.RegLay := rlLote;
+      xRegistro.CgcCpf := StrToFloat(Copy(pLinha, 19, 15));
+    end;
+
+    3:
+    begin
+      xRegistro.RegLay := rlDetalhe;
+
+      if (AnsiSameText(xRegistro.Registro1, Copy(pLinha, xRegistro.Posicao, xRegistro.Tamanho))) then
+      begin
+        xRegistro.AdicionarRegistro := True;
+
+        xContext  := TRttiContext.Create;
+        try
+          xType := xContext.GetType(pObj.ClassType);
+
+          for xProperty in xType.GetProperties do
+            ArquivoParaDados();
+        finally
+          xContext.Free;
+        end;
+      end;
+    end;
+    5: xRegistro.RegLay := rlFinalLote;
+    9: xRegistro.RegLay := rlFinal;
   end;
+
+  Result := xRegistro;
 end;
 
 function TLayout.ConversorData(const pData: string): TDateTime;
@@ -127,11 +161,22 @@ begin
     Result := EncodeDate(StrToInt(Copy(pData, 5, 4)), StrToInt(Copy(pData, 3, 2)), StrToInt(Copy(pData, 1, 2)));
 end;
 
-constructor TLayout.Create(const pRegistro: TCodReg);
+constructor TLayout.Create(const pIDAGE: Integer);
+var
+  x510lay: T510LAY;
 begin
-  FillChar(FCodReg, SizeOf(FCodReg), 0);
   FillChar(FListaDados, SizeOf(FListaDados), 0);
-  FCodReg := pRegistro;
+
+  x510lay := T510LAY.Create;
+  try
+    x510lay.USU_IDAGE := pIDAGE;
+    x510lay.Execute(etSelect, esLoop);
+
+    while (x510lay.Next) do
+      Self.AdicionarCampos(x510lay.USU_NomCol, x510lay.USU_PosCol, x510lay.USU_TamCol);
+  finally
+    FreeAndNil(x510lay);
+  end;
 end;
 
 destructor TLayout.Destroy;

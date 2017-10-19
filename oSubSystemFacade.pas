@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, wsControleLocacao, DateUtils, oTitulo;
+  oTabelas, wsControleLocacao, DateUtils;
 
 type
   TIteracaoDadosFacade = class; //foward

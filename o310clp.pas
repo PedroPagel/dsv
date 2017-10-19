@@ -3,8 +3,8 @@ unit o310clp;
 interface
 
 uses
-  System.Classes, oTitulo, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, o501tcp, System.DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
+  oTabelas, o501tcp, System.DateUtils, o301tcr;
 
 type
   tSelecaoCheck = (scSemDados, scLigacao, scPossuiLigacao, scApenasRemover, scNaoLigado, scSomaNaoLigado);
@@ -252,7 +252,7 @@ begin
     FBonCtr := (FBonCtr + x160MOV.USU_VlrBon);
     FReaCtr := (FReaCtr + x160MOV.USU_VlrRea);
 
-    if not(FTitulo.IndexOfFields(x160MOV)) then
+    if not(FTitulo.SearchIndexValue(x160MOV)) then
       FTitulo.Add(x160MOV);
   finally
     FreeAndNil(xQueryMov);
@@ -354,7 +354,7 @@ begin
 
   BlockProperty(['ID','Check','Titulo', 'Ajuste','TotOri','TotRea', 'Ligacao','VlrInd']);
   FTitulo := TIterador.Create();
-  FTitulo.indexed := True;
+  FTitulo.indexed := False;
 
   FTitulo.IndexFields(['USU_CodEmp','USU_CodFil','USU_NumTit','USU_CodTpt']);
 

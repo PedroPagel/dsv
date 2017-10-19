@@ -103,7 +103,6 @@ procedure TFacedeCarregamentoCRM.ConsumirCompromisso;
 var
  xData: TData;
  x085cli: T085CLI;
- i: TDate;
 
   function VerificarZero(const pValue: Integer): string;
   begin

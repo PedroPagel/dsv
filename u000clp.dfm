@@ -1,8 +1,6 @@
 inherited F000CLP: TF000CLP
   Caption = 'F000CLP - Cadastro(s) - Controle de Loca'#231#227'o'
   OnCreate = FormCreate
-  ExplicitWidth = 634
-  ExplicitHeight = 732
   PixelsPerInch = 96
   TextHeight = 13
   inherited Panel1: TPanel
@@ -299,6 +297,10 @@ inherited F000CLP: TF000CLP
         object USU_T160CLP: TTabSheet
           Caption = 'Movimentar'
           ImageIndex = 1
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object Label15: TLabel
             Left = 236
             Top = 29

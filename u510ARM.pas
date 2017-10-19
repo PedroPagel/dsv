@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, oRotinaDDA,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, oArmazenamento,
   Data.DBXOracle, Data.DB, Data.SqlExpr, Bde.DBTables, Data.FMTBcd,
   Vcl.Mask, Vcl.DBCtrls, Datasnap.Provider, Datasnap.DBClient, oBase,
-  Vcl.Imaging.jpeg, Vcl.ExtCtrls;
+  Vcl.Imaging.jpeg, Vcl.ExtCtrls, o070fil;
 
 type
   TF510ARM = class(TForm)
@@ -32,14 +32,9 @@ var
 begin
   StartTransaction;
   try
-    if (System.ParamCount > 1) then
-    begin
-      FLogEmp := StrToInt(ParamStr(3));
-      FLogFil := StrToInt(ParamStr(4));
-    end;
-
-    xArmazenamento := TArmazenamento.Create();
+    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(3)));
     try
+      xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();
     finally
       FreeAndNil(xArmazenamento);
@@ -47,7 +42,8 @@ begin
 
     Commit;
   except
-    Rollback;
+    on e: Exception do
+      Rollback;
   end;
 end;
 

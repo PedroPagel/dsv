@@ -573,16 +573,6 @@ type
     procedure SetUSU_ExiOD(const pUSU_ExiOD: Char);
     function GetUSU_ConPcl: Char;
     procedure SetUSU_ConPcl(const pUSU_ConPcl: Char);
-    function GetUSU_EnvSer: Char;
-    procedure SetUSU_EnvSer(const pUSU_EnvSer: Char);
-    function GetUSU_FilB2B: Integer;
-    procedure SetUSU_FilB2B(const pUSU_FilB2B: Integer);
-    function GetUSU_ExiSG: Char;
-    procedure SetUSU_ExiSG(const pUSU_ExiSG: Char);
-    function GetUSU_EmpB2B: Integer;
-    procedure SetUSU_EmpB2B(const pUSU_EmpB2B: Integer);
-    function GetUSU_LocClp: Char;
-    procedure SetUSU_LocClp(const pUSU_LocClp: Char);
 
     function GetCodCliOld: Integer;
     procedure SetCodCliOld(const pCodCli: Integer);
@@ -860,16 +850,6 @@ type
     procedure SetUSU_ExiODOld(const pUSU_ExiOD: Char);
     function GetUSU_ConPclOld: Char;
     procedure SetUSU_ConPclOld(const pUSU_ConPcl: Char);
-    function GetUSU_EnvSerOld: Char;
-    procedure SetUSU_EnvSerOld(const pUSU_EnvSer: Char);
-    function GetUSU_FilB2BOld: Integer;
-    procedure SetUSU_FilB2BOld(const pUSU_FilB2B: Integer);
-    function GetUSU_ExiSGOld: Char;
-    procedure SetUSU_ExiSGOld(const pUSU_ExiSG: Char);
-    function GetUSU_EmpB2BOld: Integer;
-    procedure SetUSU_EmpB2BOld(const pUSU_EmpB2B: Integer);
-    function GetUSU_LocClpOld: Char;
-    procedure SetUSU_LocClpOld(const pUSU_LocClp: Char);
   protected
     procedure Registros_OLD(); override;
   public
@@ -2558,56 +2538,6 @@ begin
   FUSU_ConPcl := pUSU_ConPcl;
 end;
 
-function T085CLI.GetUSU_EnvSer: Char;
-begin
-  Result := FUSU_EnvSer;
-end;
-
-procedure T085CLI.SetUSU_EnvSer(const pUSU_EnvSer: Char);
-begin
-  FUSU_EnvSer := pUSU_EnvSer;
-end;
-
-function T085CLI.GetUSU_FilB2B: Integer;
-begin
-  Result := FUSU_FilB2B;
-end;
-
-procedure T085CLI.SetUSU_FilB2B(const pUSU_FilB2B: Integer);
-begin
-  FUSU_FilB2B := pUSU_FilB2B;
-end;
-
-function T085CLI.GetUSU_ExiSG: Char;
-begin
-  Result := FUSU_ExiSG;
-end;
-
-procedure T085CLI.SetUSU_ExiSG(const pUSU_ExiSG: Char);
-begin
-  FUSU_ExiSG := pUSU_ExiSG;
-end;
-
-function T085CLI.GetUSU_EmpB2B: Integer;
-begin
-  Result := FUSU_EmpB2B;
-end;
-
-procedure T085CLI.SetUSU_EmpB2B(const pUSU_EmpB2B: Integer);
-begin
-  FUSU_EmpB2B := pUSU_EmpB2B;
-end;
-
-function T085CLI.GetUSU_LocClp: Char;
-begin
-  Result := FUSU_LocClp;
-end;
-
-procedure T085CLI.SetUSU_LocClp(const pUSU_LocClp: Char);
-begin
-  FUSU_LocClp := pUSU_LocClp;
-end;
-
 function T085CLI.GetCodCliOLD: Integer;
 begin
   Result := FCodCliOLD;
@@ -3986,56 +3916,6 @@ end;
 procedure T085CLI.SetUSU_ConPclOLD(const pUSU_ConPcl: Char);
 begin
   FUSU_ConPclOLD := pUSU_ConPcl;
-end;
-
-function T085CLI.GetUSU_EnvSerOLD: Char;
-begin
-  Result := FUSU_EnvSerOLD;
-end;
-
-procedure T085CLI.SetUSU_EnvSerOLD(const pUSU_EnvSer: Char);
-begin
-  FUSU_EnvSerOLD := pUSU_EnvSer;
-end;
-
-function T085CLI.GetUSU_FilB2BOLD: Integer;
-begin
-  Result := FUSU_FilB2BOLD;
-end;
-
-procedure T085CLI.SetUSU_FilB2BOLD(const pUSU_FilB2B: Integer);
-begin
-  FUSU_FilB2BOLD := pUSU_FilB2B;
-end;
-
-function T085CLI.GetUSU_ExiSGOLD: Char;
-begin
-  Result := FUSU_ExiSGOLD;
-end;
-
-procedure T085CLI.SetUSU_ExiSGOLD(const pUSU_ExiSG: Char);
-begin
-  FUSU_ExiSGOLD := pUSU_ExiSG;
-end;
-
-function T085CLI.GetUSU_EmpB2BOLD: Integer;
-begin
-  Result := FUSU_EmpB2BOLD;
-end;
-
-procedure T085CLI.SetUSU_EmpB2BOLD(const pUSU_EmpB2B: Integer);
-begin
-  FUSU_EmpB2BOLD := pUSU_EmpB2B;
-end;
-
-function T085CLI.GetUSU_LocClpOLD: Char;
-begin
-  Result := FUSU_LocClpOLD;
-end;
-
-procedure T085CLI.SetUSU_LocClpOLD(const pUSU_LocClp: Char);
-begin
-  FUSU_LocClpOLD := pUSU_LocClp;
 end;
 
 procedure T085CLI.Registros_OLD();
