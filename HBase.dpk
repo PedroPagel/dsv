@@ -48,7 +48,6 @@ contains
   oQuery in 'oQuery.pas',
   oReader in 'oReader.pas',
   wsCRAlterar in 'wsCRAlterar.pas',
-  oTitulo in 'oTitulo.pas',
   oTabelas in 'oTabelas.pas',
   o133mau in 'o133mau.pas',
   o133vem in 'o133vem.pas',
@@ -60,6 +59,16 @@ contains
   o120ipd in 'o120ipd.pas',
   o075pro in 'o075pro.pas',
   o085cli in 'o085cli.pas',
-  o998lsf in 'o998lsf.pas';
+  o998lsf in 'o998lsf.pas',
+  o070fil in 'o070fil.pas',
+  o510age in 'o510age.pas',
+  o510arm in 'o510arm.pas',
+  o510tit in 'o510tit.pas',
+  o301mcr in 'o301mcr.pas',
+  o501mcp in 'o501mcp.pas',
+  o301tcr in 'o301tcr.pas',
+  oGeral in 'oGeral.pas',
+  o510lay in 'o510lay.pas';
 
 end.
+

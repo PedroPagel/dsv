@@ -874,8 +874,6 @@ type
     procedure SetUSU_NumOptCRM(const pUSU_NumOptCRM: Integer);
     function GetUSU_PedFec: Char;
     procedure SetUSU_PedFec(const pUSU_PedFec: Char);
-    function GetUSU_DatPrv: TDate;
-    procedure SetUSU_DatPrv(const pUSU_DatPrv: TDate);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -1307,8 +1305,6 @@ type
     procedure SetUSU_NumOptCRMOld(const pUSU_NumOptCRM: Integer);
     function GetUSU_PedFecOld: Char;
     procedure SetUSU_PedFecOld(const pUSU_PedFec: Char);
-    function GetUSU_DatPrvOld: TDate;
-    procedure SetUSU_DatPrvOld(const pUSU_DatPrv: TDate);
   protected
     procedure Registros_OLD(); override;
   public
@@ -3913,16 +3909,6 @@ begin
   FUSU_PedFec := pUSU_PedFec;
 end;
 
-function T120PED.GetUSU_DatPrv: TDate;
-begin
-  Result := FUSU_DatPrv;
-end;
-
-procedure T120PED.SetUSU_DatPrv(const pUSU_DatPrv: TDate);
-begin
-  FUSU_DatPrv := pUSU_DatPrv;
-end;
-
 function T120PED.GetCodEmpOLD: Integer;
 begin
   Result := FCodEmpOLD;
@@ -6071,16 +6057,6 @@ end;
 procedure T120PED.SetUSU_PedFecOLD(const pUSU_PedFec: Char);
 begin
   FUSU_PedFecOLD := pUSU_PedFec;
-end;
-
-function T120PED.GetUSU_DatPrvOLD: TDate;
-begin
-  Result := FUSU_DatPrvOLD;
-end;
-
-procedure T120PED.SetUSU_DatPrvOLD(const pUSU_DatPrv: TDate);
-begin
-  FUSU_DatPrvOLD := pUSU_DatPrv;
 end;
 
 procedure T120PED.Registros_OLD();

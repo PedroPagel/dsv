@@ -81,6 +81,7 @@ type
     FRelacionamentos: array of TRelacionamentos;
 
     FTable: TTable;
+    FOldValues: TTable;
     FTabela: string;
     FEstado: tEstadoRotina;
     FSair: Boolean;
@@ -109,8 +110,13 @@ type
 
     function NomeClasse: string;
     function State: tEstadoRotina;
+    function Table: TTable;
+    function OldValues: TTable;
+
     procedure ValidarCamposChave(const pGrid: TDataSetGrid);
     procedure Registrar(const pClasse: string; const pTabela: string); virtual;
+    procedure ExitButton(Sender: TObject);
+    procedure EnterFields(); virtual; abstract;
   end;
 
 var
@@ -147,6 +153,9 @@ begin
   FTable := (xClass.Create) as TTable;
   FTable.Init(FTabela);
 
+  FOldValues := (xClass.Create) as TTable;
+  FOldValues.Init(FTabela);
+
   DBNavigator.DataSource := TDataSource.Create(nil);
   DBNavigator.DataSource.DataSet := FTable.SetTableToRecord(FTabela);
   DBNavigator.DataSource.DataSet.Open;
@@ -182,7 +191,7 @@ begin
       begin
         THButtonedEdit(Self.Components[i]).DataBaseRegisters := (Self.Components[i].GetParentComponent = Cabecalho);
 
-        if not(AnsiSameText(THButtonedEdit(Self.Components[i]).Table, pTabela)) then
+        if not(AnsiSameText(THButtonedEdit(Self.Components[i]).Table, pTabela)) or not(IsNull(THButtonedEdit(Self.Components[i]).ENumerator)) then
         begin
           if (THButtonedEdit(Self.Components[i]).Lookup) then
           begin
@@ -258,6 +267,7 @@ begin
       if (Self.Components[i].ClassType = THButtonedEdit) then
       begin
         THButtonedEdit(Self.Components[i]).OnChange := AoAlterar;
+        THButtonedEdit(Self.Components[i]).OnExit := ExitButton;
         THButtonedEdit(Self.Components[i]).OnClickLookup := LookupClick;
       end;
 
@@ -515,6 +525,10 @@ end;
 procedure TF000CAD.CabecalhoExit(Sender: TObject);
 var
   i: Integer;
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xChave: Boolean;
 begin
   try
     if not(FEstado = erCancelar) then
@@ -549,6 +563,28 @@ begin
           Inserir.Enabled := True;
 
           CabecalhoAtivo(False, FTabela);
+
+          for i := 0 to High(FCamposGerais) do
+            LimparComponentes(FCamposGerais[i].Posicao, FTable);
+
+          xType := xContext.GetType(FTable.ClassType);
+
+          for xProperty in xType.GetProperties do
+          begin
+            xChave := False;
+
+            for i := 0 to High(FCamposChave) do
+            begin
+              if (AnsiSameText(xProperty.Name, FCamposChave[i].Nome)) then
+              begin
+                xChave := True;
+                Break;
+              end;
+            end;
+
+            if not(xChave) then
+              xProperty.SetValue(FTable, nil);
+          end;
 
           for i := 0 to pred(Self.ComponentCount) do
           begin
@@ -851,6 +887,36 @@ begin
   end;
 end;
 
+procedure TF000CAD.ExitButton(Sender: TObject);
+var
+  x998FLD: T998FLD;
+begin
+  try
+    if (THButtonedEdit(Sender).Required and not(THButtonedEdit(Sender).ButtonClicked)) and not(FEstado = erCancelar) then
+      if (IsNull(THButtonedEdit(Sender).Text) or (AnsiSameText(THButtonedEdit(Sender).Text, '0'))) then
+      begin
+        x998FLD := T998FLD.Create;
+        try
+          x998FLD.TblNam := THButtonedEdit(Sender).Table;
+          x998FLD.FldNam := THButtonedEdit(Sender).Field;
+          x998FLD.PropertyForSelect(['TBLNAM', 'FLDNAM'], True);
+
+          if (x998FLD.Execute(etSelect, esNormal)) then
+            CMessage(Format('Campo "%s" com valor inválido ou vazio!', [x998FLD.LgnTit]), mtExceptError);
+        finally
+          FreeAndNil(x998FLD);
+        end;
+      end;
+
+    THButtonedEdit(Sender).ExitButton(Sender);
+  except
+    on E: THMessage do
+    begin
+      THButtonedEdit(Sender).SetFocus;
+    end;
+  end;
+end;
+
 procedure TF000CAD.FormCreate(Sender: TObject);
 begin
   FUltimoComponente := EmptyStr;
@@ -873,6 +939,7 @@ procedure TF000CAD.GeralEnter(Sender: TObject);
 begin
   CarregarValoresCamposPadrao(FEstado);
   FPosicaoRotina := psGeral;
+  EnterFields();
 end;
 
 procedure TF000CAD.IniciarCabecalhoChave(const pFocus: Boolean = False);
@@ -888,7 +955,10 @@ begin
 
     if (pFocus) then
       if (THButtonedEdit(Self.Components[FCamposChave[i].Posicao]).TabOrder = 0) then
+      begin
+        THButtonedEdit(Self.Components[FCamposChave[i].Posicao]).SelectAll;
         THButtonedEdit(Self.Components[FCamposChave[i].Posicao]).SetFocus;
+      end;
   end;
 end;
 
@@ -903,6 +973,7 @@ begin
     end;
 
     Commit;
+    TIterador.Repassar(FTable, FOldValues);
     Cancelar.Click;
   except
     on E: Exception do
@@ -984,6 +1055,11 @@ begin
   Result := FTabela;
 end;
 
+function TF000CAD.OldValues: TTable;
+begin
+  Result := FOldValues;
+end;
+
 procedure TF000CAD.SairClick(Sender: TObject);
 begin
   Close;
@@ -1002,6 +1078,11 @@ end;
 function TF000CAD.State: tEstadoRotina;
 begin
   Result := FEstado;
+end;
+
+function TF000CAD.Table: TTable;
+begin
+  Result := FTable;
 end;
 
 function TF000CAD.ClassePorComponente(const pComp: TComponent): TTable;

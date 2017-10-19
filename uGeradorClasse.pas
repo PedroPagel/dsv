@@ -222,7 +222,8 @@ begin
                         'UPPER(TABLE_NAME)= :TABELA AND '+
                         'OWNER = :BASE AND '+
                         'R998FLD.TBLNAM = TABLE_NAME AND '+
-                        'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME '+
+                        'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME AND '+
+                        'UPPER(R998FLD.FLDNAM) <> ''USU_ID'' '+
                       'ORDER BY '+
                         'FLDORD ';
 
@@ -378,6 +379,7 @@ begin
       Write(FTextFile, CTAB + 'inherited;');
       Writeln(FTextFile);
       Write(FTextFile, 'end;');
+      Writeln(FTextFile);
       Write(FTextFile, '');
       Writeln(FTextFile);
     end;

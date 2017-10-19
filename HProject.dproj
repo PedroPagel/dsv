@@ -115,17 +115,16 @@
             <Form>F510ARM</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="oRotinaDDA.pas"/>
+        <DCCReference Include="oArmazenamento.pas"/>
         <DCCReference Include="u510CON.pas">
             <Form>F510CON</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="oConsulta.pas"/>
-        <DCCReference Include="u073vet.pas">
-            <Form>F073VET</Form>
+        <DCCReference Include="u510lay.pas">
+            <Form>F510LAY</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="o073vet.pas"/>
         <None Include="ModelSupport_HProject\default.txaPackage"/>
         <RcItem Include="..\..\Icones\flecha.bmp">
             <ResourceType>BITMAP</ResourceType>

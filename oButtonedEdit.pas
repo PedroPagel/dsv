@@ -38,6 +38,7 @@ type
     FENumerator: string;
     FValueList: THValueListEditor;
     FRightClick: TRightClick;
+    FButtonClicked: Boolean;
 
     function GetTable: string;
     procedure SetTable(const Value: string);
@@ -53,7 +54,7 @@ type
     procedure LeftDataClick(Sender: TObject);
 
     function Filters(): string;
-    procedure ExitButton(Sender: TObject);
+    procedure EnterButton(Sender: TObject);
     procedure KeyPressButton(Sender: TObject; var Key: Char);
     procedure CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckMethod(const pCheckMethod: TCheckMethod);
@@ -66,12 +67,14 @@ type
 
     procedure CreateLookup();
     procedure CheckEnum();
+    procedure ExitButton(Sender: TObject);
     procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
     procedure AddLeftTableForm(const pForm: TForm);
 
     property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
     property DataBaseRegisters: Boolean read FDataBaseRegisters write FDataBaseRegisters;
     property OnClickLookup: TRightClick read FRightClick write FRightClick;
+    property ButtonClicked: Boolean read FButtonClicked write FButtonClicked;
   published
     property IndexFields: string read GetIndexFields write SetIndexFields;
     property Table: string read GetTable write SetTable;
@@ -196,9 +199,11 @@ begin
   Self.OnKeyUp := CallLookup;
   Self.OnExit := ExitButton;
   Self.OnKeyPress := KeyPressButton;
+  Self.OnEnter := EnterButton;
   FForm := TForm(AOwner);
 
   FOpenDialog := False;
+  FButtonClicked := False;
 end;
 
 procedure THButtonedEdit.CreateLookup();
@@ -254,6 +259,7 @@ begin
     x998lsf := T998LSF.Create;
     FValueList := THValueListEditor.Create(Self);
     FValueList.Parent := Self.Parent;
+    FValueList.Form := FForm;
     FValueList.Name := 'LookupEnum'+ Self.Name;
 
     x998lsf.LSTNAM := FENumerator;
@@ -272,8 +278,15 @@ begin
   inherited;
 end;
 
+procedure THButtonedEdit.EnterButton(Sender: TObject);
+begin
+  CheckMethod(cmEnter);
+end;
+
 procedure THButtonedEdit.ExitButton(Sender: TObject);
 begin
+  FButtonClicked := True;
+
   if not(FAlfa) and not(FIsFloat) then
   begin
     FString := Self.Text;
@@ -348,6 +361,7 @@ end;
 
 procedure THButtonedEdit.LeftDataClick(Sender: TObject);
 begin
+  FButtonClicked := True;
   FPesHen.AddLeftTableForm(FLeftTable);
   FPesHen.ShowLeftTableData();
 end;
@@ -357,6 +371,8 @@ var
   xDialog: TOpenDialog;
   xDiretorio: string;
 begin
+  FButtonClicked := True;
+
   if not(Assigned(FValueList)) then
   begin
     if (FLookup) and not(FOpenDialog) then
@@ -402,7 +418,7 @@ begin
   else
     FValueList.ShowEnum(Self);
 
-  if (Assigned(FRightClick)) then
+  if (Assigned(FRightClick)) and (Assigned(FValueList)) then
     FRightClick(Self, FValueList.Name);
 end;
 

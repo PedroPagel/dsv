@@ -19,11 +19,10 @@ uses
   WConnect_WSDL in 'WConnect_WSDL.pas',
   oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
   u510ARM in 'u510ARM.pas' {F510ARM},
-  oRotinaDDA in 'oRotinaDDA.pas',
+  oArmazenamento in 'oArmazenamento.pas',
   u510CON in 'u510CON.pas' {F510CON},
   oConsulta in 'oConsulta.pas',
-  u073vet in 'u073vet.pas' {F073VET},
-  o073vet in 'o073vet.pas';
+  u510lay in 'u510lay.pas' {F510LAY};
 
 {$R *.res}
 begin
@@ -32,14 +31,13 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    //if (System.ParamCount > 0) then
+    if (System.ParamCount > 0) then
     begin
       if (ParamStr(2) = TF000CRM.ClassName) then
       begin
         Application.ShowMainForm := False;
         Application.CreateForm(TF000CRM, F000CRM);
-  Application.CreateForm(TF073VET, F073VET);
-  Application.Terminate;
+        Application.Terminate;
       end
       else
       if (ParamStr(2) = TF310CLP.ClassName) then
@@ -61,9 +59,9 @@ begin
         Application.Run;
       end
       else
-      if ('TF073VET' = TF073VET.ClassName) then
+      if (ParamStr(2) = TF510LAY.ClassName) then
       begin
-        Application.CreateForm(TF073VET, F073VET);
+        Application.CreateForm(TF510LAY, F510LAY);
         Application.Run;
       end;
     end;

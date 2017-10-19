@@ -3,8 +3,8 @@ unit oConsulta;
 interface
 
 uses
-  System.Classes, Data.SqlExpr, oQuery, oBase, oTitulo, System.SysUtils,
-  Data.Db, System.Contnrs, oTabelas, oMensagem, o501tcp;
+  System.Classes, Data.SqlExpr, oQuery, oBase, System.SysUtils,
+  Data.Db, System.Contnrs, oTabelas, oMensagem, o501tcp, o510arm, o510tit;
 
 type
   T510CON = class(T510ARM)
@@ -98,7 +98,7 @@ end;
 
 constructor T510CON.Create;
 begin
-  inherited Create('USU_T510ARM');
+  inherited Create();
 
   FQuery := THQuery.CreatePersonalizado();
   FListaArm := TIterador.Create();
@@ -112,7 +112,7 @@ procedure T510CON.Deletar;
 var
   x510TIT: T510TIT;
 begin
-  x510TIT := T510TIT.Create('USU_T510TIT');
+  x510TIT := T510TIT.Create();
   try
     x510TIT.USU_IdArm := Self.USU_ID;
     x510TIT.PropertyForSelect(['USU_IDARM']);

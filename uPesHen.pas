@@ -29,6 +29,7 @@ type
     procedure OKClick(Sender: TObject);
     procedure FGridPesDblClick(Sender: TObject);
     procedure CBFiltrarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     FField: string;
     FieldName: string;
@@ -41,6 +42,8 @@ type
     procedure ShowData(const pTable: string; const pField: string; const pIndexFields: string = ''; const pFilter: string = '');
   published
     procedure FGridPesTitleClick(Column: TColumn);
+    procedure FGridPesKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   end;
 
 var
@@ -67,7 +70,16 @@ end;
 
 procedure TFPesHen.FGridPesDblClick(Sender: TObject);
 begin
-  Self.OK.OnClick(Self);
+  if not(FGridPes.GridTitleClick()) then
+    Self.OK.OnClick(Self);
+end;
+
+procedure TFPesHen.FGridPesKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Shift = [ssCtrl]) then
+    if (Key = 13) then
+      Self.OKClick(Sender);
 end;
 
 procedure TFPesHen.FGridPesTitleClick(Column: TColumn);
@@ -89,18 +101,20 @@ begin
   FGridPes.Finalize();
 end;
 
+procedure TFPesHen.FormShow(Sender: TObject);
+begin
+  FGridPes.SetFocus;
+end;
+
 procedure TFPesHen.OKClick(Sender: TObject);
 begin
-  if not(FGridPes.GridTitleClick()) then
-  begin
-    if (FLeftClick) then
-      TF000CAD(FLeftTable).ValidarCamposChave(FGridPes)
-    else
-      FRetorno := FGridPes.Selected(FField);
+  if (FLeftClick) then
+    TF000CAD(FLeftTable).ValidarCamposChave(FGridPes)
+  else
+    FRetorno := FGridPes.Selected(FField);
 
-    FLeftClick := False;
-    Close;
-  end;
+  FLeftClick := False;
+  Close;
 end;
 
 function TFPesHen.Return: Variant;

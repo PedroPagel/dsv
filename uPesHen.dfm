@@ -14,6 +14,7 @@ object FPesHen: TFPesHen
   OldCreateOrder = False
   Position = poDesktopCenter
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
@@ -116,6 +117,7 @@ object FPesHen: TFPesHen
     TitleFont.Name = 'Tahoma'
     TitleFont.Style = []
     OnDblClick = FGridPesDblClick
+    OnKeyDown = FGridPesKeyDown
     AllowNewLine = False
   end
 end

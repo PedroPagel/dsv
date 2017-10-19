@@ -22,6 +22,12 @@ type
     Data: array of TDate;
   end;
 
+  TIteratorINDEX = record
+    index: Integer;
+    value: String;
+  end;
+
+  TArrayOfIndex = array of TIteratorINDEX;
   TArrayOfString = array of string;
 
   TTable = class(TInterfacedPersistent)
@@ -146,97 +152,36 @@ type
   TIterador = class(TObjectList)
   private
     FFields: array of string;
-    FIndex: TStringList;
+    FIndex: TArrayOfIndex;
     FBaseClass: TClass;
     Findexed: Boolean;
 
     function GetIndexed: Boolean;
+    function IndexOfValues(const pValue: String): Integer;
+
+    procedure AddIndex(const pValue: String);
     procedure SetIndexed(const Value: Boolean);
   public
     constructor Create(const pBaseClass: TClass = nil);
     destructor Destroy(); override;
 
+    procedure Add(const Obj: TObject);
+
     function Selecionados(): Boolean;
     function Exists(const pItem: Integer): Boolean;
-    function IndexOfFields(const pObj: TObject): Boolean;
+    function SearchIndexValue(const pObj: TObject): Boolean;
+    function IndexOfFields(const pObj: TObject): Integer;
 
     procedure IndexFields(const pFields: array of string);
     procedure ShiftValues(const pInput: TObject); //metodo novo, adiciona os dados de um objeto gemeo
     procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
+    procedure AddByQuery(const Obj: TObject);
     procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
 
     class procedure Repassar(const pObjEntrada: TObject;
       const pObjeSaida: TObject);
 
     property indexed: Boolean read GetIndexed write SetIndexed;
-  end;
-
-  TFilial = class(TTabelaPadrao)
-  private
-    FPagMul: Double;
-    FPagDtm: Word;
-    FPagJmm: Double;
-    FPagTjr: Char;
-    FPagDtj: Word;
-    FRecPor: string;
-    FRecCrt: string;
-    FCodFil: Integer;
-    FCodEmp: Integer;
-    FPagTpm: string;
-
-    function GetCodFil: Integer;
-    function GetPagDtj: Word;
-    function GetPagDtm: Word;
-    function GetPagJmm: Double;
-    function GetPagMul: Double;
-    function GetPagTjr: Char;
-    function GetRecCrt: string;
-    function GetRecPor: string;
-    function GetCodEmp: Integer;
-
-    procedure SetCodEmp(const pCodEmp: Integer);
-    procedure SetCodFil(const pCodFil: Integer);
-    procedure SetPagDtj(const pPagDtj: Word);
-    procedure SetPagDtm(const pPagDtm: Word);
-    procedure SetPagJmm(const pPagJmm: Double);
-    procedure SetPagMul(const pPagMul: Double);
-    procedure SetPagTjr(const pPagTjr: Char);
-    procedure SetRecCrt(const pRecCrt: string);
-    procedure SetRecPor(const pRecPor: string);
-    function GetPagTpm: string;
-    procedure SetPagTpm(const pPagTpm: string);
-  public
-    constructor Create();
-    destructor Destroy(); override;
-
-    property PagMul: Double read GetPagMul write SetPagMul;
-    property PagDtm: Word read GetPagDtm write SetPagDtm;
-    property PagJmm: Double read GetPagJmm write SetPagJmm;
-    property PagTjr: Char read GetPagTjr write SetPagTjr;
-    property PagDtj: Word read GetPagDtj write SetPagDtj;
-    property RecPor: string read GetRecPor write SetRecPor;
-    property RecCrt: string read GetRecCrt write SetRecCrt;
-    property CodFil: Integer read GetCodFil write SetCodFil;
-    property CodEmp: Integer read GetCodEmp write SetCodEmp;
-    property PagTpm: string read GetPagTpm write SetPagTpm;
-  end;
-
-  TListaFilial = class(TIterador)
-  public
-    constructor Create();
-    destructor Destroy(); override;
-
-    function DadosFilial(const pCodEmp: Integer;
-      const pCodFil: Integer): TFilial;
-    procedure AddEmpresaLogada(const pCodEmp: Integer);
-    procedure AddEmpresaFilialLogada(const pCodEmp: Integer;
-      const pCodFil: Integer);
-    procedure AddTodas();
-  end;
-
-  TListFil = class
-  public
-    class var FListaFilial: TListaFilial;
   end;
 
   TConnectionBase = class(TADOConnection)
@@ -262,7 +207,6 @@ type
     FAno: Word;
     FData: TDate;
     FDiaDaSemana: Boolean;
-    FDayOfWeek: tDayOfWeek;
 
     function GetDayOfWeek: tDayOfWeek;
 
@@ -286,7 +230,7 @@ procedure Commit();
 procedure RollBack;
 
 function iff(const pTernario: Boolean;
-  const pParametro1, pParametro2: Variant): Variant;
+  const pParametro1, pParametro2: Variant): Variant; overload;
 function UltimoCaracter(var pString: string; pCaracter: string;
   pDeletar: Boolean = True; const pCount: Integer = 1): Boolean;
 function DataNull(pData: TDate): TDateTime;
@@ -307,7 +251,6 @@ function VarToChar(const pVar: Variant): Char;
 
 var
   FOracleConnection: TConnectionBase;
-  FListaFilial: TListaFilial;
   FLogEmp: Integer;
   FLogFil: Integer;
   FLogUsu: Integer;
@@ -515,7 +458,10 @@ end;
 
 function StrToChar(const pString: string): Char;
 begin
-  Result := pString[1];
+  if (Length(pString) = 0) then
+    Result := #0
+  else
+    Result := pString[1];
 end;
 
 function VarToChar(const pVar: Variant): Char;
@@ -817,7 +763,6 @@ end;
 procedure TTable.Close;
 begin
   FCondicao := EmptyStr;
-  FQuery.Close;
   FreeAndNil(FQuery);
 end;
 
@@ -948,7 +893,7 @@ begin
           xProperty.SetValue(Self, 0);
 
         tkWChar, tkChar:
-          xProperty.SetValue(Self, emptyStr);
+          xProperty.SetValue(Self, StrToChar(emptyStr));
       else
         xProperty.SetValue(Self, emptyStr);
       end;
@@ -1327,16 +1272,71 @@ end;
 
 { TIterador }
 
+procedure TIterador.Add(const Obj: TObject);
+var
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  i: Integer;
+  xValor: string;
+begin
+  inherited Add(Obj);
+
+  if (indexed) then
+  begin
+    xContext := TRttiContext.Create;
+    try
+      xType := xContext.GetType(Obj.ClassType);
+
+      for i := 0 to High(FFields) do
+      begin
+        xProperty := xType.GetProperty(FFields[i]);
+        xValor := xValor + VarToStr(xProperty.GetValue(Obj).AsVariant);
+      end;
+
+      AddIndex(xValor);
+    finally
+      xContext.Free;
+    end;
+  end;
+end;
+
+procedure TIterador.AddByQuery(const Obj: TObject);
+var
+  xClass: TPersistentClass;
+  xObj: TTable;
+begin
+  xClass := GetClass(Obj.ClassName);
+  xObj := (xClass.Create) as TTable;
+
+  Self.Add(xObj);
+end;
+
+procedure TIterador.AddIndex(const pValue: String);
+var
+  i: Integer;
+begin
+  i := Length(FIndex);
+  Inc(i);
+  SetLength(FIndex, i);
+  Dec(i);
+
+  FIndex[i].index := Self.Count;
+  FIndex[i].value := pValue;
+end;
+
 constructor TIterador.Create(const pBaseClass: TClass = nil);
 begin
   inherited Create;
 
   FBaseClass := pBaseClass;
+
+  FillChar(FIndex, sizeOf(FIndex), 0);
 end;
 
 destructor TIterador.Destroy;
 begin
-  FreeAndNil(FIndex);
+  FillChar(FIndex, sizeOf(FIndex), 0);
 
   inherited;
 end;
@@ -1370,7 +1370,7 @@ begin
   end;
 end;
 
-function TIterador.IndexOfFields(const pObj: TObject): Boolean;
+function TIterador.IndexOfFields(const pObj: TObject): Integer;
 var
   xContext: TRttiContext;
   xType: TRttiType;
@@ -1388,10 +1388,50 @@ begin
       xValor := xValor + VarToStr(xProperty.GetValue(pObj).AsVariant);
     end;
 
-    Result := (FIndex.IndexOf(xValor) > -1);
+    Result := IndexOfValues(xValor);
+  finally
+    xContext.Free;
+  end;
+end;
+
+function TIterador.IndexOfValues(const pValue: String): Integer;
+var
+  i: Integer;
+begin
+  Result := -1;
+
+  for i := 0 to High(FIndex) do
+  begin
+    if (AnsiSameText(FIndex[i].value, pValue)) then
+    begin
+      Result := i;
+      Break;
+    end;
+  end;
+end;
+
+function TIterador.SearchIndexValue(const pObj: TObject): Boolean;
+var
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  i: Integer;
+  xValor: string;
+begin
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(pObj.ClassType);
+
+    for i := 0 to High(FFields) do
+    begin
+      xProperty := xType.GetProperty(FFields[i]);
+      xValor := xValor + VarToStr(xProperty.GetValue(pObj).AsVariant);
+    end;
+
+    Result := (IndexOfValues(xValor) > -1);
 
     if not(Result) then
-      FIndex.Add(xValor);
+      AddIndex(xValor);
   finally
     xContext.Free;
   end;
@@ -1501,9 +1541,6 @@ end;
 
 procedure TIterador.SetIndexed(const Value: Boolean);
 begin
-  if (Value) then
-    FIndex := TStringList.Create;
-
   Findexed := Value;
 end;
 
@@ -1528,203 +1565,6 @@ begin
   end;
 
   Self.Add(xNewObj);
-end;
-
-{ TFilial }
-
-constructor TFilial.Create;
-begin
-  inherited Create('E070FIL');
-end;
-
-destructor TFilial.Destroy;
-begin
-  inherited;
-end;
-
-function TFilial.GetCodEmp: Integer;
-begin
-  Result := FCodEmp;
-end;
-
-function TFilial.GetCodFil: Integer;
-begin
-  Result := FCodFil;
-end;
-
-function TFilial.GetPagDtj: Word;
-begin
-  Result := FPagDtj;
-end;
-
-function TFilial.GetPagDtm: Word;
-begin
-  Result := FPagDtm;
-end;
-
-function TFilial.GetPagJmm: Double;
-begin
-  Result := FPagJmm;
-end;
-
-function TFilial.GetPagMul: Double;
-begin
-  Result := FPagMul;
-end;
-
-function TFilial.GetPagTjr: Char;
-begin
-  Result := FPagTjr;
-end;
-
-function TFilial.GetPagTpm: string;
-begin
-  Result := FPagTpm;
-end;
-
-function TFilial.GetRecCrt: string;
-begin
-  Result := FRecCrt;
-end;
-
-function TFilial.GetRecPor: string;
-begin
-  Result := FRecPor;
-end;
-
-procedure TFilial.SetCodEmp(const pCodEmp: Integer);
-begin
-  FCodEmp := pCodEmp;
-end;
-
-procedure TFilial.SetCodFil(const pCodFil: Integer);
-begin
-  FCodFil := pCodFil;
-end;
-
-procedure TFilial.SetPagDtj(const pPagDtj: Word);
-begin
-  FPagDtj := pPagDtj
-end;
-
-procedure TFilial.SetPagDtm(const pPagDtm: Word);
-begin
-  FPagDtm := pPagDtm;
-end;
-
-procedure TFilial.SetPagJmm(const pPagJmm: Double);
-begin
-  FPagJmm := pPagJmm;
-end;
-
-procedure TFilial.SetPagMul(const pPagMul: Double);
-begin
-  FPagMul := pPagMul;
-end;
-
-procedure TFilial.SetPagTjr(const pPagTjr: Char);
-begin
-  FPagTjr := pPagTjr;
-end;
-
-procedure TFilial.SetPagTpm(const pPagTpm: string);
-begin
-  FPagTpm := pPagTpm;
-end;
-
-procedure TFilial.SetRecCrt(const pRecCrt: string);
-begin
-  FRecCrt := pRecCrt;
-end;
-
-procedure TFilial.SetRecPor(const pRecPor: string);
-begin
-  FRecPor := pRecPor;
-end;
-
-{ TListaFilial }
-
-procedure TListaFilial.AddEmpresaFilialLogada(const pCodEmp: Integer;
-  const pCodFil: Integer);
-var
-  xFilial: TFilial;
-  xDadosFilial: TFilial;
-begin
-  xFilial := TFilial.Create();
-  xFilial.CodEmp := pCodEmp;
-  xFilial.CodFil := pCodFil;
-  xFilial.PropertyForSelect(['CODEMP', 'CODFIL'], True);
-  xFilial.Execute(etSelect, esLoop);
-
-  while (xFilial.Next) do
-  begin
-    xDadosFilial := TFilial.Create();
-    Self.Iterar(xFilial, xDadosFilial);
-    Self.Add(xDadosFilial);
-  end;
-end;
-
-procedure TListaFilial.AddEmpresaLogada(const pCodEmp: Integer);
-var
-  xFilial: TFilial;
-  xDadosFilial: TFilial;
-begin
-  xFilial := TFilial.Create();
-  xFilial.CodEmp := pCodEmp;
-  xFilial.PropertyForSelect(['CODEMP'], True);
-  xFilial.Execute(etSelect, esLoop);
-
-  while (xFilial.Next) do
-  begin
-    xDadosFilial := TFilial.Create();
-    Self.Iterar(xFilial, xDadosFilial);
-    Self.Add(xDadosFilial);
-  end;
-end;
-
-procedure TListaFilial.AddTodas;
-var
-  xFilial: TFilial;
-  xDadosFilial: TFilial;
-begin
-  xFilial := TFilial.Create();
-  xFilial.Execute(etSelect, esLoop);
-
-  while (xFilial.Next) do
-  begin
-    xDadosFilial := TFilial.Create();
-    Self.Iterar(xFilial, xDadosFilial);
-    Self.Add(xDadosFilial);
-  end;
-end;
-
-constructor TListaFilial.Create;
-begin
-  inherited Create();
-end;
-
-function TListaFilial.DadosFilial(const pCodEmp: Integer;
-  const pCodFil: Integer): TFilial;
-var
-  i: Integer;
-begin
-  Result := nil;
-
-  for i := 0 to pred(Self.Count) do
-  begin
-    if (TFilial(Self[i]).CodEmp = pCodEmp) and
-      (TFilial(Self[i]).CodFil = pCodFil) then
-    begin
-      Result := TFilial.Create;
-      Self.Iterar(TFilial(Self[i]), Result);
-      Break;
-    end;
-  end;
-end;
-
-destructor TListaFilial.Destroy;
-begin
-  inherited;
 end;
 
 { TTabelaPadrao }

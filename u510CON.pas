@@ -64,6 +64,8 @@ type
     DFinFim: THDateTimePicker;
     DVenFim: THDateTimePicker;
     DVenIni: THDateTimePicker;
+    BENomArq: THButtonedEdit;
+    Label15: TLabel;
 
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
@@ -103,7 +105,7 @@ var
 implementation
 
 uses
-  oTabelas, Data.DB, oBase, CommCtrl;
+  oTabelas, Data.DB, oBase, CommCtrl, o510arm, o510tit;
 
 {$R *.dfm}
 
@@ -158,6 +160,7 @@ begin
   BECodFil.Text := EmptyStr;
   BECodPor.Text := EmptyStr;
   BECodFor.Text := EmptyStr;
+  BENomArq.Text := EmptyStr;
 
   BEVlrIni.Text := '0,00';
   BEVlrFim.Text := '0,00';
@@ -168,7 +171,7 @@ begin
   FGridTit.Clear;
   FGridAss.Clear;
   FControle.ListaArm.Clear;
-  BECodPor.SetFocus;
+  BENomArq.SetFocus;
 
   FGridArm.Enabled := False;
   FGridTit.Enabled := False;
@@ -392,6 +395,9 @@ var
     else if (cbSituacaoArm.ItemIndex = 1) then
       Result := Result + ' USU_SITARM = ''N'' ';
 
+    if not(IsNull(BENomArq.Text)) then
+      Result := Result + Format(' USU_NOMARQ IN (%s) AND ', [BENomArq.Text]);
+
     UltimoCaracter(Result, 'AND ', True, 4);
   end;
 
@@ -583,13 +589,19 @@ begin
   BECodFil.CreateLookup();
   BECodPor.CreateLookup();
   BECodFor.CreateLookup();
+  BENomArq.CreateLookup();
+
+  BECodFil.AddFilterLookup(BECodEmp);
 
   BECodEmp.isNumber := True;
   BECodFil.isNumber := True;
   BECodPor.isNumber := True;
   BECodFor.isNumber := True;
+  BENomArq.isAlfa := True;
   BEVlrIni.isFloat := True;
   BEVlrFim.isFloat := True;
+
+  BECodPor.Filter := ' CODPOR IN (SELECT USU_CODPOR FROM USU_T510AGE)';
 
   FGridArm.Init('USU_T510ARM', Self, 'USU_CodPor;USU_NomArq');
   FGridArm.AddColumn('Check', 'Sel.', ftInteger, 0, True);
