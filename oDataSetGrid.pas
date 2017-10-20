@@ -91,6 +91,7 @@ type
     FCancelLine: Boolean;
     FTabEnter: Boolean;
     FNewRow: Boolean;
+    FisAutomatic: Boolean;
 
     function DesmontaID(const pString: string): string;
     function GetAllowNewLine: Boolean;
@@ -169,6 +170,7 @@ type
     property FieldList: string read FFieldList write FFieldList;
   published
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
+    property isAutomatic: Boolean read FisAutomatic write FisAutomatic;
   end;
 
 procedure Register;
@@ -323,6 +325,7 @@ procedure TDataSetGrid.ButtonClick(Sender: TObject);
 var
   i: Integer;
   xPesHen: TFPesHen;
+  xString: string;
 begin
   for i := 0 to High(FListLookupFields) do
   begin
@@ -331,7 +334,17 @@ begin
       xPesHen := TFPesHen.Create(nil);
       xPesHen.ShowData(FListLookupFields[i].Table, FListLookupFields[i].Result, EmptyStr);
 
-      FClientDataSet.FindField(Self.SelectedField.FieldName).Value := String(xPesHen.Return);
+      xString := String(xPesHen.Return);
+
+      if not(IsNull(xString)) then
+      begin
+        System.Delete(xString, 1, 1);
+        System.Delete(xString, Length(xString), 1);
+
+        FClientDataSet.Edit;
+        FClientDataSet.FindField(Self.SelectedField.FieldName).Value := xString;
+        FClientDataSet.Post;
+      end;
     end;
   end;
 
@@ -395,12 +408,19 @@ begin
 end;
 
 procedure TDataSetGrid.EnterLine(Sender: TObject);
+var
+  i: Integer;
 begin
-  //if (FAllowNewLine) then
-   // Self.Options := Self.Options - [dgEditing];
+  for i := 0 to High(FListLookupFields) do
+  begin
+    if (Self.SelectedField.FieldName = FListLookupFields[i].Name) then
+    begin
+      Self.SelectedField.FocusControl;
+      break;
+    end;
+  end;
 
   CheckMethod(EmptyStr, cmLine);
-  Self.Refresh;
 end;
 
 procedure TDataSetGrid.Post;
@@ -549,11 +569,9 @@ begin
   begin
     if (Self.SelectedField.FieldName = FListLookupFields[i].Name) then
     begin
-      Self.Options := Self.Options + [dgEditing];
-      Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+      Self.SelectedField.FocusControl;
+      break;
+    end;
   end;
 
   for i := 0 to High(FListEnumFields) do
@@ -808,7 +826,8 @@ begin
   if (AnsiSameText(Key, #32)) then
     SpacePress();
 
-  if not(AnsiSameText(Key, #13)) and not(AnsiSameText(Key, #32)) and not(AnsiSameText(Key,#8)) and not(AnsiSameText(Key,#27)) then
+  if not(AnsiSameText(Key, #13)) and not(AnsiSameText(Key, #32)) and not(AnsiSameText(Key,#8)) and
+     not(AnsiSameText(Key,#27)) and not(AnsiSameText(Key,#10)) and not(AnsiSameText(Key,#9)) then
   begin
     if (Self.DataSource.DataSet.FieldDefs[Pred(Col)].DataType in [ftWord, ftCurrency, ftLargeint, ftBCD,
       ftBytes, ftByte, ftLongWord, ftShortint, ftExtended, ftSmallint, ftInteger, ftFloat]) or
@@ -846,8 +865,8 @@ begin
       end;
     end;
 
-    if not(AnsiSameText(Key, #8)) then
-      key := #0;
+    //if not(AnsiSameText(Key, #8)) then
+      //key := #0;
 
     FFieldState := iff(AnsiSameText(Key, #13) and (FFieldState = gsNewValue), gsNewValue, gsBrowse);
   end;
@@ -899,16 +918,6 @@ begin
       end;
     end;
   end;
-
-  {
-  for i := 0 to High(FListEnumFields) do
-  begin
-    if AnsiSameText(Column.FieldName, FListEnumFields[i].Name) then
-    begin
-      FImage.Draw(Self.Canvas, Rect.Left + ((Rect.Left * 2) - 10), Rect.Top + 1, 0);
-      Break;
-    end;
-  end;}
 end;
 
 procedure TDataSetGrid.CheckClick(Column: TColumn);
