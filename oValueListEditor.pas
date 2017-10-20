@@ -11,6 +11,7 @@ type
   private
     { Private declarations }
     FCanClose: Boolean;
+    FClosed: Boolean;
     FButtonParent: string;
     FButton: TComponent;
     FNoEnter: Boolean;
@@ -27,6 +28,8 @@ type
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
+
+    function Closed: Boolean;
 
     procedure Close;
     procedure ShowEnum(const pComponent: TButtonedEdit);
@@ -70,6 +73,13 @@ begin
     THButtonedEdit(FButton).SetFocus;
     THButtonedEdit(FButton).ButtonClicked := False;
   end;
+
+  FClosed := True;
+end;
+
+function THValueListEditor.Closed: Boolean;
+begin
+  Result := FClosed;
 end;
 
 constructor THValueListEditor.Create(AOwner: TComponent);
@@ -83,6 +93,7 @@ begin
   Self.TitleCaptions[0] := 'Código';
   Self.TitleCaptions[1] := 'Valor';
 
+  FClosed := True;
   Self.Visible := False;
   Self.OnKeyPress := KeyPressEnum;
   Self.OnEnter := EnumEnter;
@@ -103,6 +114,7 @@ end;
 procedure THValueListEditor.EnumClick(Sender: TObject);
 begin
   FCanClose := False;
+  FClosed := False;
 end;
 
 procedure THValueListEditor.EnumDblClick(Sender: TObject);
@@ -110,18 +122,21 @@ begin
   THButtonedEdit(FButton).Text := Self.GetCell(0, Self.Row);
   Self.Visible := False;
   THButtonedEdit(FButton).SetFocus;
+  FClosed := True;
 end;
 
 procedure THValueListEditor.EnumEnter(Sender: TObject);
 begin
   FCanClose := False;
   FNoEnter := False;
+  FClosed := False;
 end;
 
 procedure THValueListEditor.EnumExit(Sender: TObject);
 begin
   FCanClose := True;
   FNoEnter := True;
+  FClosed := True;
 end;
 
 procedure THValueListEditor.KeyPressEnum(Sender: TObject; var Key: Char);
@@ -143,6 +158,8 @@ end;
 
 procedure THValueListEditor.ShowEnum(const pComponent: TButtonedEdit);
 begin
+  FClosed := False;
+
   Self.Height := (Self.RowCount * 20);
   Self.Top := pComponent.Top + 21;
   Self.Left := pComponent.Left;

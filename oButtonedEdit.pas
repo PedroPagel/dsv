@@ -54,12 +54,14 @@ type
     procedure LeftDataClick(Sender: TObject);
 
     function Filters(): string;
+    function CheckValueFieds(out pValue: string): Boolean;
+
+    procedure CreateValueList();
+    procedure Value(const pKey: String);
     procedure EnterButton(Sender: TObject);
     procedure KeyPressButton(Sender: TObject; var Key: Char);
     procedure CallLookup(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CheckMethod(const pCheckMethod: TCheckMethod);
-    procedure Value(const pKey: String);
-    procedure CriarValueList();
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -98,8 +100,8 @@ implementation
 
 uses
   {$WARN UNIT_PLATFORM OFF}
-  Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs,
-  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, Grids;
+  Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs, oMensagem,
+  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, Grids, oQuery, Data.DB;
 
 procedure Register;
 begin
@@ -149,6 +151,109 @@ begin
     begin
       xProcedure := TProcedure(xMethod);
       xProcedure;
+    end;
+  end;
+end;
+
+function THButtonedEdit.CheckValueFieds(out pValue: string): Boolean;
+var
+  xQuery: THQuery;
+  xComando: string;
+  i: Integer;
+  xValue: string;
+  xText: string;
+  x998lsf: T998LSF;
+  xFim: Boolean;
+begin
+  Result := False;
+  xFim := False;
+
+  if (FLookup) and IsNull(FENumerator) and (not(IsNull(Text)) or (Self.Required)) then
+  begin
+    xQuery := THQuery.CreatePersonalizado();
+    try
+      xComando := Format('SELECT 1 FROM %s WHERE %s = ', [Table, Field]);
+
+      if (FAvoidSelections) then
+      begin
+        if (FAlfa) then
+          xComando := xComando + Format('''%s''', [Text])
+        else
+          xComando := xComando + Format('%s', [Text]);
+
+        xQuery.Command := xComando;
+        xQuery.Open;
+
+        pValue := Text;
+        Result := (xQuery.IsEmpty);
+        xQuery.Close;
+      end
+      else
+      begin
+        xText := Text;
+
+        while not(xFim) do
+        begin
+          xValue := EmptyStr;
+          xComando := Format('SELECT 1 FROM %s WHERE %s = ', [Table, Field]);
+
+          for i := 1 to High(xText) do
+          begin
+            if not(AnsiSameText(xText[i], ',')) then
+            begin
+              xValue := xValue + xText[i];
+
+              if (i >= High(xText)) and not(AnsiSameText(xText[i], ',')) then
+              begin
+                xFim := True;
+
+                if (FAlfa) then
+                  xComando := xComando + Format('''%s''', [xValue])
+                else
+                  xComando := xComando + Format('%s', [xValue]);
+              end;
+            end
+            else
+            begin
+              if (FAlfa) then
+                xComando := xComando + Format('''%s''', [xValue])
+              else
+                xComando := xComando + Format('%s', [xValue]);
+
+              Delete(xText, 1, Length(xValue) +1);
+              Break;
+            end;
+          end;
+
+          xQuery.Reset;
+          xQuery.Command := xComando;
+          xQuery.Open;
+
+          pValue := xValue;
+          Result := (xQuery.IsEmpty);
+          xQuery.Close;
+
+          if Result then
+            Break;
+        end;
+      end;
+    finally
+      FreeAndNil(xQuery);
+    end;
+  end
+  else
+  if not(IsNull(FENumerator)) and Assigned(FValueList) and (FValueList.Closed) then
+  begin
+     x998lsf := nil;
+    try
+      pValue := Text;
+      x998lsf := T998LSF.Create;
+      x998lsf.LSTNAM := FENumerator;
+      x998lsf.KEYNAM := Text;
+      x998lsf.PropertyForSelect(['LSTNAM', 'KEYNAM'], True);
+      Result := not(x998lsf.Execute(etSelect));
+    finally
+      FreeAndNil(x998lsf);
     end;
   end;
 end;
@@ -243,14 +348,14 @@ begin
     Self.Images := xImage;
 
     if not(IsNull(FENumerator)) then
-      CriarValueList
+      CreateValueList
     else
     if not(FOpenDialog) then
       FPesHen := TFPesHen.Create(nil);
   end;
 end;
 
-procedure THButtonedEdit.CriarValueList;
+procedure THButtonedEdit.CreateValueList;
 var
   x998lsf: T998LSF;
 begin
@@ -284,6 +389,8 @@ begin
 end;
 
 procedure THButtonedEdit.ExitButton(Sender: TObject);
+var
+  xValue: string;
 begin
   FButtonClicked := True;
 
@@ -294,7 +401,13 @@ begin
     Self.Text := FString;
   end;
 
-  CheckMethod(cmExit);
+  if (CheckValueFieds(xValue)) then
+  begin
+    CMessage(Format('Valor: "%s", incorreto para o campo!', [xValue]), mtWarning);
+    Self.SetFocus;
+  end
+  else
+    CheckMethod(cmExit);
 end;
 
 function THButtonedEdit.Filters: string;

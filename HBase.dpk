@@ -68,7 +68,9 @@ contains
   o501mcp in 'o501mcp.pas',
   o301tcr in 'o301tcr.pas',
   oGeral in 'oGeral.pas',
-  o510lay in 'o510lay.pas';
+  o510lay in 'o510lay.pas',
+  o510mle in 'o510mle.pas',
+  o510lte in 'o510lte.pas';
 
 end.
 

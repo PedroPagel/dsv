@@ -55,7 +55,6 @@ type
 
   TIteradorEspecieTitulo = class(TIterador)
   private
-    F030ETC: T030ETC;
     FCodBan: string;
 
     function GetCodBan: string;
@@ -71,7 +70,7 @@ type
 implementation
 
 uses
-  o070fil;
+  o070fil, o510lte, o510mle;
 
 { TArmazenamento }
 
@@ -165,7 +164,7 @@ begin
       while (x510tit.Next) do
       begin
         F510TIT := T510TIT.CreateCarregado();
-        FIterador.Iterar(F510TIT, Self.Titulo);
+        FIterador.Iterar(x510tit, F510TIT);
         Self.AddTitulo();
       end;
     finally
@@ -399,50 +398,36 @@ end;
 function TIteradorEspecieTitulo.CarregarEspecie(const pEspBan: string): string;
 var
  i: Integer;
+ x510mle: T510MLE;
 begin
-  {
-  for i := 0 to pred(Self.Count) do
-  begin
-    if ((AnsiSameText(pEspBan,T030ETC(Self[i]).EspBan)) and
-        (AnsiSameText(FCodBan,T030ETC(Self[i]).CodBan))) then
-    begin
-      Result := T030ETC(Self[i]).CodTpt;
-      xAchou := True;
-      Break;
-    end;
-  end; }
+  Result := EmptyStr;
 
-  F030ETC := T030ETC.Create;
-  F030ETC.CodBan := FCodBan;
-  F030ETC.EspBan := pEspBan;
+  x510mle := T510MLE.Create;
+  x510mle.USU_EspBan := pEspBan;
 
-  i := Self.IndexOfFields(F030ETC);
+  i := Self.IndexOfFields(x510mle);
 
-  if (i <= -1) then
-  begin
-    F030ETC.PropertyForSelect(['CODBAN','ESPBAN'], True);
-
-    if (F030ETC.Execute(etSelect)) then
-    begin
-      Result := F030ETC.CodTpt;
-      Self.Add(F030ETC);
-    end;
-  end
-  else
-    Result := T030ETC(Self[i]).CodTpt;
+  if (i > -1) then
+    Result := T510MLE(Self[i]).USU_CodTpt;
 end;
 
 constructor TIteradorEspecieTitulo.Create(const p510AGE: T510AGE);
 var
   xQuery: THQuery;
+  x510lte: T510LTE;
+  x510mle: T510MLE;
 begin
   inherited Create();
 
   Self.indexed := True;
-  Self.IndexFields(['ESPBAN','CODBAN']);
+  Self.IndexFields(['USU_ESPBAN']);
 
-  xQuery := THQuery.CreatePersonalizado;
+  xQuery := nil;
+  x510lte := nil;
   try
+    x510lte := T510lte.Create;
+    xQuery := THQuery.CreatePersonalizado;
+
     xQuery.Command := 'SELECT CODBAN FROM E039POR WHERE CODEMP = :CODEMP AND CODPOR = :CODPOR ';
     xQuery.ParamByName('CODEMP').Value := FLogEmp;
     xQuery.ParamByName('CODPOR').Value := p510AGE.USU_CodPor;
@@ -450,9 +435,23 @@ begin
     if not(xQuery.IsEmpty) then
       FCodBan := xQuery.FindField('CODBAN').AsString;
 
+    x510lte.USU_CodBan := FCodBan;
+    x510lte.PropertyForSelect(['USU_CodBan']);
+
+    if (x510lte.Execute(etSelect)) then
+    begin
+      x510mle := T510MLE.Create;
+      x510mle.USU_IdeLte := x510lte.USU_ID;
+      x510mle.Execute(etSelect, esLoop);
+
+      while (x510mle.Next) do
+        Self.Add(x510mle);
+    end;
+
     xQuery.Close;
   finally
     FreeAndNil(xQuery);
+    FreeAndNil(x510lte);
   end;
 end;
 

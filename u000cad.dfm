@@ -11,6 +11,7 @@ object F000CAD: TF000CAD
   Font.Name = 'Tahoma'
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCreate = FormCreate
   OnMouseActivate = FormMouseActivate
   PixelsPerInch = 96

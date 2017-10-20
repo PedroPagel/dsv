@@ -29,7 +29,6 @@ type
     procedure ExcluirClick(Sender: TObject);
     procedure CancelarClick(Sender: TObject);
     procedure InserirClick(Sender: TObject);
-    procedure DBNavigatorClick(Sender: TObject; Button: TNavigateBtn);
     procedure GeralEnter(Sender: TObject);
   private
     { Private declarations }
@@ -41,8 +40,6 @@ type
     { Public declarations }
     procedure EnterFields(); override;
   published
-    procedure ENRaiCnpExit();
-
     procedure FGridLayBeforeInsert();
     procedure FGridLayBeforeDelete();
     procedure FGridLayCancelLine();
@@ -132,21 +129,10 @@ begin
       FGridLay.AddFields(x510lay);
     end;
     FGridLay.Connect;
+    FGridLay.First;
   finally
     FreeAndNil(x510lay);
   end;
-end;
-
-procedure TF510LAY.DBNavigatorClick(Sender: TObject; Button: TNavigateBtn);
-begin
-  inherited;
-
-  //CarregarLayout();
-end;
-
-procedure TF510LAY.ENRaiCnpExit;
-begin
-  //
 end;
 
 procedure TF510LAY.EnterFields;

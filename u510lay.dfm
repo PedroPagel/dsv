@@ -9,6 +9,7 @@ inherited F510LAY: TF510LAY
     inherited Botoes: TPanel
       inherited DBNavigator: TDBNavigator
         Hints.Strings = ()
+        OnClick = nil
       end
     end
     inherited Panel4: TPanel
@@ -40,14 +41,14 @@ inherited F510LAY: TF510LAY
           Table = 'E000AGE'
           Lookup = True
           Field = 'CODPRA'
-          AvoidSelections = False
+          AvoidSelections = True
           isNumber = True
           isAlfa = False
           isFloat = False
           OpenDialog = False
           DataBaseTable = 'USU_T510AGE'
           DataBaseField = 'USU_CODPRA'
-          Required = False
+          Required = True
         end
       end
       inherited Geral: THPanel
@@ -93,7 +94,7 @@ inherited F510LAY: TF510LAY
           Table = 'E039POR'
           Lookup = True
           Field = 'CODPOR'
-          AvoidSelections = False
+          AvoidSelections = True
           isNumber = True
           isAlfa = False
           isFloat = False

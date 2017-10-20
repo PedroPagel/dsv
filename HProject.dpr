@@ -22,7 +22,8 @@ uses
   oArmazenamento in 'oArmazenamento.pas',
   u510CON in 'u510CON.pas' {F510CON},
   oConsulta in 'oConsulta.pas',
-  u510lay in 'u510lay.pas' {F510LAY};
+  u510lay in 'u510lay.pas' {F510LAY},
+  u510lte in 'u510lte.pas' {F510LTE};
 
 {$R *.res}
 begin
@@ -31,7 +32,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    if (System.ParamCount > 0) then
+    //if (System.ParamCount > 0) then
     begin
       if (ParamStr(2) = TF000CRM.ClassName) then
       begin
@@ -62,6 +63,11 @@ begin
       if (ParamStr(2) = TF510LAY.ClassName) then
       begin
         Application.CreateForm(TF510LAY, F510LAY);
+        Application.Run;
+      end;
+      if ('TF510LTE' = TF510LTE.ClassName) then
+      begin
+        Application.CreateForm(TF510LTE, F510LTE);
         Application.Run;
       end;
     end;

@@ -32,7 +32,7 @@ var
 begin
   StartTransaction;
   try
-    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(3)));
+    xArmazenamento := TArmazenamento.Create(2447);
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();
