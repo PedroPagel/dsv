@@ -975,6 +975,8 @@ begin
     Commit;
     TIterador.Repassar(FTable, FOldValues);
     Cancelar.Click;
+
+    DBNavigator.DataSource.DataSet.Last;
   except
     on E: Exception do
     begin

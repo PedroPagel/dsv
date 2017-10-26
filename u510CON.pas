@@ -298,6 +298,7 @@ begin
     else
     begin
       FGridArm.Clear;
+      FGridAss.Disconnect;
       for i := 0 to pred(FControle.ListaArm.Count) do
       begin
         x510ARM := T510CON(FControle.ListaArm[i]);
@@ -305,7 +306,7 @@ begin
         FGridArm.Add;
         FGridArm.AddFields(x510ARM);
       end;
-
+      FGridArm.Connect;
       FGridArmEnterLine();
     end;
   end
@@ -414,6 +415,7 @@ begin
   FControle.AddToCommand(FiltroPortadorArmazenamento, False);
   FControle.Consultar(MontaCondicaoTitulos);
 
+  FGridArm.Disconnect;
   for i := 0 to pred(FControle.ListaArm.Count) do
   begin
     x510ARM := T510CON(FControle.ListaArm[i]);
@@ -421,6 +423,7 @@ begin
     FGridArm.Add;
     FGridArm.AddFields(x510ARM);
   end;
+  FGridArm.Connect;
 
   if (FControle.ListaArm.Count = 0) then
     CMessage('Não houve informações a listar!', mtErrorInform)
@@ -461,6 +464,7 @@ var
   x510TIT: T510TIT;
 begin
   FGridTit.Clear;
+  FGridTit.Disconnect;
   if (FControle.ListaArm.Count > 0) then
   begin
     x510ARM := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
@@ -470,7 +474,7 @@ begin
       FGridTit.Add;
       FGridTit.AddFields(x510TIT);
     end;
-
+    FGridTit.Connect;
     FGridTit.First;
     FGridTitEnterLine();
   end;
@@ -551,12 +555,14 @@ var
   x510TIT: T510TIT;
 begin
   FGridAss.Clear;
+  FGridAss.Disconnect;
   x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   if (x510TIT.Titulo <> nil) then
   begin
     FGridAss.Add;
     FGridAss.AddFields(x510TIT.Titulo);
   end;
+  FGridAss.Connect;
   FGridAss.First;
 end;
 

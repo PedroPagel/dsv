@@ -190,7 +190,7 @@ begin
       end
       else
       begin
-        xText := Text;
+        xText := StringReplace(Text, '''', '', [rfReplaceAll]);
 
         while not(xFim) do
         begin
