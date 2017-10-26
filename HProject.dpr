@@ -32,7 +32,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    //if (System.ParamCount > 0) then
+    if (System.ParamCount > 0) then
     begin
       if (ParamStr(2) = TF000CRM.ClassName) then
       begin
@@ -54,6 +54,7 @@ begin
         Application.Terminate;
       end
       else
+      //if ('TF510CON' = TF510CON.ClassName) then
       if (ParamStr(2) = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
@@ -65,7 +66,8 @@ begin
         Application.CreateForm(TF510LAY, F510LAY);
         Application.Run;
       end;
-      if ('TF510LTE' = TF510LTE.ClassName) then
+      if (ParamStr(2) = TF510LTE.ClassName) then
+      //if ('TF510LTE' = TF510LTE.ClassName) then
       begin
         Application.CreateForm(TF510LTE, F510LTE);
         Application.Run;

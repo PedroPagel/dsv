@@ -52,6 +52,9 @@ implementation
 constructor T510MLE.Create();
 begin
   inherited Create('USU_T510MLE');
+
+  Self.SetAutoSelectProperty(['USU_IdeLte']);
+  Self.AutoSelectProperty := True;
 end;
 
 destructor T510MLE.Destroy();

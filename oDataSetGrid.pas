@@ -48,62 +48,66 @@ type
 
   TDataSetGrid = class(TDBGrid)
   private
-    FFieldList: string;
+    FNewLineEdition: Boolean;
+    FShiftTabPress: Boolean;
+    FAllowNewLine: Boolean;
+    FDisableEnter: Boolean;
+    FisAutomatic: Boolean;
+    FOrderTitles: Boolean;
+    FChangeLine: Boolean;
+    FCancelLine: Boolean;
+    FTabEnter: Boolean;
+    FRowAdd: Boolean;
+    FNewRow: Boolean;
+    FLike: Boolean;
+    FTAB: Boolean;
+    FESC: Boolean;
+
     FTable: string;
     FFilter: string;
+    FFieldList: string;
     FIndexFields: string;
+
     FCount: Integer;
-    FAllowNewLine: Boolean;
     FColumn: Integer;
     FOldLine: Integer;
-    FOldEnterLine: Integer;
-    FOldColumn: Integer;
-    FOldValue: Variant;
     FNewLine: Integer;
-    FChangeLine: Boolean;
-    FLike: Boolean;
-    FOrderTitles: Boolean;
     FOrdenado: Integer;
     FRowHeight: Integer;
-    FNewLineEdition: Boolean;
-    FRowAdd: Boolean;
+    FOldColumn: Integer;
     FLastExitLine: Integer;
+    FOldEnterLine: Integer;
 
-    FForm: TForm;
-    FQueryField: THQuery;
-    FClientDataSet: TClientDataSet;
-    FContext: TRttiContext;
-    FCheckList: TStringList;
-    FReadOnlyList: TStringList;
+    FOldValue: Variant;
+
     FListFieldPosition: TListFieldPosition;
     FListLookupFields: TListLookupFields;
     FListEnumFields: TListEnumFields;
-    FLineState: TLineState;
-
-    FGridState: TGridState;
+    FClientDataSet: TClientDataSet;
+    FReadOnlyList: TStringList;
+    FCheckList: TStringList;
     FFieldState: TGridState;
+    FLineState: TLineState;
+    FContext: TRttiContext;
+    FGridState: TGridState;
     FEnterLine: TEnterLine;
-    FLeftTable: TForm;
+    FQueryField: THQuery;
     FImage: TImageList;
-    FTAB: Boolean;
-    FESC: Boolean;
-    FShiftTabPress: Boolean;
-    FCancelLine: Boolean;
-    FTabEnter: Boolean;
-    FNewRow: Boolean;
-    FisAutomatic: Boolean;
+    FLeftTable: TForm;
+    FForm: TForm;
 
     function DesmontaID(const pString: string): string;
     function GetAllowNewLine: Boolean;
 
     procedure SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0; const pCustom: Boolean = False);
-    procedure Draw(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure CheckMethodBySender(Sender: TObject; var Key: Word; Shift: TShiftState; const pCheckMethod: TCheckMethod);
+    procedure Draw(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
     procedure CheckMethod(const pField: string; const pCheckMethod: TCheckMethod);
     procedure GridKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CreateFieldOrder(const pIndexFields: string);
     procedure GridKeyPress(Sender: TObject; var Key: Char);
     procedure ChangeData(Sender: TObject; Field: TField);
+    procedure CreateValueList(const pList: TEnumFields);
     procedure SetAllowNewLine(const Value: Boolean);
     procedure GetOldPosition(const pField: string);
     procedure TitleClickOrder(Column: TColumn);
@@ -114,7 +118,6 @@ type
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
     procedure ExitCol(Sender: TObject);
-    procedure CreateValueList(const pList: TEnumFields);
     procedure ChangePosition();
     procedure CallCheck();
 
@@ -168,6 +171,7 @@ type
     property Like: Boolean read FLike write FLike;
     property OrderTitles: Boolean read FOrderTitles write FOrderTitles;
     property FieldList: string read FFieldList write FFieldList;
+    property DisableEnter: Boolean read FDisableEnter write FDisableEnter;
   published
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
     property isAutomatic: Boolean read FisAutomatic write FisAutomatic;
@@ -850,7 +854,7 @@ begin
     if (FShiftTabPress) then
       Perform(WM_KEYDOWN, 37, 0);
 
-    if (AnsiSameText(Key, #13)) then
+    if (AnsiSameText(Key, #13)) and not(FDisableEnter) then
     begin
       if (Self.Col < pred(ColCount)) then
         Perform(WM_KEYDOWN, 39, 0)
@@ -864,9 +868,6 @@ begin
         FNewRow := False;
       end;
     end;
-
-    //if not(AnsiSameText(Key, #8)) then
-      //key := #0;
 
     FFieldState := iff(AnsiSameText(Key, #13) and (FFieldState = gsNewValue), gsNewValue, gsBrowse);
   end;

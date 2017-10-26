@@ -343,7 +343,7 @@ object F510CON: TF510CON
           Lookup = True
           Field = 'CODFOR'
           AvoidSelections = False
-          isNumber = False
+          isNumber = True
           isAlfa = False
           isFloat = False
           OpenDialog = False
@@ -368,7 +368,7 @@ object F510CON: TF510CON
           Lookup = True
           Field = 'CODFIL'
           AvoidSelections = False
-          isNumber = False
+          isNumber = True
           isAlfa = False
           isFloat = False
           OpenDialog = False
@@ -393,7 +393,7 @@ object F510CON: TF510CON
           Lookup = True
           Field = 'CODEMP'
           AvoidSelections = False
-          isNumber = False
+          isNumber = True
           isAlfa = False
           isFloat = False
           OpenDialog = False
@@ -558,7 +558,7 @@ object F510CON: TF510CON
           Field = 'CODPOR'
           AvoidSelections = False
           isNumber = False
-          isAlfa = False
+          isAlfa = True
           isFloat = False
           OpenDialog = False
           Required = False
@@ -667,7 +667,7 @@ object F510CON: TF510CON
           Field = 'USU_NomArq'
           AvoidSelections = False
           isNumber = False
-          isAlfa = False
+          isAlfa = True
           isFloat = False
           OpenDialog = False
           Required = False
@@ -718,6 +718,7 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
+        isAutomatic = False
       end
     end
     object Panel5: TPanel
@@ -762,6 +763,7 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
+        isAutomatic = False
       end
     end
     object Panel7: TPanel
@@ -807,6 +809,7 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
+        isAutomatic = False
       end
       object Panel9: TPanel
         Left = 1

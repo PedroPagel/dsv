@@ -80,6 +80,9 @@ begin
   if (Shift = [ssCtrl]) then
     if (Key = 13) then
       Self.OKClick(Sender);
+
+  if (Key = 13) then
+    Self.OKClick(Sender);
 end;
 
 procedure TFPesHen.FGridPesTitleClick(Column: TColumn);
@@ -104,6 +107,7 @@ end;
 procedure TFPesHen.FormShow(Sender: TObject);
 begin
   FGridPes.SetFocus;
+  FGridPes.DisableEnter := True;
 end;
 
 procedure TFPesHen.OKClick(Sender: TObject);

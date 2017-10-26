@@ -76,7 +76,6 @@ begin
       x510mle := T510MLE.Create;
       try
         x510mle.USU_IdeLte := xId;
-        x510mle.PropertyForSelect(['USU_IdeLte']);
         x510mle.Execute(estDelete);
       finally
         FreeAndNil(x510mle);
@@ -117,7 +116,6 @@ begin
   x510mle := T510MLE.Create;
   try
     x510mle.USU_IdeLte := T510LTE(Self.Table).USU_ID;
-    x510mle.PropertyForSelect(['USU_IdeLte']);
     x510mle.Execute(etSelect, esLoop);
 
     FGridMle.Clear;
@@ -151,12 +149,13 @@ begin
     x510lte := T510MLE.Create;
     try
       x510lte.USU_IdeLte := T510LTE(Self.Table).USU_ID;
-      x510lte.PropertyForSelect(['USU_IdeLte']);
       x510lte.Execute(estDelete);
     finally
       FreeAndNil(x510lte);
       Commit;
     end;
+
+    FGridMle.Clear;
   except
     on E: Exception do
     begin

@@ -49,6 +49,8 @@ type
     FLimitField: array of string;
     FBlockList: array of string;
     FBetween: TBetweenRegister;
+    FSelectProps: array of string;
+    FAutoSelectProperty: Boolean;
 
     procedure Insert();
     procedure Update();
@@ -80,16 +82,17 @@ type
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    procedure AtribuirValoresSelect();
     procedure Start();
     procedure Close();
     procedure First();
     procedure Last();
     procedure ClearFields();
+    procedure AtribuirValoresSelect();
     procedure Init(const pTabela: string);
     procedure AddTable(const pTables: array of string);
     procedure BlockProperty(const pField: array of string);
     procedure FieldsForUpdate(const pField: array of string);
+    procedure SetAutoSelectProperty(const pFields: array of string);
     procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
     procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
 
@@ -109,6 +112,7 @@ type
     property Check: Byte read GetCheck write SetCheck;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
+    property AutoSelectProperty: Boolean read FAutoSelectProperty write FAutoSelectProperty;
   end;
 
   TTabelaPadrao = class(TTable)
@@ -702,6 +706,9 @@ end;
 
 function TTable.Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 begin
+  if (FAutoSelectProperty) then
+    Self.PropertyForSelect(FSelectProps, True);
+
   FQuery := THQuery.CreatePersonalizado;
 
   Result := False;
@@ -819,7 +826,7 @@ begin
   FillChar(FBlockList, sizeOf(FBlockList), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
-  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState']);
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState', 'AutoSelectProperty']);
 end;
 
 procedure TTable.Insert();
@@ -1224,6 +1231,17 @@ begin
   Result := MontarEstadoSelect();
 end;
 
+procedure TTable.SetAutoSelectProperty(const pFields: array of string);
+var
+  i: Integer;
+begin
+  i := Length(pFields);
+  SetLength(FSelectProps, i);
+
+  for i := 0 to High(pFields) do
+    FSelectProps[i] := pFields[i];
+end;
+
 procedure TTable.SetBetween(const pName: string; const Value: TDate);
 var
   i: Byte;
@@ -1616,10 +1634,7 @@ begin
 
   FQuery := THQuery.CreatePersonalizado;
   try
-    FQuery.Sql.Clear;
-    FQuery.Sql.Add('SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela +
-      iff(not(IsNull(FCondicao)), ' WHERE ' + FCondicao, EmptyStr));
-
+    FQuery.Command := 'SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela;
     FQuery.Open;
     if not(FQuery.IsEmpty) then
       Result := FQuery.FindField('IDREG').AsInteger + 1;
