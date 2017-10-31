@@ -32,7 +32,8 @@ var
 begin
   StartTransaction;
   try
-    xArmazenamento := TArmazenamento.Create(2447);
+    FLogEmp := StrToInt(ParamStr(3));
+    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4))); 
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();

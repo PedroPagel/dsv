@@ -212,6 +212,7 @@ begin
   Self.Agendamento.USU_CodPra := pCodPra;
   Self.Agendamento.PropertyForSelect(['USU_CODPRA']);
   Self.Agendamento.Execute(etSelect);
+  Self.Agendamento.Close;
 
   FListaArmazenamento := TIterador.Create;
   FListaTituloGeral := TIterador.Create;
@@ -241,7 +242,7 @@ begin
   F510TIT.USU_CodFor := F095FOR.AdicionarFonecedor(F510TIT.USU_CgcCpf);
 
   if (F510TIT.USU_CodFor > 0) then
-    FListaTituloGeral.Add(F510TIT)
+    FListaTituloGeral.IterarAdd(F510TIT, T510TIT.CreateCarregado())
   else
   begin
     F510TIT.USU_LogTit := Format('Fornecedor com o CNPJ: "%s" não existe!', [FloatToStr(F510TIT.USU_CgcCpf)]);
@@ -347,6 +348,7 @@ destructor TArmazenamento.Destroy;
 begin
   FillChar(FCamposBuscaEmpFil, sizeOf(FCamposBuscaEmpFil), 0);
 
+  FreeAndNil(F510TIT);
   FreeAndNil(FListaArmazenamento);
   FreeAndNil(FListaTituloGeral);
   FreeAndNil(FListaTituloBanco);
@@ -354,7 +356,6 @@ begin
   FreeAndNil(FListaEspecieTitulo);
   FreeAndNil(F510AGE);
   FreeAndNil(FIterador);
-  FreeAndNil(F510TIT);
 
   inherited;
 end;
@@ -445,7 +446,7 @@ begin
       x510mle.Execute(etSelect, esLoop);
 
       while (x510mle.Next) do
-        Self.Add(x510mle);
+        Self.IterarAdd(x510mle, T510MLE.Create);
     end;
 
     xQuery.Close;
