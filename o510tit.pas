@@ -240,6 +240,7 @@ end;
 destructor T510TIT.Destroy();
 begin
   inherited;
+  Self.Close;
 
   FreeAndNil(FTituloDebitoDiretoAutorizado);
 end;

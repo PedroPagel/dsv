@@ -47,6 +47,7 @@ begin
         Application.Run;
       end
       else
+      //if ('TF510ARM' = TF510ARM.ClassName) then
       if (ParamStr(2) = TF510ARM.ClassName) then
       begin
         Application.ShowMainForm := False;
