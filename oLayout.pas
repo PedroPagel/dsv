@@ -13,6 +13,7 @@ type
     Valor: string;
     Tamanho: Integer;
     Posicao: Integer;
+    Decimal: Integer;
   end;
 
   TCodReg = record
@@ -33,22 +34,22 @@ type
 
     function ConversorData(const pData: string): TDateTime;
   public
-    constructor Create(const pIDAGE: Integer);
+    constructor Create(const pIDAGE: Integer; const pBaseTable: string);
     destructor Destroy; override;
 
     function AdicionarLinhas(const pLinha: string; const pObj: TObject; const pRegistro: TCodReg): TCodReg;
-    procedure AdicionarCampos(const pNome: string; const pPosicao,pTamanho: Integer);
+    procedure AdicionarCampos(const pNome: string; const pPosicao,pTamanho,pDecimal: Integer);
   end;
 
 implementation
 
 uses
-  o510lay, oBase;
+  o510lay, oBase, oQuery;
 
 { TLayout }
 
 procedure TLayout.AdicionarCampos(const pNome: string; const pPosicao,
-  pTamanho: Integer);
+  pTamanho, pDecimal: Integer);
 var
   i: Integer;
 begin
@@ -59,6 +60,7 @@ begin
   FListaDados[Pred(i)].Campo := pNome;
   FListaDados[Pred(i)].Tamanho := pTamanho;
   FListaDados[Pred(i)].Posicao := pPosicao;
+  FListaDados[Pred(i)].Decimal := pDecimal;
 end;
 
 {
@@ -93,10 +95,10 @@ var
             if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
               xProperty.SetValue(pObj, ConversorData(Copy(pLinha, FListaDados[j].Posicao, FListaDados[j].Tamanho)))
             else
-            if (AnsiSameText('Currency', xProperty.PropertyType.Name)) then
+            if (FListaDados[j].Decimal > 0) then
             begin
               xTotal := (Copy(pLinha, FListaDados[j].Posicao, FListaDados[j].Tamanho));
-              xCurrency := StrToCurr((Copy(xTotal, 0, 13) + ',' + Copy(xTotal, 14, 2)));
+              xCurrency := StrToCurr((Copy(xTotal, 0, 13) + ',' + Copy(xTotal, 14, FListaDados[j].Decimal)));
               xProperty.SetValue(pObj, xCurrency);
             end
             else
@@ -161,20 +163,54 @@ begin
     Result := EncodeDate(StrToInt(Copy(pData, 5, 4)), StrToInt(Copy(pData, 3, 2)), StrToInt(Copy(pData, 1, 2)));
 end;
 
-constructor TLayout.Create(const pIDAGE: Integer);
+constructor TLayout.Create(const pIDAGE: Integer; const pBaseTable: string);
 var
   x510lay: T510LAY;
+  xQuery: THQuery;
 begin
   FillChar(FListaDados, SizeOf(FListaDados), 0);
 
-  x510lay := T510LAY.Create;
+  x510lay := nil;
+  xQuery := nil;
   try
+    x510lay := T510LAY.Create;
+    xQuery := THQuery.CreatePersonalizado();
+
+    xQuery.Command := 'SELECT R998FLD.PREFLD, R998FLD.FLDNAM, ALL_TAB_COLUMNS.DATA_TYPE AS TYPE '+
+                      'FROM ' +
+                        'R998FLD, ALL_TAB_COLUMNS ' +
+                      'WHERE ' +
+                        'UPPER(TABLE_NAME)= :TABELA AND ' +
+                        'OWNER = :BASE AND ' +
+                        'R998FLD.TBLNAM = TABLE_NAME AND ' +
+                        'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME ';
+
+    xQuery.ParamByName('TABELA').Value := pBaseTable;
+    xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
+    xQuery.Open;
+
     x510lay.USU_IDAGE := pIDAGE;
     x510lay.Execute(etSelect, esLoop);
 
     while (x510lay.Next) do
-      Self.AdicionarCampos(x510lay.USU_NomCol, x510lay.USU_PosCol, x510lay.USU_TamCol);
+    begin
+      xQuery.First;
+
+      while not(xQuery.Eof) do
+      begin
+        if AnsiSameText(xQuery.FindField('FLDNAM').AsString, x510lay.USU_NomCol)  then
+        begin
+          Self.AdicionarCampos(x510lay.USU_NomCol, x510lay.USU_PosCol, x510lay.USU_TamCol, xQuery.FindField('PREFLD').AsInteger);
+          Break;
+        end;
+
+        xQuery.Next;
+      end;
+    end;
+
+    xQuery.Close;
   finally
+    FreeAndNil(xQuery);
     FreeAndNil(x510lay);
   end;
 end;
