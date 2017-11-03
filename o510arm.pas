@@ -197,6 +197,7 @@ begin
   begin
     Self.USU_SitArm := 'S';
     Self.USU_DatFin := Date;
+    Self.FieldsForUpdate(['USU_SitArm','USU_DatFin']);
     Self.PropertyForSelect(['USU_ID']);
     Self.Execute(estUpdate);
   end;

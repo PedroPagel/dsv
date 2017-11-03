@@ -29,7 +29,6 @@ type
     procedure AdicionarPath();
     procedure BuscarExistentes();
     procedure AtualizarTitulos();
-    procedure AtualizarArmazenamento();
     procedure GerarArmazenamento(const pNome: string);
 
     procedure AddTitulo();
@@ -42,6 +41,7 @@ type
 
     procedure Processar();
     procedure CarregarArquivos();
+    procedure AtualizarArmazenamento();
 
     property Titulo: T510TIT read F510TIT;
     property Fornecedor: T095FOR read F095FOR;
@@ -223,16 +223,23 @@ begin
   F095FOR := T095FOR.Create();
 
   FListaEspecieTitulo := TIteradorEspecieTitulo.Create(Self.Agendamento);
-  FLayout := TLayout.Create(Self.Agendamento.USU_ID);
+  FLayout := TLayout.Create(Self.Agendamento.USU_ID, 'USU_T510TIT');
 
   AdicionarPath();
 end;
 
 procedure TArmazenamento.Processar;
 begin
-  Self.BuscarExistentes();
-  Self.AtualizarTitulos();
-  Self.AtualizarArmazenamento();
+  StartTransaction;
+  try
+    Self.BuscarExistentes();
+    Self.AtualizarTitulos();
+
+    Commit;
+  except
+    on e: Exception do
+      Rollback;
+  end;
 end;
 
 procedure TArmazenamento.AddTitulo;
@@ -262,18 +269,26 @@ var
   x510TIT: T510TIT;
   x510ARM: T510ARM;
 begin
-  for i := 0 to pred(FListaArmazenamento.Count) do
-  begin
-    x510TIT := T510TIT.CreateCarregado;
-    x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
-    x510TIT.USU_SitArm := 'N';
-    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
-
-    if not(x510TIT.Execute(etSelect)) then
+  StartTransaction;
+  try
+    for i := 0 to pred(FListaArmazenamento.Count) do
     begin
-      x510ARM := T510ARM(FListaArmazenamento[i]);
-      x510ARM.RemoverArquivo();
+      x510TIT := T510TIT.CreateCarregado;
+      x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
+      x510TIT.USU_SitArm := 'N';
+      x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
+
+      if not(x510TIT.Execute(etSelect)) then
+      begin
+        x510ARM := T510ARM(FListaArmazenamento[i]);
+        x510ARM.RemoverArquivo();
+      end;
     end;
+
+    Commit;
+  except
+    on e: Exception do
+      Rollback;
   end;
 end;
 
@@ -323,12 +338,12 @@ begin
       FListaTituloBanco.Add(xTitulo)
     else
     begin
-      xRaiz := F095FOR.FornecedoresRaiz;
+      xRaiz := F095FOR.FornecedoresRaiz(x510Tit.USU_CodFor);
 
       if not(IsNull(xRaiz)) then
       begin
         xTitulo.Start;
-        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ');
+        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ', False);
         xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI'], True);
 
         if not(xTitulo.Execute(etSelect)) then

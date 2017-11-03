@@ -125,6 +125,7 @@ type
     procedure SetCgcCpf(const pCgcCpf: Double);
     procedure SetCodFor(const pCodFor: Integer);
 
+    function ListaInternaFornecedores: string;
     function ListaFornecedores: string;
     function BuscarPorCNPJ(const pCNPJ: Double): string;
   public
@@ -136,7 +137,7 @@ type
     function AdicionarFonecedor(const pCgcCpf: Double): Integer;
 
     function CodigoDoFornecedor: Integer;
-    function FornecedoresRaiz: string;
+    function FornecedoresRaiz(const pCodFor: Integer): string;
 
     property CodFor: Integer read GetCodFor write SetCodFor;
     property CgcCpf: Double read GetCgcCpf write SetCgcCpf;
@@ -824,13 +825,16 @@ begin
             'UNION ALL ' +
             'SELECT 0 AS ORIGINAL, E095FOR.CODFOR AS RAIZ ' +
               'FROM E095FOR ' +
-              'WHERE E095FOR.CGCCPF LIKE (:RAIZFOR) ' +
+              'WHERE '+
+              'E095FOR.CGCCPF LIKE (:RAIZFOR) AND '+
+              'E095FOR.CGCCPF <> :CGCRAIZ ' +
             'ORDER BY RAIZ ASC ';
 end;
 
 procedure T095FOR.CarregarFornecedores;
 var
   xQuery: THQuery;
+  xRaiz: Integer;
 begin
   xQuery := THQuery.CreatePersonalizado();
   try
@@ -838,16 +842,18 @@ begin
     xQuery.Command := BuscarPorCNPJ(FCgcCpf);
 
     xQuery.ParamByName('CGCCPF').Value := FCgcCpf;
+    xQuery.ParamByName('CGCRAIZ').Value := FCgcCpf;
     xQuery.ParamByName('RAIZFOR').Value := FRaiz;
     xQuery.Open;
     while not(xQuery.Eof) do
     begin
-      FCodFor := iff(xQuery.FindField('ORIGINAL').AsInteger = 0,
-        xQuery.FindField('RAIZ').AsInteger,
-        xQuery.FindField('ORIGINAL').AsInteger);
+      if (xQuery.FindField('ORIGINAL').AsInteger > 0) then
+        FCodFor := xQuery.FindField('ORIGINAL').AsInteger;
 
-      if (FLista.IndexOf(IntToStr(FCodFor)) = -1) then
-        FLista.Add(IntToStr(FCodFor));
+      xRaiz := xQuery.FindField('RAIZ').AsInteger;
+
+      if ((FLista.IndexOf(IntToStr(xRaiz)) = -1) and (xRaiz > 0)) then
+        FLista.Add(IntToStr(xRaiz));
 
       xQuery.Next;
     end;
@@ -879,7 +885,10 @@ begin
   inherited Create('E095FOR');
 
   FLista := TStringList.Create;
+
   FIterador := TIterador.Create();
+  FIterador.indexed := True;
+  FIterador.IndexFields(['CODFOR'])
 end;
 
 constructor T095FOR.CreatePersonalizado(const pCgcCpf: Double);
@@ -888,6 +897,7 @@ begin
 
   Self.CgcCpf := pCgcCpf;
   FLista := TStringList.Create;
+
   FIterador := TIterador.Create();
 end;
 
@@ -916,15 +926,32 @@ begin
   Result := EmptyStr;
 
   if (Assigned(FLista)) then
-    for i := 0 to pred(FLista.Count) do
-        Result := Result + FLista[i] + ',';
+  begin
+    i := FIterador.IndexOfFields(Self);
+
+    if (i > -1) then
+      Result := T095FOR(FIterador[i]).ListaInternaFornecedores;
+  end;
 
   UltimoCaracter(Result, ',');
 end;
 
-function T095FOR.FornecedoresRaiz: string;
+function T095FOR.ListaInternaFornecedores: string;
+var
+  i: Integer;
 begin
-  Result := T095FOR(FIterador[0]).ListaFornecedores;
+  Result := EmptyStr;
+
+  for i := 0 to pred(FLista.Count) do
+    Result := Result + FLista[i] + ',';
+end;
+
+function T095FOR.FornecedoresRaiz(const pCodFor: Integer): string;
+begin
+  if (pCodFor > 0) then
+    FCodFor := pCodFor;
+
+  Result := Self.ListaFornecedores;
 end;
 
 procedure T095FOR.SetCgcCpf(const pCgcCpf: Double);

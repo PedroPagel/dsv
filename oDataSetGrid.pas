@@ -239,7 +239,10 @@ end;
 
 function TDataSetGrid.Line: Integer;
 begin
-  Result := iff(Row >= 0, Row, 0);
+  if (FFieldState = gsNewValue) then
+    Result := iff(Row >= 0, Row, 0)
+  else
+    Result := iff(FClientDataSet.RecNo >= 0, FClientDataSet.RecNo, 0);
 end;
 
 procedure TDataSetGrid.LookupField(const pName: string; const pTable: string; const pLookUpFilter: array of string;
@@ -356,7 +359,7 @@ begin
   begin
     if AnsiSameText(Self.SelectedField.FieldName, FListEnumFields[i].Name) then
     begin
-      FListEnumFields[i].ValueList.ShowGridEnum(Self.CellRect(Self.Col, Self.Row));
+      FListEnumFields[i].ValueList.ShowGridEnum(Self.CellRect(Self.Col, FClientDataSet.RecNo));
       Break;
     end;
   end;
@@ -369,7 +372,7 @@ begin
   FFieldState := gsOnEnter;
   FOldLine := 0;
   FOldColumn := 1;
-  FOldEnterLine := Row;
+  FOldEnterLine := FClientDataSet.RecNo;
 
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
@@ -466,7 +469,7 @@ begin
   end;
 
   if (FChangeLine) then
-    if (FOldLine <> FNewLine) and (FNewLine > -1) and (Row > -1) then
+    if (FOldLine <> FNewLine) and (FNewLine > -1) and (FClientDataSet.RecNo > -1) then
     begin
       FChangeLine := False;
       Self.DataSource.DataSet.RecNo := FNewLine;

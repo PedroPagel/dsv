@@ -30,21 +30,15 @@ procedure TF510ARM.FormCreate(Sender: TObject);
 var
   xArmazenamento: TArmazenamento;
 begin
-  StartTransaction;
+  FLogEmp := StrToInt(ParamStr(3));
+  xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
   try
-    FLogEmp := StrToInt(ParamStr(3));
-    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4))); 
-    try
-      xArmazenamento.CarregarArquivos();
-      xArmazenamento.Processar();
-    finally
-      FreeAndNil(xArmazenamento);
-    end;
+    xArmazenamento.CarregarArquivos();
+    xArmazenamento.Processar();
 
-    Commit;
-  except
-    on e: Exception do
-      Rollback;
+    xArmazenamento.AtualizarArmazenamento();
+  finally
+    FreeAndNil(xArmazenamento);
   end;
 end;
 
