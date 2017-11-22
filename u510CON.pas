@@ -66,6 +66,8 @@ type
     DVenIni: THDateTimePicker;
     BENomArq: THButtonedEdit;
     Label15: TLabel;
+    BENumTit: THButtonedEdit;
+    Label16: TLabel;
 
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
@@ -161,6 +163,7 @@ begin
   BECodPor.Text := EmptyStr;
   BECodFor.Text := EmptyStr;
   BENomArq.Text := EmptyStr;
+  BECodPor.Text := EmptyStr;
 
   BEVlrIni.Text := '0,00';
   BEVlrFim.Text := '0,00';
@@ -366,6 +369,9 @@ var
       Result := Result + ' AND USU_SITARM = ''S'' '
     else if (cbSituacaoTit.ItemIndex = 1) then
       Result := Result + ' AND USU_SITARM = ''N'' ';
+
+    if not(IsNull(BENumTit.Text)) then
+      Result := Result + Format(' AND USU_ID IN (SELECT USU_IDTIT FROM E501TCP WHERE NUMTIT IN (%s) AND USU_IDTIT > 0)', [BENumTit.Text]);
   end;
 
   function FiltroPortadorArmazenamento(): string;
@@ -557,9 +563,10 @@ begin
   FGridAss.Clear;
   FGridAss.Disconnect;
   x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
-  if (x510TIT.Titulo <> nil) then
+  if AnsiSameText(x510TIT.USU_SitArm, 'S') then
   begin
     FGridAss.Add;
+    x510TIT.ConsultarTitulo;
     FGridAss.AddFields(x510TIT.Titulo);
   end;
   FGridAss.Connect;
@@ -596,8 +603,12 @@ begin
   BECodPor.CreateLookup();
   BECodFor.CreateLookup();
   BENomArq.CreateLookup();
+  BENumTit.CreateLookup();
 
   BECodFil.AddFilterLookup(BECodEmp);
+  BENumTit.AddFilterLookup(BECodEmp);
+  BENumTit.AddFilterLookup(BECodFil);
+  BENumTit.AddFilterLookup(BECodFor);
 
   BECodEmp.isNumber := True;
   BECodFil.isNumber := True;
@@ -608,6 +619,7 @@ begin
   BEVlrFim.isFloat := True;
 
   BECodPor.Filter := ' CODPOR IN (SELECT USU_CODPOR FROM USU_T510AGE)';
+  BENumTit.Filter := ' (USU_IDTIT > 0)';
 
   FGridArm.Init('USU_T510ARM', Self, 'USU_CodPor;USU_NomArq');
   FGridArm.AddColumn('Check', 'Sel.', ftInteger, 0, True);

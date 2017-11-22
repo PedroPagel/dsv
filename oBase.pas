@@ -51,6 +51,7 @@ type
     FBetween: TBetweenRegister;
     FSelectProps: array of string;
     FAutoSelectProperty: Boolean;
+    FSequenceField: string;
 
     procedure Insert();
     procedure Update();
@@ -89,6 +90,7 @@ type
     procedure ClearFields();
     procedure AtribuirValoresSelect();
     procedure Init(const pTabela: string);
+    procedure SetSequenceField(const pField: string);
     procedure AddTable(const pTables: array of string);
     procedure BlockProperty(const pField: array of string);
     procedure FieldsForUpdate(const pField: array of string);
@@ -101,7 +103,7 @@ type
     function Prior(): Boolean;
     function TableType: tTableType; virtual; abstract;
     function SetTableToRecord(const pTabela: string): THQuery;
-    function GenerateID(const pField: string): Integer; virtual; abstract;
+    function GenerateID(const pField: string): Integer;
     function MonthsBetween(const pInicial, pFinal: string): Word; overload;
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
@@ -123,7 +125,6 @@ type
     destructor Destroy(); override;
 
     function TableType: tTableType; override;
-    function GenerateID(const pField: string): Integer; override;
   end;
 
   TTabelaUsuario = class(TTable)
@@ -142,7 +143,6 @@ type
     destructor Destroy(); override;
 
     function TableType: tTableType; override;
-    function GenerateID(const pField: string): Integer; override;
 
     property USU_ID: Integer read GetId write SetId;
     property OLD_USU_ID: Integer read GetOldId write SetOldId;
@@ -262,7 +262,7 @@ var
 implementation
 
 uses
-  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants;
+  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants, o510age;
 
 procedure StartTransaction();
 begin
@@ -788,6 +788,30 @@ begin
   FQuery.LockType := ltReadOnly;
 end;
 
+function TTable.GenerateID(const pField: string): Integer;
+var
+  xQuery: THQuery;
+  xProperty: TRttiProperty;
+begin
+  Result := 1;
+
+  xQuery := THQuery.CreatePersonalizado;
+  try
+    xQuery.Command := 'SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela;
+    xQuery.Open;
+    if not(xQuery.IsEmpty) then
+      Result := xQuery.FindField('IDREG').AsInteger + 1;
+
+    xQuery.Close;
+  finally
+    FreeAndNil(xQuery);
+  end;
+  xProperty := FType.GetProperty(pField);
+  xProperty.SetValue(Self, Result);
+
+  Clean();
+end;
+
 function TTable.GetBetween(const pName: string): TDate;
 var
   i: Byte;
@@ -933,8 +957,8 @@ begin
   begin
     if NegarCampo(xProperty.Name) then
     begin
-      if (AnsiSameText(UpperCase(xProperty.Name), 'USU_ID')) then
-        FQuery.ParamByName(xProperty.Name).Value := GenerateID('USU_ID')
+      if (AnsiSameText(UpperCase(xProperty.Name), FSequenceField)) then
+        FQuery.ParamByName(xProperty.Name).Value := GenerateID(FSequenceField)
       else
         case xProperty.PropertyType.TypeKind of
           tkInteger:
@@ -1261,6 +1285,11 @@ begin
   FCheck := Value;
 end;
 
+procedure TTable.SetSequenceField(const pField: string);
+begin
+  FSequenceField := pField;
+end;
+
 function TTable.SetTableToRecord(const pTabela: string): THQuery;
 begin
   FQuery := THQuery.CreatePersonalizado();
@@ -1327,7 +1356,7 @@ begin
   xClass := GetClass(Obj.ClassName);
   xObj := (xClass.Create) as TTable;
 
-  Self.Add(xObj);
+  Self.IterarAdd(Obj, xObj);
 end;
 
 procedure TIterador.AddIndex(const pValue: String);
@@ -1599,11 +1628,6 @@ begin
   inherited;
 end;
 
-function TTabelaPadrao.GenerateID(const pField: string): Integer;
-begin
-  Result := 0;
-end;
-
 procedure TTabelaPadrao.Registros_OLD;
 begin
   //nada
@@ -1619,6 +1643,8 @@ end;
 constructor TTabelaUsuario.Create(const pTabela: string);
 begin
   inherited Create(pTabela);
+
+  SetSequenceField('USU_ID');
 end;
 
 destructor TTabelaUsuario.Destroy;
@@ -1626,25 +1652,6 @@ begin
   inherited;
 end;
 
-function TTabelaUsuario.GenerateID(const pField: string): Integer;
-var
-  FQuery: THQuery;
-begin
-  Result := 1;
-
-  FQuery := THQuery.CreatePersonalizado;
-  try
-    FQuery.Command := 'SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela;
-    FQuery.Open;
-    if not(FQuery.IsEmpty) then
-      Result := FQuery.FindField('IDREG').AsInteger + 1;
-    FQuery.Close;
-  finally
-    FreeAndNil(FQuery);
-  end;
-  Self.USU_ID := Result;
-  Clean();
-end;
 
 function TTabelaUsuario.GetId: Integer;
 begin

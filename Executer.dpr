@@ -5,7 +5,7 @@ uses
   midaslib,
   oBase,
   System.SysUtils,
-  uExecute in 'uExecute.pas' {FExecute},
+  uExecute in 'uExecute.pas' {FExecute} ,
   oFacadeExe in 'oFacadeExe.pas',
   oSubFacadeImportador in 'oSubFacadeImportador.pas',
   uTimeFacade in 'uTimeFacade.pas',
@@ -20,10 +20,12 @@ begin
     Application.MainFormOnTaskbar := False;
     Application.ShowMainForm := False;
     Application.CreateForm(TFExecute, FExecute);
-    Application.Terminate;
+
     TConexao.Finalizar;
+    Application.Terminate;
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
+
 end.

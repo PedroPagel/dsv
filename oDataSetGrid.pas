@@ -6,7 +6,7 @@ uses
   Vcl.Controls, Vcl.Grids, Data.SqlExpr, System.SysUtils, oQuery,
   System.TypInfo, Data.DB, Datasnap.DBClient, Vcl.DBGrids, System.Rtti,
   System.Classes, Vcl.DBCtrls, Winapi.Windows, Vcl.Forms, Vcl.Buttons,
-  oValueListEditor;
+  oValueListEditor, Datasnap.Provider;
 
 type
   TEnterLine = procedure(Sender: TObject) of Object;
@@ -84,6 +84,7 @@ type
     FListLookupFields: TListLookupFields;
     FListEnumFields: TListEnumFields;
     FClientDataSet: TClientDataSet;
+    FProvider: TDataSetProvider;
     FReadOnlyList: TStringList;
     FCheckList: TStringList;
     FFieldState: TGridState;
@@ -194,8 +195,9 @@ end;
 
 procedure TDataSetGrid.Init(const pTable: string; const pForm: TForm; const pIndexFields: string = ''; const pFilter: string = '');
 begin
+  FClientDataSet := TClientDataSet.Create(Application);
+  FProvider := TDataSetProvider.Create(Application);
   FQueryField := THQuery.CreatePersonalizado();
-  FClientDataSet := TClientDataSet.Create(nil);
   FCheckList := TStringList.Create;
   FReadOnlyList := TStringList.Create;
   FContext := TRttiContext.Create;
@@ -214,12 +216,16 @@ begin
   FRowAdd := False;
   FLineState := lsNewLine;
 
+  FProvider.Name := 'Provider' + Self.Name + FTable;
+  FProvider.DataSet := FQueryField;
+
   FClientDataSet.Close;
   FClientDataSet.FieldDefs.Clear;
   FClientDataSet.AfterCancel := OnCancelLine;
   FClientDataSet.AfterInsert := OnAfterInsert;
   FClientDataSet.BeforeInsert := OnBeforeInsert;
   FClientDataSet.BeforeDelete := BeforeDelete;
+  FClientDataSet.ProviderName := FProvider.Name;
 
   Self.OnDrawColumnCell := Draw;
   Self.OnCellClick := CheckClick;
@@ -734,6 +740,7 @@ begin
     Clear;
     Self.DataSource.DataSet.FieldDefs.Clear;
     FreeAndNil(FClientDataSet);
+    FreeAndNil(FProvider);
   end;
 
   FContext.Free;
@@ -1278,29 +1285,20 @@ begin
 end;
 
 function TDataSetGrid.ShowSearch: Boolean;
-var
-  i: Integer;
 begin
   Self.DataSource.DataSet := nil;
 
   if (AnsiSameText(FTable, 'E099USU')) then
     FFieldList := 'E099USU.NOMUSU,'+ FFieldList;
 
+  FClientDataSet.Close;
   FQueryField.Command := Format('SELECT %s FROM %s', [FFieldList, FTable]) + iff(not(IsNull(FFilter)), ' WHERE ' + FFilter, EmptyStr);
   FQueryField.Prepared := True;
-  FQueryField.Open;
-  while not(FQueryField.Eof) do
-  begin
-    FClientDataSet.Append;
 
-    for i := 0 to pred(FClientDataSet.FieldDefList.Count) do
-      FClientDataSet.FieldByName(FClientDataSet.FieldDefList[i].Name).AsVariant := FQueryField.FindField(FClientDataSet.FieldDefList[i].Name).AsVariant;
+  FClientDataSet.PacketRecords := 100;
+  FClientDataSet.Open;
 
-    FClientDataSet.Post;
-    FQueryField.Next;
-  end;
-
-  Result := (FQueryField.Count > 0);
+  Result := (FClientDataSet.RecordCount > 0);
   Self.DataSource.DataSet := FClientDataSet;
   Self.DataSource.DataSet.First;
 end;

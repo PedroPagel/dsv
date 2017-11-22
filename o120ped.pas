@@ -1,4 +1,3 @@
-
 unit o120ped;
 
 interface
@@ -226,6 +225,9 @@ type
     FUSU_NumOptCRM: Integer;
     FUSU_PedFec: Char;
     FUSU_DatPrv: TDate;
+    FUSU_CodTip: string;
+    FUSU_TaxCnv: Double;
+    FUSU_TnsFat: string;
 
     FCodEmpOLD: Integer;
     FCodFilOLD: Integer;
@@ -443,6 +445,9 @@ type
     FUSU_NumOptCRMOLD: Integer;
     FUSU_PedFecOLD: Char;
     FUSU_DatPrvOLD: TDate;
+    FUSU_CodTipOLD: string;
+    FUSU_TaxCnvOLD: Double;
+    FUSU_TnsFatOLD: string;
 
     function GetCodEmp: Integer;
     procedure SetCodEmp(const pCodEmp: Integer);
@@ -874,6 +879,14 @@ type
     procedure SetUSU_NumOptCRM(const pUSU_NumOptCRM: Integer);
     function GetUSU_PedFec: Char;
     procedure SetUSU_PedFec(const pUSU_PedFec: Char);
+    function GetUSU_DatPrv: TDate;
+    procedure SetUSU_DatPrv(const pUSU_DatPrv: TDate);
+    function GetUSU_CodTip: string;
+    procedure SetUSU_CodTip(const pUSU_CodTip: string);
+    function GetUSU_TaxCnv: Double;
+    procedure SetUSU_TaxCnv(const pUSU_TaxCnv: Double);
+    function GetUSU_TnsFat: string;
+    procedure SetUSU_TnsFat(const pUSU_TnsFat: string);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -1305,6 +1318,14 @@ type
     procedure SetUSU_NumOptCRMOld(const pUSU_NumOptCRM: Integer);
     function GetUSU_PedFecOld: Char;
     procedure SetUSU_PedFecOld(const pUSU_PedFec: Char);
+    function GetUSU_DatPrvOld: TDate;
+    procedure SetUSU_DatPrvOld(const pUSU_DatPrv: TDate);
+    function GetUSU_CodTipOld: string;
+    procedure SetUSU_CodTipOld(const pUSU_CodTip: string);
+    function GetUSU_TaxCnvOld: Double;
+    procedure SetUSU_TaxCnvOld(const pUSU_TaxCnv: Double);
+    function GetUSU_TnsFatOld: string;
+    procedure SetUSU_TnsFatOld(const pUSU_TnsFat: string);
   protected
     procedure Registros_OLD(); override;
   public
@@ -1526,7 +1547,10 @@ type
     property USU_CanAut: TDate read GetUSU_CanAut write SetUSU_CanAut;
     property USU_NumOptCRM: Integer read GetUSU_NumOptCRM write SetUSU_NumOptCRM;
     property USU_PedFec: Char read GetUSU_PedFec write SetUSU_PedFec;
-   // property USU_DatPrv: TDate read GetUSU_DatPrv write SetUSU_DatPrv;
+    property USU_DatPrv: TDate read GetUSU_DatPrv write SetUSU_DatPrv;
+    property USU_CodTip: string read GetUSU_CodTip write SetUSU_CodTip;
+    property USU_TaxCnv: Double read GetUSU_TaxCnv write SetUSU_TaxCnv;
+    property USU_TnsFat: string read GetUSU_TnsFat write SetUSU_TnsFat;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -1743,7 +1767,10 @@ type
     property OLD_USU_CanAut: TDate read GetUSU_CanAutOLD write SetUSU_CanAutOLD;
     property OLD_USU_NumOptCRM: Integer read GetUSU_NumOptCRMOLD write SetUSU_NumOptCRMOLD;
     property OLD_USU_PedFec: Char read GetUSU_PedFecOLD write SetUSU_PedFecOLD;
-  //  property OLD_USU_DatPrv: TDate read GetUSU_DatPrvOLD write SetUSU_DatPrvOLD;
+    property OLD_USU_DatPrv: TDate read GetUSU_DatPrvOLD write SetUSU_DatPrvOLD;
+    property OLD_USU_CodTip: string read GetUSU_CodTipOLD write SetUSU_CodTipOLD;
+    property OLD_USU_TaxCnv: Double read GetUSU_TaxCnvOLD write SetUSU_TaxCnvOLD;
+    property OLD_USU_TnsFat: string read GetUSU_TnsFatOLD write SetUSU_TnsFatOLD;
   end;
 
 implementation
@@ -1759,6 +1786,7 @@ destructor T120PED.Destroy();
 begin
   inherited;
 end;
+
 function T120PED.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -3907,6 +3935,46 @@ end;
 procedure T120PED.SetUSU_PedFec(const pUSU_PedFec: Char);
 begin
   FUSU_PedFec := pUSU_PedFec;
+end;
+
+function T120PED.GetUSU_DatPrv: TDate;
+begin
+  Result := FUSU_DatPrv;
+end;
+
+procedure T120PED.SetUSU_DatPrv(const pUSU_DatPrv: TDate);
+begin
+  FUSU_DatPrv := pUSU_DatPrv;
+end;
+
+function T120PED.GetUSU_CodTip: string;
+begin
+  Result := FUSU_CodTip;
+end;
+
+procedure T120PED.SetUSU_CodTip(const pUSU_CodTip: string);
+begin
+  FUSU_CodTip := pUSU_CodTip;
+end;
+
+function T120PED.GetUSU_TaxCnv: Double;
+begin
+  Result := FUSU_TaxCnv;
+end;
+
+procedure T120PED.SetUSU_TaxCnv(const pUSU_TaxCnv: Double);
+begin
+  FUSU_TaxCnv := pUSU_TaxCnv;
+end;
+
+function T120PED.GetUSU_TnsFat: string;
+begin
+  Result := FUSU_TnsFat;
+end;
+
+procedure T120PED.SetUSU_TnsFat(const pUSU_TnsFat: string);
+begin
+  FUSU_TnsFat := pUSU_TnsFat;
 end;
 
 function T120PED.GetCodEmpOLD: Integer;
@@ -6059,6 +6127,46 @@ begin
   FUSU_PedFecOLD := pUSU_PedFec;
 end;
 
+function T120PED.GetUSU_DatPrvOLD: TDate;
+begin
+  Result := FUSU_DatPrvOLD;
+end;
+
+procedure T120PED.SetUSU_DatPrvOLD(const pUSU_DatPrv: TDate);
+begin
+  FUSU_DatPrvOLD := pUSU_DatPrv;
+end;
+
+function T120PED.GetUSU_CodTipOLD: string;
+begin
+  Result := FUSU_CodTipOLD;
+end;
+
+procedure T120PED.SetUSU_CodTipOLD(const pUSU_CodTip: string);
+begin
+  FUSU_CodTipOLD := pUSU_CodTip;
+end;
+
+function T120PED.GetUSU_TaxCnvOLD: Double;
+begin
+  Result := FUSU_TaxCnvOLD;
+end;
+
+procedure T120PED.SetUSU_TaxCnvOLD(const pUSU_TaxCnv: Double);
+begin
+  FUSU_TaxCnvOLD := pUSU_TaxCnv;
+end;
+
+function T120PED.GetUSU_TnsFatOLD: string;
+begin
+  Result := FUSU_TnsFatOLD;
+end;
+
+procedure T120PED.SetUSU_TnsFatOLD(const pUSU_TnsFat: string);
+begin
+  FUSU_TnsFatOLD := pUSU_TnsFat;
+end;
+
 procedure T120PED.Registros_OLD();
 begin
   FCodEmpOLD := FCodEmp;
@@ -6277,6 +6385,9 @@ begin
   FUSU_NumOptCRMOLD := FUSU_NumOptCRM;
   FUSU_PedFecOLD := FUSU_PedFec;
   FUSU_DatPrvOLD := FUSU_DatPrv;
+  FUSU_CodTipOLD := FUSU_CodTip;
+  FUSU_TaxCnvOLD := FUSU_TaxCnv;
+  FUSU_TnsFatOLD := FUSU_TnsFat;
 end;
 
 end.

@@ -16,13 +16,12 @@ type
     Panel2: TPanel;
     Sair: TButton;
     OK: TButton;
-    ECampo: TEdit;
     EFiltro: TEdit;
     Label1: TLabel;
     Label2: TLabel;
     CBFiltrar: TCheckBox;
     CBFiltros: TComboBox;
-    FLeftTable: TForm;
+    CBCampos: TComboBox;
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure SairClick(Sender: TObject);
@@ -30,11 +29,15 @@ type
     procedure FGridPesDblClick(Sender: TObject);
     procedure CBFiltrarClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure CBCamposChange(Sender: TObject);
   private
     FField: string;
     FieldName: string;
+    FTable: string;
     FRetorno: Variant;
     FLeftClick: Boolean;
+    FLeftTable: TForm;
+    FCampos: TStringList;
   public
     function Return(): Variant;
     procedure AddLeftTableForm(const pForm: TForm);
@@ -52,13 +55,18 @@ var
 implementation
 
 uses
-  oBase, oMensagem, u000cad;
+  oBase, oMensagem, u000cad, o998fld;
 
 {$R *.dfm}
 
 procedure TFPesHen.AddLeftTableForm(const pForm: TForm);
 begin
   FLeftTable := pForm;
+end;
+
+procedure TFPesHen.CBCamposChange(Sender: TObject);
+begin
+  FieldName := FCampos[CBCampos.ItemIndex];
 end;
 
 procedure TFPesHen.CBFiltrarClick(Sender: TObject);
@@ -87,9 +95,6 @@ end;
 
 procedure TFPesHen.FGridPesTitleClick(Column: TColumn);
 begin
-   ECampo.Text := Column.Title.Caption;
-   FieldName := Column.FieldName;
-
    if (Column.Field.DataType in [ftDate, ftTime, ftDateTime]) then
    begin
      CBFiltros.Enabled := False;
@@ -102,12 +107,36 @@ end;
 procedure TFPesHen.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   FGridPes.Finalize();
+  FreeAndNil(FCampos);
 end;
 
 procedure TFPesHen.FormShow(Sender: TObject);
+var
+  x998FLD: T998FLD;
 begin
+  CBCampos.Clear;
+
   FGridPes.SetFocus;
   FGridPes.DisableEnter := True;
+  FCampos := TStringList.Create;
+
+  x998FLD := T998FLD.Create;
+  try
+    x998FLD.TblNam := FTable;
+    x998FLD.PropertyForSelect(['TBLNAM']);
+    x998FLD.Execute(etSelect, esLoop);
+
+    while (x998FLD.Next) do
+    begin
+      CBCampos.Items.Add(x998FLD.LgnTit);
+      FCampos.Add(x998FLD.FldNam);
+    end;
+
+    CBCampos.ItemIndex := 0;
+    FieldName := FCampos[0];
+  finally
+    FreeAndNil(x998FLD);
+  end;
 end;
 
 procedure TFPesHen.OKClick(Sender: TObject);
@@ -135,9 +164,11 @@ procedure TFPesHen.ShowData(const pTable, pField, pIndexFields, pFilter: string)
 begin
   FField := pField;
   FRetorno := EmptyStr;
-  FGridPes.Init(pTable, Self, pIndexFields, pFilter);
+  FTable := pTable;
+  FGridPes.Init(FTable, Self, pIndexFields, pFilter);
   FGridPes.OrderTitles := True;
   FGridPes.CreateDataSet;
+
   CBFiltros.ItemIndex := 0;
 
   if (FGridPes.ShowSearch) then
@@ -155,6 +186,7 @@ begin
   FGridPes.Init(xForm.NomeClasse, xForm, '', '');
   FGridPes.OrderTitles := True;
   FGridPes.CreateDataSet;
+
   CBFiltros.ItemIndex := 0;
   FLeftClick := True;
 

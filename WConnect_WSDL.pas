@@ -5,7 +5,7 @@
 //  >Import : http://hennings.workcrm.com.br/wconnect/wsdl/WConnect_WSDL.php?wsdl>0
 // Encoding : ISO-8859-1
 // Version  : 1.0
-// (04/09/2017 16:40:17 - - $Rev: 56641 $)
+// (09/11/2017 09:24:39 - - $Rev: 56641 $)
 // ************************************************************************ //
 
 unit WConnect_WSDL;
@@ -30,8 +30,11 @@ type
   // !:string          - "http://www.w3.org/2001/XMLSchema"[Gbl]
   // !:int             - "http://www.w3.org/2001/XMLSchema"[Gbl]
 
+  produtosRegistros    = class;                 { "urn:WConnect"[GblCplx] }
   produtosRecebe       = class;                 { "urn:WConnect"[GblCplx] }
+  Tautenticacao        = class;                 { "urn:WConnect"[GblCplx] }
   TipoOportunidadeDados = class;                { "urn:WConnect"[GblCplx] }
+  TautenticacaoRetornoDados = class;            { "urn:WConnect"[GblCplx] }
   OrigemOportunidadeDados = class;              { "urn:WConnect"[GblCplx] }
   ModalidadesNegocioDados = class;              { "urn:WConnect"[GblCplx] }
   conta                = class;                 { "urn:WConnect"[GblCplx] }
@@ -39,28 +42,27 @@ type
   contaCaracteristica  = class;                 { "urn:WConnect"[GblCplx] }
   contaResponsavelRetornoDados = class;         { "urn:WConnect"[GblCplx] }
   contaResponsavel     = class;                 { "urn:WConnect"[GblCplx] }
+  produto              = class;                 { "urn:WConnect"[GblCplx] }
+  unidadeMedida        = class;                 { "urn:WConnect"[GblCplx] }
   transportadoraRetornoDados = class;           { "urn:WConnect"[GblCplx] }
   transportadora       = class;                 { "urn:WConnect"[GblCplx] }
-  tabelasPrecoRetornoDados = class;             { "urn:WConnect"[GblCplx] }
-  unidadeMedida        = class;                 { "urn:WConnect"[GblCplx] }
-  produtosRecebeArray  = class;                 { "urn:WConnect"[GblCplx] }
   unidadeMedidaRetornoDados = class;            { "urn:WConnect"[GblCplx] }
+  produtosRecebeArray  = class;                 { "urn:WConnect"[GblCplx] }
+  categoriaProdutoRetornoDados = class;         { "urn:WConnect"[GblCplx] }
   categoriaProduto     = class;                 { "urn:WConnect"[GblCplx] }
   produtoRetornoDados  = class;                 { "urn:WConnect"[GblCplx] }
-  produto              = class;                 { "urn:WConnect"[GblCplx] }
-  categoriaProdutoRetornoDados = class;         { "urn:WConnect"[GblCplx] }
+  condicaoPagamento    = class;                 { "urn:WConnect"[GblCplx] }
+  tabelasPrecoRetornoDados = class;             { "urn:WConnect"[GblCplx] }
   tabelasPreco         = class;                 { "urn:WConnect"[GblCplx] }
   condicaoPagamentoRetornoDados = class;        { "urn:WConnect"[GblCplx] }
-  condicaoPagamento    = class;                 { "urn:WConnect"[GblCplx] }
-  FuncoesParametros    = class;                 { "urn:WConnect"[GblCplx] }
   DepartamentosDados   = class;                 { "urn:WConnect"[GblCplx] }
-  FuncoesDados         = class;                 { "urn:WConnect"[GblCplx] }
-  OrigemContatoDados   = class;                 { "urn:WConnect"[GblCplx] }
-  OrigemContatoParametros = class;              { "urn:WConnect"[GblCplx] }
-  RegistrosTipo        = class;                 { "urn:WConnect"[GblCplx] }
-  ContatosParametros   = class;                 { "urn:WConnect"[GblCplx] }
   DepartamentosParametros = class;              { "urn:WConnect"[GblCplx] }
+  FuncoesParametros    = class;                 { "urn:WConnect"[GblCplx] }
+  OrigemContatoParametros = class;              { "urn:WConnect"[GblCplx] }
+  FuncoesDados         = class;                 { "urn:WConnect"[GblCplx] }
   ContatosDados        = class;                 { "urn:WConnect"[GblCplx] }
+  ContatosParametros   = class;                 { "urn:WConnect"[GblCplx] }
+  OrigemContatoDados   = class;                 { "urn:WConnect"[GblCplx] }
   OportunidadesDados   = class;                 { "urn:WConnect"[GblCplx] }
   OportunidadesParametros = class;              { "urn:WConnect"[GblCplx] }
   ItensOportunidadeParametros = class;          { "urn:WConnect"[GblCplx] }
@@ -69,7 +71,7 @@ type
   UsuariosParametros   = class;                 { "urn:WConnect"[GblCplx] }
   UsuariosGrupoDados   = class;                 { "urn:WConnect"[GblCplx] }
   UsuariosGrupoParametros = class;              { "urn:WConnect"[GblCplx] }
-  TipoOportunidadeParametros = class;           { "urn:WConnect"[GblCplx] }
+  RegistrosTipo        = class;                 { "urn:WConnect"[GblCplx] }
   CondicaoPagamentoDados = class;               { "urn:WConnect"[GblCplx] }
   CondicaoPagamentoParametros = class;          { "urn:WConnect"[GblCplx] }
   ProdutosDados        = class;                 { "urn:WConnect"[GblCplx] }
@@ -79,14 +81,15 @@ type
   TiposNotaDados       = class;                 { "urn:WConnect"[GblCplx] }
   CategoriaProdutoDados = class;                { "urn:WConnect"[GblCplx] }
   CategoriaProdutoParametros = class;           { "urn:WConnect"[GblCplx] }
-  RegistrosOrigem      = class;                 { "urn:WConnect"[GblCplx] }
+  TransportadorasParametros = class;            { "urn:WConnect"[GblCplx] }
   ModalidadesNegocioParametros = class;         { "urn:WConnect"[GblCplx] }
   RegistrosModalidade  = class;                 { "urn:WConnect"[GblCplx] }
-  TransportadorasDados = class;                 { "urn:WConnect"[GblCplx] }
-  TransportadorasParametros = class;            { "urn:WConnect"[GblCplx] }
+  TipoOportunidadeParametros = class;           { "urn:WConnect"[GblCplx] }
   UnidadesMedidaParametros = class;             { "urn:WConnect"[GblCplx] }
-  OrigemOportunidadeParametros = class;         { "urn:WConnect"[GblCplx] }
+  TransportadorasDados = class;                 { "urn:WConnect"[GblCplx] }
   UnidadesMedidaDados  = class;                 { "urn:WConnect"[GblCplx] }
+  RegistrosOrigem      = class;                 { "urn:WConnect"[GblCplx] }
+  OrigemOportunidadeParametros = class;         { "urn:WConnect"[GblCplx] }
   contatosRetornoDados = class;                 { "urn:WConnect"[GblCplx] }
   tiposNota            = class;                 { "urn:WConnect"[GblCplx] }
   tiposNotaRetornoDados = class;                { "urn:WConnect"[GblCplx] }
@@ -94,7 +97,6 @@ type
   contaCaracteristicaRetornoDados = class;      { "urn:WConnect"[GblCplx] }
   compromisso          = class;                 { "urn:WConnect"[GblCplx] }
   compromissoRetornoDados = class;              { "urn:WConnect"[GblCplx] }
-  produtosRegistros    = class;                 { "urn:WConnect"[GblCplx] }
   RamosAtividadeParametros = class;             { "urn:WConnect"[GblCplx] }
   RamosAtividadeDados  = class;                 { "urn:WConnect"[GblCplx] }
   GruposParametros     = class;                 { "urn:WConnect"[GblCplx] }
@@ -104,17 +106,19 @@ type
   PaisesParametros     = class;                 { "urn:WConnect"[GblCplx] }
   OrigemContaParametros = class;                { "urn:WConnect"[GblCplx] }
   OrigemContaDados     = class;                 { "urn:WConnect"[GblCplx] }
-  oportunidade         = class;                 { "urn:WConnect"[GblCplx] }
+  CaracteristicasDetalheDados = class;          { "urn:WConnect"[GblCplx] }
   oportunidadeRetornoDados = class;             { "urn:WConnect"[GblCplx] }
-  ContasParametros     = class;                 { "urn:WConnect"[GblCplx] }
-  ocorrenciaRetornoDados = class;               { "urn:WConnect"[GblCplx] }
+  concluiCompromisso   = class;                 { "urn:WConnect"[GblCplx] }
+  concluiCompromissoRetornoDados = class;       { "urn:WConnect"[GblCplx] }
+  oportunidade         = class;                 { "urn:WConnect"[GblCplx] }
   produtosRetornoDados = class;                 { "urn:WConnect"[GblCplx] }
   ocorrencia           = class;                 { "urn:WConnect"[GblCplx] }
-  CaracteristicasDetalheParametros = class;     { "urn:WConnect"[GblCplx] }
-  CaracteristicasDetalheDados = class;          { "urn:WConnect"[GblCplx] }
+  ocorrenciaRetornoDados = class;               { "urn:WConnect"[GblCplx] }
   CaracteristicasDados = class;                 { "urn:WConnect"[GblCplx] }
-  ContasDados          = class;                 { "urn:WConnect"[GblCplx] }
+  CaracteristicasDetalheParametros = class;     { "urn:WConnect"[GblCplx] }
   CaracteristicasParametros = class;            { "urn:WConnect"[GblCplx] }
+  ContasParametros     = class;                 { "urn:WConnect"[GblCplx] }
+  ContasDados          = class;                 { "urn:WConnect"[GblCplx] }
 
   UnidadesMedidaDadosArray = array of UnidadesMedidaDados;   { "urn:WConnect"[GblCplx] }
   TransportadorasDadosArray = array of TransportadorasDados;   { "urn:WConnect"[GblCplx] }
@@ -135,6 +139,21 @@ type
   RegistrosTipoRetorno = array of RegistrosTipo;   { "urn:WConnect"[GblCplx] }
   FuncoesDadosArray = array of FuncoesDados;    { "urn:WConnect"[GblCplx] }
   DepartamentosDadosArray = array of DepartamentosDados;   { "urn:WConnect"[GblCplx] }
+
+
+  // ************************************************************************ //
+  // XML       : produtosRegistros, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  produtosRegistros = class(TRemotable)
+  private
+    FreferenciaProduto: string;
+    FsucessoProduto: string;
+  published
+    property referenciaProduto: string  read FreferenciaProduto write FreferenciaProduto;
+    property sucessoProduto:    string  read FsucessoProduto write FsucessoProduto;
+  end;
+
 
 
   // ************************************************************************ //
@@ -167,6 +186,21 @@ type
 
 
   // ************************************************************************ //
+  // XML       : Tautenticacao, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  Tautenticacao = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+  published
+    property UsuarioLogin: string  read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha: string  read FUsuarioSenha write FUsuarioSenha;
+  end;
+
+
+
+  // ************************************************************************ //
   // XML       : TipoOportunidadeDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
@@ -183,6 +217,21 @@ type
     property encontrado: string                read Fencontrado write Fencontrado;
     property mensagem:   string                read Fmensagem write Fmensagem;
     property registros:  RegistrosTipoRetorno  read Fregistros write Fregistros;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : TautenticacaoRetornoDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  TautenticacaoRetornoDados = class(TRemotable)
+  private
+    Fstatus: string;
+    Fmensagem: string;
+  published
+    property status:   string  read Fstatus write Fstatus;
+    property mensagem: string  read Fmensagem write Fmensagem;
   end;
 
 
@@ -419,6 +468,70 @@ type
 
 
   // ************************************************************************ //
+  // XML       : produto, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  produto = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FprodutoNome: string;
+    FprodutoNomeDervicao: string;
+    FprodutoPartNumber: string;
+    FprodutoPartNumberDerivacao: string;
+    FprodutoCategoriaId: Integer;
+    FprodutoUnidadeMedidaId: Integer;
+    FprodutoPrecoVenda: string;
+    FprodutoQuantidadePadrao: string;
+    FprodutoFatorCorrecao: string;
+    FprodutoIpi: string;
+    FprodutoPeso: string;
+    FprodutoObservacoes: string;
+    FprodutoAtivo: Integer;
+  published
+    property UsuarioLogin:               string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:               string   read FUsuarioSenha write FUsuarioSenha;
+    property produtoNome:                string   read FprodutoNome write FprodutoNome;
+    property produtoNomeDervicao:        string   read FprodutoNomeDervicao write FprodutoNomeDervicao;
+    property produtoPartNumber:          string   read FprodutoPartNumber write FprodutoPartNumber;
+    property produtoPartNumberDerivacao: string   read FprodutoPartNumberDerivacao write FprodutoPartNumberDerivacao;
+    property produtoCategoriaId:         Integer  read FprodutoCategoriaId write FprodutoCategoriaId;
+    property produtoUnidadeMedidaId:     Integer  read FprodutoUnidadeMedidaId write FprodutoUnidadeMedidaId;
+    property produtoPrecoVenda:          string   read FprodutoPrecoVenda write FprodutoPrecoVenda;
+    property produtoQuantidadePadrao:    string   read FprodutoQuantidadePadrao write FprodutoQuantidadePadrao;
+    property produtoFatorCorrecao:       string   read FprodutoFatorCorrecao write FprodutoFatorCorrecao;
+    property produtoIpi:                 string   read FprodutoIpi write FprodutoIpi;
+    property produtoPeso:                string   read FprodutoPeso write FprodutoPeso;
+    property produtoObservacoes:         string   read FprodutoObservacoes write FprodutoObservacoes;
+    property produtoAtivo:               Integer  read FprodutoAtivo write FprodutoAtivo;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : unidadeMedida, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  unidadeMedida = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FunidadeMedidaIdErp: string;
+    FunidadeMedidaNome: string;
+    FunidadeMedidaSigla: string;
+    FunidadeMedidaAtivo: Integer;
+  published
+    property UsuarioLogin:       string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:       string   read FUsuarioSenha write FUsuarioSenha;
+    property unidadeMedidaIdErp: string   read FunidadeMedidaIdErp write FunidadeMedidaIdErp;
+    property unidadeMedidaNome:  string   read FunidadeMedidaNome write FunidadeMedidaNome;
+    property unidadeMedidaSigla: string   read FunidadeMedidaSigla write FunidadeMedidaSigla;
+    property unidadeMedidaAtivo: Integer  read FunidadeMedidaAtivo write FunidadeMedidaAtivo;
+  end;
+
+
+
+  // ************************************************************************ //
   // XML       : transportadoraRetornoDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
@@ -457,10 +570,10 @@ type
 
 
   // ************************************************************************ //
-  // XML       : tabelasPrecoRetornoDados, global, <complexType>
+  // XML       : unidadeMedidaRetornoDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  tabelasPrecoRetornoDados = class(TRemotable)
+  unidadeMedidaRetornoDados = class(TRemotable)
   private
     Fstatus: string;
     Fmensagem: string;
@@ -469,29 +582,6 @@ type
     property status:      string   read Fstatus write Fstatus;
     property mensagem:    string   read Fmensagem write Fmensagem;
     property id_registro: Integer  read Fid_registro write Fid_registro;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : unidadeMedida, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  unidadeMedida = class(TRemotable)
-  private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FunidadeMedidaIdErp: string;
-    FunidadeMedidaNome: string;
-    FunidadeMedidaSigla: string;
-    FunidadeMedidaAtivo: Integer;
-  published
-    property UsuarioLogin:       string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:       string   read FUsuarioSenha write FUsuarioSenha;
-    property unidadeMedidaIdErp: string   read FunidadeMedidaIdErp write FunidadeMedidaIdErp;
-    property unidadeMedidaNome:  string   read FunidadeMedidaNome write FunidadeMedidaNome;
-    property unidadeMedidaSigla: string   read FunidadeMedidaSigla write FunidadeMedidaSigla;
-    property unidadeMedidaAtivo: Integer  read FunidadeMedidaAtivo write FunidadeMedidaAtivo;
   end;
 
 
@@ -518,10 +608,10 @@ type
 
 
   // ************************************************************************ //
-  // XML       : unidadeMedidaRetornoDados, global, <complexType>
+  // XML       : categoriaProdutoRetornoDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  unidadeMedidaRetornoDados = class(TRemotable)
+  categoriaProdutoRetornoDados = class(TRemotable)
   private
     Fstatus: string;
     Fmensagem: string;
@@ -573,51 +663,31 @@ type
 
 
   // ************************************************************************ //
-  // XML       : produto, global, <complexType>
+  // XML       : condicaoPagamento, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  produto = class(TRemotable)
+  condicaoPagamento = class(TRemotable)
   private
     FUsuarioLogin: string;
     FUsuarioSenha: string;
-    FprodutoNome: string;
-    FprodutoNomeDervicao: string;
-    FprodutoPartNumber: string;
-    FprodutoPartNumberDerivacao: string;
-    FprodutoCategoriaId: Integer;
-    FprodutoUnidadeMedidaId: Integer;
-    FprodutoPrecoVenda: string;
-    FprodutoQuantidadePadrao: string;
-    FprodutoFatorCorrecao: string;
-    FprodutoIpi: string;
-    FprodutoPeso: string;
-    FprodutoObservacoes: string;
-    FprodutoAtivo: Integer;
+    FcondicaoPagamentoIdErp: string;
+    FcondicaoPagamentoNome: string;
+    FcondicaoPagamentoAtivo: Integer;
   published
-    property UsuarioLogin:               string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:               string   read FUsuarioSenha write FUsuarioSenha;
-    property produtoNome:                string   read FprodutoNome write FprodutoNome;
-    property produtoNomeDervicao:        string   read FprodutoNomeDervicao write FprodutoNomeDervicao;
-    property produtoPartNumber:          string   read FprodutoPartNumber write FprodutoPartNumber;
-    property produtoPartNumberDerivacao: string   read FprodutoPartNumberDerivacao write FprodutoPartNumberDerivacao;
-    property produtoCategoriaId:         Integer  read FprodutoCategoriaId write FprodutoCategoriaId;
-    property produtoUnidadeMedidaId:     Integer  read FprodutoUnidadeMedidaId write FprodutoUnidadeMedidaId;
-    property produtoPrecoVenda:          string   read FprodutoPrecoVenda write FprodutoPrecoVenda;
-    property produtoQuantidadePadrao:    string   read FprodutoQuantidadePadrao write FprodutoQuantidadePadrao;
-    property produtoFatorCorrecao:       string   read FprodutoFatorCorrecao write FprodutoFatorCorrecao;
-    property produtoIpi:                 string   read FprodutoIpi write FprodutoIpi;
-    property produtoPeso:                string   read FprodutoPeso write FprodutoPeso;
-    property produtoObservacoes:         string   read FprodutoObservacoes write FprodutoObservacoes;
-    property produtoAtivo:               Integer  read FprodutoAtivo write FprodutoAtivo;
+    property UsuarioLogin:           string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:           string   read FUsuarioSenha write FUsuarioSenha;
+    property condicaoPagamentoIdErp: string   read FcondicaoPagamentoIdErp write FcondicaoPagamentoIdErp;
+    property condicaoPagamentoNome:  string   read FcondicaoPagamentoNome write FcondicaoPagamentoNome;
+    property condicaoPagamentoAtivo: Integer  read FcondicaoPagamentoAtivo write FcondicaoPagamentoAtivo;
   end;
 
 
 
   // ************************************************************************ //
-  // XML       : categoriaProdutoRetornoDados, global, <complexType>
+  // XML       : tabelasPrecoRetornoDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  categoriaProdutoRetornoDados = class(TRemotable)
+  tabelasPrecoRetornoDados = class(TRemotable)
   private
     Fstatus: string;
     Fmensagem: string;
@@ -669,22 +739,43 @@ type
 
 
   // ************************************************************************ //
-  // XML       : condicaoPagamento, global, <complexType>
+  // XML       : DepartamentosDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  condicaoPagamento = class(TRemotable)
+  DepartamentosDados = class(TRemotable)
+  private
+    FDepartamentosId: Integer;
+    FDepartamentosNome: string;
+    FDepartamentosAtivo: Integer;
+  published
+    property DepartamentosId:    Integer  read FDepartamentosId write FDepartamentosId;
+    property DepartamentosNome:  string   read FDepartamentosNome write FDepartamentosNome;
+    property DepartamentosAtivo: Integer  read FDepartamentosAtivo write FDepartamentosAtivo;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : DepartamentosParametros, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  DepartamentosParametros = class(TRemotable)
   private
     FUsuarioLogin: string;
     FUsuarioSenha: string;
-    FcondicaoPagamentoIdErp: string;
-    FcondicaoPagamentoNome: string;
-    FcondicaoPagamentoAtivo: Integer;
+    FDepartamentosId: Integer;
+    FDepartamentosNome: string;
+    FDepartamentosAtivo: Integer;
+    Ferro: string;
+    Fmensagem: string;
   published
-    property UsuarioLogin:           string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:           string   read FUsuarioSenha write FUsuarioSenha;
-    property condicaoPagamentoIdErp: string   read FcondicaoPagamentoIdErp write FcondicaoPagamentoIdErp;
-    property condicaoPagamentoNome:  string   read FcondicaoPagamentoNome write FcondicaoPagamentoNome;
-    property condicaoPagamentoAtivo: Integer  read FcondicaoPagamentoAtivo write FcondicaoPagamentoAtivo;
+    property UsuarioLogin:       string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:       string   read FUsuarioSenha write FUsuarioSenha;
+    property DepartamentosId:    Integer  read FDepartamentosId write FDepartamentosId;
+    property DepartamentosNome:  string   read FDepartamentosNome write FDepartamentosNome;
+    property DepartamentosAtivo: Integer  read FDepartamentosAtivo write FDepartamentosAtivo;
+    property erro:               string   read Ferro write Ferro;
+    property mensagem:           string   read Fmensagem write Fmensagem;
   end;
 
 
@@ -715,57 +806,6 @@ type
 
 
   // ************************************************************************ //
-  // XML       : DepartamentosDados, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  DepartamentosDados = class(TRemotable)
-  private
-    FDepartamentosId: Integer;
-    FDepartamentosNome: string;
-    FDepartamentosAtivo: Integer;
-  published
-    property DepartamentosId:    Integer  read FDepartamentosId write FDepartamentosId;
-    property DepartamentosNome:  string   read FDepartamentosNome write FDepartamentosNome;
-    property DepartamentosAtivo: Integer  read FDepartamentosAtivo write FDepartamentosAtivo;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : FuncoesDados, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  FuncoesDados = class(TRemotable)
-  private
-    FFuncoesId: Integer;
-    FFuncoesNome: string;
-    FFuncoesAtivo: Integer;
-  published
-    property FuncoesId:    Integer  read FFuncoesId write FFuncoesId;
-    property FuncoesNome:  string   read FFuncoesNome write FFuncoesNome;
-    property FuncoesAtivo: Integer  read FFuncoesAtivo write FFuncoesAtivo;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : OrigemContatoDados, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  OrigemContatoDados = class(TRemotable)
-  private
-    FOrigemContatoId: Integer;
-    FOrigemContatoNome: string;
-    FOrigemContatoAtivo: Integer;
-  published
-    property OrigemContatoId:    Integer  read FOrigemContatoId write FOrigemContatoId;
-    property OrigemContatoNome:  string   read FOrigemContatoNome write FOrigemContatoNome;
-    property OrigemContatoAtivo: Integer  read FOrigemContatoAtivo write FOrigemContatoAtivo;
-  end;
-
-
-
-  // ************************************************************************ //
   // XML       : OrigemContatoParametros, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
@@ -791,68 +831,18 @@ type
 
 
   // ************************************************************************ //
-  // XML       : RegistrosTipo, global, <complexType>
+  // XML       : FuncoesDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  RegistrosTipo = class(TRemotable)
+  FuncoesDados = class(TRemotable)
   private
-    FTipoOportunidadeId: Integer;
-    FTipoOportunidadeNome: string;
-    FTipoOportunidadeAtivo: Integer;
+    FFuncoesId: Integer;
+    FFuncoesNome: string;
+    FFuncoesAtivo: Integer;
   published
-    property TipoOportunidadeId:    Integer  read FTipoOportunidadeId write FTipoOportunidadeId;
-    property TipoOportunidadeNome:  string   read FTipoOportunidadeNome write FTipoOportunidadeNome;
-    property TipoOportunidadeAtivo: Integer  read FTipoOportunidadeAtivo write FTipoOportunidadeAtivo;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : ContatosParametros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  ContatosParametros = class(TRemotable)
-  private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FContatosId: Integer;
-    FContatosContaId: Integer;
-    FContatosAtivo: Integer;
-    Ferro: string;
-    Fmensagem: string;
-  published
-    property UsuarioLogin:    string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:    string   read FUsuarioSenha write FUsuarioSenha;
-    property ContatosId:      Integer  read FContatosId write FContatosId;
-    property ContatosContaId: Integer  read FContatosContaId write FContatosContaId;
-    property ContatosAtivo:   Integer  read FContatosAtivo write FContatosAtivo;
-    property erro:            string   read Ferro write Ferro;
-    property mensagem:        string   read Fmensagem write Fmensagem;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : DepartamentosParametros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  DepartamentosParametros = class(TRemotable)
-  private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FDepartamentosId: Integer;
-    FDepartamentosNome: string;
-    FDepartamentosAtivo: Integer;
-    Ferro: string;
-    Fmensagem: string;
-  published
-    property UsuarioLogin:       string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:       string   read FUsuarioSenha write FUsuarioSenha;
-    property DepartamentosId:    Integer  read FDepartamentosId write FDepartamentosId;
-    property DepartamentosNome:  string   read FDepartamentosNome write FDepartamentosNome;
-    property DepartamentosAtivo: Integer  read FDepartamentosAtivo write FDepartamentosAtivo;
-    property erro:               string   read Ferro write Ferro;
-    property mensagem:           string   read Fmensagem write Fmensagem;
+    property FuncoesId:    Integer  read FFuncoesId write FFuncoesId;
+    property FuncoesNome:  string   read FFuncoesNome write FFuncoesNome;
+    property FuncoesAtivo: Integer  read FFuncoesAtivo write FFuncoesAtivo;
   end;
 
 
@@ -966,6 +956,48 @@ type
     property contatoParecerEmpresaDescricao:  string   read FcontatoParecerEmpresaDescricao write FcontatoParecerEmpresaDescricao;
     property contatoMotivoParecerEmpresa:     string   read FcontatoMotivoParecerEmpresa write FcontatoMotivoParecerEmpresa;
     property contatoObservacao:               string   read FcontatoObservacao write FcontatoObservacao;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : ContatosParametros, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  ContatosParametros = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FContatosId: Integer;
+    FContatosContaId: Integer;
+    FContatosAtivo: Integer;
+    Ferro: string;
+    Fmensagem: string;
+  published
+    property UsuarioLogin:    string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:    string   read FUsuarioSenha write FUsuarioSenha;
+    property ContatosId:      Integer  read FContatosId write FContatosId;
+    property ContatosContaId: Integer  read FContatosContaId write FContatosContaId;
+    property ContatosAtivo:   Integer  read FContatosAtivo write FContatosAtivo;
+    property erro:            string   read Ferro write Ferro;
+    property mensagem:        string   read Fmensagem write Fmensagem;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : OrigemContatoDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  OrigemContatoDados = class(TRemotable)
+  private
+    FOrigemContatoId: Integer;
+    FOrigemContatoNome: string;
+    FOrigemContatoAtivo: Integer;
+  published
+    property OrigemContatoId:    Integer  read FOrigemContatoId write FOrigemContatoId;
+    property OrigemContatoNome:  string   read FOrigemContatoNome write FOrigemContatoNome;
+    property OrigemContatoAtivo: Integer  read FOrigemContatoAtivo write FOrigemContatoAtivo;
   end;
 
 
@@ -1197,19 +1229,15 @@ type
 
 
   // ************************************************************************ //
-  // XML       : TipoOportunidadeParametros, global, <complexType>
+  // XML       : RegistrosTipo, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  TipoOportunidadeParametros = class(TRemotable)
+  RegistrosTipo = class(TRemotable)
   private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
     FTipoOportunidadeId: Integer;
     FTipoOportunidadeNome: string;
     FTipoOportunidadeAtivo: Integer;
   published
-    property UsuarioLogin:          string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:          string   read FUsuarioSenha write FUsuarioSenha;
     property TipoOportunidadeId:    Integer  read FTipoOportunidadeId write FTipoOportunidadeId;
     property TipoOportunidadeNome:  string   read FTipoOportunidadeNome write FTipoOportunidadeNome;
     property TipoOportunidadeAtivo: Integer  read FTipoOportunidadeAtivo write FTipoOportunidadeAtivo;
@@ -1415,18 +1443,22 @@ type
 
 
   // ************************************************************************ //
-  // XML       : RegistrosOrigem, global, <complexType>
+  // XML       : TransportadorasParametros, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  RegistrosOrigem = class(TRemotable)
+  TransportadorasParametros = class(TRemotable)
   private
-    FOrigemOportunidadeId: Integer;
-    FOrigemOportunidadeNome: string;
-    FOrigemOportunidadeAtivo: Integer;
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FTransportadorasId: Integer;
+    FTransportadorasNome: string;
+    FTransportadorasAtivo: Integer;
   published
-    property OrigemOportunidadeId:    Integer  read FOrigemOportunidadeId write FOrigemOportunidadeId;
-    property OrigemOportunidadeNome:  string   read FOrigemOportunidadeNome write FOrigemOportunidadeNome;
-    property OrigemOportunidadeAtivo: Integer  read FOrigemOportunidadeAtivo write FOrigemOportunidadeAtivo;
+    property UsuarioLogin:         string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:         string   read FUsuarioSenha write FUsuarioSenha;
+    property TransportadorasId:    Integer  read FTransportadorasId write FTransportadorasId;
+    property TransportadorasNome:  string   read FTransportadorasNome write FTransportadorasNome;
+    property TransportadorasAtivo: Integer  read FTransportadorasAtivo write FTransportadorasAtivo;
   end;
 
 
@@ -1470,39 +1502,22 @@ type
 
 
   // ************************************************************************ //
-  // XML       : TransportadorasDados, global, <complexType>
+  // XML       : TipoOportunidadeParametros, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  TransportadorasDados = class(TRemotable)
-  private
-    FTransportadorasId: Integer;
-    FTransportadorasNome: string;
-    FTransportadorasAtivo: Integer;
-  published
-    property TransportadorasId:    Integer  read FTransportadorasId write FTransportadorasId;
-    property TransportadorasNome:  string   read FTransportadorasNome write FTransportadorasNome;
-    property TransportadorasAtivo: Integer  read FTransportadorasAtivo write FTransportadorasAtivo;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : TransportadorasParametros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  TransportadorasParametros = class(TRemotable)
+  TipoOportunidadeParametros = class(TRemotable)
   private
     FUsuarioLogin: string;
     FUsuarioSenha: string;
-    FTransportadorasId: Integer;
-    FTransportadorasNome: string;
-    FTransportadorasAtivo: Integer;
+    FTipoOportunidadeId: Integer;
+    FTipoOportunidadeNome: string;
+    FTipoOportunidadeAtivo: Integer;
   published
-    property UsuarioLogin:         string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:         string   read FUsuarioSenha write FUsuarioSenha;
-    property TransportadorasId:    Integer  read FTransportadorasId write FTransportadorasId;
-    property TransportadorasNome:  string   read FTransportadorasNome write FTransportadorasNome;
-    property TransportadorasAtivo: Integer  read FTransportadorasAtivo write FTransportadorasAtivo;
+    property UsuarioLogin:          string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:          string   read FUsuarioSenha write FUsuarioSenha;
+    property TipoOportunidadeId:    Integer  read FTipoOportunidadeId write FTipoOportunidadeId;
+    property TipoOportunidadeNome:  string   read FTipoOportunidadeNome write FTipoOportunidadeNome;
+    property TipoOportunidadeAtivo: Integer  read FTipoOportunidadeAtivo write FTipoOportunidadeAtivo;
   end;
 
 
@@ -1531,22 +1546,18 @@ type
 
 
   // ************************************************************************ //
-  // XML       : OrigemOportunidadeParametros, global, <complexType>
+  // XML       : TransportadorasDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  OrigemOportunidadeParametros = class(TRemotable)
+  TransportadorasDados = class(TRemotable)
   private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FOrigemOportunidadeId: Integer;
-    FOrigemOportunidadeNome: string;
-    FOrigemOportunidadeAtivo: Integer;
+    FTransportadorasId: Integer;
+    FTransportadorasNome: string;
+    FTransportadorasAtivo: Integer;
   published
-    property UsuarioLogin:            string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:            string   read FUsuarioSenha write FUsuarioSenha;
-    property OrigemOportunidadeId:    Integer  read FOrigemOportunidadeId write FOrigemOportunidadeId;
-    property OrigemOportunidadeNome:  string   read FOrigemOportunidadeNome write FOrigemOportunidadeNome;
-    property OrigemOportunidadeAtivo: Integer  read FOrigemOportunidadeAtivo write FOrigemOportunidadeAtivo;
+    property TransportadorasId:    Integer  read FTransportadorasId write FTransportadorasId;
+    property TransportadorasNome:  string   read FTransportadorasNome write FTransportadorasNome;
+    property TransportadorasAtivo: Integer  read FTransportadorasAtivo write FTransportadorasAtivo;
   end;
 
 
@@ -1566,6 +1577,44 @@ type
     property UnidadesMedidaNome:  string   read FUnidadesMedidaNome write FUnidadesMedidaNome;
     property UnidadesMedidaSigla: string   read FUnidadesMedidaSigla write FUnidadesMedidaSigla;
     property UnidadesMedidaAtivo: Integer  read FUnidadesMedidaAtivo write FUnidadesMedidaAtivo;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : RegistrosOrigem, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  RegistrosOrigem = class(TRemotable)
+  private
+    FOrigemOportunidadeId: Integer;
+    FOrigemOportunidadeNome: string;
+    FOrigemOportunidadeAtivo: Integer;
+  published
+    property OrigemOportunidadeId:    Integer  read FOrigemOportunidadeId write FOrigemOportunidadeId;
+    property OrigemOportunidadeNome:  string   read FOrigemOportunidadeNome write FOrigemOportunidadeNome;
+    property OrigemOportunidadeAtivo: Integer  read FOrigemOportunidadeAtivo write FOrigemOportunidadeAtivo;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : OrigemOportunidadeParametros, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  OrigemOportunidadeParametros = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FOrigemOportunidadeId: Integer;
+    FOrigemOportunidadeNome: string;
+    FOrigemOportunidadeAtivo: Integer;
+  published
+    property UsuarioLogin:            string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:            string   read FUsuarioSenha write FUsuarioSenha;
+    property OrigemOportunidadeId:    Integer  read FOrigemOportunidadeId write FOrigemOportunidadeId;
+    property OrigemOportunidadeNome:  string   read FOrigemOportunidadeNome write FOrigemOportunidadeNome;
+    property OrigemOportunidadeAtivo: Integer  read FOrigemOportunidadeAtivo write FOrigemOportunidadeAtivo;
   end;
 
 
@@ -1801,21 +1850,7 @@ type
     property id_registro: Integer  read Fid_registro write Fid_registro;
   end;
 
-
-
-  // ************************************************************************ //
-  // XML       : produtosRegistros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  produtosRegistros = class(TRemotable)
-  private
-    FreferenciaProduto: string;
-    FsucessoProduto: string;
-  published
-    property referenciaProduto: string  read FreferenciaProduto write FreferenciaProduto;
-    property sucessoProduto:    string  read FsucessoProduto write FsucessoProduto;
-  end;
-
+  produtosRetorno = array of produtosRegistros;   { "urn:WConnect"[GblCplx] }
 
 
   // ************************************************************************ //
@@ -2023,6 +2058,78 @@ type
 
 
   // ************************************************************************ //
+  // XML       : CaracteristicasDetalheDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  CaracteristicasDetalheDados = class(TRemotable)
+  private
+    FCaracteristicasDetalheId: Integer;
+    FCaracteristicasDetalheNome: string;
+    FCaracteristicaId: Integer;
+    FCaracteristicasDetalheAtivoId: Integer;
+    FCaracteristicasDetalheAtivoDescricao: string;
+  published
+    property CaracteristicasDetalheId:             Integer  read FCaracteristicasDetalheId write FCaracteristicasDetalheId;
+    property CaracteristicasDetalheNome:           string   read FCaracteristicasDetalheNome write FCaracteristicasDetalheNome;
+    property CaracteristicaId:                     Integer  read FCaracteristicaId write FCaracteristicaId;
+    property CaracteristicasDetalheAtivoId:        Integer  read FCaracteristicasDetalheAtivoId write FCaracteristicasDetalheAtivoId;
+    property CaracteristicasDetalheAtivoDescricao: string   read FCaracteristicasDetalheAtivoDescricao write FCaracteristicasDetalheAtivoDescricao;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : oportunidadeRetornoDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  oportunidadeRetornoDados = class(TRemotable)
+  private
+    Fstatus: string;
+    Fmensagem: string;
+    Fid_oportunidade: Integer;
+    Ftipo: string;
+  published
+    property status:          string   read Fstatus write Fstatus;
+    property mensagem:        string   read Fmensagem write Fmensagem;
+    property id_oportunidade: Integer  read Fid_oportunidade write Fid_oportunidade;
+    property tipo:            string   read Ftipo write Ftipo;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : concluiCompromisso, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  concluiCompromisso = class(TRemotable)
+  private
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FcompromissoId: Integer;
+  published
+    property UsuarioLogin:  string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:  string   read FUsuarioSenha write FUsuarioSenha;
+    property compromissoId: Integer  read FcompromissoId write FcompromissoId;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : concluiCompromissoRetornoDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  concluiCompromissoRetornoDados = class(TRemotable)
+  private
+    Fstatus: string;
+    Fmensagem: string;
+  published
+    property status:   string  read Fstatus write Fstatus;
+    property mensagem: string  read Fmensagem write Fmensagem;
+  end;
+
+
+
+  // ************************************************************************ //
   // XML       : oportunidade, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
@@ -2080,68 +2187,6 @@ type
 
 
   // ************************************************************************ //
-  // XML       : oportunidadeRetornoDados, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  oportunidadeRetornoDados = class(TRemotable)
-  private
-    Fstatus: string;
-    Fmensagem: string;
-    Fid_oportunidade: Integer;
-    Ftipo: string;
-  published
-    property status:          string   read Fstatus write Fstatus;
-    property mensagem:        string   read Fmensagem write Fmensagem;
-    property id_oportunidade: Integer  read Fid_oportunidade write Fid_oportunidade;
-    property tipo:            string   read Ftipo write Ftipo;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : ContasParametros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  ContasParametros = class(TRemotable)
-  private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FContasId: Integer;
-    FContasIdERP: Integer;
-    FContasCNPJ: string;
-    FContasCPF: string;
-    FContasEmail: string;
-  published
-    property UsuarioLogin: string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha: string   read FUsuarioSenha write FUsuarioSenha;
-    property ContasId:     Integer  read FContasId write FContasId;
-    property ContasIdERP:  Integer  read FContasIdERP write FContasIdERP;
-    property ContasCNPJ:   string   read FContasCNPJ write FContasCNPJ;
-    property ContasCPF:    string   read FContasCPF write FContasCPF;
-    property ContasEmail:  string   read FContasEmail write FContasEmail;
-  end;
-
-
-
-  // ************************************************************************ //
-  // XML       : ocorrenciaRetornoDados, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  ocorrenciaRetornoDados = class(TRemotable)
-  private
-    Fstatus: string;
-    Fmensagem: string;
-    Fid_registro: Integer;
-  published
-    property status:      string   read Fstatus write Fstatus;
-    property mensagem:    string   read Fmensagem write Fmensagem;
-    property id_registro: Integer  read Fid_registro write Fid_registro;
-  end;
-
-  produtosRetorno = array of produtosRegistros;   { "urn:WConnect"[GblCplx] }
-
-
-  // ************************************************************************ //
   // XML       : produtosRetornoDados, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
@@ -2189,6 +2234,42 @@ type
     property ocorrenciaDescricao:      string   read FocorrenciaDescricao write FocorrenciaDescricao;
   end;
 
+
+
+  // ************************************************************************ //
+  // XML       : ocorrenciaRetornoDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  ocorrenciaRetornoDados = class(TRemotable)
+  private
+    Fstatus: string;
+    Fmensagem: string;
+    Fid_registro: Integer;
+  published
+    property status:      string   read Fstatus write Fstatus;
+    property mensagem:    string   read Fmensagem write Fmensagem;
+    property id_registro: Integer  read Fid_registro write Fid_registro;
+  end;
+
+
+
+  // ************************************************************************ //
+  // XML       : CaracteristicasDados, global, <complexType>
+  // Namespace : urn:WConnect
+  // ************************************************************************ //
+  CaracteristicasDados = class(TRemotable)
+  private
+    FCaracteristicaId: string;
+    FCaracteristicaNome: string;
+    FCaracteristicaAtivoId: string;
+    FCaracteristicaAtivoDescricao: string;
+  published
+    property CaracteristicaId:             string  read FCaracteristicaId write FCaracteristicaId;
+    property CaracteristicaNome:           string  read FCaracteristicaNome write FCaracteristicaNome;
+    property CaracteristicaAtivoId:        string  read FCaracteristicaAtivoId write FCaracteristicaAtivoId;
+    property CaracteristicaAtivoDescricao: string  read FCaracteristicaAtivoDescricao write FCaracteristicaAtivoDescricao;
+  end;
+
   CaracteristicasDadosArray = array of CaracteristicasDados;   { "urn:WConnect"[GblCplx] }
 
 
@@ -2220,41 +2301,51 @@ type
 
 
   // ************************************************************************ //
-  // XML       : CaracteristicasDetalheDados, global, <complexType>
+  // XML       : CaracteristicasParametros, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  CaracteristicasDetalheDados = class(TRemotable)
+  CaracteristicasParametros = class(TRemotable)
   private
-    FCaracteristicasDetalheId: Integer;
-    FCaracteristicasDetalheNome: string;
-    FCaracteristicaId: Integer;
-    FCaracteristicasDetalheAtivoId: Integer;
-    FCaracteristicasDetalheAtivoDescricao: string;
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FCaracteristicasId: Integer;
+    FCaracteristicasNome: string;
+    FCaracteristicasAtivo: Integer;
+    Ferro: string;
+    Fmensagem: string;
   published
-    property CaracteristicasDetalheId:             Integer  read FCaracteristicasDetalheId write FCaracteristicasDetalheId;
-    property CaracteristicasDetalheNome:           string   read FCaracteristicasDetalheNome write FCaracteristicasDetalheNome;
-    property CaracteristicaId:                     Integer  read FCaracteristicaId write FCaracteristicaId;
-    property CaracteristicasDetalheAtivoId:        Integer  read FCaracteristicasDetalheAtivoId write FCaracteristicasDetalheAtivoId;
-    property CaracteristicasDetalheAtivoDescricao: string   read FCaracteristicasDetalheAtivoDescricao write FCaracteristicasDetalheAtivoDescricao;
+    property UsuarioLogin:         string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha:         string   read FUsuarioSenha write FUsuarioSenha;
+    property CaracteristicasId:    Integer  read FCaracteristicasId write FCaracteristicasId;
+    property CaracteristicasNome:  string   read FCaracteristicasNome write FCaracteristicasNome;
+    property CaracteristicasAtivo: Integer  read FCaracteristicasAtivo write FCaracteristicasAtivo;
+    property erro:                 string   read Ferro write Ferro;
+    property mensagem:             string   read Fmensagem write Fmensagem;
   end;
 
 
 
   // ************************************************************************ //
-  // XML       : CaracteristicasDados, global, <complexType>
+  // XML       : ContasParametros, global, <complexType>
   // Namespace : urn:WConnect
   // ************************************************************************ //
-  CaracteristicasDados = class(TRemotable)
+  ContasParametros = class(TRemotable)
   private
-    FCaracteristicaId: string;
-    FCaracteristicaNome: string;
-    FCaracteristicaAtivoId: string;
-    FCaracteristicaAtivoDescricao: string;
+    FUsuarioLogin: string;
+    FUsuarioSenha: string;
+    FContasId: Integer;
+    FContasIdERP: Integer;
+    FContasCNPJ: string;
+    FContasCPF: string;
+    FContasEmail: string;
   published
-    property CaracteristicaId:             string  read FCaracteristicaId write FCaracteristicaId;
-    property CaracteristicaNome:           string  read FCaracteristicaNome write FCaracteristicaNome;
-    property CaracteristicaAtivoId:        string  read FCaracteristicaAtivoId write FCaracteristicaAtivoId;
-    property CaracteristicaAtivoDescricao: string  read FCaracteristicaAtivoDescricao write FCaracteristicaAtivoDescricao;
+    property UsuarioLogin: string   read FUsuarioLogin write FUsuarioLogin;
+    property UsuarioSenha: string   read FUsuarioSenha write FUsuarioSenha;
+    property ContasId:     Integer  read FContasId write FContasId;
+    property ContasIdERP:  Integer  read FContasIdERP write FContasIdERP;
+    property ContasCNPJ:   string   read FContasCNPJ write FContasCNPJ;
+    property ContasCPF:    string   read FContasCPF write FContasCPF;
+    property ContasEmail:  string   read FContasEmail write FContasEmail;
   end;
 
 
@@ -2376,31 +2467,6 @@ type
 
   ContasDadosArray = array of ContasDados;      { "urn:WConnect"[GblCplx] }
 
-
-  // ************************************************************************ //
-  // XML       : CaracteristicasParametros, global, <complexType>
-  // Namespace : urn:WConnect
-  // ************************************************************************ //
-  CaracteristicasParametros = class(TRemotable)
-  private
-    FUsuarioLogin: string;
-    FUsuarioSenha: string;
-    FCaracteristicasId: Integer;
-    FCaracteristicasNome: string;
-    FCaracteristicasAtivo: Integer;
-    Ferro: string;
-    Fmensagem: string;
-  published
-    property UsuarioLogin:         string   read FUsuarioLogin write FUsuarioLogin;
-    property UsuarioSenha:         string   read FUsuarioSenha write FUsuarioSenha;
-    property CaracteristicasId:    Integer  read FCaracteristicasId write FCaracteristicasId;
-    property CaracteristicasNome:  string   read FCaracteristicasNome write FCaracteristicasNome;
-    property CaracteristicasAtivo: Integer  read FCaracteristicasAtivo write FCaracteristicasAtivo;
-    property erro:                 string   read Ferro write Ferro;
-    property mensagem:             string   read Fmensagem write Fmensagem;
-  end;
-
-
   // ************************************************************************ //
   // Name      : WConnect CRM SeniorPortType
   // Namespace : urn:WConnect
@@ -2429,6 +2495,7 @@ type
     function  setProdutosOportunidade(const produtosRecebe: produtosRecebeArray): produtosRetornoDados; stdcall;
     function  setOcorrencias(const ocorrencia: ocorrencia): ocorrenciaRetornoDados; stdcall;
     function  setOportunidade(const oportunidade: oportunidade): oportunidadeRetornoDados; stdcall;
+    function  setConcluiCompromissos(const concluiCompromisso: concluiCompromisso): concluiCompromissoRetornoDados; stdcall;
     function  getContas(const ContasParametros: ContasParametros): ContasDadosArray; stdcall;
     function  getCaracteristicas(const CaracteristicasParametros: CaracteristicasParametros): CaracteristicasDadosArray; stdcall;
     function  getCaracteristicasDetalhe(const CaracteristicasDetalheParametros: CaracteristicasDetalheParametros): CaracteristicasDetalheDadosArray; stdcall;
@@ -2446,6 +2513,7 @@ type
     function  getOrigemOportunidade(const OrigemOportunidadeParametros: OrigemOportunidadeParametros): OrigemOportunidadeDados; stdcall;
     function  getModalidadesNegocio(const ModalidadesNegocioParametros: ModalidadesNegocioParametros): ModalidadesNegocioDados; stdcall;
     function  getTipoOportunidade(const TipoOportunidadeParametros: TipoOportunidadeParametros): TipoOportunidadeDados; stdcall;
+    function  setTeste(const Auth: Tautenticacao): TautenticacaoRetornoDados; stdcall;
     function  getContatos(const ContatosParametros: ContatosParametros): ContatosDadosArray; stdcall;
     function  getDepartamentos(const DepartamentosParametros: DepartamentosParametros): DepartamentosDadosArray; stdcall;
     function  getFuncoes(const FuncoesParametros: FuncoesParametros): FuncoesDadosArray; stdcall;
@@ -2567,6 +2635,7 @@ initialization
                                                                            +'|urn:WConnect#setProdutosOportunidade'
                                                                            +'|urn:WConnect#setOcorrencias'
                                                                            +'|urn:WConnect#setOportunidade'
+                                                                           +'|urn:WConnect#setConcluiCompromissos'
                                                                            +'|urn:WConnect#getContas'
                                                                            +'|urn:WConnect#getCaracteristicas'
                                                                            +'|urn:WConnect#getCaracteristicasDetalhe'
@@ -2584,6 +2653,7 @@ initialization
                                                                            +'|urn:WConnect#getOrigemOportunidade'
                                                                            +'|urn:WConnect#getModalidadesNegocio'
                                                                            +'|urn:WConnect#getTipoOportunidade'
+                                                                           +'|urn:WConnect#setTeste'
                                                                            +'|urn:WConnect#getContatos'
                                                                            +'|urn:WConnect#getDepartamentos'
                                                                            +'|urn:WConnect#getFuncoes'
@@ -2592,7 +2662,6 @@ initialization
                                                                            +'|urn:WConnect#getUsuariosGrupo'
                                                                            +'|urn:WConnect#getOportunidades'
                                                                            );
-  Invregistry.RegisterInvokeOptions(TypeInfo(WConnect_CRM_SeniorPortType), ioDocument);
   RemClassRegistry.RegisterXSInfo(TypeInfo(UnidadesMedidaDadosArray), 'urn:WConnect', 'UnidadesMedidaDadosArray');
   RemClassRegistry.RegisterXSInfo(TypeInfo(TransportadorasDadosArray), 'urn:WConnect', 'TransportadorasDadosArray');
   RemClassRegistry.RegisterXSInfo(TypeInfo(RegistrosModalidadeRetorno), 'urn:WConnect', 'RegistrosModalidadeRetorno');
@@ -2612,8 +2681,11 @@ initialization
   RemClassRegistry.RegisterXSInfo(TypeInfo(RegistrosTipoRetorno), 'urn:WConnect', 'RegistrosTipoRetorno');
   RemClassRegistry.RegisterXSInfo(TypeInfo(FuncoesDadosArray), 'urn:WConnect', 'FuncoesDadosArray');
   RemClassRegistry.RegisterXSInfo(TypeInfo(DepartamentosDadosArray), 'urn:WConnect', 'DepartamentosDadosArray');
+  RemClassRegistry.RegisterXSClass(produtosRegistros, 'urn:WConnect', 'produtosRegistros');
   RemClassRegistry.RegisterXSClass(produtosRecebe, 'urn:WConnect', 'produtosRecebe');
+  RemClassRegistry.RegisterXSClass(Tautenticacao, 'urn:WConnect', 'Tautenticacao');
   RemClassRegistry.RegisterXSClass(TipoOportunidadeDados, 'urn:WConnect', 'TipoOportunidadeDados');
+  RemClassRegistry.RegisterXSClass(TautenticacaoRetornoDados, 'urn:WConnect', 'TautenticacaoRetornoDados');
   RemClassRegistry.RegisterXSClass(OrigemOportunidadeDados, 'urn:WConnect', 'OrigemOportunidadeDados');
   RemClassRegistry.RegisterXSClass(ModalidadesNegocioDados, 'urn:WConnect', 'ModalidadesNegocioDados');
   RemClassRegistry.RegisterXSClass(conta, 'urn:WConnect', 'conta');
@@ -2621,28 +2693,27 @@ initialization
   RemClassRegistry.RegisterXSClass(contaCaracteristica, 'urn:WConnect', 'contaCaracteristica');
   RemClassRegistry.RegisterXSClass(contaResponsavelRetornoDados, 'urn:WConnect', 'contaResponsavelRetornoDados');
   RemClassRegistry.RegisterXSClass(contaResponsavel, 'urn:WConnect', 'contaResponsavel');
+  RemClassRegistry.RegisterXSClass(produto, 'urn:WConnect', 'produto');
+  RemClassRegistry.RegisterXSClass(unidadeMedida, 'urn:WConnect', 'unidadeMedida');
   RemClassRegistry.RegisterXSClass(transportadoraRetornoDados, 'urn:WConnect', 'transportadoraRetornoDados');
   RemClassRegistry.RegisterXSClass(transportadora, 'urn:WConnect', 'transportadora');
-  RemClassRegistry.RegisterXSClass(tabelasPrecoRetornoDados, 'urn:WConnect', 'tabelasPrecoRetornoDados');
-  RemClassRegistry.RegisterXSClass(unidadeMedida, 'urn:WConnect', 'unidadeMedida');
-  RemClassRegistry.RegisterXSClass(produtosRecebeArray, 'urn:WConnect', 'produtosRecebeArray');
   RemClassRegistry.RegisterXSClass(unidadeMedidaRetornoDados, 'urn:WConnect', 'unidadeMedidaRetornoDados');
+  RemClassRegistry.RegisterXSClass(produtosRecebeArray, 'urn:WConnect', 'produtosRecebeArray');
+  RemClassRegistry.RegisterXSClass(categoriaProdutoRetornoDados, 'urn:WConnect', 'categoriaProdutoRetornoDados');
   RemClassRegistry.RegisterXSClass(categoriaProduto, 'urn:WConnect', 'categoriaProduto');
   RemClassRegistry.RegisterXSClass(produtoRetornoDados, 'urn:WConnect', 'produtoRetornoDados');
-  RemClassRegistry.RegisterXSClass(produto, 'urn:WConnect', 'produto');
-  RemClassRegistry.RegisterXSClass(categoriaProdutoRetornoDados, 'urn:WConnect', 'categoriaProdutoRetornoDados');
+  RemClassRegistry.RegisterXSClass(condicaoPagamento, 'urn:WConnect', 'condicaoPagamento');
+  RemClassRegistry.RegisterXSClass(tabelasPrecoRetornoDados, 'urn:WConnect', 'tabelasPrecoRetornoDados');
   RemClassRegistry.RegisterXSClass(tabelasPreco, 'urn:WConnect', 'tabelasPreco');
   RemClassRegistry.RegisterXSClass(condicaoPagamentoRetornoDados, 'urn:WConnect', 'condicaoPagamentoRetornoDados');
-  RemClassRegistry.RegisterXSClass(condicaoPagamento, 'urn:WConnect', 'condicaoPagamento');
-  RemClassRegistry.RegisterXSClass(FuncoesParametros, 'urn:WConnect', 'FuncoesParametros');
   RemClassRegistry.RegisterXSClass(DepartamentosDados, 'urn:WConnect', 'DepartamentosDados');
-  RemClassRegistry.RegisterXSClass(FuncoesDados, 'urn:WConnect', 'FuncoesDados');
-  RemClassRegistry.RegisterXSClass(OrigemContatoDados, 'urn:WConnect', 'OrigemContatoDados');
-  RemClassRegistry.RegisterXSClass(OrigemContatoParametros, 'urn:WConnect', 'OrigemContatoParametros');
-  RemClassRegistry.RegisterXSClass(RegistrosTipo, 'urn:WConnect', 'RegistrosTipo');
-  RemClassRegistry.RegisterXSClass(ContatosParametros, 'urn:WConnect', 'ContatosParametros');
   RemClassRegistry.RegisterXSClass(DepartamentosParametros, 'urn:WConnect', 'DepartamentosParametros');
+  RemClassRegistry.RegisterXSClass(FuncoesParametros, 'urn:WConnect', 'FuncoesParametros');
+  RemClassRegistry.RegisterXSClass(OrigemContatoParametros, 'urn:WConnect', 'OrigemContatoParametros');
+  RemClassRegistry.RegisterXSClass(FuncoesDados, 'urn:WConnect', 'FuncoesDados');
   RemClassRegistry.RegisterXSClass(ContatosDados, 'urn:WConnect', 'ContatosDados');
+  RemClassRegistry.RegisterXSClass(ContatosParametros, 'urn:WConnect', 'ContatosParametros');
+  RemClassRegistry.RegisterXSClass(OrigemContatoDados, 'urn:WConnect', 'OrigemContatoDados');
   RemClassRegistry.RegisterXSClass(OportunidadesDados, 'urn:WConnect', 'OportunidadesDados');
   RemClassRegistry.RegisterXSClass(OportunidadesParametros, 'urn:WConnect', 'OportunidadesParametros');
   RemClassRegistry.RegisterXSClass(ItensOportunidadeParametros, 'urn:WConnect', 'ItensOportunidadeParametros');
@@ -2651,7 +2722,7 @@ initialization
   RemClassRegistry.RegisterXSClass(UsuariosParametros, 'urn:WConnect', 'UsuariosParametros');
   RemClassRegistry.RegisterXSClass(UsuariosGrupoDados, 'urn:WConnect', 'UsuariosGrupoDados');
   RemClassRegistry.RegisterXSClass(UsuariosGrupoParametros, 'urn:WConnect', 'UsuariosGrupoParametros');
-  RemClassRegistry.RegisterXSClass(TipoOportunidadeParametros, 'urn:WConnect', 'TipoOportunidadeParametros');
+  RemClassRegistry.RegisterXSClass(RegistrosTipo, 'urn:WConnect', 'RegistrosTipo');
   RemClassRegistry.RegisterXSClass(CondicaoPagamentoDados, 'urn:WConnect', 'CondicaoPagamentoDados');
   RemClassRegistry.RegisterXSClass(CondicaoPagamentoParametros, 'urn:WConnect', 'CondicaoPagamentoParametros');
   RemClassRegistry.RegisterXSClass(ProdutosDados, 'urn:WConnect', 'ProdutosDados');
@@ -2661,14 +2732,15 @@ initialization
   RemClassRegistry.RegisterXSClass(TiposNotaDados, 'urn:WConnect', 'TiposNotaDados');
   RemClassRegistry.RegisterXSClass(CategoriaProdutoDados, 'urn:WConnect', 'CategoriaProdutoDados');
   RemClassRegistry.RegisterXSClass(CategoriaProdutoParametros, 'urn:WConnect', 'CategoriaProdutoParametros');
-  RemClassRegistry.RegisterXSClass(RegistrosOrigem, 'urn:WConnect', 'RegistrosOrigem');
+  RemClassRegistry.RegisterXSClass(TransportadorasParametros, 'urn:WConnect', 'TransportadorasParametros');
   RemClassRegistry.RegisterXSClass(ModalidadesNegocioParametros, 'urn:WConnect', 'ModalidadesNegocioParametros');
   RemClassRegistry.RegisterXSClass(RegistrosModalidade, 'urn:WConnect', 'RegistrosModalidade');
-  RemClassRegistry.RegisterXSClass(TransportadorasDados, 'urn:WConnect', 'TransportadorasDados');
-  RemClassRegistry.RegisterXSClass(TransportadorasParametros, 'urn:WConnect', 'TransportadorasParametros');
+  RemClassRegistry.RegisterXSClass(TipoOportunidadeParametros, 'urn:WConnect', 'TipoOportunidadeParametros');
   RemClassRegistry.RegisterXSClass(UnidadesMedidaParametros, 'urn:WConnect', 'UnidadesMedidaParametros');
-  RemClassRegistry.RegisterXSClass(OrigemOportunidadeParametros, 'urn:WConnect', 'OrigemOportunidadeParametros');
+  RemClassRegistry.RegisterXSClass(TransportadorasDados, 'urn:WConnect', 'TransportadorasDados');
   RemClassRegistry.RegisterXSClass(UnidadesMedidaDados, 'urn:WConnect', 'UnidadesMedidaDados');
+  RemClassRegistry.RegisterXSClass(RegistrosOrigem, 'urn:WConnect', 'RegistrosOrigem');
+  RemClassRegistry.RegisterXSClass(OrigemOportunidadeParametros, 'urn:WConnect', 'OrigemOportunidadeParametros');
   RemClassRegistry.RegisterXSClass(contatosRetornoDados, 'urn:WConnect', 'contatosRetornoDados');
   RemClassRegistry.RegisterXSClass(tiposNota, 'urn:WConnect', 'tiposNota');
   RemClassRegistry.RegisterXSClass(tiposNotaRetornoDados, 'urn:WConnect', 'tiposNotaRetornoDados');
@@ -2676,7 +2748,7 @@ initialization
   RemClassRegistry.RegisterXSClass(contaCaracteristicaRetornoDados, 'urn:WConnect', 'contaCaracteristicaRetornoDados');
   RemClassRegistry.RegisterXSClass(compromisso, 'urn:WConnect', 'compromisso');
   RemClassRegistry.RegisterXSClass(compromissoRetornoDados, 'urn:WConnect', 'compromissoRetornoDados');
-  RemClassRegistry.RegisterXSClass(produtosRegistros, 'urn:WConnect', 'produtosRegistros');
+  RemClassRegistry.RegisterXSInfo(TypeInfo(produtosRetorno), 'urn:WConnect', 'produtosRetorno');
   RemClassRegistry.RegisterXSClass(RamosAtividadeParametros, 'urn:WConnect', 'RamosAtividadeParametros');
   RemClassRegistry.RegisterXSClass(RamosAtividadeDados, 'urn:WConnect', 'RamosAtividadeDados');
   RemClassRegistry.RegisterXSInfo(TypeInfo(RamosAtividadeDadosArray), 'urn:WConnect', 'RamosAtividadeDadosArray');
@@ -2691,19 +2763,20 @@ initialization
   RemClassRegistry.RegisterXSClass(OrigemContaParametros, 'urn:WConnect', 'OrigemContaParametros');
   RemClassRegistry.RegisterXSClass(OrigemContaDados, 'urn:WConnect', 'OrigemContaDados');
   RemClassRegistry.RegisterXSInfo(TypeInfo(OrigemContaDadosArray), 'urn:WConnect', 'OrigemContaDadosArray');
-  RemClassRegistry.RegisterXSClass(oportunidade, 'urn:WConnect', 'oportunidade');
+  RemClassRegistry.RegisterXSClass(CaracteristicasDetalheDados, 'urn:WConnect', 'CaracteristicasDetalheDados');
   RemClassRegistry.RegisterXSClass(oportunidadeRetornoDados, 'urn:WConnect', 'oportunidadeRetornoDados');
-  RemClassRegistry.RegisterXSClass(ContasParametros, 'urn:WConnect', 'ContasParametros');
-  RemClassRegistry.RegisterXSClass(ocorrenciaRetornoDados, 'urn:WConnect', 'ocorrenciaRetornoDados');
-  RemClassRegistry.RegisterXSInfo(TypeInfo(produtosRetorno), 'urn:WConnect', 'produtosRetorno');
+  RemClassRegistry.RegisterXSClass(concluiCompromisso, 'urn:WConnect', 'concluiCompromisso');
+  RemClassRegistry.RegisterXSClass(concluiCompromissoRetornoDados, 'urn:WConnect', 'concluiCompromissoRetornoDados');
+  RemClassRegistry.RegisterXSClass(oportunidade, 'urn:WConnect', 'oportunidade');
   RemClassRegistry.RegisterXSClass(produtosRetornoDados, 'urn:WConnect', 'produtosRetornoDados');
   RemClassRegistry.RegisterXSClass(ocorrencia, 'urn:WConnect', 'ocorrencia');
+  RemClassRegistry.RegisterXSClass(ocorrenciaRetornoDados, 'urn:WConnect', 'ocorrenciaRetornoDados');
+  RemClassRegistry.RegisterXSClass(CaracteristicasDados, 'urn:WConnect', 'CaracteristicasDados');
   RemClassRegistry.RegisterXSInfo(TypeInfo(CaracteristicasDadosArray), 'urn:WConnect', 'CaracteristicasDadosArray');
   RemClassRegistry.RegisterXSClass(CaracteristicasDetalheParametros, 'urn:WConnect', 'CaracteristicasDetalheParametros');
-  RemClassRegistry.RegisterXSClass(CaracteristicasDetalheDados, 'urn:WConnect', 'CaracteristicasDetalheDados');
-  RemClassRegistry.RegisterXSClass(CaracteristicasDados, 'urn:WConnect', 'CaracteristicasDados');
+  RemClassRegistry.RegisterXSClass(CaracteristicasParametros, 'urn:WConnect', 'CaracteristicasParametros');
+  RemClassRegistry.RegisterXSClass(ContasParametros, 'urn:WConnect', 'ContasParametros');
   RemClassRegistry.RegisterXSClass(ContasDados, 'urn:WConnect', 'ContasDados');
   RemClassRegistry.RegisterXSInfo(TypeInfo(ContasDadosArray), 'urn:WConnect', 'ContasDadosArray');
-  RemClassRegistry.RegisterXSClass(CaracteristicasParametros, 'urn:WConnect', 'CaracteristicasParametros');
 
 end.

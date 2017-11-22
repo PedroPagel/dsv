@@ -70,7 +70,9 @@ contains
   oGeral in 'oGeral.pas',
   o510lay in 'o510lay.pas',
   o510mle in 'o510mle.pas',
-  o510lte in 'o510lte.pas';
+  o510lte in 'o510lte.pas',
+  o120pen in 'o120pen.pas',
+  o000log in 'o000log.pas';
 
 end.
 

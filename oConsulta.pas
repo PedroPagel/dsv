@@ -315,7 +315,7 @@ begin
     x510TCP := T510TIT.CreateCarregado(True);
     FListaTit.Iterar(x510TIT, x510TCP);
 
-    x510TCP.ConsultarTitulo();
+    //x510TCP.ConsultarTitulo();
     FListaTit.Add(x510TCP);
   end;
 end;
