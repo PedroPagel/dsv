@@ -354,6 +354,8 @@ begin
       else
         GerarLogTitulo('Título não encontrado!');
     end;
+
+    xTitulo.Close;
   end;
 
   FListaTituloGeral.Clear;

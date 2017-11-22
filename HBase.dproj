@@ -152,6 +152,7 @@
         <DCCReference Include="o510lay.pas"/>
         <DCCReference Include="o510mle.pas"/>
         <DCCReference Include="o510lte.pas"/>
+        <DCCReference Include="o120pen.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

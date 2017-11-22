@@ -6,14 +6,21 @@ uses
   oFacadeBaseCRM, oFacadeWebServicesCRM, oBase, o120ped, o120ipd;
 
 type
+  TTipoExecucao = (teCompromisso, teOportunidade);
+
   TFacedeCarregamentoCRM = class(TFacadeBaseCRM)
   private
     FWebservice: TFacadeWebServicesCRM;
     F120PED: T120PED;
     F120IPD: T120IPD;
     FPedidoComItens: Boolean;
+    FPedidoExiste: Boolean;
+    FPendencias: TIterador;
     FOportunidadeAtualizada: Boolean;
 
+    procedure ConsumirFechamentoCompromisso();
+    procedure CarregaPendencias();
+    procedure CarregaPedido(const pDados: TFacadeBaseCRM);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -21,9 +28,12 @@ type
     procedure Carregar(const pDados: TFacadeBaseCRM; const pWebServices: TFacadeWebServicesCRM);
     procedure ConsumirOportunidade();
     procedure ConsumirProdutos();
+    procedure AtualizarPedido();
     procedure ConsumirCompromisso();
+    procedure AtualizarPendencias();
 
-    function OportunidadeAtualizada: Boolean;
+    function PermiteAtualizar: Boolean;
+    function TipoExecucao: TTipoExecucao;
 
     property Pedido: T120PED read F120PED;
   end;
@@ -31,14 +41,51 @@ type
 implementation
 
 uses
-  System.SysUtils, o085cli, WConnect_WSDL;
+  System.SysUtils, o085cli, WConnect_WSDL, o120pen, System.Classes, System.Contnrs;
 
 { TFacedeCarregamentoCRM }
 
-procedure TFacedeCarregamentoCRM.Carregar(const pDados: TFacadeBaseCRM;
-  const pWebservices: TFacadeWebServicesCRM);
+procedure TFacedeCarregamentoCRM.AtualizarPedido;
 begin
-  FWebservice := pWebservices;
+  if (PermiteAtualizar) then
+  begin
+    StartTransaction;
+    try
+      Pedido.Start;
+      Pedido.FieldsForUpdate(['USU_NumOptCRM']);
+      Pedido.PropertyForSelect(['CODEMP', 'CODFIL', 'NUMPED'], True);
+      Pedido.Execute(estUpdate);
+
+      Commit;
+    except
+      RollBack;
+    end;
+  end;
+end;
+
+procedure TFacedeCarregamentoCRM.AtualizarPendencias;
+var
+  i: Integer;
+  x120pen: T120PEN;
+begin
+  StartTransaction;
+  try
+    for i := 0 to pred(FPendencias.Count) do
+    begin
+      x120pen := T120PEN(FPendencias[i]);
+      x120pen.FieldsForUpdate(['USU_NumCom']);
+      x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
+      x120pen.Execute(estUpdate);
+    end;
+
+    Commit;
+  except
+    RollBack;
+  end;
+end;
+
+procedure TFacedeCarregamentoCRM.CarregaPedido(const pDados: TFacadeBaseCRM);
+begin
 
   F120PED.CodEmp := pDados.CodEmp;
   F120PED.CodFil := pDados.CodFil;
@@ -99,10 +146,41 @@ begin
   end;
 end;
 
+procedure TFacedeCarregamentoCRM.CarregaPendencias();
+var
+  x120pen: T120PEN;
+begin
+  x120pen := T120PEN.Create;
+  x120pen.USU_SitMov := 'A';
+  x120pen.PropertyForSelect(['USU_SitMov']);
+  x120pen.AddToCommand(' AND USU_NUMCOM = 0 AND NOT EXISTS(SELECT 1 FROM E120PED WHERE '+
+                                                           'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
+                                                           'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
+                                                           'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
+                                                           'E120PED.SITPED = 1)', False);
+  x120pen.Execute(etSelect, esLoop);
+
+  while (x120pen.Next) do
+    FPendencias.IterarAdd(x120pen, T120PEN.Create);
+end;
+
+procedure TFacedeCarregamentoCRM.Carregar(const pDados: TFacadeBaseCRM;
+  const pWebservices: TFacadeWebServicesCRM);
+begin
+  FWebservice := pWebServices;
+
+  if (TipoExecucao = teCompromisso) then
+    CarregaPendencias()
+  else
+    CarregaPedido(pDados);
+end;
+
 procedure TFacedeCarregamentoCRM.ConsumirCompromisso;
 var
+  i: Integer;
  xData: TData;
  x085cli: T085CLI;
+ x120pen: T120PEN;
 
   function VerificarZero(const pValue: Integer): string;
   begin
@@ -110,22 +188,24 @@ var
   end;
 
 begin
-  if not(FOportunidadeAtualizada) then
+  for i := 0 to pred(FPendencias.Count) do
   begin
+    x120pen := T120PEN(FPendencias[i]);
+
     xData := nil;
     x085cli := nil;
     try
-      xData := TData.Create(F120PED.DatPrv);
+      xData := TData.Create(x120pen.USU_DatPrv);
       xData.DiaDaSemana := True;
-      xData.IncDays(15);
+      xData.IncDays(5);
 
       x085cli := T085CLI.Create;
-      x085cli.CodCli := F120PED.CodCli;
+      x085cli.CodCli := x120pen.USU_CodCli;
       x085cli.PropertyForSelect(['CODCLI']);
 
       if (x085cli.Execute(etSelect)) then
       begin
-        FWebservice.Agedamento.compromissoUsuarioId := F120PED.CodRep;
+        FWebservice.Agedamento.compromissoUsuarioId := x120pen.USU_CodRep;
         FWebservice.Agedamento.compromissoTipoRecorrencia := 10;
         FWebservice.Agedamento.compromissoAtividade := 3;
         FWebservice.Agedamento.compromissoAssunto := 'Programação de Compromisso';
@@ -136,7 +216,7 @@ begin
         FWebservice.Agedamento.compromissoContaId := IntToStr(x085cli.CodCli);
         FWebservice.Agedamento.compromissoStatus := 3;
         FWebservice.Agedamento.compromissoContaTipo := 3;
-        FWebservice.Agedamento.compromissoUsuarioAgendador := F120PED.CodRep;
+        FWebservice.Agedamento.compromissoUsuarioAgendador := x120pen.USU_CodRep;
 
         FWebservice.Agedamento.compromissoHora := '08:00';
         FWebservice.Agedamento.compromissoData := FormatDateTime('YYYY-MM-DD', xData.Data);
@@ -144,11 +224,10 @@ begin
         FWebservice.Agedamento.compromissoMes := VerificarZero(xData.Mes);
         FWebservice.Agedamento.compromissoAno := xData.Ano;
 
-        FWebservice.Agedamento.compromissoDescricao := Format('Processo criado na integração CRM x Sapiens pela '+
-          'Oportunidade: %s', [FWebservice.Dados.oportunidadeNumeroPedido]);
+        FWebservice.Agedamento.compromissoDescricao := Format('Processo criado na integração CRM x Sapiens pelo '+
+          'Orçamento/Pedido: %s', [IntToStr(x120pen.USU_NumPed)]);
 
-
-        FWebservice.ConsumirCompromisso;
+        x120pen.USU_NumCom := FWebservice.ConsumirCompromisso.id_registro;
       end;
     finally
       FreeAndNil(xData);
@@ -157,19 +236,61 @@ begin
   end;
 end;
 
+procedure TFacedeCarregamentoCRM.ConsumirFechamentoCompromisso;
+var
+  x120pen: T120PEN;
+begin
+  StartTransaction;
+  try
+    x120pen := T120PEN.Create;
+    try
+      x120pen.USU_CodEmp := F120PED.CodEmp;
+      x120pen.USU_CodFil := F120PED.CodFil;
+      x120pen.USU_NumPed := F120PED.NumPed;
+      x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
+
+      if (x120pen.Execute(etSelect)) then
+      begin
+        //compromisso pode ainda nao existir
+        if (x120pen.USU_NumCom > 0) then
+          FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
+
+        //Finaliza no banco
+        x120pen.Start;
+        x120pen.USU_SitMov := 'I';
+        x120pen.FieldsForUpdate(['USU_SitMov']);
+        x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
+        x120pen.Execute(estUpdate);
+      end;
+    finally
+      FreeAndNil(x120pen);
+    end;
+
+    Commit;
+  except
+    RollBack;
+  end;
+end;
+
 procedure TFacedeCarregamentoCRM.ConsumirOportunidade;
 var
   xOportunidadeRetornoDados: oportunidadeRetornoDados;
 begin
-  xOportunidadeRetornoDados := FWebservice.ConsumirOportunidade;
-  F120PED.USU_NumOptCRM := xOportunidadeRetornoDados.id_oportunidade;
+  if (F120PED.SitPed = 1) or (F120PED.SitPed = 9) then
+  begin
+    xOportunidadeRetornoDados := FWebservice.ConsumirOportunidade;
+    F120PED.USU_NumOptCRM := xOportunidadeRetornoDados.id_oportunidade;
 
-  FOportunidadeAtualizada := (AnsiSameText('2', xOportunidadeRetornoDados.tipo));
+    FPedidoExiste := True;
+    FOportunidadeAtualizada := (AnsiSameText('2', xOportunidadeRetornoDados.tipo));
+
+    ConsumirFechamentoCompromisso();
+  end;
 end;
 
 procedure TFacedeCarregamentoCRM.ConsumirProdutos;
 begin
-  if not(FOportunidadeAtualizada) and (FPedidoComItens) then
+  if (FPedidoComItens) and (FPedidoExiste) then
     FWebservice.ConsumirProdutos;
 end;
 
@@ -179,7 +300,10 @@ begin
 
   F120PED := T120PED.Create;
   F120IPD := T120IPD.Create;
+  FPendencias := TIterador.Create();
+
   FPedidoComItens := False;
+  FPedidoExiste := False;
   FOportunidadeAtualizada := False;
 end;
 
@@ -189,11 +313,21 @@ begin
 
   FreeAndNil(F120PED);
   FreeAndNil(F120IPD);
+  FreeAndNil(FPendencias);
 end;
 
-function TFacedeCarregamentoCRM.OportunidadeAtualizada: Boolean;
+//Se a oportunidade foi criada/atualizada  ou a oportunidade nao existe.
+function TFacedeCarregamentoCRM.PermiteAtualizar: Boolean;
 begin
-  Result := FOportunidadeAtualizada;
+  Result := (FOportunidadeAtualizada or ((F120PED.USU_NumOptCRM = 0)));
+end;
+
+function TFacedeCarregamentoCRM.TipoExecucao: TTipoExecucao;
+begin
+  Result := teOportunidade;
+
+  if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
+    Result := teCompromisso;
 end;
 
 end.

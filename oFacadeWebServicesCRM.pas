@@ -17,6 +17,7 @@ type
     FDados: oportunidade;
     FRegistros: produtosRecebeArray;
     FAgedamento: compromisso;
+    FFechamentoCompromisso: concluiCompromisso;
 
     function GetRegistros: produtosRecebe;
     procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
@@ -27,6 +28,7 @@ type
     function ConsumirOportunidade: oportunidadeRetornoDados;
     function ConsumirCompromisso: compromissoRetornoDados;
     function ConsumirProdutos: produtosRetornoDados;
+    function ConsumirFechamentoCompromisso(const pId: Integer): concluiCompromissoRetornoDados;
     procedure Add();
 
     property Dados: oportunidade read FDados write FDados;
@@ -87,6 +89,12 @@ begin
   Result := FServico.setCompromissos(FAgedamento);
 end;
 
+function TFacadeWebServicesCRM.ConsumirFechamentoCompromisso(const pId: Integer): concluiCompromissoRetornoDados;
+begin
+  FFechamentoCompromisso.compromissoId := pId;
+  Result := FServico.setConcluiCompromissos(FFechamentoCompromisso);
+end;
+
 function TFacadeWebServicesCRM.ConsumirOportunidade: oportunidadeRetornoDados;
 begin
   Result := FServico.setOportunidade(FDados);
@@ -107,14 +115,19 @@ begin
 
   FID := 0;
 
-  xRIO := THTTPRIO.Create(nil);
-  xRIO.HTTPWebNode.Proxy := 'proxy.henningsbnu.local:3128';
-  xRIO.HTTPWebNode.UserName := 'workcrm';
-  xRIO.HTTPWebNode.Password := '3is3NbahN';
-  xRIO.HTTPWebNode.UseUTF8InHeader := False;
-  xRIO.Converter.Encoding := 'ISO-8859-1';
-  xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
-  xRIO.OnBeforeExecute := BeforeExecute;
+  if AnsiSameText(ParamStr(6), 'Compromisso') then
+    xRIO := nil
+  else
+  begin
+    xRIO := THTTPRIO.Create(nil);
+    xRIO.HTTPWebNode.Proxy := 'proxy.henningsbnu.local:3128';
+    xRIO.HTTPWebNode.UserName := 'workcrm';
+    xRIO.HTTPWebNode.Password := '3is3NbahN';
+    xRIO.HTTPWebNode.UseUTF8InHeader := False;
+    xRIO.Converter.Encoding := 'ISO-8859-1';
+    xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
+    xRIO.OnBeforeExecute := BeforeExecute;
+  end;
 
   FServico := GetWConnect_CRM_SeniorPortType(False, '', xRIO);
 
@@ -129,6 +142,10 @@ begin
   FAgedamento := compromisso.Create;
   FAgedamento.UsuarioLogin := 'integracao';
   FAgedamento.UsuarioSenha := 'integracao';
+
+  FFechamentoCompromisso := concluiCompromisso.Create;
+  FFechamentoCompromisso.UsuarioLogin := 'integracao';
+  FFechamentoCompromisso.UsuarioSenha := 'integracao';
 end;
 
 destructor TFacadeWebServicesCRM.Destroy;

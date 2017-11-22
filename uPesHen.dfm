@@ -64,20 +64,12 @@ object FPesHen: TFPesHen
         OnClick = OKClick
       end
     end
-    object ECampo: TEdit
-      Left = 48
-      Top = 8
-      Width = 225
-      Height = 21
-      ReadOnly = True
-      TabOrder = 1
-    end
     object EFiltro: TEdit
       Left = 48
       Top = 35
       Width = 566
       Height = 21
-      TabOrder = 2
+      TabOrder = 1
     end
     object CBFiltrar: TCheckBox
       Left = 752
@@ -85,7 +77,7 @@ object FPesHen: TFPesHen
       Width = 48
       Height = 17
       Caption = '&Filtrar'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = CBFiltrarClick
     end
     object CBFiltros: TComboBox
@@ -96,7 +88,21 @@ object FPesHen: TFPesHen
       Style = csDropDownList
       BiDiMode = bdRightToLeftReadingOnly
       ParentBiDiMode = False
-      TabOrder = 3
+      TabOrder = 2
+      Items.Strings = (
+        'Igual'
+        'Contendo')
+    end
+    object CBCampos: TComboBox
+      Left = 48
+      Top = 8
+      Width = 297
+      Height = 21
+      Style = csDropDownList
+      BiDiMode = bdRightToLeftReadingOnly
+      ParentBiDiMode = False
+      TabOrder = 4
+      OnChange = CBCamposChange
       Items.Strings = (
         'Igual'
         'Contendo')

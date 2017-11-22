@@ -697,7 +697,7 @@ end;
 
 procedure T510TIT.ConsultarTitulo;
 begin
-  if AnsiSameText(FUSU_SitArm,'S') then
+  if not(Assigned(FTituloDebitoDiretoAutorizado))  then
   begin
     FTituloDebitoDiretoAutorizado := TTituloDebitoDiretoAutorizado.Create;
     FTituloDebitoDiretoAutorizado.USU_IDTIT := Self.USU_ID;
@@ -840,13 +840,11 @@ begin
 
     F510TIT.USU_CodEmp := Self.CodEmp;
     F510TIT.USU_CodFil := Self.CodFil;
-    F510TIT.USU_NumTit := Self.NumTit;
     F510TIT.USU_CodFor := Self.CodFor;
-    F510TIT.USU_CodTpt := Self.CodTpt;
     F510TIT.USU_SitTit := Self.SitTit;
     F510TIT.USU_SitArm := 'S';
     F510TIT.PropertyForSelect(['USU_ID']);
-    F510TIT.FieldsForUpdate(['USU_CODEMP','USU_CODFIL','USU_SITARM','USU_LOGTIT']);
+    F510TIT.FieldsForUpdate(['USU_CODEMP','USU_CODFIL','USU_CODFOR','USU_SITARM','USU_LOGTIT']);
     F510TIT.Execute(estUpdate);
   end
   else
@@ -909,16 +907,22 @@ var
   x501MCP: T501MCP;
 begin
   x501MCP := T501MCP.Create();
-  x501MCP.CodEmp := Self.CodEmp;
-  x501MCP.CodFil := Self.CodFil;
-  x501MCP.NumTit := Self.NumTit;
-  x501MCP.CodFor := Self.CodFor;
-  x501MCP.CodTpt := Self.CodTpt;
-  x501MCP.DatPgt := 0;
-  x501MCP.VlrMov := 0;
-  x501MCP.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
-  x501MCP.AddToCommand('AND NUMLOT > 0 AND VLRMOV > 0', False);
-  Result := x501MCP.Execute(etSelect);
+  try
+    x501MCP.CodEmp := Self.CodEmp;
+    x501MCP.CodFil := Self.CodFil;
+    x501MCP.NumTit := Self.NumTit;
+    x501MCP.CodFor := Self.CodFor;
+    x501MCP.CodTpt := Self.CodTpt;
+    x501MCP.DatPgt := 0;
+    x501MCP.VlrMov := 0;
+    x501MCP.PropertyForSelect(['CODEMP','CODFIL','NUMTIT','CODFOR','DATPGT'], True);
+    x501MCP.AddToCommand('AND NUMLOT > 0 AND VLRMOV > 0', False);
+    Result := x501MCP.Execute(etSelect);
+
+    x501MCP.Close;
+  finally
+    FreeAndNil(x501MCP);
+  end;
 end;
 
 function TTituloDebitoDiretoAutorizado.VerificarTituloArmazenado: Boolean;
@@ -979,7 +983,9 @@ begin
     xHistorico.Execute(etSelect);
 
     Result := xHistorico;
-    Self.Add(xHistorico)
+
+    Result.Close;
+    Self.Add(Result);
   end;
 end;
 
