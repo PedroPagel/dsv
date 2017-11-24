@@ -103,7 +103,7 @@ begin
     FWebservice.Dados.oportunidadeTipoId := 1;
     FWebservice.Dados.oportunidadeOrigemId := 12;
     FWebservice.Dados.oportunidadeModalidadeNegocioId := 1;
-    FWebservice.Dados.oportunidadeUsuarioIdERP := F120PED.CodRep;
+    FWebservice.Dados.oportunidadeUsuarioIdERP := F120PED.UsuGer;
     FWebservice.Dados.oportunidadeProbabilidade := 100;
 
     FWebservice.Dados.oportunidadeDataPrevistaFechamento := FormatDateTime('YYYY-MM-DD', F120PED.DatEmi);
