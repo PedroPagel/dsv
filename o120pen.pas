@@ -1,4 +1,3 @@
-
 unit o120pen;
 
 interface
@@ -16,7 +15,7 @@ type
     FUSU_SitMov: Char;
     FUSU_DatPrv: TDate;
     FUSU_CodCli: Integer;
-    FUSU_CodRep: Integer;
+    FUSU_UsuGer: Integer;
     FUSU_NumCom: Integer;
 
     FUSU_CodEmpOLD: Integer;
@@ -25,7 +24,7 @@ type
     FUSU_SitMovOLD: Char;
     FUSU_DatPrvOLD: TDate;
     FUSU_CodCliOLD: Integer;
-    FUSU_CodRepOLD: Integer;
+    FUSU_UsuGerOLD: Integer;
     FUSU_NumComOLD: Integer;
 
     function GetUSU_CodEmp: Integer;
@@ -40,8 +39,8 @@ type
     procedure SetUSU_DatPrv(const pUSU_DatPrv: TDate);
     function GetUSU_CodCli: Integer;
     procedure SetUSU_CodCli(const pUSU_CodCli: Integer);
-    function GetUSU_CodRep: Integer;
-    procedure SetUSU_CodRep(const pUSU_CodRep: Integer);
+    function GetUSU_UsuGer: Integer;
+    procedure SetUSU_UsuGer(const pUSU_UsuGer: Integer);
     function GetUSU_NumCom: Integer;
     procedure SetUSU_NumCom(const pUSU_NumCom: Integer);
 
@@ -57,8 +56,8 @@ type
     procedure SetUSU_DatPrvOld(const pUSU_DatPrv: TDate);
     function GetUSU_CodCliOld: Integer;
     procedure SetUSU_CodCliOld(const pUSU_CodCli: Integer);
-    function GetUSU_CodRepOld: Integer;
-    procedure SetUSU_CodRepOld(const pUSU_CodRep: Integer);
+    function GetUSU_UsuGerOld: Integer;
+    procedure SetUSU_UsuGerOld(const pUSU_UsuGer: Integer);
     function GetUSU_NumComOld: Integer;
     procedure SetUSU_NumComOld(const pUSU_NumCom: Integer);
   protected
@@ -73,7 +72,7 @@ type
     property USU_SitMov: Char read GetUSU_SitMov write SetUSU_SitMov;
     property USU_DatPrv: TDate read GetUSU_DatPrv write SetUSU_DatPrv;
     property USU_CodCli: Integer read GetUSU_CodCli write SetUSU_CodCli;
-    property USU_CodRep: Integer read GetUSU_CodRep write SetUSU_CodRep;
+    property USU_UsuGer: Integer read GetUSU_UsuGer write SetUSU_UsuGer;
     property USU_NumCom: Integer read GetUSU_NumCom write SetUSU_NumCom;
 
     property OLD_USU_CodEmp: Integer read GetUSU_CodEmpOLD write SetUSU_CodEmpOLD;
@@ -82,7 +81,7 @@ type
     property OLD_USU_SitMov: Char read GetUSU_SitMovOLD write SetUSU_SitMovOLD;
     property OLD_USU_DatPrv: TDate read GetUSU_DatPrvOLD write SetUSU_DatPrvOLD;
     property OLD_USU_CodCli: Integer read GetUSU_CodCliOLD write SetUSU_CodCliOLD;
-    property OLD_USU_CodRep: Integer read GetUSU_CodRepOLD write SetUSU_CodRepOLD;
+    property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
     property OLD_USU_NumCom: Integer read GetUSU_NumComOLD write SetUSU_NumComOLD;
   end;
 
@@ -160,14 +159,14 @@ begin
   FUSU_CodCli := pUSU_CodCli;
 end;
 
-function T120PEN.GetUSU_CodRep: Integer;
+function T120PEN.GetUSU_UsuGer: Integer;
 begin
-  Result := FUSU_CodRep;
+  Result := FUSU_UsuGer;
 end;
 
-procedure T120PEN.SetUSU_CodRep(const pUSU_CodRep: Integer);
+procedure T120PEN.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
-  FUSU_CodRep := pUSU_CodRep;
+  FUSU_UsuGer := pUSU_UsuGer;
 end;
 
 function T120PEN.GetUSU_NumCom: Integer;
@@ -240,14 +239,14 @@ begin
   FUSU_CodCliOLD := pUSU_CodCli;
 end;
 
-function T120PEN.GetUSU_CodRepOLD: Integer;
+function T120PEN.GetUSU_UsuGerOLD: Integer;
 begin
-  Result := FUSU_CodRepOLD;
+  Result := FUSU_UsuGerOLD;
 end;
 
-procedure T120PEN.SetUSU_CodRepOLD(const pUSU_CodRep: Integer);
+procedure T120PEN.SetUSU_UsuGerOLD(const pUSU_UsuGer: Integer);
 begin
-  FUSU_CodRepOLD := pUSU_CodRep;
+  FUSU_UsuGerOLD := pUSU_UsuGer;
 end;
 
 function T120PEN.GetUSU_NumComOLD: Integer;
@@ -268,7 +267,7 @@ begin
   FUSU_SitMovOLD := FUSU_SitMov;
   FUSU_DatPrvOLD := FUSU_DatPrv;
   FUSU_CodCliOLD := FUSU_CodCli;
-  FUSU_CodRepOLD := FUSU_CodRep;
+  FUSU_UsuGerOLD := FUSU_UsuGer;
   FUSU_NumComOLD := FUSU_NumCom;
 end;
 
