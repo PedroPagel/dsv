@@ -86,7 +86,6 @@ end;
 
 procedure TFacedeCarregamentoCRM.CarregaPedido(const pDados: TFacadeBaseCRM);
 begin
-
   F120PED.CodEmp := pDados.CodEmp;
   F120PED.CodFil := pDados.CodFil;
   F120PED.NumPed := pDados.NumPed;
@@ -103,7 +102,7 @@ begin
     FWebservice.Dados.oportunidadeTipoId := 1;
     FWebservice.Dados.oportunidadeOrigemId := 12;
     FWebservice.Dados.oportunidadeModalidadeNegocioId := 1;
-    FWebservice.Dados.oportunidadeUsuarioIdERP := F120PED.CodRep;
+    FWebservice.Dados.oportunidadeUsuarioIdERP := F120PED.CodVen;
     FWebservice.Dados.oportunidadeProbabilidade := 100;
 
     FWebservice.Dados.oportunidadeDataPrevistaFechamento := FormatDateTime('YYYY-MM-DD', F120PED.DatEmi);
@@ -205,7 +204,7 @@ begin
 
       if (x085cli.Execute(etSelect)) then
       begin
-        FWebservice.Agedamento.compromissoUsuarioId := x120pen.USU_CodRep;
+        FWebservice.Agedamento.compromissoUsuarioId := x120pen.USU_UsuGer;
         FWebservice.Agedamento.compromissoTipoRecorrencia := 10;
         FWebservice.Agedamento.compromissoAtividade := 3;
         FWebservice.Agedamento.compromissoAssunto := 'Programação de Compromisso';
@@ -216,7 +215,7 @@ begin
         FWebservice.Agedamento.compromissoContaId := IntToStr(x085cli.CodCli);
         FWebservice.Agedamento.compromissoStatus := 3;
         FWebservice.Agedamento.compromissoContaTipo := 3;
-        FWebservice.Agedamento.compromissoUsuarioAgendador := x120pen.USU_CodRep;
+        FWebservice.Agedamento.compromissoUsuarioAgendador := x120pen.USU_UsuGer;
 
         FWebservice.Agedamento.compromissoHora := '08:00';
         FWebservice.Agedamento.compromissoData := FormatDateTime('YYYY-MM-DD', xData.Data);
