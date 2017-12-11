@@ -755,7 +755,6 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
-        isAutomatic = False
       end
     end
     object Panel5: TPanel
@@ -800,7 +799,6 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
-        isAutomatic = False
       end
     end
     object Panel7: TPanel
@@ -846,7 +844,6 @@ object F510CON: TF510CON
         TitleFont.Name = 'Tahoma'
         TitleFont.Style = []
         AllowNewLine = False
-        isAutomatic = False
       end
       object Panel9: TPanel
         Left = 1

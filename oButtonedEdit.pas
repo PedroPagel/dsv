@@ -250,8 +250,9 @@ begin
       x998lsf := T998LSF.Create;
       x998lsf.LSTNAM := FENumerator;
       x998lsf.KEYNAM := Text;
-      x998lsf.PropertyForSelect(['LSTNAM', 'KEYNAM'], True);
-      Result := not(x998lsf.Execute(etSelect));
+      x998lsf.Open();
+
+      Result := x998lsf.IsEmpty;
     finally
       FreeAndNil(x998lsf);
     end;
@@ -369,7 +370,7 @@ begin
 
     x998lsf.LSTNAM := FENumerator;
     x998lsf.PropertyForSelect(['LSTNAM']);
-    x998lsf.Execute(etSelect, esLoop);
+    x998lsf.Open(False);
 
     while (x998lsf.Next) do
       FValueList.AddRow(x998lsf.KEYNAM, x998lsf.ValKey);

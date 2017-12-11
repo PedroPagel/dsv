@@ -31,7 +31,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    if (System.ParamCount > 0) then
+    //if (System.ParamCount > 0) then
     begin
       //if ('TF000CRM' = TF000CRM.ClassName) then
       if (ParamStr(2) = TF000CRM.ClassName) then
@@ -40,32 +40,36 @@ begin
         Application.CreateForm(TF000CRM, F000CRM);
       end
       else
+      //if ('TF310CLP' = TF310CLP.ClassName) then
       if (ParamStr(2) = TF310CLP.ClassName) then
       begin
         Application.CreateForm(TF310CLP, F310CLP);
         Application.Run;
       end
       else
-      // if ('TF510ARM' = TF510ARM.ClassName) then
-      if (ParamStr(2) = TF510ARM.ClassName) then
+      if ('TF510ARM' = TF510ARM.ClassName) then
+      //if (ParamStr(2) = TF510ARM.ClassName) then
       begin
         Application.ShowMainForm := False;
         Application.CreateForm(TF510ARM, F510ARM);
       end
       else
-      // if ('TF510CON' = TF510CON.ClassName) then
+      //if ('TF510CON' = TF510CON.ClassName) then
       if (ParamStr(2) = TF510CON.ClassName) then
       begin
         Application.CreateForm(TF510CON, F510CON);
         Application.Run;
       end
-      else if (ParamStr(2) = TF510LAY.ClassName) then
+      else
+      //if ('TF510LAY' = TF510LAY.ClassName) then
+      if (ParamStr(2) = TF510LAY.ClassName) then
       begin
         Application.CreateForm(TF510LAY, F510LAY);
         Application.Run;
-      end;
+      end
+      else
       if (ParamStr(2) = TF510LTE.ClassName) then
-      // if ('TF510LTE' = TF510LTE.ClassName) then
+      //if ('TF510LTE' = TF510LTE.ClassName) then
       begin
         Application.CreateForm(TF510LTE, F510LTE);
         Application.Run;
@@ -79,7 +83,6 @@ begin
     begin
       TConexao.Finalizar;
       Application.Terminate;
-      Abort;
     end;
   end;
 

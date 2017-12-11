@@ -27,16 +27,17 @@ type
     Label5: TLabel;
     Button1: TButton;
     Label6: TLabel;
-    ckHBASE: TCheckBox;
     cbBase: TComboBox;
     Label7: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure ExecutarClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure BENomTabExit(Sender: TObject);
   private
     FTextFile: TextFile;
 
     procedure MontarCabecalho();
+    procedure MontaChaves();
   public
     { Public declarations }
   end;
@@ -50,6 +51,20 @@ uses
   Data.DB, oMensagem;
 
 {$R *.dfm}
+
+procedure TFGerCla.BENomTabExit(Sender: TObject);
+begin
+  if (cbHeranca.ItemIndex = 0) then
+  begin
+    ENomObj.Text := UpperCase(Copy(BENomTab.Text, 5, Length(BENomTab.Text) -1));
+    ENomUni.Text := LowerCase('o'+ Copy(BENomTab.Text, 6, Length(BENomTab.Text) -1));
+  end
+  else
+  begin
+    ENomObj.Text := UpperCase('T' + Copy(BENomTab.Text, 2, Length(BENomTab.Text) -1));
+    ENomUni.Text := LowerCase('o'+ Copy(BENomTab.Text, 2, Length(BENomTab.Text) -1));
+  end;
+end;
 
 procedure TFGerCla.Button1Click(Sender: TObject);
 begin
@@ -132,6 +147,10 @@ var
     Write(FTextFile, 'begin');
     Writeln(FTextFile);
     Write(FTextFile, CTAB + 'F'+ xCampo + ' := p'+ xCampo + ';');
+    Writeln(FTextFile);
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB + 'CheckField('''+ xCampo + ''');');
     Writeln(FTextFile);
     Write(FTextFile, 'end;');
     Writeln(FTextFile);
@@ -247,23 +266,20 @@ begin
     Write(FTextFile, '');
     Writeln(FTextFile);
 
-    if (ckHBASE.Checked) then
+    //VARIAVEIS OLD
+    xQuery.First;
+    while not(xQuery.Eof) do
     begin
-      //VARIAVEIS OLD
-      xQuery.First;
-      while not(xQuery.Eof) do
-      begin
-        xCampo := xQuery.FindField('FLDNAM').AsString;
+      xCampo := xQuery.FindField('FLDNAM').AsString;
 
-        MontarVariaveisOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
-                        xQuery.FindField('LENFLD').AsInteger));
-        Writeln(FTextFile);
-        xQuery.Next;
-      end;
-
-      Write(FTextFile, '');
+      MontarVariaveisOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+                      xQuery.FindField('LENFLD').AsInteger));
       Writeln(FTextFile);
+      xQuery.Next;
     end;
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
 
     //GET E SETS
     xQuery.First;
@@ -278,42 +294,37 @@ begin
       xQuery.Next;
     end;
 
-    if (ckHBASE.Checked) then
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+
+    //GET E SETS OLD
+    xQuery.First;
+    while not(xQuery.Eof) do
     begin
-      Write(FTextFile, '');
+      xCampo := xQuery.FindField('FLDNAM').AsString;
+
+      GetAndSetOLD((FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+                      xQuery.FindField('LENFLD').AsInteger)));
+
       Writeln(FTextFile);
-
-      //GET E SETS OLD
-      xQuery.First;
-      while not(xQuery.Eof) do
-      begin
-        xCampo := xQuery.FindField('FLDNAM').AsString;
-
-        GetAndSetOLD((FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
-                        xQuery.FindField('LENFLD').AsInteger)));
-
-        Writeln(FTextFile);
-        xQuery.Next;
-      end;
-
-      Write(FTextFile, CTAB + 'protected');
-      Writeln(FTextFile);
-      Write(FTextFile, CTAB2 + 'procedure Registros_OLD(); override;');
-      Writeln(FTextFile);
+      xQuery.Next;
     end;
+
+    Write(FTextFile, CTAB + 'protected');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB2 + 'procedure Registros_OLD(); override;');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB2 + 'procedure RetornarValores(); override;');
+    Writeln(FTextFile);
 
     Write(FTextFile, CTAB + 'public');
     Writeln(FTextFile);
-
-    if (ckHBASE.Checked) then
-    begin
-      Write(FTextFile, CTAB2 + 'constructor Create();');
-      Writeln(FTextFile);
-      Write(FTextFile, CTAB2 + 'destructor Destroy(); override;');
-      Writeln(FTextFile);
-      Write(FTextFile, '');
-      Writeln(FTextFile);
-    end;
+    Write(FTextFile, CTAB2 + 'constructor Create();');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB2 + 'destructor Destroy(); override;');
+    Writeln(FTextFile);
+    Write(FTextFile, '');
+    Writeln(FTextFile);
 
     //PROPRIEDADES
     xQuery.First;
@@ -328,23 +339,20 @@ begin
       xQuery.Next;
     end;
 
-    if (ckHBASE.Checked) then
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+
+    //PROPRIEDADES OLD
+    xQuery.First;
+    while not(xQuery.Eof) do
     begin
-      Write(FTextFile, '');
+      xCampo := xQuery.FindField('FLDNAM').AsString;
+
+      MontarProPertyOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+                      xQuery.FindField('LENFLD').AsInteger));
+
       Writeln(FTextFile);
-
-      //PROPRIEDADES OLD
-      xQuery.First;
-      while not(xQuery.Eof) do
-      begin
-        xCampo := xQuery.FindField('FLDNAM').AsString;
-
-        MontarProPertyOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
-                        xQuery.FindField('LENFLD').AsInteger));
-
-        Writeln(FTextFile);
-        xQuery.Next;
-      end;
+      xQuery.Next;
     end;
 
     Write(FTextFile, CTAB + 'end;');
@@ -360,29 +368,31 @@ begin
     Write(FTextFile, '');
     Writeln(FTextFile);
 
-    if (ckHBASE.Checked) then
-    begin
-      Write(FTextFile, 'constructor '+ ENomObj.Text + '.Create();');
-      Writeln(FTextFile);
-      Write(FTextFile, 'begin');
-      Writeln(FTextFile);
-      Write(FTextFile, CTAB + 'inherited Create('''+ BENomTab.Text +''');');
-      Writeln(FTextFile);
-      Write(FTextFile, 'end;');
-      Writeln(FTextFile);
-      Write(FTextFile, '');
-      Writeln(FTextFile);
-      Write(FTextFile, 'destructor '+ ENomObj.Text + '.Destroy();');
-      Writeln(FTextFile);
-      Write(FTextFile, 'begin');
-      Writeln(FTextFile);
-      Write(FTextFile, CTAB + 'inherited;');
-      Writeln(FTextFile);
-      Write(FTextFile, 'end;');
-      Writeln(FTextFile);
-      Write(FTextFile, '');
-      Writeln(FTextFile);
-    end;
+    Write(FTextFile, 'constructor '+ ENomObj.Text + '.Create();');
+    Writeln(FTextFile);
+    Write(FTextFile, 'begin');
+    Writeln(FTextFile);
+
+    MontaChaves();
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB + 'inherited Create('''+ BENomTab.Text +''');');
+    Writeln(FTextFile);
+    Write(FTextFile, 'end;');
+    Writeln(FTextFile);
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+    Write(FTextFile, 'destructor '+ ENomObj.Text + '.Destroy();');
+    Writeln(FTextFile);
+    Write(FTextFile, 'begin');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB + 'inherited;');
+    Writeln(FTextFile);
+    Write(FTextFile, 'end;');
+    Writeln(FTextFile);
+    Write(FTextFile, '');
+    Writeln(FTextFile);
 
     //IMPLEMENTA
     xQuery.First;
@@ -395,41 +405,68 @@ begin
       xQuery.Next;
     end;
 
-    if (ckHBASE.Checked) then
+    xQuery.First;
+    while not(xQuery.Eof) do
     begin
-      xQuery.First;
-      while not(xQuery.Eof) do
-      begin
-        xCampo := xQuery.FindField('FLDNAM').AsString;
+      xCampo := xQuery.FindField('FLDNAM').AsString;
 
-        MontarDadosOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
-                        xQuery.FindField('LENFLD').AsInteger));
-        xQuery.Next;
-      end;
-
-      Write(FTextFile, 'procedure '+ ENomObj.Text + '.Registros_OLD();');
-      Writeln(FTextFile);
-      Write(FTextFile, 'begin');
-      Writeln(FTextFile);
-
-      xQuery.First;
-      while not(xQuery.Eof) do
-      begin
-        xCampo := xQuery.FindField('FLDNAM').AsString;
-
-        Write(FTextFile, CTAB + 'F'+ xCampo + 'OLD := F'+ xCampo + ';');
-        Writeln(FTextFile);
-
-        xQuery.Next;
-      end;
-
-      Write(FTextFile, 'end;');
-      Writeln(FTextFile);
-
-      Write(FTextFile, '');
-      Writeln(FTextFile);
+      MontarDadosOLD(FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+                      xQuery.FindField('LENFLD').AsInteger));
+      xQuery.Next;
     end;
 
+    Write(FTextFile, 'procedure '+ ENomObj.Text + '.Registros_OLD();');
+    Writeln(FTextFile);
+    Write(FTextFile, 'begin');
+    Writeln(FTextFile);
+
+    xQuery.First;
+    while not(xQuery.Eof) do
+    begin
+      xCampo := xQuery.FindField('FLDNAM').AsString;
+
+      Write(FTextFile, CTAB + 'F'+ xCampo + 'OLD := F'+ xCampo + ';');
+      Writeln(FTextFile);
+
+      xQuery.Next;
+    end;
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB + 'inherited;');
+    Writeln(FTextFile);
+    Write(FTextFile, 'end;');
+    Writeln(FTextFile);
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+
+    Write(FTextFile, 'procedure '+ ENomObj.Text + '.RetornarValores();');
+    Writeln(FTextFile);
+    Write(FTextFile, 'begin');
+    Writeln(FTextFile);
+
+    xQuery.First;
+    while not(xQuery.Eof) do
+    begin
+      xCampo := xQuery.FindField('FLDNAM').AsString;
+
+      Write(FTextFile, CTAB + 'F'+ xCampo + ' := '+ 'F'+ xCampo + 'OLD;');
+      Writeln(FTextFile);
+
+      xQuery.Next;
+    end;
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
+    Write(FTextFile, CTAB + 'inherited;');
+    Writeln(FTextFile);
+
+    Write(FTextFile, 'end;');
+    Writeln(FTextFile);
+
+    Write(FTextFile, '');
+    Writeln(FTextFile);
     Write(FTextFile, 'end.');
     Writeln(FTextFile);
 
@@ -443,7 +480,6 @@ begin
   ENomObj.Text := '';
   ENomUni.Text := '';
   cbHeranca.ItemIndex := 2;
-  ckHBASE.Checked := False;
 
   CMessage('Classe gerada com sucesso!', mtInformation);
 end;
@@ -458,6 +494,57 @@ begin
   BEDirFil.CreateLookup;
   BEDirFil.GetDirectory := True;
   cbHeranca.ItemIndex := 2;
+end;
+
+procedure TFGerCla.MontaChaves;
+var
+  xFORFLD: string;
+  xREFFLD: string;
+  xQuery: THQuery;
+begin
+  xQuery := THQuery.CreatePersonalizado();
+  try
+    xQuery.Command := 'SELECT R998RFL.FORFLD, R998RFL.REFFLD '+
+                        'FROM R998RFL, R998REL '+
+                      'WHERE '+
+                        'R998REL.FORTBL = :TABELA AND '+
+                        'R998RFL.RELNAM = R998REL.RELNAM ';
+
+    xQuery.ParamByName('TABELA').Value := BENomTab.Text;;
+    xQuery.Open();
+    while not(xQuery.Eof) do
+    begin
+      xFORFLD := xFORFLD + '''' + xQuery.FindField('FORFLD').AsString + ''',';
+      xREFFLD := xREFFLD + '''' + xQuery.FindField('REFFLD').AsString + ''',';
+      xQuery.Next;
+    end;
+
+    if not(IsNull(xFORFLD)) then
+    begin
+      UltimoCaracter(xFORFLD, ',');
+      UltimoCaracter(xREFFLD, ',');
+      Write(FTextFile, CTAB + 'AddForeignKeys([' + xFORFLD + '], ['+ xREFFLD + ']);');
+      Writeln(FTextFile);
+    end;
+
+    xQuery.Reset;
+
+    xQuery.Command := 'SELECT R998TBL.PKFLDS FROM R998TBL WHERE R998TBL.TBLNAM = :TABELA';
+    xQuery.ParamByName('TABELA').Value := BENomTab.Text;;
+    xQuery.Open();
+    if not(xQuery.IsEmpty) then
+    begin
+      if not(IsNull(xQuery.FindField('PKFLDS').AsString)) then
+      begin
+        Write(FTextFile, CTAB + 'AddPrimaryKeys('''+ xQuery.FindField('PKFLDS').AsString + ''');');
+        Writeln(FTextFile);
+      end;
+    end;
+
+    xQuery.Close;
+  finally
+    FreeAndNil(xQuery);
+  end;
 end;
 
 procedure TFGerCla.MontarCabecalho;
@@ -481,7 +568,7 @@ begin
   Writeln(FTextFile);
   Write(FTextFile, 'uses');
   Writeln(FTextFile);
-  Write(FTextFile, CTAB + 'System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;');
+  Write(FTextFile, CTAB + 'System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;');
   Writeln(FTextFile);
   Write(FTextFile, '');
   Writeln(FTextFile);
@@ -491,6 +578,7 @@ begin
   Writeln(FTextFile);
   Write(FTextFile, CTAB + ENomObj.Text + ' = class' + Heranca);
   Writeln(FTextFile);
+
   Write(FTextFile, CTAB + 'private');
   Writeln(FTextFile);
 end;

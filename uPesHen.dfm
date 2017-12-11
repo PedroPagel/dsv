@@ -125,6 +125,5 @@ object FPesHen: TFPesHen
     OnDblClick = FGridPesDblClick
     OnKeyDown = FGridPesKeyDown
     AllowNewLine = False
-    isAutomatic = False
   end
 end

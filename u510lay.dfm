@@ -1,6 +1,5 @@
 inherited F510LAY: TF510LAY
   Caption = 'Layout(s) Banc'#225'rio(s)'
-  OnDestroy = FormDestroy
   ExplicitWidth = 634
   ExplicitHeight = 732
   PixelsPerInch = 96

@@ -165,7 +165,7 @@ end;
 
 constructor TLayout.Create(const pIDAGE: Integer; const pBaseTable: string);
 var
-  x510lay: T510LAY;
+  x510lay: T510LAYBKP;
   xQuery: THQuery;
 begin
   FillChar(FListaDados, SizeOf(FListaDados), 0);
@@ -173,7 +173,7 @@ begin
   x510lay := nil;
   xQuery := nil;
   try
-    x510lay := T510LAY.Create;
+    x510lay := T510LAYBKP.Create;
     xQuery := THQuery.CreatePersonalizado();
 
     xQuery.Command := 'SELECT R998FLD.PREFLD, R998FLD.FLDNAM, ALL_TAB_COLUMNS.DATA_TYPE AS TYPE '+
@@ -190,12 +190,10 @@ begin
     xQuery.Open;
 
     x510lay.USU_IDAGE := pIDAGE;
-    x510lay.Execute(etSelect, esLoop);
+    x510lay.Open();
 
     while (x510lay.Next) do
     begin
-      xQuery.First;
-
       while not(xQuery.Eof) do
       begin
         if AnsiSameText(xQuery.FindField('FLDNAM').AsString, x510lay.USU_NomCol)  then
@@ -209,6 +207,7 @@ begin
     end;
 
     xQuery.Close;
+    x510lay.Close;
   finally
     FreeAndNil(xQuery);
     FreeAndNil(x510lay);

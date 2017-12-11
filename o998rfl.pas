@@ -1,9 +1,10 @@
+
 unit o998rfl;
 
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -44,6 +45,7 @@ type
     procedure SetObjSisOld(const pObjSis: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -67,6 +69,8 @@ implementation
 
 constructor T998RFL.Create();
 begin
+  AddPrimaryKeys('RELNAM;RELORD');
+
   inherited Create('R998RFL');
 end;
 
@@ -74,6 +78,7 @@ destructor T998RFL.Destroy();
 begin
   inherited;
 end;
+
 function T998RFL.GetRELNAM: string;
 begin
   Result := FRELNAM;
@@ -82,6 +87,8 @@ end;
 procedure T998RFL.SetRELNAM(const pRELNAM: string);
 begin
   FRELNAM := pRELNAM;
+
+  CheckField('RELNAM');
 end;
 
 function T998RFL.GetRELORD: Integer;
@@ -92,6 +99,8 @@ end;
 procedure T998RFL.SetRELORD(const pRELORD: Integer);
 begin
   FRELORD := pRELORD;
+
+  CheckField('RELORD');
 end;
 
 function T998RFL.GetFORFLD: string;
@@ -102,6 +111,8 @@ end;
 procedure T998RFL.SetFORFLD(const pFORFLD: string);
 begin
   FFORFLD := pFORFLD;
+
+  CheckField('FORFLD');
 end;
 
 function T998RFL.GetREFFLD: string;
@@ -112,6 +123,8 @@ end;
 procedure T998RFL.SetREFFLD(const pREFFLD: string);
 begin
   FREFFLD := pREFFLD;
+
+  CheckField('REFFLD');
 end;
 
 function T998RFL.GetObjSis: Char;
@@ -122,6 +135,8 @@ end;
 procedure T998RFL.SetObjSis(const pObjSis: Char);
 begin
   FObjSis := pObjSis;
+
+  CheckField('ObjSis');
 end;
 
 function T998RFL.GetRELNAMOLD: string;
@@ -181,6 +196,17 @@ begin
   FFORFLDOLD := FFORFLD;
   FREFFLDOLD := FREFFLD;
   FObjSisOLD := FObjSis;
+
+  inherited;
+end;
+
+procedure T998RFL.RetornarValores();
+begin
+  FRELNAM := FRELNAMOLD;
+  FRELORD := FRELORDOLD;
+  FFORFLD := FFORFLDOLD;
+  FREFFLD := FREFFLDOLD;
+  FObjSis := FObjSisOLD;
 end;
 
 end.

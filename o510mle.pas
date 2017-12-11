@@ -3,7 +3,7 @@ unit o510mle;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -32,6 +32,7 @@ type
     procedure SetUSU_CodTptOld(const pUSU_CodTpt: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -51,10 +52,10 @@ implementation
 
 constructor T510MLE.Create();
 begin
-  inherited Create('USU_T510MLE');
+  AddForeignKeys(['USU_IdeLte'], ['USU_Id']);
+  AddPrimaryKeys('USU_Id');
 
-  Self.SetAutoSelectProperty(['USU_IdeLte']);
-  Self.AutoSelectProperty := True;
+  inherited Create('USU_T510MLE');
 end;
 
 destructor T510MLE.Destroy();
@@ -70,6 +71,8 @@ end;
 procedure T510MLE.SetUSU_IdeLte(const pUSU_IdeLte: Integer);
 begin
   FUSU_IdeLte := pUSU_IdeLte;
+
+  CheckField('USU_IdeLte');
 end;
 
 function T510MLE.GetUSU_EspBan: string;
@@ -80,6 +83,8 @@ end;
 procedure T510MLE.SetUSU_EspBan(const pUSU_EspBan: string);
 begin
   FUSU_EspBan := pUSU_EspBan;
+
+  CheckField('USU_EspBan');
 end;
 
 function T510MLE.GetUSU_CodTpt: string;
@@ -90,6 +95,8 @@ end;
 procedure T510MLE.SetUSU_CodTpt(const pUSU_CodTpt: string);
 begin
   FUSU_CodTpt := pUSU_CodTpt;
+
+  CheckField('USU_CodTpt');
 end;
 
 function T510MLE.GetUSU_IdeLteOLD: Integer;
@@ -127,6 +134,17 @@ begin
   FUSU_IdeLteOLD := FUSU_IdeLte;
   FUSU_EspBanOLD := FUSU_EspBan;
   FUSU_CodTptOLD := FUSU_CodTpt;
+
+  inherited;
+end;
+
+procedure T510MLE.RetornarValores();
+begin
+  FUSU_IdeLte := FUSU_IdeLteOLD;
+  FUSU_EspBan := FUSU_EspBanOLD;
+  FUSU_CodTpt := FUSU_CodTptOLD;
+
+  inherited;
 end;
 
 end.

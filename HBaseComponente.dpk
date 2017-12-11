@@ -5,25 +5,25 @@ package HBaseComponente;
 {$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
+{$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS ON}
+{$LOCALSYMBOLS OFF}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
+{$OPTIMIZATION ON}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
-{$REFERENCEINFO ON}
+{$REFERENCEINFO OFF}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
+{$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
@@ -45,8 +45,6 @@ requires
   HBase;
 
 contains
-  oMensagem in 'oMensagem.pas',
-  oHButton in 'oHButton.pas',
   oDataSetGrid in 'oDataSetGrid.pas',
   oButtonedEdit in 'oButtonedEdit.pas',
   oDateTimePicker in 'oDateTimePicker.pas',
@@ -54,7 +52,9 @@ contains
   oMemo in 'oMemo.pas',
   oPanel in 'oPanel.pas',
   u000cad in 'u000cad.pas' {F000CAD},
-  oValueListEditor in 'oValueListEditor.pas';
+  oValueListEditor in 'oValueListEditor.pas',
+  oHButton in 'oHButton.pas',
+  oMensagem in 'oMensagem.pas';
 
 end.
 

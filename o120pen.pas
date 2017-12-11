@@ -3,7 +3,7 @@ unit o120pen;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -62,6 +62,7 @@ type
     procedure SetUSU_NumComOld(const pUSU_NumCom: Integer);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -91,6 +92,8 @@ implementation
 
 constructor T120PEN.Create();
 begin
+  AddForeignKeys(['USU_CodEmp','USU_CodFIl','USU_NumPed'], ['CodEmp','CodFil','NumPed']);
+
   inherited Create('USU_T120PEN');
 end;
 
@@ -107,6 +110,8 @@ end;
 procedure T120PEN.SetUSU_CodEmp(const pUSU_CodEmp: Integer);
 begin
   FUSU_CodEmp := pUSU_CodEmp;
+
+  CheckField('USU_CodEmp');
 end;
 
 function T120PEN.GetUSU_CodFIl: Integer;
@@ -117,6 +122,8 @@ end;
 procedure T120PEN.SetUSU_CodFIl(const pUSU_CodFIl: Integer);
 begin
   FUSU_CodFIl := pUSU_CodFIl;
+
+  CheckField('USU_CodFIl');
 end;
 
 function T120PEN.GetUSU_NumPed: Integer;
@@ -127,6 +134,8 @@ end;
 procedure T120PEN.SetUSU_NumPed(const pUSU_NumPed: Integer);
 begin
   FUSU_NumPed := pUSU_NumPed;
+
+  CheckField('USU_NumPed');
 end;
 
 function T120PEN.GetUSU_SitMov: Char;
@@ -137,6 +146,8 @@ end;
 procedure T120PEN.SetUSU_SitMov(const pUSU_SitMov: Char);
 begin
   FUSU_SitMov := pUSU_SitMov;
+
+  CheckField('USU_SitMov');
 end;
 
 function T120PEN.GetUSU_DatPrv: TDate;
@@ -147,6 +158,8 @@ end;
 procedure T120PEN.SetUSU_DatPrv(const pUSU_DatPrv: TDate);
 begin
   FUSU_DatPrv := pUSU_DatPrv;
+
+  CheckField('USU_DatPrv');
 end;
 
 function T120PEN.GetUSU_CodCli: Integer;
@@ -157,6 +170,8 @@ end;
 procedure T120PEN.SetUSU_CodCli(const pUSU_CodCli: Integer);
 begin
   FUSU_CodCli := pUSU_CodCli;
+
+  CheckField('USU_CodCli');
 end;
 
 function T120PEN.GetUSU_UsuGer: Integer;
@@ -167,6 +182,8 @@ end;
 procedure T120PEN.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
   FUSU_UsuGer := pUSU_UsuGer;
+
+  CheckField('USU_UsuGer');
 end;
 
 function T120PEN.GetUSU_NumCom: Integer;
@@ -177,6 +194,8 @@ end;
 procedure T120PEN.SetUSU_NumCom(const pUSU_NumCom: Integer);
 begin
   FUSU_NumCom := pUSU_NumCom;
+
+  CheckField('USU_NumCom');
 end;
 
 function T120PEN.GetUSU_CodEmpOLD: Integer;
@@ -269,6 +288,22 @@ begin
   FUSU_CodCliOLD := FUSU_CodCli;
   FUSU_UsuGerOLD := FUSU_UsuGer;
   FUSU_NumComOLD := FUSU_NumCom;
+
+  inherited;
+end;
+
+procedure T120PEN.RetornarValores();
+begin
+  FUSU_CodEmp := FUSU_CodEmpOLD;
+  FUSU_CodFIl := FUSU_CodFIlOLD;
+  FUSU_NumPed := FUSU_NumPedOLD;
+  FUSU_SitMov := FUSU_SitMovOLD;
+  FUSU_DatPrv := FUSU_DatPrvOLD;
+  FUSU_CodCli := FUSU_CodCliOLD;
+  FUSU_UsuGer := FUSU_UsuGerOLD;
+  FUSU_NumCom := FUSU_NumComOLD;
+
+  inherited;
 end;
 
 end.

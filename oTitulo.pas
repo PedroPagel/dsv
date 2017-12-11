@@ -558,8 +558,6 @@ end;
 
 procedure T301TCR.Registros_OLD;
 begin
-  inherited;
-
   FOldCodCli := FCodCli;
   FOldVctOri := FVctOri;
   FOldJrsDia := FJrsDia;
@@ -578,6 +576,8 @@ begin
   FOldPerMul := FPerMul;
   FOldFilCtr := FFilCtr;
   FOldNumCtr := FNumCtr;
+
+  inherited;
 end;
 
 procedure T301TCR.SetAntDsc(const Value: Char);

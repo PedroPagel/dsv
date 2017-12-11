@@ -5,7 +5,7 @@
 //  >Import : http://hennings.workcrm.com.br/wconnect/wsdl/WConnect_WSDL.php?wsdl>0
 // Encoding : ISO-8859-1
 // Version  : 1.0
-// (09/11/2017 09:24:39 - - $Rev: 56641 $)
+// (04/12/2017 08:03:36 - - $Rev: 56641 $)
 // ************************************************************************ //
 
 unit WConnect_WSDL;
@@ -2551,6 +2551,9 @@ begin
     RIO := THTTPRIO.Create(nil)
   else
     RIO := HTTPRIO;
+
+  RIO.HTTPWebNode.ReceiveTimeout := 1800000;
+  RIO.HTTPWebNode.ConnectTimeout := 1800000;
   try
     Result := (RIO as WConnect_CRM_SeniorPortType);
     if UseWSDL then

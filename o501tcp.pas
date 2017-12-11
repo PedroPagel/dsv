@@ -908,6 +908,7 @@ type
     procedure SetUSU_IDCLPOld(const pUSU_IDCLP: Integer);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -1219,6 +1220,9 @@ implementation
 
 constructor T501TCP.Create();
 begin
+  AddForeignKeys(['CodEmp','CodFil','CodTpt','CodFor','CodTns','CodPor','CodCrt'], ['CodEmp','CodFil','CodTpt','CodFor','CodTns','CodPor','CodCrt']);
+  AddPrimaryKeys('CodEmp;CodFil;NumTit;CodTpt;CodFor');
+
   inherited Create('E501TCP');
 end;
 
@@ -1226,6 +1230,7 @@ destructor T501TCP.Destroy();
 begin
   inherited;
 end;
+
 function T501TCP.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -1234,6 +1239,8 @@ end;
 procedure T501TCP.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T501TCP.GetCodFil: Integer;
@@ -1244,6 +1251,8 @@ end;
 procedure T501TCP.SetCodFil(const pCodFil: Integer);
 begin
   FCodFil := pCodFil;
+
+  CheckField('CodFil');
 end;
 
 function T501TCP.GetNumTit: string;
@@ -1254,6 +1263,8 @@ end;
 procedure T501TCP.SetNumTit(const pNumTit: string);
 begin
   FNumTit := pNumTit;
+
+  CheckField('NumTit');
 end;
 
 function T501TCP.GetCodTpt: string;
@@ -1264,6 +1275,8 @@ end;
 procedure T501TCP.SetCodTpt(const pCodTpt: string);
 begin
   FCodTpt := pCodTpt;
+
+  CheckField('CodTpt');
 end;
 
 function T501TCP.GetCodFor: Integer;
@@ -1274,6 +1287,8 @@ end;
 procedure T501TCP.SetCodFor(const pCodFor: Integer);
 begin
   FCodFor := pCodFor;
+
+  CheckField('CodFor');
 end;
 
 function T501TCP.GetCodCrp: string;
@@ -1284,6 +1299,8 @@ end;
 procedure T501TCP.SetCodCrp(const pCodCrp: string);
 begin
   FCodCrp := pCodCrp;
+
+  CheckField('CodCrp');
 end;
 
 function T501TCP.GetCodTns: string;
@@ -1294,6 +1311,8 @@ end;
 procedure T501TCP.SetCodTns(const pCodTns: string);
 begin
   FCodTns := pCodTns;
+
+  CheckField('CodTns');
 end;
 
 function T501TCP.GetCodNtg: Integer;
@@ -1304,6 +1323,8 @@ end;
 procedure T501TCP.SetCodNtg(const pCodNtg: Integer);
 begin
   FCodNtg := pCodNtg;
+
+  CheckField('CodNtg');
 end;
 
 function T501TCP.GetCodTri: string;
@@ -1314,6 +1335,8 @@ end;
 procedure T501TCP.SetCodTri(const pCodTri: string);
 begin
   FCodTri := pCodTri;
+
+  CheckField('CodTri');
 end;
 
 function T501TCP.GetSitTit: string;
@@ -1324,6 +1347,8 @@ end;
 procedure T501TCP.SetSitTit(const pSitTit: string);
 begin
   FSitTit := pSitTit;
+
+  CheckField('SitTit');
 end;
 
 function T501TCP.GetDatEmi: TDate;
@@ -1334,6 +1359,8 @@ end;
 procedure T501TCP.SetDatEmi(const pDatEmi: TDate);
 begin
   FDatEmi := pDatEmi;
+
+  CheckField('DatEmi');
 end;
 
 function T501TCP.GetDatEnt: TDate;
@@ -1344,6 +1371,8 @@ end;
 procedure T501TCP.SetDatEnt(const pDatEnt: TDate);
 begin
   FDatEnt := pDatEnt;
+
+  CheckField('DatEnt');
 end;
 
 function T501TCP.GetObsTcp: string;
@@ -1354,6 +1383,8 @@ end;
 procedure T501TCP.SetObsTcp(const pObsTcp: string);
 begin
   FObsTcp := pObsTcp;
+
+  CheckField('ObsTcp');
 end;
 
 function T501TCP.GetCodFav: Integer;
@@ -1364,6 +1395,8 @@ end;
 procedure T501TCP.SetCodFav(const pCodFav: Integer);
 begin
   FCodFav := pCodFav;
+
+  CheckField('CodFav');
 end;
 
 function T501TCP.GetVctOri: TDate;
@@ -1374,6 +1407,8 @@ end;
 procedure T501TCP.SetVctOri(const pVctOri: TDate);
 begin
   FVctOri := pVctOri;
+
+  CheckField('VctOri');
 end;
 
 function T501TCP.GetVlrOri: Double;
@@ -1384,6 +1419,8 @@ end;
 procedure T501TCP.SetVlrOri(const pVlrOri: Double);
 begin
   FVlrOri := pVlrOri;
+
+  CheckField('VlrOri');
 end;
 
 function T501TCP.GetCodFpg: Integer;
@@ -1394,6 +1431,8 @@ end;
 procedure T501TCP.SetCodFpg(const pCodFpg: Integer);
 begin
   FCodFpg := pCodFpg;
+
+  CheckField('CodFpg');
 end;
 
 function T501TCP.GetVctPro: TDate;
@@ -1404,6 +1443,8 @@ end;
 procedure T501TCP.SetVctPro(const pVctPro: TDate);
 begin
   FVctPro := pVctPro;
+
+  CheckField('VctPro');
 end;
 
 function T501TCP.GetProJrs: Char;
@@ -1414,6 +1455,8 @@ end;
 procedure T501TCP.SetProJrs(const pProJrs: Char);
 begin
   FProJrs := pProJrs;
+
+  CheckField('ProJrs');
 end;
 
 function T501TCP.GetCodMpt: string;
@@ -1424,6 +1467,8 @@ end;
 procedure T501TCP.SetCodMpt(const pCodMpt: string);
 begin
   FCodMpt := pCodMpt;
+
+  CheckField('CodMpt');
 end;
 
 function T501TCP.GetDatPpt: TDate;
@@ -1434,6 +1479,8 @@ end;
 procedure T501TCP.SetDatPpt(const pDatPpt: TDate);
 begin
   FDatPpt := pDatPpt;
+
+  CheckField('DatPpt');
 end;
 
 function T501TCP.GetVlrAbe: Double;
@@ -1444,6 +1491,8 @@ end;
 procedure T501TCP.SetVlrAbe(const pVlrAbe: Double);
 begin
   FVlrAbe := pVlrAbe;
+
+  CheckField('VlrAbe');
 end;
 
 function T501TCP.GetCodMoe: string;
@@ -1454,6 +1503,8 @@ end;
 procedure T501TCP.SetCodMoe(const pCodMoe: string);
 begin
   FCodMoe := pCodMoe;
+
+  CheckField('CodMoe');
 end;
 
 function T501TCP.GetCotEmi: Double;
@@ -1464,6 +1515,8 @@ end;
 procedure T501TCP.SetCotEmi(const pCotEmi: Double);
 begin
   FCotEmi := pCotEmi;
+
+  CheckField('CotEmi');
 end;
 
 function T501TCP.GetCodFrj: string;
@@ -1474,6 +1527,8 @@ end;
 procedure T501TCP.SetCodFrj(const pCodFrj: string);
 begin
   FCodFrj := pCodFrj;
+
+  CheckField('CodFrj');
 end;
 
 function T501TCP.GetDatDsc: TDate;
@@ -1484,6 +1539,8 @@ end;
 procedure T501TCP.SetDatDsc(const pDatDsc: TDate);
 begin
   FDatDsc := pDatDsc;
+
+  CheckField('DatDsc');
 end;
 
 function T501TCP.GetTolDsc: Integer;
@@ -1494,6 +1551,8 @@ end;
 procedure T501TCP.SetTolDsc(const pTolDsc: Integer);
 begin
   FTolDsc := pTolDsc;
+
+  CheckField('TolDsc');
 end;
 
 function T501TCP.GetPerDsc: Double;
@@ -1504,6 +1563,8 @@ end;
 procedure T501TCP.SetPerDsc(const pPerDsc: Double);
 begin
   FPerDsc := pPerDsc;
+
+  CheckField('PerDsc');
 end;
 
 function T501TCP.GetVlrDsc: Double;
@@ -1514,6 +1575,8 @@ end;
 procedure T501TCP.SetVlrDsc(const pVlrDsc: Double);
 begin
   FVlrDsc := pVlrDsc;
+
+  CheckField('VlrDsc');
 end;
 
 function T501TCP.GetAntDsc: Char;
@@ -1524,6 +1587,8 @@ end;
 procedure T501TCP.SetAntDsc(const pAntDsc: Char);
 begin
   FAntDsc := pAntDsc;
+
+  CheckField('AntDsc');
 end;
 
 function T501TCP.GetPerJrs: Double;
@@ -1534,6 +1599,8 @@ end;
 procedure T501TCP.SetPerJrs(const pPerJrs: Double);
 begin
   FPerJrs := pPerJrs;
+
+  CheckField('PerJrs');
 end;
 
 function T501TCP.GetTipJrs: Char;
@@ -1544,6 +1611,8 @@ end;
 procedure T501TCP.SetTipJrs(const pTipJrs: Char);
 begin
   FTipJrs := pTipJrs;
+
+  CheckField('TipJrs');
 end;
 
 function T501TCP.GetJrsDia: Double;
@@ -1554,6 +1623,8 @@ end;
 procedure T501TCP.SetJrsDia(const pJrsDia: Double);
 begin
   FJrsDia := pJrsDia;
+
+  CheckField('JrsDia');
 end;
 
 function T501TCP.GetTolJrs: Integer;
@@ -1564,6 +1635,8 @@ end;
 procedure T501TCP.SetTolJrs(const pTolJrs: Integer);
 begin
   FTolJrs := pTolJrs;
+
+  CheckField('TolJrs');
 end;
 
 function T501TCP.GetDatCjm: TDate;
@@ -1574,6 +1647,8 @@ end;
 procedure T501TCP.SetDatCjm(const pDatCjm: TDate);
 begin
   FDatCjm := pDatCjm;
+
+  CheckField('DatCjm');
 end;
 
 function T501TCP.GetPerMul: Double;
@@ -1584,6 +1659,8 @@ end;
 procedure T501TCP.SetPerMul(const pPerMul: Double);
 begin
   FPerMul := pPerMul;
+
+  CheckField('PerMul');
 end;
 
 function T501TCP.GetTolMul: Integer;
@@ -1594,6 +1671,8 @@ end;
 procedure T501TCP.SetTolMul(const pTolMul: Integer);
 begin
   FTolMul := pTolMul;
+
+  CheckField('TolMul');
 end;
 
 function T501TCP.GetDatNeg: TDate;
@@ -1604,6 +1683,8 @@ end;
 procedure T501TCP.SetDatNeg(const pDatNeg: TDate);
 begin
   FDatNeg := pDatNeg;
+
+  CheckField('DatNeg');
 end;
 
 function T501TCP.GetJrsNeg: Double;
@@ -1614,6 +1695,8 @@ end;
 procedure T501TCP.SetJrsNeg(const pJrsNeg: Double);
 begin
   FJrsNeg := pJrsNeg;
+
+  CheckField('JrsNeg');
 end;
 
 function T501TCP.GetMulNeg: Double;
@@ -1624,6 +1707,8 @@ end;
 procedure T501TCP.SetMulNeg(const pMulNeg: Double);
 begin
   FMulNeg := pMulNeg;
+
+  CheckField('MulNeg');
 end;
 
 function T501TCP.GetDscNeg: Double;
@@ -1634,6 +1719,8 @@ end;
 procedure T501TCP.SetDscNeg(const pDscNeg: Double);
 begin
   FDscNeg := pDscNeg;
+
+  CheckField('DscNeg');
 end;
 
 function T501TCP.GetOutNeg: Double;
@@ -1644,6 +1731,8 @@ end;
 procedure T501TCP.SetOutNeg(const pOutNeg: Double);
 begin
   FOutNeg := pOutNeg;
+
+  CheckField('OutNeg');
 end;
 
 function T501TCP.GetUsuNeg: Integer;
@@ -1654,6 +1743,8 @@ end;
 procedure T501TCP.SetUsuNeg(const pUsuNeg: Integer);
 begin
   FUsuNeg := pUsuNeg;
+
+  CheckField('UsuNeg');
 end;
 
 function T501TCP.GetCotNeg: Double;
@@ -1664,6 +1755,8 @@ end;
 procedure T501TCP.SetCotNeg(const pCotNeg: Double);
 begin
   FCotNeg := pCotNeg;
+
+  CheckField('CotNeg');
 end;
 
 function T501TCP.GetCorNeg: Double;
@@ -1674,6 +1767,8 @@ end;
 procedure T501TCP.SetCorNeg(const pCorNeg: Double);
 begin
   FCorNeg := pCorNeg;
+
+  CheckField('CorNeg');
 end;
 
 function T501TCP.GetCodPor: string;
@@ -1684,6 +1779,8 @@ end;
 procedure T501TCP.SetCodPor(const pCodPor: string);
 begin
   FCodPor := pCodPor;
+
+  CheckField('CodPor');
 end;
 
 function T501TCP.GetCodCrt: string;
@@ -1694,6 +1791,8 @@ end;
 procedure T501TCP.SetCodCrt(const pCodCrt: string);
 begin
   FCodCrt := pCodCrt;
+
+  CheckField('CodCrt');
 end;
 
 function T501TCP.GetTitBan: string;
@@ -1704,6 +1803,8 @@ end;
 procedure T501TCP.SetTitBan(const pTitBan: string);
 begin
   FTitBan := pTitBan;
+
+  CheckField('TitBan');
 end;
 
 function T501TCP.GetCodUsu: Integer;
@@ -1714,6 +1815,8 @@ end;
 procedure T501TCP.SetCodUsu(const pCodUsu: Integer);
 begin
   FCodUsu := pCodUsu;
+
+  CheckField('CodUsu');
 end;
 
 function T501TCP.GetDatApr: TDate;
@@ -1724,6 +1827,8 @@ end;
 procedure T501TCP.SetDatApr(const pDatApr: TDate);
 begin
   FDatApr := pDatApr;
+
+  CheckField('DatApr');
 end;
 
 function T501TCP.GetHorApr: Integer;
@@ -1734,6 +1839,8 @@ end;
 procedure T501TCP.SetHorApr(const pHorApr: Integer);
 begin
   FHorApr := pHorApr;
+
+  CheckField('HorApr');
 end;
 
 function T501TCP.GetPgtApr: TDate;
@@ -1744,6 +1851,8 @@ end;
 procedure T501TCP.SetPgtApr(const pPgtApr: TDate);
 begin
   FPgtApr := pPgtApr;
+
+  CheckField('PgtApr');
 end;
 
 function T501TCP.GetVlrApr: Double;
@@ -1754,6 +1863,8 @@ end;
 procedure T501TCP.SetVlrApr(const pVlrApr: Double);
 begin
   FVlrApr := pVlrApr;
+
+  CheckField('VlrApr');
 end;
 
 function T501TCP.GetCotApr: Double;
@@ -1764,6 +1875,8 @@ end;
 procedure T501TCP.SetCotApr(const pCotApr: Double);
 begin
   FCotApr := pCotApr;
+
+  CheckField('CotApr');
 end;
 
 function T501TCP.GetDscApr: Double;
@@ -1774,6 +1887,8 @@ end;
 procedure T501TCP.SetDscApr(const pDscApr: Double);
 begin
   FDscApr := pDscApr;
+
+  CheckField('DscApr');
 end;
 
 function T501TCP.GetOdeApr: Double;
@@ -1784,6 +1899,8 @@ end;
 procedure T501TCP.SetOdeApr(const pOdeApr: Double);
 begin
   FOdeApr := pOdeApr;
+
+  CheckField('OdeApr');
 end;
 
 function T501TCP.GetJrsApr: Double;
@@ -1794,6 +1911,8 @@ end;
 procedure T501TCP.SetJrsApr(const pJrsApr: Double);
 begin
   FJrsApr := pJrsApr;
+
+  CheckField('JrsApr');
 end;
 
 function T501TCP.GetMulApr: Double;
@@ -1804,6 +1923,8 @@ end;
 procedure T501TCP.SetMulApr(const pMulApr: Double);
 begin
   FMulApr := pMulApr;
+
+  CheckField('MulApr');
 end;
 
 function T501TCP.GetEncApr: Double;
@@ -1814,6 +1935,8 @@ end;
 procedure T501TCP.SetEncApr(const pEncApr: Double);
 begin
   FEncApr := pEncApr;
+
+  CheckField('EncApr');
 end;
 
 function T501TCP.GetCorApr: Double;
@@ -1824,6 +1947,8 @@ end;
 procedure T501TCP.SetCorApr(const pCorApr: Double);
 begin
   FCorApr := pCorApr;
+
+  CheckField('CorApr');
 end;
 
 function T501TCP.GetOacApr: Double;
@@ -1834,6 +1959,8 @@ end;
 procedure T501TCP.SetOacApr(const pOacApr: Double);
 begin
   FOacApr := pOacApr;
+
+  CheckField('OacApr');
 end;
 
 function T501TCP.GetIrfApr: Double;
@@ -1844,6 +1971,8 @@ end;
 procedure T501TCP.SetIrfApr(const pIrfApr: Double);
 begin
   FIrfApr := pIrfApr;
+
+  CheckField('IrfApr');
 end;
 
 function T501TCP.GetVcrApr: Char;
@@ -1854,6 +1983,8 @@ end;
 procedure T501TCP.SetVcrApr(const pVcrApr: Char);
 begin
   FVcrApr := pVcrApr;
+
+  CheckField('VcrApr');
 end;
 
 function T501TCP.GetEmpApr: Integer;
@@ -1864,6 +1995,8 @@ end;
 procedure T501TCP.SetEmpApr(const pEmpApr: Integer);
 begin
   FEmpApr := pEmpApr;
+
+  CheckField('EmpApr');
 end;
 
 function T501TCP.GetCtaApr: string;
@@ -1874,6 +2007,8 @@ end;
 procedure T501TCP.SetCtaApr(const pCtaApr: string);
 begin
   FCtaApr := pCtaApr;
+
+  CheckField('CtaApr');
 end;
 
 function T501TCP.GetSeqApr: string;
@@ -1884,6 +2019,8 @@ end;
 procedure T501TCP.SetSeqApr(const pSeqApr: string);
 begin
   FSeqApr := pSeqApr;
+
+  CheckField('SeqApr');
 end;
 
 function T501TCP.GetLibApr: TDate;
@@ -1894,6 +2031,8 @@ end;
 procedure T501TCP.SetLibApr(const pLibApr: TDate);
 begin
   FLibApr := pLibApr;
+
+  CheckField('LibApr');
 end;
 
 function T501TCP.GetUltPgt: TDate;
@@ -1904,6 +2043,8 @@ end;
 procedure T501TCP.SetUltPgt(const pUltPgt: TDate);
 begin
   FUltPgt := pUltPgt;
+
+  CheckField('UltPgt');
 end;
 
 function T501TCP.GetCodBan: string;
@@ -1914,6 +2055,8 @@ end;
 procedure T501TCP.SetCodBan(const pCodBan: string);
 begin
   FCodBan := pCodBan;
+
+  CheckField('CodBan');
 end;
 
 function T501TCP.GetCodAge: string;
@@ -1924,6 +2067,8 @@ end;
 procedure T501TCP.SetCodAge(const pCodAge: string);
 begin
   FCodAge := pCodAge;
+
+  CheckField('CodAge');
 end;
 
 function T501TCP.GetCcbFor: string;
@@ -1934,6 +2079,8 @@ end;
 procedure T501TCP.SetCcbFor(const pCcbFor: string);
 begin
   FCcbFor := pCcbFor;
+
+  CheckField('CcbFor');
 end;
 
 function T501TCP.GetPorAnt: string;
@@ -1944,6 +2091,8 @@ end;
 procedure T501TCP.SetPorAnt(const pPorAnt: string);
 begin
   FPorAnt := pPorAnt;
+
+  CheckField('PorAnt');
 end;
 
 function T501TCP.GetNumPrj: Integer;
@@ -1954,6 +2103,8 @@ end;
 procedure T501TCP.SetNumPrj(const pNumPrj: Integer);
 begin
   FNumPrj := pNumPrj;
+
+  CheckField('NumPrj');
 end;
 
 function T501TCP.GetCodFpj: Integer;
@@ -1964,6 +2115,8 @@ end;
 procedure T501TCP.SetCodFpj(const pCodFpj: Integer);
 begin
   FCodFpj := pCodFpj;
+
+  CheckField('CodFpj');
 end;
 
 function T501TCP.GetCtaFin: Integer;
@@ -1974,6 +2127,8 @@ end;
 procedure T501TCP.SetCtaFin(const pCtaFin: Integer);
 begin
   FCtaFin := pCtaFin;
+
+  CheckField('CtaFin');
 end;
 
 function T501TCP.GetCtaRed: Integer;
@@ -1984,6 +2139,8 @@ end;
 procedure T501TCP.SetCtaRed(const pCtaRed: Integer);
 begin
   FCtaRed := pCtaRed;
+
+  CheckField('CtaRed');
 end;
 
 function T501TCP.GetCodCcu: string;
@@ -1994,6 +2151,8 @@ end;
 procedure T501TCP.SetCodCcu(const pCodCcu: string);
 begin
   FCodCcu := pCodCcu;
+
+  CheckField('CodCcu');
 end;
 
 function T501TCP.GetDatUcm: TDate;
@@ -2004,6 +2163,8 @@ end;
 procedure T501TCP.SetDatUcm(const pDatUcm: TDate);
 begin
   FDatUcm := pDatUcm;
+
+  CheckField('DatUcm');
 end;
 
 function T501TCP.GetCotUcm: Double;
@@ -2014,6 +2175,8 @@ end;
 procedure T501TCP.SetCotUcm(const pCotUcm: Double);
 begin
   FCotUcm := pCotUcm;
+
+  CheckField('CotUcm');
 end;
 
 function T501TCP.GetFilNfc: Integer;
@@ -2024,6 +2187,8 @@ end;
 procedure T501TCP.SetFilNfc(const pFilNfc: Integer);
 begin
   FFilNfc := pFilNfc;
+
+  CheckField('FilNfc');
 end;
 
 function T501TCP.GetForNfc: Integer;
@@ -2034,6 +2199,8 @@ end;
 procedure T501TCP.SetForNfc(const pForNfc: Integer);
 begin
   FForNfc := pForNfc;
+
+  CheckField('ForNfc');
 end;
 
 function T501TCP.GetNumNfc: Integer;
@@ -2044,6 +2211,8 @@ end;
 procedure T501TCP.SetNumNfc(const pNumNfc: Integer);
 begin
   FNumNfc := pNumNfc;
+
+  CheckField('NumNfc');
 end;
 
 function T501TCP.GetSnfNfc: string;
@@ -2054,6 +2223,8 @@ end;
 procedure T501TCP.SetSnfNfc(const pSnfNfc: string);
 begin
   FSnfNfc := pSnfNfc;
+
+  CheckField('SnfNfc');
 end;
 
 function T501TCP.GetFilCtr: Integer;
@@ -2064,6 +2235,8 @@ end;
 procedure T501TCP.SetFilCtr(const pFilCtr: Integer);
 begin
   FFilCtr := pFilCtr;
+
+  CheckField('FilCtr');
 end;
 
 function T501TCP.GetNumCtr: Integer;
@@ -2074,6 +2247,8 @@ end;
 procedure T501TCP.SetNumCtr(const pNumCtr: Integer);
 begin
   FNumCtr := pNumCtr;
+
+  CheckField('NumCtr');
 end;
 
 function T501TCP.GetSeqImo: Integer;
@@ -2084,6 +2259,8 @@ end;
 procedure T501TCP.SetSeqImo(const pSeqImo: Integer);
 begin
   FSeqImo := pSeqImo;
+
+  CheckField('SeqImo');
 end;
 
 function T501TCP.GetSeqCgt: Integer;
@@ -2094,6 +2271,8 @@ end;
 procedure T501TCP.SetSeqCgt(const pSeqCgt: Integer);
 begin
   FSeqCgt := pSeqCgt;
+
+  CheckField('SeqCgt');
 end;
 
 function T501TCP.GetFilNff: Integer;
@@ -2104,6 +2283,8 @@ end;
 procedure T501TCP.SetFilNff(const pFilNff: Integer);
 begin
   FFilNff := pFilNff;
+
+  CheckField('FilNff');
 end;
 
 function T501TCP.GetNumNff: Integer;
@@ -2114,6 +2295,8 @@ end;
 procedure T501TCP.SetNumNff(const pNumNff: Integer);
 begin
   FNumNff := pNumNff;
+
+  CheckField('NumNff');
 end;
 
 function T501TCP.GetForNff: Integer;
@@ -2124,6 +2307,8 @@ end;
 procedure T501TCP.SetForNff(const pForNff: Integer);
 begin
   FForNff := pForNff;
+
+  CheckField('ForNff');
 end;
 
 function T501TCP.GetFilNfv: Integer;
@@ -2134,6 +2319,8 @@ end;
 procedure T501TCP.SetFilNfv(const pFilNfv: Integer);
 begin
   FFilNfv := pFilNfv;
+
+  CheckField('FilNfv');
 end;
 
 function T501TCP.GetSnfNfv: string;
@@ -2144,6 +2331,8 @@ end;
 procedure T501TCP.SetSnfNfv(const pSnfNfv: string);
 begin
   FSnfNfv := pSnfNfv;
+
+  CheckField('SnfNfv');
 end;
 
 function T501TCP.GetNumNfv: Integer;
@@ -2154,6 +2343,8 @@ end;
 procedure T501TCP.SetNumNfv(const pNumNfv: Integer);
 begin
   FNumNfv := pNumNfv;
+
+  CheckField('NumNfv');
 end;
 
 function T501TCP.GetFpgApr: Integer;
@@ -2164,6 +2355,8 @@ end;
 procedure T501TCP.SetFpgApr(const pFpgApr: Integer);
 begin
   FFpgApr := pFpgApr;
+
+  CheckField('FpgApr');
 end;
 
 function T501TCP.GetFilOcp: Integer;
@@ -2174,6 +2367,8 @@ end;
 procedure T501TCP.SetFilOcp(const pFilOcp: Integer);
 begin
   FFilOcp := pFilOcp;
+
+  CheckField('FilOcp');
 end;
 
 function T501TCP.GetNumOcp: Integer;
@@ -2184,6 +2379,8 @@ end;
 procedure T501TCP.SetNumOcp(const pNumOcp: Integer);
 begin
   FNumOcp := pNumOcp;
+
+  CheckField('NumOcp');
 end;
 
 function T501TCP.GetOcpFre: Integer;
@@ -2194,6 +2391,8 @@ end;
 procedure T501TCP.SetOcpFre(const pOcpFre: Integer);
 begin
   FOcpFre := pOcpFre;
+
+  CheckField('OcpFre');
 end;
 
 function T501TCP.GetOcpNre: Integer;
@@ -2204,6 +2403,8 @@ end;
 procedure T501TCP.SetOcpNre(const pOcpNre: Integer);
 begin
   FOcpNre := pOcpNre;
+
+  CheckField('OcpNre');
 end;
 
 function T501TCP.GetCtrFre: Integer;
@@ -2214,6 +2415,8 @@ end;
 procedure T501TCP.SetCtrFre(const pCtrFre: Integer);
 begin
   FCtrFre := pCtrFre;
+
+  CheckField('CtrFre');
 end;
 
 function T501TCP.GetCtrNre: Integer;
@@ -2224,6 +2427,8 @@ end;
 procedure T501TCP.SetCtrNre(const pCtrNre: Integer);
 begin
   FCtrNre := pCtrNre;
+
+  CheckField('CtrNre');
 end;
 
 function T501TCP.GetCodBar: string;
@@ -2234,6 +2439,8 @@ end;
 procedure T501TCP.SetCodBar(const pCodBar: string);
 begin
   FCodBar := pCodBar;
+
+  CheckField('CodBar');
 end;
 
 function T501TCP.GetUsuSit: Integer;
@@ -2244,6 +2451,8 @@ end;
 procedure T501TCP.SetUsuSit(const pUsuSit: Integer);
 begin
   FUsuSit := pUsuSit;
+
+  CheckField('UsuSit');
 end;
 
 function T501TCP.GetTipEfe: Char;
@@ -2254,6 +2463,8 @@ end;
 procedure T501TCP.SetTipEfe(const pTipEfe: Char);
 begin
   FTipEfe := pTipEfe;
+
+  CheckField('TipEfe');
 end;
 
 function T501TCP.GetTnsPre: string;
@@ -2264,6 +2475,8 @@ end;
 procedure T501TCP.SetTnsPre(const pTnsPre: string);
 begin
   FTnsPre := pTnsPre;
+
+  CheckField('TnsPre');
 end;
 
 function T501TCP.GetDatPre: TDate;
@@ -2274,6 +2487,8 @@ end;
 procedure T501TCP.SetDatPre(const pDatPre: TDate);
 begin
   FDatPre := pDatPre;
+
+  CheckField('DatPre');
 end;
 
 function T501TCP.GetVlrPre: Double;
@@ -2284,6 +2499,8 @@ end;
 procedure T501TCP.SetVlrPre(const pVlrPre: Double);
 begin
   FVlrPre := pVlrPre;
+
+  CheckField('VlrPre');
 end;
 
 function T501TCP.GetNumArb: Integer;
@@ -2294,6 +2511,8 @@ end;
 procedure T501TCP.SetNumArb(const pNumArb: Integer);
 begin
   FNumArb := pNumArb;
+
+  CheckField('NumArb');
 end;
 
 function T501TCP.GetNumEco: Integer;
@@ -2304,6 +2523,8 @@ end;
 procedure T501TCP.SetNumEco(const pNumEco: Integer);
 begin
   FNumEco := pNumEco;
+
+  CheckField('NumEco');
 end;
 
 function T501TCP.GetTipImp: Integer;
@@ -2314,6 +2535,8 @@ end;
 procedure T501TCP.SetTipImp(const pTipImp: Integer);
 begin
   FTipImp := pTipImp;
+
+  CheckField('TipImp');
 end;
 
 function T501TCP.GetFilImp: Integer;
@@ -2324,6 +2547,8 @@ end;
 procedure T501TCP.SetFilImp(const pFilImp: Integer);
 begin
   FFilImp := pFilImp;
+
+  CheckField('FilImp');
 end;
 
 function T501TCP.GetNumImp: string;
@@ -2334,6 +2559,8 @@ end;
 procedure T501TCP.SetNumImp(const pNumImp: string);
 begin
   FNumImp := pNumImp;
+
+  CheckField('NumImp');
 end;
 
 function T501TCP.GetTptImp: string;
@@ -2344,6 +2571,8 @@ end;
 procedure T501TCP.SetTptImp(const pTptImp: string);
 begin
   FTptImp := pTptImp;
+
+  CheckField('TptImp');
 end;
 
 function T501TCP.GetForImp: Integer;
@@ -2354,6 +2583,8 @@ end;
 procedure T501TCP.SetForImp(const pForImp: Integer);
 begin
   FForImp := pForImp;
+
+  CheckField('ForImp');
 end;
 
 function T501TCP.GetSeqImp: Integer;
@@ -2364,6 +2595,8 @@ end;
 procedure T501TCP.SetSeqImp(const pSeqImp: Integer);
 begin
   FSeqImp := pSeqImp;
+
+  CheckField('SeqImp');
 end;
 
 function T501TCP.GetVlrIns: Double;
@@ -2374,6 +2607,8 @@ end;
 procedure T501TCP.SetVlrIns(const pVlrIns: Double);
 begin
   FVlrIns := pVlrIns;
+
+  CheckField('VlrIns');
 end;
 
 function T501TCP.GetPriPgt: Integer;
@@ -2384,6 +2619,8 @@ end;
 procedure T501TCP.SetPriPgt(const pPriPgt: Integer);
 begin
   FPriPgt := pPriPgt;
+
+  CheckField('PriPgt');
 end;
 
 function T501TCP.GetFilCcr: Integer;
@@ -2394,6 +2631,8 @@ end;
 procedure T501TCP.SetFilCcr(const pFilCcr: Integer);
 begin
   FFilCcr := pFilCcr;
+
+  CheckField('FilCcr');
 end;
 
 function T501TCP.GetNumCcr: Integer;
@@ -2404,6 +2643,8 @@ end;
 procedure T501TCP.SetNumCcr(const pNumCcr: Integer);
 begin
   FNumCcr := pNumCcr;
+
+  CheckField('NumCcr');
 end;
 
 function T501TCP.GetTitCar: Char;
@@ -2414,6 +2655,8 @@ end;
 procedure T501TCP.SetTitCar(const pTitCar: Char);
 begin
   FTitCar := pTitCar;
+
+  CheckField('TitCar');
 end;
 
 function T501TCP.GetTitPjr: Char;
@@ -2424,6 +2667,8 @@ end;
 procedure T501TCP.SetTitPjr(const pTitPjr: Char);
 begin
   FTitPjr := pTitPjr;
+
+  CheckField('TitPjr');
 end;
 
 function T501TCP.GetGriFil: Integer;
@@ -2434,6 +2679,8 @@ end;
 procedure T501TCP.SetGriFil(const pGriFil: Integer);
 begin
   FGriFil := pGriFil;
+
+  CheckField('GriFil');
 end;
 
 function T501TCP.GetGriImp: string;
@@ -2444,6 +2691,8 @@ end;
 procedure T501TCP.SetGriImp(const pGriImp: string);
 begin
   FGriImp := pGriImp;
+
+  CheckField('GriImp');
 end;
 
 function T501TCP.GetGriApi: TDate;
@@ -2454,6 +2703,8 @@ end;
 procedure T501TCP.SetGriApi(const pGriApi: TDate);
 begin
   FGriApi := pGriApi;
+
+  CheckField('GriApi');
 end;
 
 function T501TCP.GetGriSeq: Integer;
@@ -2464,6 +2715,8 @@ end;
 procedure T501TCP.SetGriSeq(const pGriSeq: Integer);
 begin
   FGriSeq := pGriSeq;
+
+  CheckField('GriSeq');
 end;
 
 function T501TCP.GetCodSma: string;
@@ -2474,6 +2727,8 @@ end;
 procedure T501TCP.SetCodSma(const pCodSma: string);
 begin
   FCodSma := pCodSma;
+
+  CheckField('CodSma');
 end;
 
 function T501TCP.GetNumMan: Integer;
@@ -2484,6 +2739,8 @@ end;
 procedure T501TCP.SetNumMan(const pNumMan: Integer);
 begin
   FNumMan := pNumMan;
+
+  CheckField('NumMan');
 end;
 
 function T501TCP.GetCpgSub: string;
@@ -2494,6 +2751,8 @@ end;
 procedure T501TCP.SetCpgSub(const pCpgSub: string);
 begin
   FCpgSub := pCpgSub;
+
+  CheckField('CpgSub');
 end;
 
 function T501TCP.GetGerTep: Char;
@@ -2504,6 +2763,8 @@ end;
 procedure T501TCP.SetGerTep(const pGerTep: Char);
 begin
   FGerTep := pGerTep;
+
+  CheckField('GerTep');
 end;
 
 function T501TCP.GetSitDda: Char;
@@ -2514,6 +2775,8 @@ end;
 procedure T501TCP.SetSitDda(const pSitDda: Char);
 begin
   FSitDda := pSitDda;
+
+  CheckField('SitDda');
 end;
 
 function T501TCP.GetUsuGer: Integer;
@@ -2524,6 +2787,8 @@ end;
 procedure T501TCP.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T501TCP.GetDatGer: TDate;
@@ -2534,6 +2799,8 @@ end;
 procedure T501TCP.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T501TCP.GetHorGer: Integer;
@@ -2544,6 +2811,8 @@ end;
 procedure T501TCP.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T501TCP.GetRotSap: Integer;
@@ -2554,6 +2823,8 @@ end;
 procedure T501TCP.SetRotSap(const pRotSap: Integer);
 begin
   FRotSap := pRotSap;
+
+  CheckField('RotSap');
 end;
 
 function T501TCP.GetNumPge: string;
@@ -2564,6 +2835,8 @@ end;
 procedure T501TCP.SetNumPge(const pNumPge: string);
 begin
   FNumPge := pNumPge;
+
+  CheckField('NumPge');
 end;
 
 function T501TCP.GetNumDfs: Integer;
@@ -2574,6 +2847,8 @@ end;
 procedure T501TCP.SetNumDfs(const pNumDfs: Integer);
 begin
   FNumDfs := pNumDfs;
+
+  CheckField('NumDfs');
 end;
 
 function T501TCP.GetAutBan: string;
@@ -2584,6 +2859,8 @@ end;
 procedure T501TCP.SetAutBan(const pAutBan: string);
 begin
   FAutBan := pAutBan;
+
+  CheckField('AutBan');
 end;
 
 function T501TCP.GetCtrBan: string;
@@ -2594,6 +2871,8 @@ end;
 procedure T501TCP.SetCtrBan(const pCtrBan: string);
 begin
   FCtrBan := pCtrBan;
+
+  CheckField('CtrBan');
 end;
 
 function T501TCP.GetTitJrs: string;
@@ -2604,6 +2883,8 @@ end;
 procedure T501TCP.SetTitJrs(const pTitJrs: string);
 begin
   FTitJrs := pTitJrs;
+
+  CheckField('TitJrs');
 end;
 
 function T501TCP.GetTptJrs: string;
@@ -2614,6 +2895,8 @@ end;
 procedure T501TCP.SetTptJrs(const pTptJrs: string);
 begin
   FTptJrs := pTptJrs;
+
+  CheckField('TptJrs');
 end;
 
 function T501TCP.GetRotNap: Integer;
@@ -2624,6 +2907,8 @@ end;
 procedure T501TCP.SetRotNap(const pRotNap: Integer);
 begin
   FRotNap := pRotNap;
+
+  CheckField('RotNap');
 end;
 
 function T501TCP.GetNumApr: Integer;
@@ -2634,6 +2919,8 @@ end;
 procedure T501TCP.SetNumApr(const pNumApr: Integer);
 begin
   FNumApr := pNumApr;
+
+  CheckField('NumApr');
 end;
 
 function T501TCP.GetSitApr: string;
@@ -2644,6 +2931,8 @@ end;
 procedure T501TCP.SetSitApr(const pSitApr: string);
 begin
   FSitApr := pSitApr;
+
+  CheckField('SitApr');
 end;
 
 function T501TCP.GetTnsApr: string;
@@ -2654,6 +2943,8 @@ end;
 procedure T501TCP.SetTnsApr(const pTnsApr: string);
 begin
   FTnsApr := pTnsApr;
+
+  CheckField('TnsApr');
 end;
 
 function T501TCP.GetUSU_NumDoi: string;
@@ -2664,6 +2955,8 @@ end;
 procedure T501TCP.SetUSU_NumDoi(const pUSU_NumDoi: string);
 begin
   FUSU_NumDoi := pUSU_NumDoi;
+
+  CheckField('USU_NumDoi');
 end;
 
 function T501TCP.GetUSU_NumFat: string;
@@ -2674,6 +2967,8 @@ end;
 procedure T501TCP.SetUSU_NumFat(const pUSU_NumFat: string);
 begin
   FUSU_NumFat := pUSU_NumFat;
+
+  CheckField('USU_NumFat');
 end;
 
 function T501TCP.GetUSU_IndAPr: Char;
@@ -2684,6 +2979,8 @@ end;
 procedure T501TCP.SetUSU_IndAPr(const pUSU_IndAPr: Char);
 begin
   FUSU_IndAPr := pUSU_IndAPr;
+
+  CheckField('USU_IndAPr');
 end;
 
 function T501TCP.GetUSU_IndAPrSol: Char;
@@ -2694,6 +2991,8 @@ end;
 procedure T501TCP.SetUSU_IndAPrSol(const pUSU_IndAPrSol: Char);
 begin
   FUSU_IndAPrSol := pUSU_IndAPrSol;
+
+  CheckField('USU_IndAPrSol');
 end;
 
 function T501TCP.GetUSU_IDTIT: Integer;
@@ -2704,6 +3003,8 @@ end;
 procedure T501TCP.SetUSU_IDTIT(const pUSU_IDTIT: Integer);
 begin
   FUSU_IDTIT := pUSU_IDTIT;
+
+  CheckField('USU_IDTIT');
 end;
 
 function T501TCP.GetUSU_IDCLP: Integer;
@@ -2714,6 +3015,8 @@ end;
 procedure T501TCP.SetUSU_IDCLP(const pUSU_IDCLP: Integer);
 begin
   FUSU_IDCLP := pUSU_IDCLP;
+
+  CheckField('USU_IDCLP');
 end;
 
 function T501TCP.GetCodEmpOLD: Integer;
@@ -4357,6 +4660,161 @@ begin
   FUSU_IndAPrSolOLD := FUSU_IndAPrSol;
   FUSU_IDTITOLD := FUSU_IDTIT;
   FUSU_IDCLPOLD := FUSU_IDCLP;
+
+  inherited;
+end;
+
+procedure T501TCP.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodFil := FCodFilOLD;
+  FNumTit := FNumTitOLD;
+  FCodTpt := FCodTptOLD;
+  FCodFor := FCodForOLD;
+  FCodCrp := FCodCrpOLD;
+  FCodTns := FCodTnsOLD;
+  FCodNtg := FCodNtgOLD;
+  FCodTri := FCodTriOLD;
+  FSitTit := FSitTitOLD;
+  FDatEmi := FDatEmiOLD;
+  FDatEnt := FDatEntOLD;
+  FObsTcp := FObsTcpOLD;
+  FCodFav := FCodFavOLD;
+  FVctOri := FVctOriOLD;
+  FVlrOri := FVlrOriOLD;
+  FCodFpg := FCodFpgOLD;
+  FVctPro := FVctProOLD;
+  FProJrs := FProJrsOLD;
+  FCodMpt := FCodMptOLD;
+  FDatPpt := FDatPptOLD;
+  FVlrAbe := FVlrAbeOLD;
+  FCodMoe := FCodMoeOLD;
+  FCotEmi := FCotEmiOLD;
+  FCodFrj := FCodFrjOLD;
+  FDatDsc := FDatDscOLD;
+  FTolDsc := FTolDscOLD;
+  FPerDsc := FPerDscOLD;
+  FVlrDsc := FVlrDscOLD;
+  FAntDsc := FAntDscOLD;
+  FPerJrs := FPerJrsOLD;
+  FTipJrs := FTipJrsOLD;
+  FJrsDia := FJrsDiaOLD;
+  FTolJrs := FTolJrsOLD;
+  FDatCjm := FDatCjmOLD;
+  FPerMul := FPerMulOLD;
+  FTolMul := FTolMulOLD;
+  FDatNeg := FDatNegOLD;
+  FJrsNeg := FJrsNegOLD;
+  FMulNeg := FMulNegOLD;
+  FDscNeg := FDscNegOLD;
+  FOutNeg := FOutNegOLD;
+  FUsuNeg := FUsuNegOLD;
+  FCotNeg := FCotNegOLD;
+  FCorNeg := FCorNegOLD;
+  FCodPor := FCodPorOLD;
+  FCodCrt := FCodCrtOLD;
+  FTitBan := FTitBanOLD;
+  FCodUsu := FCodUsuOLD;
+  FDatApr := FDatAprOLD;
+  FHorApr := FHorAprOLD;
+  FPgtApr := FPgtAprOLD;
+  FVlrApr := FVlrAprOLD;
+  FCotApr := FCotAprOLD;
+  FDscApr := FDscAprOLD;
+  FOdeApr := FOdeAprOLD;
+  FJrsApr := FJrsAprOLD;
+  FMulApr := FMulAprOLD;
+  FEncApr := FEncAprOLD;
+  FCorApr := FCorAprOLD;
+  FOacApr := FOacAprOLD;
+  FIrfApr := FIrfAprOLD;
+  FVcrApr := FVcrAprOLD;
+  FEmpApr := FEmpAprOLD;
+  FCtaApr := FCtaAprOLD;
+  FSeqApr := FSeqAprOLD;
+  FLibApr := FLibAprOLD;
+  FUltPgt := FUltPgtOLD;
+  FCodBan := FCodBanOLD;
+  FCodAge := FCodAgeOLD;
+  FCcbFor := FCcbForOLD;
+  FPorAnt := FPorAntOLD;
+  FNumPrj := FNumPrjOLD;
+  FCodFpj := FCodFpjOLD;
+  FCtaFin := FCtaFinOLD;
+  FCtaRed := FCtaRedOLD;
+  FCodCcu := FCodCcuOLD;
+  FDatUcm := FDatUcmOLD;
+  FCotUcm := FCotUcmOLD;
+  FFilNfc := FFilNfcOLD;
+  FForNfc := FForNfcOLD;
+  FNumNfc := FNumNfcOLD;
+  FSnfNfc := FSnfNfcOLD;
+  FFilCtr := FFilCtrOLD;
+  FNumCtr := FNumCtrOLD;
+  FSeqImo := FSeqImoOLD;
+  FSeqCgt := FSeqCgtOLD;
+  FFilNff := FFilNffOLD;
+  FNumNff := FNumNffOLD;
+  FForNff := FForNffOLD;
+  FFilNfv := FFilNfvOLD;
+  FSnfNfv := FSnfNfvOLD;
+  FNumNfv := FNumNfvOLD;
+  FFpgApr := FFpgAprOLD;
+  FFilOcp := FFilOcpOLD;
+  FNumOcp := FNumOcpOLD;
+  FOcpFre := FOcpFreOLD;
+  FOcpNre := FOcpNreOLD;
+  FCtrFre := FCtrFreOLD;
+  FCtrNre := FCtrNreOLD;
+  FCodBar := FCodBarOLD;
+  FUsuSit := FUsuSitOLD;
+  FTipEfe := FTipEfeOLD;
+  FTnsPre := FTnsPreOLD;
+  FDatPre := FDatPreOLD;
+  FVlrPre := FVlrPreOLD;
+  FNumArb := FNumArbOLD;
+  FNumEco := FNumEcoOLD;
+  FTipImp := FTipImpOLD;
+  FFilImp := FFilImpOLD;
+  FNumImp := FNumImpOLD;
+  FTptImp := FTptImpOLD;
+  FForImp := FForImpOLD;
+  FSeqImp := FSeqImpOLD;
+  FVlrIns := FVlrInsOLD;
+  FPriPgt := FPriPgtOLD;
+  FFilCcr := FFilCcrOLD;
+  FNumCcr := FNumCcrOLD;
+  FTitCar := FTitCarOLD;
+  FTitPjr := FTitPjrOLD;
+  FGriFil := FGriFilOLD;
+  FGriImp := FGriImpOLD;
+  FGriApi := FGriApiOLD;
+  FGriSeq := FGriSeqOLD;
+  FCodSma := FCodSmaOLD;
+  FNumMan := FNumManOLD;
+  FCpgSub := FCpgSubOLD;
+  FGerTep := FGerTepOLD;
+  FSitDda := FSitDdaOLD;
+  FUsuGer := FUsuGerOLD;
+  FDatGer := FDatGerOLD;
+  FHorGer := FHorGerOLD;
+  FRotSap := FRotSapOLD;
+  FNumPge := FNumPgeOLD;
+  FNumDfs := FNumDfsOLD;
+  FAutBan := FAutBanOLD;
+  FCtrBan := FCtrBanOLD;
+  FTitJrs := FTitJrsOLD;
+  FTptJrs := FTptJrsOLD;
+  FRotNap := FRotNapOLD;
+  FNumApr := FNumAprOLD;
+  FSitApr := FSitAprOLD;
+  FTnsApr := FTnsAprOLD;
+  FUSU_NumDoi := FUSU_NumDoiOLD;
+  FUSU_NumFat := FUSU_NumFatOLD;
+  FUSU_IndAPr := FUSU_IndAPrOLD;
+  FUSU_IndAPrSol := FUSU_IndAPrSolOLD;
+  FUSU_IDTIT := FUSU_IDTITOLD;
+  FUSU_IDCLP := FUSU_IDCLPOLD;
 end;
 
 end.

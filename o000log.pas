@@ -3,7 +3,7 @@ unit o000log;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -68,6 +68,7 @@ type
     procedure SetHorGerOld(const pHorGer: Integer);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -99,9 +100,9 @@ implementation
 
 constructor T000LOG.Create();
 begin
-  inherited Create('E000LOG');
+  AddPrimaryKeys('NomTab;SeqLog;TipLog');
 
-  SetSequenceField('SeqLog');
+  inherited Create('E000LOG');
 end;
 
 destructor T000LOG.Destroy();
@@ -117,6 +118,8 @@ end;
 procedure T000LOG.SetNomTab(const pNomTab: string);
 begin
   FNomTab := pNomTab;
+
+  CheckField('NomTab');
 end;
 
 function T000LOG.GetSeqLog: Integer;
@@ -127,6 +130,8 @@ end;
 procedure T000LOG.SetSeqLog(const pSeqLog: Integer);
 begin
   FSeqLog := pSeqLog;
+
+  CheckField('SeqLog');
 end;
 
 function T000LOG.GetTipLog: Char;
@@ -137,6 +142,8 @@ end;
 procedure T000LOG.SetTipLog(const pTipLog: Char);
 begin
   FTipLog := pTipLog;
+
+  CheckField('TipLog');
 end;
 
 function T000LOG.GetChaTab: string;
@@ -147,6 +154,8 @@ end;
 procedure T000LOG.SetChaTab(const pChaTab: string);
 begin
   FChaTab := pChaTab;
+
+  CheckField('ChaTab');
 end;
 
 function T000LOG.GetNomFrm: string;
@@ -157,6 +166,8 @@ end;
 procedure T000LOG.SetNomFrm(const pNomFrm: string);
 begin
   FNomFrm := pNomFrm;
+
+  CheckField('NomFrm');
 end;
 
 function T000LOG.GetDesLog: string;
@@ -167,6 +178,8 @@ end;
 procedure T000LOG.SetDesLog(const pDesLog: string);
 begin
   FDesLog := pDesLog;
+
+  CheckField('DesLog');
 end;
 
 function T000LOG.GetUsuGer: Integer;
@@ -177,6 +190,8 @@ end;
 procedure T000LOG.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T000LOG.GetDatGer: TDate;
@@ -187,6 +202,8 @@ end;
 procedure T000LOG.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T000LOG.GetHorGer: Integer;
@@ -197,6 +214,8 @@ end;
 procedure T000LOG.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T000LOG.GetNomTabOLD: string;
@@ -300,6 +319,23 @@ begin
   FUsuGerOLD := FUsuGer;
   FDatGerOLD := FDatGer;
   FHorGerOLD := FHorGer;
+
+  inherited;
+end;
+
+procedure T000LOG.RetornarValores();
+begin
+  FNomTab := FNomTabOLD;
+  FSeqLog := FSeqLogOLD;
+  FTipLog := FTipLogOLD;
+  FChaTab := FChaTabOLD;
+  FNomFrm := FNomFrmOLD;
+  FDesLog := FDesLogOLD;
+  FUsuGer := FUsuGerOLD;
+  FDatGer := FDatGerOLD;
+  FHorGer := FHorGerOLD;
+
+  inherited;
 end;
 
 end.

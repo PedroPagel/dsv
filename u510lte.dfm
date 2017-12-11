@@ -1,6 +1,5 @@
 inherited F510LTE: TF510LTE
   Caption = 'D'#233'bito Direto Autorizado - Liga'#231#227'o de Esp'#233'cie e Tipo Interno'
-  OnDestroy = FormDestroy
   ExplicitWidth = 634
   ExplicitHeight = 732
   PixelsPerInch = 96
@@ -140,7 +139,6 @@ inherited F510LTE: TF510LTE
             TitleFont.Name = 'Tahoma'
             TitleFont.Style = []
             AllowNewLine = True
-            isAutomatic = True
           end
         end
         object BEDesLig: THButtonedEdit

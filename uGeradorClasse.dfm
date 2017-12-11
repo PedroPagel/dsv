@@ -25,28 +25,28 @@ object FGerCla: TFGerCla
     TabOrder = 0
     object Label1: TLabel
       Left = 16
-      Top = 32
+      Top = 59
       Width = 78
       Height = 13
       Caption = 'Nome do Objeto'
     end
     object Label2: TLabel
       Left = 58
-      Top = 59
+      Top = 32
       Width = 36
       Height = 13
       Caption = 'Tabela:'
     end
     object Label3: TLabel
-      Left = 50
-      Top = 140
+      Left = 239
+      Top = 32
       Width = 44
       Height = 13
       Caption = 'Heran'#231'a:'
     end
     object Label4: TLabel
       Left = 49
-      Top = 167
+      Top = 140
       Width = 45
       Height = 13
       Caption = 'Caminho:'
@@ -60,7 +60,7 @@ object FGerCla: TFGerCla
     end
     object Label6: TLabel
       Left = 254
-      Top = 140
+      Top = 113
       Width = 3
       Height = 13
     end
@@ -73,17 +73,18 @@ object FGerCla: TFGerCla
     end
     object ENomObj: TEdit
       Left = 100
-      Top = 29
-      Width = 121
-      Height = 21
-      TabOrder = 0
-    end
-    object BENomTab: THButtonedEdit
-      Left = 100
       Top = 56
       Width = 121
       Height = 21
       TabOrder = 1
+    end
+    object BENomTab: THButtonedEdit
+      Left = 100
+      Top = 29
+      Width = 121
+      Height = 21
+      TabOrder = 0
+      OnExit = BENomTabExit
       Table = 'R998FLD'
       Lookup = True
       Field = 'TBLNAM'
@@ -95,23 +96,24 @@ object FGerCla: TFGerCla
       Required = False
     end
     object cbHeranca: TComboBox
-      Left = 100
-      Top = 137
+      Left = 289
+      Top = 29
       Width = 145
       Height = 21
       Hint = 'Mantenha nenhum se n'#227'o for usar a BPL HBase.bpl!'
       Style = csDropDownList
+      ItemIndex = 0
       ParentShowHint = False
       ShowHint = True
       TabOrder = 4
+      Text = 'Tabela de Usu'#225'rio'
       Items.Strings = (
         'Tabela de Usu'#225'rio'
-        'Tabela Sistema'
-        'Nenhuma')
+        'Tabela Sistema')
     end
     object Executar: TButton
       Left = 170
-      Top = 191
+      Top = 164
       Width = 75
       Height = 25
       Caption = '&Executar'
@@ -120,7 +122,7 @@ object FGerCla: TFGerCla
     end
     object BEDirFil: THButtonedEdit
       Left = 100
-      Top = 164
+      Top = 137
       Width = 321
       Height = 21
       ReadOnly = True
@@ -142,23 +144,15 @@ object FGerCla: TFGerCla
     end
     object Button1: TButton
       Left = 320
-      Top = 191
+      Top = 164
       Width = 75
       Height = 25
       Caption = '&Sair'
       TabOrder = 7
       OnClick = Button1Click
     end
-    object ckHBASE: TCheckBox
-      Left = 232
-      Top = 60
-      Width = 97
-      Height = 17
-      Caption = 'Usar HBASE'
-      TabOrder = 8
-    end
     object cbBase: TComboBox
-      Left = 100
+      Left = 103
       Top = 110
       Width = 145
       Height = 21

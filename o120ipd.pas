@@ -3,7 +3,7 @@ unit o120ipd;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -213,6 +213,7 @@ type
     FUSU_EmiRel: Char;
     FUSU_OriMer: Char;
     FUSU_QtdExa: Char;
+    FUSU_CodRas: string;
 
     FCodEmpOLD: Integer;
     FCodFilOLD: Integer;
@@ -418,6 +419,7 @@ type
     FUSU_EmiRelOLD: Char;
     FUSU_OriMerOLD: Char;
     FUSU_QtdExaOLD: Char;
+    FUSU_CodRasOLD: string;
 
     function GetCodEmp: Integer;
     procedure SetCodEmp(const pCodEmp: Integer);
@@ -827,6 +829,8 @@ type
     procedure SetUSU_OriMer(const pUSU_OriMer: Char);
     function GetUSU_QtdExa: Char;
     procedure SetUSU_QtdExa(const pUSU_QtdExa: Char);
+    function GetUSU_CodRas: string;
+    procedure SetUSU_CodRas(const pUSU_CodRas: string);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -1236,8 +1240,11 @@ type
     procedure SetUSU_OriMerOld(const pUSU_OriMer: Char);
     function GetUSU_QtdExaOld: Char;
     procedure SetUSU_QtdExaOld(const pUSU_QtdExa: Char);
+    function GetUSU_CodRasOld: string;
+    procedure SetUSU_CodRasOld(const pUSU_CodRas: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -1446,6 +1453,7 @@ type
     property USU_EmiRel: Char read GetUSU_EmiRel write SetUSU_EmiRel;
     property USU_OriMer: Char read GetUSU_OriMer write SetUSU_OriMer;
     property USU_QtdExa: Char read GetUSU_QtdExa write SetUSU_QtdExa;
+    property USU_CodRas: string read GetUSU_CodRas write SetUSU_CodRas;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -1651,6 +1659,7 @@ type
     property OLD_USU_EmiRel: Char read GetUSU_EmiRelOLD write SetUSU_EmiRelOLD;
     property OLD_USU_OriMer: Char read GetUSU_OriMerOLD write SetUSU_OriMerOLD;
     property OLD_USU_QtdExa: Char read GetUSU_QtdExaOLD write SetUSU_QtdExaOLD;
+    property OLD_USU_CodRas: string read GetUSU_CodRasOLD write SetUSU_CodRasOLD;
   end;
 
 implementation
@@ -1659,6 +1668,9 @@ implementation
 
 constructor T120IPD.Create();
 begin
+  AddForeignKeys(['CodEmp','CodFil','NumPed','UniMed'], ['CodEmp','CodFil','NumPed','UniMed']);
+  AddPrimaryKeys('CodEmp;CodFil;NumPed;SeqIpd');
+
   inherited Create('E120IPD');
 end;
 
@@ -1666,6 +1678,7 @@ destructor T120IPD.Destroy();
 begin
   inherited;
 end;
+
 function T120IPD.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -1674,6 +1687,8 @@ end;
 procedure T120IPD.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T120IPD.GetCodFil: Integer;
@@ -1684,6 +1699,8 @@ end;
 procedure T120IPD.SetCodFil(const pCodFil: Integer);
 begin
   FCodFil := pCodFil;
+
+  CheckField('CodFil');
 end;
 
 function T120IPD.GetNumPed: Integer;
@@ -1694,6 +1711,8 @@ end;
 procedure T120IPD.SetNumPed(const pNumPed: Integer);
 begin
   FNumPed := pNumPed;
+
+  CheckField('NumPed');
 end;
 
 function T120IPD.GetSeqIpd: Integer;
@@ -1704,6 +1723,8 @@ end;
 procedure T120IPD.SetSeqIpd(const pSeqIpd: Integer);
 begin
   FSeqIpd := pSeqIpd;
+
+  CheckField('SeqIpd');
 end;
 
 function T120IPD.GetTnsPro: string;
@@ -1714,6 +1735,8 @@ end;
 procedure T120IPD.SetTnsPro(const pTnsPro: string);
 begin
   FTnsPro := pTnsPro;
+
+  CheckField('TnsPro');
 end;
 
 function T120IPD.GetPedCli: string;
@@ -1724,6 +1747,8 @@ end;
 procedure T120IPD.SetPedCli(const pPedCli: string);
 begin
   FPedCli := pPedCli;
+
+  CheckField('PedCli');
 end;
 
 function T120IPD.GetSeqPcl: string;
@@ -1734,6 +1759,8 @@ end;
 procedure T120IPD.SetSeqPcl(const pSeqPcl: string);
 begin
   FSeqPcl := pSeqPcl;
+
+  CheckField('SeqPcl');
 end;
 
 function T120IPD.GetPedPrv: Char;
@@ -1744,6 +1771,8 @@ end;
 procedure T120IPD.SetPedPrv(const pPedPrv: Char);
 begin
   FPedPrv := pPedPrv;
+
+  CheckField('PedPrv');
 end;
 
 function T120IPD.GetCodPro: string;
@@ -1754,6 +1783,8 @@ end;
 procedure T120IPD.SetCodPro(const pCodPro: string);
 begin
   FCodPro := pCodPro;
+
+  CheckField('CodPro');
 end;
 
 function T120IPD.GetCodDer: string;
@@ -1764,6 +1795,8 @@ end;
 procedure T120IPD.SetCodDer(const pCodDer: string);
 begin
   FCodDer := pCodDer;
+
+  CheckField('CodDer');
 end;
 
 function T120IPD.GetCplIpd: string;
@@ -1774,6 +1807,8 @@ end;
 procedure T120IPD.SetCplIpd(const pCplIpd: string);
 begin
   FCplIpd := pCplIpd;
+
+  CheckField('CplIpd');
 end;
 
 function T120IPD.GetCodFam: string;
@@ -1784,6 +1819,8 @@ end;
 procedure T120IPD.SetCodFam(const pCodFam: string);
 begin
   FCodFam := pCodFam;
+
+  CheckField('CodFam');
 end;
 
 function T120IPD.GetCodAgr: Integer;
@@ -1794,6 +1831,8 @@ end;
 procedure T120IPD.SetCodAgr(const pCodAgr: Integer);
 begin
   FCodAgr := pCodAgr;
+
+  CheckField('CodAgr');
 end;
 
 function T120IPD.GetCodTic: string;
@@ -1804,6 +1843,8 @@ end;
 procedure T120IPD.SetCodTic(const pCodTic: string);
 begin
   FCodTic := pCodTic;
+
+  CheckField('CodTic');
 end;
 
 function T120IPD.GetCodTrd: string;
@@ -1814,6 +1855,8 @@ end;
 procedure T120IPD.SetCodTrd(const pCodTrd: string);
 begin
   FCodTrd := pCodTrd;
+
+  CheckField('CodTrd');
 end;
 
 function T120IPD.GetCodTst: string;
@@ -1824,6 +1867,8 @@ end;
 procedure T120IPD.SetCodTst(const pCodTst: string);
 begin
   FCodTst := pCodTst;
+
+  CheckField('CodTst');
 end;
 
 function T120IPD.GetCodStp: string;
@@ -1834,6 +1879,8 @@ end;
 procedure T120IPD.SetCodStp(const pCodStp: string);
 begin
   FCodStp := pCodStp;
+
+  CheckField('CodStp');
 end;
 
 function T120IPD.GetCodStc: string;
@@ -1844,6 +1891,8 @@ end;
 procedure T120IPD.SetCodStc(const pCodStc: string);
 begin
   FCodStc := pCodStc;
+
+  CheckField('CodStc');
 end;
 
 function T120IPD.GetCodDep: string;
@@ -1854,6 +1903,8 @@ end;
 procedure T120IPD.SetCodDep(const pCodDep: string);
 begin
   FCodDep := pCodDep;
+
+  CheckField('CodDep');
 end;
 
 function T120IPD.GetCodLot: string;
@@ -1864,6 +1915,8 @@ end;
 procedure T120IPD.SetCodLot(const pCodLot: string);
 begin
   FCodLot := pCodLot;
+
+  CheckField('CodLot');
 end;
 
 function T120IPD.GetResEst: Char;
@@ -1874,6 +1927,8 @@ end;
 procedure T120IPD.SetResEst(const pResEst: Char);
 begin
   FResEst := pResEst;
+
+  CheckField('ResEst');
 end;
 
 function T120IPD.GetQtdPed: Double;
@@ -1884,6 +1939,8 @@ end;
 procedure T120IPD.SetQtdPed(const pQtdPed: Double);
 begin
   FQtdPed := pQtdPed;
+
+  CheckField('QtdPed');
 end;
 
 function T120IPD.GetQtdAen: Double;
@@ -1894,6 +1951,8 @@ end;
 procedure T120IPD.SetQtdAen(const pQtdAen: Double);
 begin
   FQtdAen := pQtdAen;
+
+  CheckField('QtdAen');
 end;
 
 function T120IPD.GetQtdPoc: Double;
@@ -1904,6 +1963,8 @@ end;
 procedure T120IPD.SetQtdPoc(const pQtdPoc: Double);
 begin
   FQtdPoc := pQtdPoc;
+
+  CheckField('QtdPoc');
 end;
 
 function T120IPD.GetQtdFat: Double;
@@ -1914,6 +1975,8 @@ end;
 procedure T120IPD.SetQtdFat(const pQtdFat: Double);
 begin
   FQtdFat := pQtdFat;
+
+  CheckField('QtdFat');
 end;
 
 function T120IPD.GetQtdCan: Double;
@@ -1924,6 +1987,8 @@ end;
 procedure T120IPD.SetQtdCan(const pQtdCan: Double);
 begin
   FQtdCan := pQtdCan;
+
+  CheckField('QtdCan');
 end;
 
 function T120IPD.GetQtdAbe: Double;
@@ -1934,6 +1999,8 @@ end;
 procedure T120IPD.SetQtdAbe(const pQtdAbe: Double);
 begin
   FQtdAbe := pQtdAbe;
+
+  CheckField('QtdAbe');
 end;
 
 function T120IPD.GetQtdRae: Double;
@@ -1944,6 +2011,8 @@ end;
 procedure T120IPD.SetQtdRae(const pQtdRae: Double);
 begin
   FQtdRae := pQtdRae;
+
+  CheckField('QtdRae');
 end;
 
 function T120IPD.GetQtdNlp: Double;
@@ -1954,6 +2023,8 @@ end;
 procedure T120IPD.SetQtdNlp(const pQtdNlp: Double);
 begin
   FQtdNlp := pQtdNlp;
+
+  CheckField('QtdNlp');
 end;
 
 function T120IPD.GetQtdRes: Double;
@@ -1964,6 +2035,8 @@ end;
 procedure T120IPD.SetQtdRes(const pQtdRes: Double);
 begin
   FQtdRes := pQtdRes;
+
+  CheckField('QtdRes');
 end;
 
 function T120IPD.GetUniMed: string;
@@ -1974,6 +2047,8 @@ end;
 procedure T120IPD.SetUniMed(const pUniMed: string);
 begin
   FUniMed := pUniMed;
+
+  CheckField('UniMed');
 end;
 
 function T120IPD.GetCodMcp: string;
@@ -1984,6 +2059,8 @@ end;
 procedure T120IPD.SetCodMcp(const pCodMcp: string);
 begin
   FCodMcp := pCodMcp;
+
+  CheckField('CodMcp');
 end;
 
 function T120IPD.GetDatMfp: TDate;
@@ -1994,6 +2071,8 @@ end;
 procedure T120IPD.SetDatMfp(const pDatMfp: TDate);
 begin
   FDatMfp := pDatMfp;
+
+  CheckField('DatMfp');
 end;
 
 function T120IPD.GetCotMfp: Double;
@@ -2004,6 +2083,8 @@ end;
 procedure T120IPD.SetCotMfp(const pCotMfp: Double);
 begin
   FCotMfp := pCotMfp;
+
+  CheckField('CotMfp');
 end;
 
 function T120IPD.GetDatMoe: TDate;
@@ -2014,6 +2095,8 @@ end;
 procedure T120IPD.SetDatMoe(const pDatMoe: TDate);
 begin
   FDatMoe := pDatMoe;
+
+  CheckField('DatMoe');
 end;
 
 function T120IPD.GetCotMoe: Double;
@@ -2024,6 +2107,8 @@ end;
 procedure T120IPD.SetCotMoe(const pCotMoe: Double);
 begin
   FCotMoe := pCotMoe;
+
+  CheckField('CotMoe');
 end;
 
 function T120IPD.GetFecMoe: Char;
@@ -2034,6 +2119,8 @@ end;
 procedure T120IPD.SetFecMoe(const pFecMoe: Char);
 begin
   FFecMoe := pFecMoe;
+
+  CheckField('FecMoe');
 end;
 
 function T120IPD.GetCodTpr: string;
@@ -2044,6 +2131,8 @@ end;
 procedure T120IPD.SetCodTpr(const pCodTpr: string);
 begin
   FCodTpr := pCodTpr;
+
+  CheckField('CodTpr');
 end;
 
 function T120IPD.GetPreUni: Double;
@@ -2054,6 +2143,8 @@ end;
 procedure T120IPD.SetPreUni(const pPreUni: Double);
 begin
   FPreUni := pPreUni;
+
+  CheckField('PreUni');
 end;
 
 function T120IPD.GetCodMoe: string;
@@ -2064,6 +2155,8 @@ end;
 procedure T120IPD.SetCodMoe(const pCodMoe: string);
 begin
   FCodMoe := pCodMoe;
+
+  CheckField('CodMoe');
 end;
 
 function T120IPD.GetPreFix: Char;
@@ -2074,6 +2167,8 @@ end;
 procedure T120IPD.SetPreFix(const pPreFix: Char);
 begin
   FPreFix := pPreFix;
+
+  CheckField('PreFix');
 end;
 
 function T120IPD.GetPerDsc: Double;
@@ -2084,6 +2179,8 @@ end;
 procedure T120IPD.SetPerDsc(const pPerDsc: Double);
 begin
   FPerDsc := pPerDsc;
+
+  CheckField('PerDsc');
 end;
 
 function T120IPD.GetPerOfe: Double;
@@ -2094,6 +2191,8 @@ end;
 procedure T120IPD.SetPerOfe(const pPerOfe: Double);
 begin
   FPerOfe := pPerOfe;
+
+  CheckField('PerOfe');
 end;
 
 function T120IPD.GetPerAcr: Double;
@@ -2104,6 +2203,8 @@ end;
 procedure T120IPD.SetPerAcr(const pPerAcr: Double);
 begin
   FPerAcr := pPerAcr;
+
+  CheckField('PerAcr');
 end;
 
 function T120IPD.GetPerIpi: Double;
@@ -2114,6 +2215,8 @@ end;
 procedure T120IPD.SetPerIpi(const pPerIpi: Double);
 begin
   FPerIpi := pPerIpi;
+
+  CheckField('PerIpi');
 end;
 
 function T120IPD.GetPerIcm: Double;
@@ -2124,6 +2227,8 @@ end;
 procedure T120IPD.SetPerIcm(const pPerIcm: Double);
 begin
   FPerIcm := pPerIcm;
+
+  CheckField('PerIcm');
 end;
 
 function T120IPD.GetPerCom: Double;
@@ -2134,6 +2239,8 @@ end;
 procedure T120IPD.SetPerCom(const pPerCom: Double);
 begin
   FPerCom := pPerCom;
+
+  CheckField('PerCom');
 end;
 
 function T120IPD.GetDatEnt: TDate;
@@ -2144,6 +2251,8 @@ end;
 procedure T120IPD.SetDatEnt(const pDatEnt: TDate);
 begin
   FDatEnt := pDatEnt;
+
+  CheckField('DatEnt');
 end;
 
 function T120IPD.GetDatAne: TDate;
@@ -2154,6 +2263,8 @@ end;
 procedure T120IPD.SetDatAne(const pDatAne: TDate);
 begin
   FDatAne := pDatAne;
+
+  CheckField('DatAne');
 end;
 
 function T120IPD.GetDatPoc: TDate;
@@ -2164,6 +2275,8 @@ end;
 procedure T120IPD.SetDatPoc(const pDatPoc: TDate);
 begin
   FDatPoc := pDatPoc;
+
+  CheckField('DatPoc');
 end;
 
 function T120IPD.GetCodPvp: string;
@@ -2174,6 +2287,8 @@ end;
 procedure T120IPD.SetCodPvp(const pCodPvp: string);
 begin
   FCodPvp := pCodPvp;
+
+  CheckField('CodPvp');
 end;
 
 function T120IPD.GetNumPrj: Integer;
@@ -2184,6 +2299,8 @@ end;
 procedure T120IPD.SetNumPrj(const pNumPrj: Integer);
 begin
   FNumPrj := pNumPrj;
+
+  CheckField('NumPrj');
 end;
 
 function T120IPD.GetCodFpj: Integer;
@@ -2194,6 +2311,8 @@ end;
 procedure T120IPD.SetCodFpj(const pCodFpj: Integer);
 begin
   FCodFpj := pCodFpj;
+
+  CheckField('CodFpj');
 end;
 
 function T120IPD.GetCtaFin: Integer;
@@ -2204,6 +2323,8 @@ end;
 procedure T120IPD.SetCtaFin(const pCtaFin: Integer);
 begin
   FCtaFin := pCtaFin;
+
+  CheckField('CtaFin');
 end;
 
 function T120IPD.GetCtaRed: Integer;
@@ -2214,6 +2335,8 @@ end;
 procedure T120IPD.SetCtaRed(const pCtaRed: Integer);
 begin
   FCtaRed := pCtaRed;
+
+  CheckField('CtaRed');
 end;
 
 function T120IPD.GetCodCcu: string;
@@ -2224,6 +2347,8 @@ end;
 procedure T120IPD.SetCodCcu(const pCodCcu: string);
 begin
   FCodCcu := pCodCcu;
+
+  CheckField('CodCcu');
 end;
 
 function T120IPD.GetVlrFre: Double;
@@ -2234,6 +2359,8 @@ end;
 procedure T120IPD.SetVlrFre(const pVlrFre: Double);
 begin
   FVlrFre := pVlrFre;
+
+  CheckField('VlrFre');
 end;
 
 function T120IPD.GetVlrSeg: Double;
@@ -2244,6 +2371,8 @@ end;
 procedure T120IPD.SetVlrSeg(const pVlrSeg: Double);
 begin
   FVlrSeg := pVlrSeg;
+
+  CheckField('VlrSeg');
 end;
 
 function T120IPD.GetVlrEmb: Double;
@@ -2254,6 +2383,8 @@ end;
 procedure T120IPD.SetVlrEmb(const pVlrEmb: Double);
 begin
   FVlrEmb := pVlrEmb;
+
+  CheckField('VlrEmb');
 end;
 
 function T120IPD.GetVlrEnc: Double;
@@ -2264,6 +2395,8 @@ end;
 procedure T120IPD.SetVlrEnc(const pVlrEnc: Double);
 begin
   FVlrEnc := pVlrEnc;
+
+  CheckField('VlrEnc');
 end;
 
 function T120IPD.GetVlrOut: Double;
@@ -2274,6 +2407,8 @@ end;
 procedure T120IPD.SetVlrOut(const pVlrOut: Double);
 begin
   FVlrOut := pVlrOut;
+
+  CheckField('VlrOut');
 end;
 
 function T120IPD.GetVlrDar: Double;
@@ -2284,6 +2419,8 @@ end;
 procedure T120IPD.SetVlrDar(const pVlrDar: Double);
 begin
   FVlrDar := pVlrDar;
+
+  CheckField('VlrDar');
 end;
 
 function T120IPD.GetVlrFrd: Double;
@@ -2294,6 +2431,8 @@ end;
 procedure T120IPD.SetVlrFrd(const pVlrFrd: Double);
 begin
   FVlrFrd := pVlrFrd;
+
+  CheckField('VlrFrd');
 end;
 
 function T120IPD.GetVlrOud: Double;
@@ -2304,6 +2443,8 @@ end;
 procedure T120IPD.SetVlrOud(const pVlrOud: Double);
 begin
   FVlrOud := pVlrOud;
+
+  CheckField('VlrOud');
 end;
 
 function T120IPD.GetVlrBru: Double;
@@ -2314,6 +2455,8 @@ end;
 procedure T120IPD.SetVlrBru(const pVlrBru: Double);
 begin
   FVlrBru := pVlrBru;
+
+  CheckField('VlrBru');
 end;
 
 function T120IPD.GetVlrDsc: Double;
@@ -2324,6 +2467,8 @@ end;
 procedure T120IPD.SetVlrDsc(const pVlrDsc: Double);
 begin
   FVlrDsc := pVlrDsc;
+
+  CheckField('VlrDsc');
 end;
 
 function T120IPD.GetVlrDs1: Double;
@@ -2334,6 +2479,8 @@ end;
 procedure T120IPD.SetVlrDs1(const pVlrDs1: Double);
 begin
   FVlrDs1 := pVlrDs1;
+
+  CheckField('VlrDs1');
 end;
 
 function T120IPD.GetVlrDs2: Double;
@@ -2344,6 +2491,8 @@ end;
 procedure T120IPD.SetVlrDs2(const pVlrDs2: Double);
 begin
   FVlrDs2 := pVlrDs2;
+
+  CheckField('VlrDs2');
 end;
 
 function T120IPD.GetVlrDs3: Double;
@@ -2354,6 +2503,8 @@ end;
 procedure T120IPD.SetVlrDs3(const pVlrDs3: Double);
 begin
   FVlrDs3 := pVlrDs3;
+
+  CheckField('VlrDs3');
 end;
 
 function T120IPD.GetVlrDs4: Double;
@@ -2364,6 +2515,8 @@ end;
 procedure T120IPD.SetVlrDs4(const pVlrDs4: Double);
 begin
   FVlrDs4 := pVlrDs4;
+
+  CheckField('VlrDs4');
 end;
 
 function T120IPD.GetVlrOfe: Double;
@@ -2374,6 +2527,8 @@ end;
 procedure T120IPD.SetVlrOfe(const pVlrOfe: Double);
 begin
   FVlrOfe := pVlrOfe;
+
+  CheckField('VlrOfe');
 end;
 
 function T120IPD.GetVlrDzf: Double;
@@ -2384,6 +2539,8 @@ end;
 procedure T120IPD.SetVlrDzf(const pVlrDzf: Double);
 begin
   FVlrDzf := pVlrDzf;
+
+  CheckField('VlrDzf');
 end;
 
 function T120IPD.GetVlrBip: Double;
@@ -2394,6 +2551,8 @@ end;
 procedure T120IPD.SetVlrBip(const pVlrBip: Double);
 begin
   FVlrBip := pVlrBip;
+
+  CheckField('VlrBip');
 end;
 
 function T120IPD.GetVlrIpi: Double;
@@ -2404,6 +2563,8 @@ end;
 procedure T120IPD.SetVlrIpi(const pVlrIpi: Double);
 begin
   FVlrIpi := pVlrIpi;
+
+  CheckField('VlrIpi');
 end;
 
 function T120IPD.GetVlrBic: Double;
@@ -2414,6 +2575,8 @@ end;
 procedure T120IPD.SetVlrBic(const pVlrBic: Double);
 begin
   FVlrBic := pVlrBic;
+
+  CheckField('VlrBic');
 end;
 
 function T120IPD.GetVlrIcm: Double;
@@ -2424,6 +2587,8 @@ end;
 procedure T120IPD.SetVlrIcm(const pVlrIcm: Double);
 begin
   FVlrIcm := pVlrIcm;
+
+  CheckField('VlrIcm');
 end;
 
 function T120IPD.GetVlrBsi: Double;
@@ -2434,6 +2599,8 @@ end;
 procedure T120IPD.SetVlrBsi(const pVlrBsi: Double);
 begin
   FVlrBsi := pVlrBsi;
+
+  CheckField('VlrBsi');
 end;
 
 function T120IPD.GetVlrIcs: Double;
@@ -2444,6 +2611,8 @@ end;
 procedure T120IPD.SetVlrIcs(const pVlrIcs: Double);
 begin
   FVlrIcs := pVlrIcs;
+
+  CheckField('VlrIcs');
 end;
 
 function T120IPD.GetVlrBsp: Double;
@@ -2454,6 +2623,8 @@ end;
 procedure T120IPD.SetVlrBsp(const pVlrBsp: Double);
 begin
   FVlrBsp := pVlrBsp;
+
+  CheckField('VlrBsp');
 end;
 
 function T120IPD.GetVlrStp: Double;
@@ -2464,6 +2635,8 @@ end;
 procedure T120IPD.SetVlrStp(const pVlrStp: Double);
 begin
   FVlrStp := pVlrStp;
+
+  CheckField('VlrStp');
 end;
 
 function T120IPD.GetVlrBsc: Double;
@@ -2474,6 +2647,8 @@ end;
 procedure T120IPD.SetVlrBsc(const pVlrBsc: Double);
 begin
   FVlrBsc := pVlrBsc;
+
+  CheckField('VlrBsc');
 end;
 
 function T120IPD.GetVlrStc: Double;
@@ -2484,6 +2659,8 @@ end;
 procedure T120IPD.SetVlrStc(const pVlrStc: Double);
 begin
   FVlrStc := pVlrStc;
+
+  CheckField('VlrStc');
 end;
 
 function T120IPD.GetVlrBco: Double;
@@ -2494,6 +2671,8 @@ end;
 procedure T120IPD.SetVlrBco(const pVlrBco: Double);
 begin
   FVlrBco := pVlrBco;
+
+  CheckField('VlrBco');
 end;
 
 function T120IPD.GetVlrCom: Double;
@@ -2504,6 +2683,8 @@ end;
 procedure T120IPD.SetVlrCom(const pVlrCom: Double);
 begin
   FVlrCom := pVlrCom;
+
+  CheckField('VlrCom');
 end;
 
 function T120IPD.GetVlrLpr: Double;
@@ -2514,6 +2695,8 @@ end;
 procedure T120IPD.SetVlrLpr(const pVlrLpr: Double);
 begin
   FVlrLpr := pVlrLpr;
+
+  CheckField('VlrLpr');
 end;
 
 function T120IPD.GetVlrLou: Double;
@@ -2524,6 +2707,8 @@ end;
 procedure T120IPD.SetVlrLou(const pVlrLou: Double);
 begin
   FVlrLou := pVlrLou;
+
+  CheckField('VlrLou');
 end;
 
 function T120IPD.GetVlrLiq: Double;
@@ -2534,6 +2719,8 @@ end;
 procedure T120IPD.SetVlrLiq(const pVlrLiq: Double);
 begin
   FVlrLiq := pVlrLiq;
+
+  CheckField('VlrLiq');
 end;
 
 function T120IPD.GetVlrFin: Double;
@@ -2544,6 +2731,8 @@ end;
 procedure T120IPD.SetVlrFin(const pVlrFin: Double);
 begin
   FVlrFin := pVlrFin;
+
+  CheckField('VlrFin');
 end;
 
 function T120IPD.GetSitIpd: Integer;
@@ -2554,6 +2743,8 @@ end;
 procedure T120IPD.SetSitIpd(const pSitIpd: Integer);
 begin
   FSitIpd := pSitIpd;
+
+  CheckField('SitIpd');
 end;
 
 function T120IPD.GetCodMot: Integer;
@@ -2564,6 +2755,8 @@ end;
 procedure T120IPD.SetCodMot(const pCodMot: Integer);
 begin
   FCodMot := pCodMot;
+
+  CheckField('CodMot');
 end;
 
 function T120IPD.GetObsMot: string;
@@ -2574,6 +2767,8 @@ end;
 procedure T120IPD.SetObsMot(const pObsMot: string);
 begin
   FObsMot := pObsMot;
+
+  CheckField('ObsMot');
 end;
 
 function T120IPD.GetGerNec: Integer;
@@ -2584,6 +2779,8 @@ end;
 procedure T120IPD.SetGerNec(const pGerNec: Integer);
 begin
   FGerNec := pGerNec;
+
+  CheckField('GerNec');
 end;
 
 function T120IPD.GetGerCga: Char;
@@ -2594,6 +2791,8 @@ end;
 procedure T120IPD.SetGerCga(const pGerCga: Char);
 begin
   FGerCga := pGerCga;
+
+  CheckField('GerCga');
 end;
 
 function T120IPD.GetResMan: Char;
@@ -2604,6 +2803,8 @@ end;
 procedure T120IPD.SetResMan(const pResMan: Char);
 begin
   FResMan := pResMan;
+
+  CheckField('ResMan');
 end;
 
 function T120IPD.GetIndAed: Char;
@@ -2614,6 +2815,8 @@ end;
 procedure T120IPD.SetIndAed(const pIndAed: Char);
 begin
   FIndAed := pIndAed;
+
+  CheckField('IndAed');
 end;
 
 function T120IPD.GetNumCtr: Integer;
@@ -2624,6 +2827,8 @@ end;
 procedure T120IPD.SetNumCtr(const pNumCtr: Integer);
 begin
   FNumCtr := pNumCtr;
+
+  CheckField('NumCtr');
 end;
 
 function T120IPD.GetDatCpt: TDate;
@@ -2634,6 +2839,8 @@ end;
 procedure T120IPD.SetDatCpt(const pDatCpt: TDate);
 begin
   FDatCpt := pDatCpt;
+
+  CheckField('DatCpt');
 end;
 
 function T120IPD.GetSeqCvp: Integer;
@@ -2644,6 +2851,8 @@ end;
 procedure T120IPD.SetSeqCvp(const pSeqCvp: Integer);
 begin
   FSeqCvp := pSeqCvp;
+
+  CheckField('SeqCvp');
 end;
 
 function T120IPD.GetUsuGer: Integer;
@@ -2654,6 +2863,8 @@ end;
 procedure T120IPD.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T120IPD.GetDatGer: TDate;
@@ -2664,6 +2875,8 @@ end;
 procedure T120IPD.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T120IPD.GetHorGer: Integer;
@@ -2674,6 +2887,8 @@ end;
 procedure T120IPD.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T120IPD.GetQtdPpf: Double;
@@ -2684,6 +2899,8 @@ end;
 procedure T120IPD.SetQtdPpf(const pQtdPpf: Double);
 begin
   FQtdPpf := pQtdPpf;
+
+  CheckField('QtdPpf');
 end;
 
 function T120IPD.GetCmpKit: Char;
@@ -2694,6 +2911,8 @@ end;
 procedure T120IPD.SetCmpKit(const pCmpKit: Char);
 begin
   FCmpKit := pCmpKit;
+
+  CheckField('CmpKit');
 end;
 
 function T120IPD.GetFilOcp: Integer;
@@ -2704,6 +2923,8 @@ end;
 procedure T120IPD.SetFilOcp(const pFilOcp: Integer);
 begin
   FFilOcp := pFilOcp;
+
+  CheckField('FilOcp');
 end;
 
 function T120IPD.GetNumOcp: Integer;
@@ -2714,6 +2935,8 @@ end;
 procedure T120IPD.SetNumOcp(const pNumOcp: Integer);
 begin
   FNumOcp := pNumOcp;
+
+  CheckField('NumOcp');
 end;
 
 function T120IPD.GetSeqIpo: Integer;
@@ -2724,6 +2947,8 @@ end;
 procedure T120IPD.SetSeqIpo(const pSeqIpo: Integer);
 begin
   FSeqIpo := pSeqIpo;
+
+  CheckField('SeqIpo');
 end;
 
 function T120IPD.GetUniVen: string;
@@ -2734,6 +2959,8 @@ end;
 procedure T120IPD.SetUniVen(const pUniVen: string);
 begin
   FUniVen := pUniVen;
+
+  CheckField('UniVen');
 end;
 
 function T120IPD.GetQtdVen: Double;
@@ -2744,6 +2971,8 @@ end;
 procedure T120IPD.SetQtdVen(const pQtdVen: Double);
 begin
   FQtdVen := pQtdVen;
+
+  CheckField('QtdVen');
 end;
 
 function T120IPD.GetPreVen: Double;
@@ -2754,6 +2983,8 @@ end;
 procedure T120IPD.SetPreVen(const pPreVen: Double);
 begin
   FPreVen := pPreVen;
+
+  CheckField('PreVen');
 end;
 
 function T120IPD.GetPreBru: Double;
@@ -2764,6 +2995,8 @@ end;
 procedure T120IPD.SetPreBru(const pPreBru: Double);
 begin
   FPreBru := pPreBru;
+
+  CheckField('PreBru');
 end;
 
 function T120IPD.GetFilCtr: Integer;
@@ -2774,6 +3007,8 @@ end;
 procedure T120IPD.SetFilCtr(const pFilCtr: Integer);
 begin
   FFilCtr := pFilCtr;
+
+  CheckField('FilCtr');
 end;
 
 function T120IPD.GetCtrCvs: Integer;
@@ -2784,6 +3019,8 @@ end;
 procedure T120IPD.SetCtrCvs(const pCtrCvs: Integer);
 begin
   FCtrCvs := pCtrCvs;
+
+  CheckField('CtrCvs');
 end;
 
 function T120IPD.GetCptCvs: TDate;
@@ -2794,6 +3031,8 @@ end;
 procedure T120IPD.SetCptCvs(const pCptCvs: TDate);
 begin
   FCptCvs := pCptCvs;
+
+  CheckField('CptCvs');
 end;
 
 function T120IPD.GetSeqCvs: Integer;
@@ -2804,6 +3043,8 @@ end;
 procedure T120IPD.SetSeqCvs(const pSeqCvs: Integer);
 begin
   FSeqCvs := pSeqCvs;
+
+  CheckField('SeqCvs');
 end;
 
 function T120IPD.GetCodAvc: Integer;
@@ -2814,6 +3055,8 @@ end;
 procedure T120IPD.SetCodAvc(const pCodAvc: Integer);
 begin
   FCodAvc := pCodAvc;
+
+  CheckField('CodAvc');
 end;
 
 function T120IPD.GetCodFxa: string;
@@ -2824,6 +3067,8 @@ end;
 procedure T120IPD.SetCodFxa(const pCodFxa: string);
 begin
   FCodFxa := pCodFxa;
+
+  CheckField('CodFxa');
 end;
 
 function T120IPD.GetCodPgr: string;
@@ -2834,6 +3079,8 @@ end;
 procedure T120IPD.SetCodPgr(const pCodPgr: string);
 begin
   FCodPgr := pCodPgr;
+
+  CheckField('CodPgr');
 end;
 
 function T120IPD.GetIdxGrd: Integer;
@@ -2844,6 +3091,8 @@ end;
 procedure T120IPD.SetIdxGrd(const pIdxGrd: Integer);
 begin
   FIdxGrd := pIdxGrd;
+
+  CheckField('IdxGrd');
 end;
 
 function T120IPD.GetCodMar: string;
@@ -2854,6 +3103,8 @@ end;
 procedure T120IPD.SetCodMar(const pCodMar: string);
 begin
   FCodMar := pCodMar;
+
+  CheckField('CodMar');
 end;
 
 function T120IPD.GetCodClc: string;
@@ -2864,6 +3115,8 @@ end;
 procedure T120IPD.SetCodClc(const pCodClc: string);
 begin
   FCodClc := pCodClc;
+
+  CheckField('CodClc');
 end;
 
 function T120IPD.GetPerDs1: Double;
@@ -2874,6 +3127,8 @@ end;
 procedure T120IPD.SetPerDs1(const pPerDs1: Double);
 begin
   FPerDs1 := pPerDs1;
+
+  CheckField('PerDs1');
 end;
 
 function T120IPD.GetPerDs2: Double;
@@ -2884,6 +3139,8 @@ end;
 procedure T120IPD.SetPerDs2(const pPerDs2: Double);
 begin
   FPerDs2 := pPerDs2;
+
+  CheckField('PerDs2');
 end;
 
 function T120IPD.GetPerDs3: Double;
@@ -2894,6 +3151,8 @@ end;
 procedure T120IPD.SetPerDs3(const pPerDs3: Double);
 begin
   FPerDs3 := pPerDs3;
+
+  CheckField('PerDs3');
 end;
 
 function T120IPD.GetPerDs4: Double;
@@ -2904,6 +3163,8 @@ end;
 procedure T120IPD.SetPerDs4(const pPerDs4: Double);
 begin
   FPerDs4 := pPerDs4;
+
+  CheckField('PerDs4');
 end;
 
 function T120IPD.GetFilPrd: Integer;
@@ -2914,6 +3175,8 @@ end;
 procedure T120IPD.SetFilPrd(const pFilPrd: Integer);
 begin
   FFilPrd := pFilPrd;
+
+  CheckField('FilPrd');
 end;
 
 function T120IPD.GetVlrRis: Double;
@@ -2924,6 +3187,8 @@ end;
 procedure T120IPD.SetVlrRis(const pVlrRis: Double);
 begin
   FVlrRis := pVlrRis;
+
+  CheckField('VlrRis');
 end;
 
 function T120IPD.GetIndPce: Char;
@@ -2934,6 +3199,8 @@ end;
 procedure T120IPD.SetIndPce(const pIndPce: Char);
 begin
   FIndPce := pIndPce;
+
+  CheckField('IndPce');
 end;
 
 function T120IPD.GetIndPcr: Char;
@@ -2944,6 +3211,8 @@ end;
 procedure T120IPD.SetIndPcr(const pIndPcr: Char);
 begin
   FIndPcr := pIndPcr;
+
+  CheckField('IndPcr');
 end;
 
 function T120IPD.GetPerPit: Double;
@@ -2954,6 +3223,8 @@ end;
 procedure T120IPD.SetPerPit(const pPerPit: Double);
 begin
   FPerPit := pPerPit;
+
+  CheckField('PerPit');
 end;
 
 function T120IPD.GetVlrBpt: Double;
@@ -2964,6 +3235,8 @@ end;
 procedure T120IPD.SetVlrBpt(const pVlrBpt: Double);
 begin
   FVlrBpt := pVlrBpt;
+
+  CheckField('VlrBpt');
 end;
 
 function T120IPD.GetVlrPit: Double;
@@ -2974,6 +3247,8 @@ end;
 procedure T120IPD.SetVlrPit(const pVlrPit: Double);
 begin
   FVlrPit := pVlrPit;
+
+  CheckField('VlrPit');
 end;
 
 function T120IPD.GetPerCrt: Double;
@@ -2984,6 +3259,8 @@ end;
 procedure T120IPD.SetPerCrt(const pPerCrt: Double);
 begin
   FPerCrt := pPerCrt;
+
+  CheckField('PerCrt');
 end;
 
 function T120IPD.GetVlrBct: Double;
@@ -2994,6 +3271,8 @@ end;
 procedure T120IPD.SetVlrBct(const pVlrBct: Double);
 begin
   FVlrBct := pVlrBct;
+
+  CheckField('VlrBct');
 end;
 
 function T120IPD.GetVlrCrt: Double;
@@ -3004,6 +3283,8 @@ end;
 procedure T120IPD.SetVlrCrt(const pVlrCrt: Double);
 begin
   FVlrCrt := pVlrCrt;
+
+  CheckField('VlrCrt');
 end;
 
 function T120IPD.GetPerCsl: Double;
@@ -3014,6 +3295,8 @@ end;
 procedure T120IPD.SetPerCsl(const pPerCsl: Double);
 begin
   FPerCsl := pPerCsl;
+
+  CheckField('PerCsl');
 end;
 
 function T120IPD.GetVlrBcl: Double;
@@ -3024,6 +3307,8 @@ end;
 procedure T120IPD.SetVlrBcl(const pVlrBcl: Double);
 begin
   FVlrBcl := pVlrBcl;
+
+  CheckField('VlrBcl');
 end;
 
 function T120IPD.GetVlrCsl: Double;
@@ -3034,6 +3319,8 @@ end;
 procedure T120IPD.SetVlrCsl(const pVlrCsl: Double);
 begin
   FVlrCsl := pVlrCsl;
+
+  CheckField('VlrCsl');
 end;
 
 function T120IPD.GetPerOur: Double;
@@ -3044,6 +3331,8 @@ end;
 procedure T120IPD.SetPerOur(const pPerOur: Double);
 begin
   FPerOur := pPerOur;
+
+  CheckField('PerOur');
 end;
 
 function T120IPD.GetVlrBor: Double;
@@ -3054,6 +3343,8 @@ end;
 procedure T120IPD.SetVlrBor(const pVlrBor: Double);
 begin
   FVlrBor := pVlrBor;
+
+  CheckField('VlrBor');
 end;
 
 function T120IPD.GetVlrOur: Double;
@@ -3064,6 +3355,8 @@ end;
 procedure T120IPD.SetVlrOur(const pVlrOur: Double);
 begin
   FVlrOur := pVlrOur;
+
+  CheckField('VlrOur');
 end;
 
 function T120IPD.GetPerIrf: Double;
@@ -3074,6 +3367,8 @@ end;
 procedure T120IPD.SetPerIrf(const pPerIrf: Double);
 begin
   FPerIrf := pPerIrf;
+
+  CheckField('PerIrf');
 end;
 
 function T120IPD.GetVlrBir: Double;
@@ -3084,6 +3379,8 @@ end;
 procedure T120IPD.SetVlrBir(const pVlrBir: Double);
 begin
   FVlrBir := pVlrBir;
+
+  CheckField('VlrBir');
 end;
 
 function T120IPD.GetVlrIrf: Double;
@@ -3094,6 +3391,8 @@ end;
 procedure T120IPD.SetVlrIrf(const pVlrIrf: Double);
 begin
   FVlrIrf := pVlrIrf;
+
+  CheckField('VlrIrf');
 end;
 
 function T120IPD.GetFilNfc: Integer;
@@ -3104,6 +3403,8 @@ end;
 procedure T120IPD.SetFilNfc(const pFilNfc: Integer);
 begin
   FFilNfc := pFilNfc;
+
+  CheckField('FilNfc');
 end;
 
 function T120IPD.GetForNfc: Integer;
@@ -3114,6 +3415,8 @@ end;
 procedure T120IPD.SetForNfc(const pForNfc: Integer);
 begin
   FForNfc := pForNfc;
+
+  CheckField('ForNfc');
 end;
 
 function T120IPD.GetNumNfc: Integer;
@@ -3124,6 +3427,8 @@ end;
 procedure T120IPD.SetNumNfc(const pNumNfc: Integer);
 begin
   FNumNfc := pNumNfc;
+
+  CheckField('NumNfc');
 end;
 
 function T120IPD.GetSnfNfc: string;
@@ -3134,6 +3439,8 @@ end;
 procedure T120IPD.SetSnfNfc(const pSnfNfc: string);
 begin
   FSnfNfc := pSnfNfc;
+
+  CheckField('SnfNfc');
 end;
 
 function T120IPD.GetSeqIpc: Integer;
@@ -3144,6 +3451,8 @@ end;
 procedure T120IPD.SetSeqIpc(const pSeqIpc: Integer);
 begin
   FSeqIpc := pSeqIpc;
+
+  CheckField('SeqIpc');
 end;
 
 function T120IPD.GetNctLcl: string;
@@ -3154,6 +3463,8 @@ end;
 procedure T120IPD.SetNctLcl(const pNctLcl: string);
 begin
   FNctLcl := pNctLcl;
+
+  CheckField('NctLcl');
 end;
 
 function T120IPD.GetNreCli: string;
@@ -3164,6 +3475,8 @@ end;
 procedure T120IPD.SetNreCli(const pNreCli: string);
 begin
   FNreCli := pNreCli;
+
+  CheckField('NreCli');
 end;
 
 function T120IPD.GetNosIcl: Integer;
@@ -3174,6 +3487,8 @@ end;
 procedure T120IPD.SetNosIcl(const pNosIcl: Integer);
 begin
   FNosIcl := pNosIcl;
+
+  CheckField('NosIcl');
 end;
 
 function T120IPD.GetNosFcl: Integer;
@@ -3184,6 +3499,8 @@ end;
 procedure T120IPD.SetNosFcl(const pNosFcl: Integer);
 begin
   FNosFcl := pNosFcl;
+
+  CheckField('NosFcl');
 end;
 
 function T120IPD.GetNocCl1: string;
@@ -3194,6 +3511,8 @@ end;
 procedure T120IPD.SetNocCl1(const pNocCl1: string);
 begin
   FNocCl1 := pNocCl1;
+
+  CheckField('NocCl1');
 end;
 
 function T120IPD.GetNocCl2: string;
@@ -3204,6 +3523,8 @@ end;
 procedure T120IPD.SetNocCl2(const pNocCl2: string);
 begin
   FNocCl2 := pNocCl2;
+
+  CheckField('NocCl2');
 end;
 
 function T120IPD.GetNocCl3: string;
@@ -3214,6 +3535,8 @@ end;
 procedure T120IPD.SetNocCl3(const pNocCl3: string);
 begin
   FNocCl3 := pNocCl3;
+
+  CheckField('NocCl3');
 end;
 
 function T120IPD.GetCodAgc: string;
@@ -3224,6 +3547,8 @@ end;
 procedure T120IPD.SetCodAgc(const pCodAgc: string);
 begin
   FCodAgc := pCodAgc;
+
+  CheckField('CodAgc');
 end;
 
 function T120IPD.GetCtrCvp: Integer;
@@ -3234,6 +3559,8 @@ end;
 procedure T120IPD.SetCtrCvp(const pCtrCvp: Integer);
 begin
   FCtrCvp := pCtrCvp;
+
+  CheckField('CtrCvp');
 end;
 
 function T120IPD.GetCptCvp: TDate;
@@ -3244,6 +3571,8 @@ end;
 procedure T120IPD.SetCptCvp(const pCptCvp: TDate);
 begin
   FCptCvp := pCptCvp;
+
+  CheckField('CptCvp');
 end;
 
 function T120IPD.GetSeqCtr: Integer;
@@ -3254,6 +3583,8 @@ end;
 procedure T120IPD.SetSeqCtr(const pSeqCtr: Integer);
 begin
   FSeqCtr := pSeqCtr;
+
+  CheckField('SeqCtr');
 end;
 
 function T120IPD.GetIndApe: Integer;
@@ -3264,6 +3595,8 @@ end;
 procedure T120IPD.SetIndApe(const pIndApe: Integer);
 begin
   FIndApe := pIndApe;
+
+  CheckField('IndApe');
 end;
 
 function T120IPD.GetObsIpd: string;
@@ -3274,6 +3607,8 @@ end;
 procedure T120IPD.SetObsIpd(const pObsIpd: string);
 begin
   FObsIpd := pObsIpd;
+
+  CheckField('ObsIpd');
 end;
 
 function T120IPD.GetSeqIsp: Integer;
@@ -3284,6 +3619,8 @@ end;
 procedure T120IPD.SetSeqIsp(const pSeqIsp: Integer);
 begin
   FSeqIsp := pSeqIsp;
+
+  CheckField('SeqIsp');
 end;
 
 function T120IPD.GetEmpOcp: Integer;
@@ -3294,6 +3631,8 @@ end;
 procedure T120IPD.SetEmpOcp(const pEmpOcp: Integer);
 begin
   FEmpOcp := pEmpOcp;
+
+  CheckField('EmpOcp');
 end;
 
 function T120IPD.GetVlrBpf: Double;
@@ -3304,6 +3643,8 @@ end;
 procedure T120IPD.SetVlrBpf(const pVlrBpf: Double);
 begin
   FVlrBpf := pVlrBpf;
+
+  CheckField('VlrBpf');
 end;
 
 function T120IPD.GetPerPif: Double;
@@ -3314,6 +3655,8 @@ end;
 procedure T120IPD.SetPerPif(const pPerPif: Double);
 begin
   FPerPif := pPerPif;
+
+  CheckField('PerPif');
 end;
 
 function T120IPD.GetVlrPif: Double;
@@ -3324,6 +3667,8 @@ end;
 procedure T120IPD.SetVlrPif(const pVlrPif: Double);
 begin
   FVlrPif := pVlrPif;
+
+  CheckField('VlrPif');
 end;
 
 function T120IPD.GetVlrBcf: Double;
@@ -3334,6 +3679,8 @@ end;
 procedure T120IPD.SetVlrBcf(const pVlrBcf: Double);
 begin
   FVlrBcf := pVlrBcf;
+
+  CheckField('VlrBcf');
 end;
 
 function T120IPD.GetPerCff: Double;
@@ -3344,6 +3691,8 @@ end;
 procedure T120IPD.SetPerCff(const pPerCff: Double);
 begin
   FPerCff := pPerCff;
+
+  CheckField('PerCff');
 end;
 
 function T120IPD.GetVlrCff: Double;
@@ -3354,6 +3703,8 @@ end;
 procedure T120IPD.SetVlrCff(const pVlrCff: Double);
 begin
   FVlrCff := pVlrCff;
+
+  CheckField('VlrCff');
 end;
 
 function T120IPD.GetPerDs5: Double;
@@ -3364,6 +3715,8 @@ end;
 procedure T120IPD.SetPerDs5(const pPerDs5: Double);
 begin
   FPerDs5 := pPerDs5;
+
+  CheckField('PerDs5');
 end;
 
 function T120IPD.GetVlrDs5: Double;
@@ -3374,6 +3727,8 @@ end;
 procedure T120IPD.SetVlrDs5(const pVlrDs5: Double);
 begin
   FVlrDs5 := pVlrDs5;
+
+  CheckField('VlrDs5');
 end;
 
 function T120IPD.GetAgrNec: string;
@@ -3384,6 +3739,8 @@ end;
 procedure T120IPD.SetAgrNec(const pAgrNec: string);
 begin
   FAgrNec := pAgrNec;
+
+  CheckField('AgrNec');
 end;
 
 function T120IPD.GetAgrPai: string;
@@ -3394,6 +3751,8 @@ end;
 procedure T120IPD.SetAgrPai(const pAgrPai: string);
 begin
   FAgrPai := pAgrPai;
+
+  CheckField('AgrPai');
 end;
 
 function T120IPD.GetOriRes: Char;
@@ -3404,6 +3763,8 @@ end;
 procedure T120IPD.SetOriRes(const pOriRes: Char);
 begin
   FOriRes := pOriRes;
+
+  CheckField('OriRes');
 end;
 
 function T120IPD.GetQtdBpf: Double;
@@ -3414,6 +3775,8 @@ end;
 procedure T120IPD.SetQtdBpf(const pQtdBpf: Double);
 begin
   FQtdBpf := pQtdBpf;
+
+  CheckField('QtdBpf');
 end;
 
 function T120IPD.GetAliPif: Double;
@@ -3424,6 +3787,8 @@ end;
 procedure T120IPD.SetAliPif(const pAliPif: Double);
 begin
   FAliPif := pAliPif;
+
+  CheckField('AliPif');
 end;
 
 function T120IPD.GetQtdBcf: Double;
@@ -3434,6 +3799,8 @@ end;
 procedure T120IPD.SetQtdBcf(const pQtdBcf: Double);
 begin
   FQtdBcf := pQtdBcf;
+
+  CheckField('QtdBcf');
 end;
 
 function T120IPD.GetAliCff: Double;
@@ -3444,6 +3811,8 @@ end;
 procedure T120IPD.SetAliCff(const pAliCff: Double);
 begin
   FAliCff := pAliCff;
+
+  CheckField('AliCff');
 end;
 
 function T120IPD.GetQtdBip: Double;
@@ -3454,6 +3823,8 @@ end;
 procedure T120IPD.SetQtdBip(const pQtdBip: Double);
 begin
   FQtdBip := pQtdBip;
+
+  CheckField('QtdBip');
 end;
 
 function T120IPD.GetAliIpi: Double;
@@ -3464,6 +3835,8 @@ end;
 procedure T120IPD.SetAliIpi(const pAliIpi: Double);
 begin
   FAliIpi := pAliIpi;
+
+  CheckField('AliIpi');
 end;
 
 function T120IPD.GetIndIpm: Char;
@@ -3474,6 +3847,8 @@ end;
 procedure T120IPD.SetIndIpm(const pIndIpm: Char);
 begin
   FIndIpm := pIndIpm;
+
+  CheckField('IndIpm');
 end;
 
 function T120IPD.GetFilRem: Integer;
@@ -3484,6 +3859,8 @@ end;
 procedure T120IPD.SetFilRem(const pFilRem: Integer);
 begin
   FFilRem := pFilRem;
+
+  CheckField('FilRem');
 end;
 
 function T120IPD.GetSnfRem: string;
@@ -3494,6 +3871,8 @@ end;
 procedure T120IPD.SetSnfRem(const pSnfRem: string);
 begin
   FSnfRem := pSnfRem;
+
+  CheckField('SnfRem');
 end;
 
 function T120IPD.GetNfvRem: Integer;
@@ -3504,6 +3883,8 @@ end;
 procedure T120IPD.SetNfvRem(const pNfvRem: Integer);
 begin
   FNfvRem := pNfvRem;
+
+  CheckField('NfvRem');
 end;
 
 function T120IPD.GetIpvRem: Integer;
@@ -3514,6 +3895,8 @@ end;
 procedure T120IPD.SetIpvRem(const pIpvRem: Integer);
 begin
   FIpvRem := pIpvRem;
+
+  CheckField('IpvRem');
 end;
 
 function T120IPD.GetCodCnv: Integer;
@@ -3524,6 +3907,8 @@ end;
 procedure T120IPD.SetCodCnv(const pCodCnv: Integer);
 begin
   FCodCnv := pCodCnv;
+
+  CheckField('CodCnv');
 end;
 
 function T120IPD.GetCodRep: Integer;
@@ -3534,6 +3919,8 @@ end;
 procedure T120IPD.SetCodRep(const pCodRep: Integer);
 begin
   FCodRep := pCodRep;
+
+  CheckField('CodRep');
 end;
 
 function T120IPD.GetProMon: Char;
@@ -3544,6 +3931,8 @@ end;
 procedure T120IPD.SetProMon(const pProMon: Char);
 begin
   FProMon := pProMon;
+
+  CheckField('ProMon');
 end;
 
 function T120IPD.GetProEnt: Char;
@@ -3554,6 +3943,8 @@ end;
 procedure T120IPD.SetProEnt(const pProEnt: Char);
 begin
   FProEnt := pProEnt;
+
+  CheckField('ProEnt');
 end;
 
 function T120IPD.GetPerMgc: Double;
@@ -3564,6 +3955,8 @@ end;
 procedure T120IPD.SetPerMgc(const pPerMgc: Double);
 begin
   FPerMgc := pPerMgc;
+
+  CheckField('PerMgc');
 end;
 
 function T120IPD.GetVarSer: Char;
@@ -3574,6 +3967,8 @@ end;
 procedure T120IPD.SetVarSer(const pVarSer: Char);
 begin
   FVarSer := pVarSer;
+
+  CheckField('VarSer');
 end;
 
 function T120IPD.GetRetMat: Char;
@@ -3584,6 +3979,8 @@ end;
 procedure T120IPD.SetRetMat(const pRetMat: Char);
 begin
   FRetMat := pRetMat;
+
+  CheckField('RetMat');
 end;
 
 function T120IPD.GetSenApr: string;
@@ -3594,6 +3991,8 @@ end;
 procedure T120IPD.SetSenApr(const pSenApr: string);
 begin
   FSenApr := pSenApr;
+
+  CheckField('SenApr');
 end;
 
 function T120IPD.GetUsuApr: Integer;
@@ -3604,6 +4003,8 @@ end;
 procedure T120IPD.SetUsuApr(const pUsuApr: Integer);
 begin
   FUsuApr := pUsuApr;
+
+  CheckField('UsuApr');
 end;
 
 function T120IPD.GetDatApr: TDate;
@@ -3614,6 +4015,8 @@ end;
 procedure T120IPD.SetDatApr(const pDatApr: TDate);
 begin
   FDatApr := pDatApr;
+
+  CheckField('DatApr');
 end;
 
 function T120IPD.GetHorApr: Integer;
@@ -3624,6 +4027,8 @@ end;
 procedure T120IPD.SetHorApr(const pHorApr: Integer);
 begin
   FHorApr := pHorApr;
+
+  CheckField('HorApr');
 end;
 
 function T120IPD.GetTipCur: Integer;
@@ -3634,6 +4039,8 @@ end;
 procedure T120IPD.SetTipCur(const pTipCur: Integer);
 begin
   FTipCur := pTipCur;
+
+  CheckField('TipCur');
 end;
 
 function T120IPD.GetCodFin: Integer;
@@ -3644,6 +4051,8 @@ end;
 procedure T120IPD.SetCodFin(const pCodFin: Integer);
 begin
   FCodFin := pCodFin;
+
+  CheckField('CodFin');
 end;
 
 function T120IPD.GetUSU_DEPCIB: string;
@@ -3654,6 +4063,8 @@ end;
 procedure T120IPD.SetUSU_DEPCIB(const pUSU_DEPCIB: string);
 begin
   FUSU_DEPCIB := pUSU_DEPCIB;
+
+  CheckField('USU_DEPCIB');
 end;
 
 function T120IPD.GetUSU_UsuAut: Integer;
@@ -3664,6 +4075,8 @@ end;
 procedure T120IPD.SetUSU_UsuAut(const pUSU_UsuAut: Integer);
 begin
   FUSU_UsuAut := pUSU_UsuAut;
+
+  CheckField('USU_UsuAut');
 end;
 
 function T120IPD.GetUSU_PreAut: Double;
@@ -3674,6 +4087,8 @@ end;
 procedure T120IPD.SetUSU_PreAut(const pUSU_PreAut: Double);
 begin
   FUSU_PreAut := pUSU_PreAut;
+
+  CheckField('USU_PreAut');
 end;
 
 function T120IPD.GetUSU_EmiRel: Char;
@@ -3684,6 +4099,8 @@ end;
 procedure T120IPD.SetUSU_EmiRel(const pUSU_EmiRel: Char);
 begin
   FUSU_EmiRel := pUSU_EmiRel;
+
+  CheckField('USU_EmiRel');
 end;
 
 function T120IPD.GetUSU_OriMer: Char;
@@ -3694,6 +4111,8 @@ end;
 procedure T120IPD.SetUSU_OriMer(const pUSU_OriMer: Char);
 begin
   FUSU_OriMer := pUSU_OriMer;
+
+  CheckField('USU_OriMer');
 end;
 
 function T120IPD.GetUSU_QtdExa: Char;
@@ -3704,6 +4123,20 @@ end;
 procedure T120IPD.SetUSU_QtdExa(const pUSU_QtdExa: Char);
 begin
   FUSU_QtdExa := pUSU_QtdExa;
+
+  CheckField('USU_QtdExa');
+end;
+
+function T120IPD.GetUSU_CodRas: string;
+begin
+  Result := FUSU_CodRas;
+end;
+
+procedure T120IPD.SetUSU_CodRas(const pUSU_CodRas: string);
+begin
+  FUSU_CodRas := pUSU_CodRas;
+
+  CheckField('USU_CodRas');
 end;
 
 function T120IPD.GetCodEmpOLD: Integer;
@@ -5746,6 +6179,16 @@ begin
   FUSU_QtdExaOLD := pUSU_QtdExa;
 end;
 
+function T120IPD.GetUSU_CodRasOLD: string;
+begin
+  Result := FUSU_CodRasOLD;
+end;
+
+procedure T120IPD.SetUSU_CodRasOLD(const pUSU_CodRas: string);
+begin
+  FUSU_CodRasOLD := pUSU_CodRas;
+end;
+
 procedure T120IPD.Registros_OLD();
 begin
   FCodEmpOLD := FCodEmp;
@@ -5952,6 +6395,218 @@ begin
   FUSU_EmiRelOLD := FUSU_EmiRel;
   FUSU_OriMerOLD := FUSU_OriMer;
   FUSU_QtdExaOLD := FUSU_QtdExa;
+  FUSU_CodRasOLD := FUSU_CodRas;
+
+  inherited;
+end;
+
+procedure T120IPD.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodFil := FCodFilOLD;
+  FNumPed := FNumPedOLD;
+  FSeqIpd := FSeqIpdOLD;
+  FTnsPro := FTnsProOLD;
+  FPedCli := FPedCliOLD;
+  FSeqPcl := FSeqPclOLD;
+  FPedPrv := FPedPrvOLD;
+  FCodPro := FCodProOLD;
+  FCodDer := FCodDerOLD;
+  FCplIpd := FCplIpdOLD;
+  FCodFam := FCodFamOLD;
+  FCodAgr := FCodAgrOLD;
+  FCodTic := FCodTicOLD;
+  FCodTrd := FCodTrdOLD;
+  FCodTst := FCodTstOLD;
+  FCodStp := FCodStpOLD;
+  FCodStc := FCodStcOLD;
+  FCodDep := FCodDepOLD;
+  FCodLot := FCodLotOLD;
+  FResEst := FResEstOLD;
+  FQtdPed := FQtdPedOLD;
+  FQtdAen := FQtdAenOLD;
+  FQtdPoc := FQtdPocOLD;
+  FQtdFat := FQtdFatOLD;
+  FQtdCan := FQtdCanOLD;
+  FQtdAbe := FQtdAbeOLD;
+  FQtdRae := FQtdRaeOLD;
+  FQtdNlp := FQtdNlpOLD;
+  FQtdRes := FQtdResOLD;
+  FUniMed := FUniMedOLD;
+  FCodMcp := FCodMcpOLD;
+  FDatMfp := FDatMfpOLD;
+  FCotMfp := FCotMfpOLD;
+  FDatMoe := FDatMoeOLD;
+  FCotMoe := FCotMoeOLD;
+  FFecMoe := FFecMoeOLD;
+  FCodTpr := FCodTprOLD;
+  FPreUni := FPreUniOLD;
+  FCodMoe := FCodMoeOLD;
+  FPreFix := FPreFixOLD;
+  FPerDsc := FPerDscOLD;
+  FPerOfe := FPerOfeOLD;
+  FPerAcr := FPerAcrOLD;
+  FPerIpi := FPerIpiOLD;
+  FPerIcm := FPerIcmOLD;
+  FPerCom := FPerComOLD;
+  FDatEnt := FDatEntOLD;
+  FDatAne := FDatAneOLD;
+  FDatPoc := FDatPocOLD;
+  FCodPvp := FCodPvpOLD;
+  FNumPrj := FNumPrjOLD;
+  FCodFpj := FCodFpjOLD;
+  FCtaFin := FCtaFinOLD;
+  FCtaRed := FCtaRedOLD;
+  FCodCcu := FCodCcuOLD;
+  FVlrFre := FVlrFreOLD;
+  FVlrSeg := FVlrSegOLD;
+  FVlrEmb := FVlrEmbOLD;
+  FVlrEnc := FVlrEncOLD;
+  FVlrOut := FVlrOutOLD;
+  FVlrDar := FVlrDarOLD;
+  FVlrFrd := FVlrFrdOLD;
+  FVlrOud := FVlrOudOLD;
+  FVlrBru := FVlrBruOLD;
+  FVlrDsc := FVlrDscOLD;
+  FVlrDs1 := FVlrDs1OLD;
+  FVlrDs2 := FVlrDs2OLD;
+  FVlrDs3 := FVlrDs3OLD;
+  FVlrDs4 := FVlrDs4OLD;
+  FVlrOfe := FVlrOfeOLD;
+  FVlrDzf := FVlrDzfOLD;
+  FVlrBip := FVlrBipOLD;
+  FVlrIpi := FVlrIpiOLD;
+  FVlrBic := FVlrBicOLD;
+  FVlrIcm := FVlrIcmOLD;
+  FVlrBsi := FVlrBsiOLD;
+  FVlrIcs := FVlrIcsOLD;
+  FVlrBsp := FVlrBspOLD;
+  FVlrStp := FVlrStpOLD;
+  FVlrBsc := FVlrBscOLD;
+  FVlrStc := FVlrStcOLD;
+  FVlrBco := FVlrBcoOLD;
+  FVlrCom := FVlrComOLD;
+  FVlrLpr := FVlrLprOLD;
+  FVlrLou := FVlrLouOLD;
+  FVlrLiq := FVlrLiqOLD;
+  FVlrFin := FVlrFinOLD;
+  FSitIpd := FSitIpdOLD;
+  FCodMot := FCodMotOLD;
+  FObsMot := FObsMotOLD;
+  FGerNec := FGerNecOLD;
+  FGerCga := FGerCgaOLD;
+  FResMan := FResManOLD;
+  FIndAed := FIndAedOLD;
+  FNumCtr := FNumCtrOLD;
+  FDatCpt := FDatCptOLD;
+  FSeqCvp := FSeqCvpOLD;
+  FUsuGer := FUsuGerOLD;
+  FDatGer := FDatGerOLD;
+  FHorGer := FHorGerOLD;
+  FQtdPpf := FQtdPpfOLD;
+  FCmpKit := FCmpKitOLD;
+  FFilOcp := FFilOcpOLD;
+  FNumOcp := FNumOcpOLD;
+  FSeqIpo := FSeqIpoOLD;
+  FUniVen := FUniVenOLD;
+  FQtdVen := FQtdVenOLD;
+  FPreVen := FPreVenOLD;
+  FPreBru := FPreBruOLD;
+  FFilCtr := FFilCtrOLD;
+  FCtrCvs := FCtrCvsOLD;
+  FCptCvs := FCptCvsOLD;
+  FSeqCvs := FSeqCvsOLD;
+  FCodAvc := FCodAvcOLD;
+  FCodFxa := FCodFxaOLD;
+  FCodPgr := FCodPgrOLD;
+  FIdxGrd := FIdxGrdOLD;
+  FCodMar := FCodMarOLD;
+  FCodClc := FCodClcOLD;
+  FPerDs1 := FPerDs1OLD;
+  FPerDs2 := FPerDs2OLD;
+  FPerDs3 := FPerDs3OLD;
+  FPerDs4 := FPerDs4OLD;
+  FFilPrd := FFilPrdOLD;
+  FVlrRis := FVlrRisOLD;
+  FIndPce := FIndPceOLD;
+  FIndPcr := FIndPcrOLD;
+  FPerPit := FPerPitOLD;
+  FVlrBpt := FVlrBptOLD;
+  FVlrPit := FVlrPitOLD;
+  FPerCrt := FPerCrtOLD;
+  FVlrBct := FVlrBctOLD;
+  FVlrCrt := FVlrCrtOLD;
+  FPerCsl := FPerCslOLD;
+  FVlrBcl := FVlrBclOLD;
+  FVlrCsl := FVlrCslOLD;
+  FPerOur := FPerOurOLD;
+  FVlrBor := FVlrBorOLD;
+  FVlrOur := FVlrOurOLD;
+  FPerIrf := FPerIrfOLD;
+  FVlrBir := FVlrBirOLD;
+  FVlrIrf := FVlrIrfOLD;
+  FFilNfc := FFilNfcOLD;
+  FForNfc := FForNfcOLD;
+  FNumNfc := FNumNfcOLD;
+  FSnfNfc := FSnfNfcOLD;
+  FSeqIpc := FSeqIpcOLD;
+  FNctLcl := FNctLclOLD;
+  FNreCli := FNreCliOLD;
+  FNosIcl := FNosIclOLD;
+  FNosFcl := FNosFclOLD;
+  FNocCl1 := FNocCl1OLD;
+  FNocCl2 := FNocCl2OLD;
+  FNocCl3 := FNocCl3OLD;
+  FCodAgc := FCodAgcOLD;
+  FCtrCvp := FCtrCvpOLD;
+  FCptCvp := FCptCvpOLD;
+  FSeqCtr := FSeqCtrOLD;
+  FIndApe := FIndApeOLD;
+  FObsIpd := FObsIpdOLD;
+  FSeqIsp := FSeqIspOLD;
+  FEmpOcp := FEmpOcpOLD;
+  FVlrBpf := FVlrBpfOLD;
+  FPerPif := FPerPifOLD;
+  FVlrPif := FVlrPifOLD;
+  FVlrBcf := FVlrBcfOLD;
+  FPerCff := FPerCffOLD;
+  FVlrCff := FVlrCffOLD;
+  FPerDs5 := FPerDs5OLD;
+  FVlrDs5 := FVlrDs5OLD;
+  FAgrNec := FAgrNecOLD;
+  FAgrPai := FAgrPaiOLD;
+  FOriRes := FOriResOLD;
+  FQtdBpf := FQtdBpfOLD;
+  FAliPif := FAliPifOLD;
+  FQtdBcf := FQtdBcfOLD;
+  FAliCff := FAliCffOLD;
+  FQtdBip := FQtdBipOLD;
+  FAliIpi := FAliIpiOLD;
+  FIndIpm := FIndIpmOLD;
+  FFilRem := FFilRemOLD;
+  FSnfRem := FSnfRemOLD;
+  FNfvRem := FNfvRemOLD;
+  FIpvRem := FIpvRemOLD;
+  FCodCnv := FCodCnvOLD;
+  FCodRep := FCodRepOLD;
+  FProMon := FProMonOLD;
+  FProEnt := FProEntOLD;
+  FPerMgc := FPerMgcOLD;
+  FVarSer := FVarSerOLD;
+  FRetMat := FRetMatOLD;
+  FSenApr := FSenAprOLD;
+  FUsuApr := FUsuAprOLD;
+  FDatApr := FDatAprOLD;
+  FHorApr := FHorAprOLD;
+  FTipCur := FTipCurOLD;
+  FCodFin := FCodFinOLD;
+  FUSU_DEPCIB := FUSU_DEPCIBOLD;
+  FUSU_UsuAut := FUSU_UsuAutOLD;
+  FUSU_PreAut := FUSU_PreAutOLD;
+  FUSU_EmiRel := FUSU_EmiRelOLD;
+  FUSU_OriMer := FUSU_OriMerOLD;
+  FUSU_QtdExa := FUSU_QtdExaOLD;
+  FUSU_CodRas := FUSU_CodRasOLD;
 end;
 
 end.

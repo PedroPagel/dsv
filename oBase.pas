@@ -9,7 +9,10 @@ uses
   Vcl.ExtCtrls, System.AnsiStrings;
 
 type
-  TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists);
+  TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists, etWrite);
+  TState = (aoInsert, aoUpdate, aoDelete, aoSelect, aoExists);
+  TStateSelect = (ssSelect, ssMax, ssMin, ssCount, ssSum);
+
   tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
   TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
   tTitulo = (tTContasPagar, tTContasReceber);
@@ -27,8 +30,29 @@ type
     value: String;
   end;
 
+  TForeignKeys = record
+    TableField: string;
+    RelationalField: string;
+  end;
+
   TArrayOfIndex = array of TIteratorINDEX;
   TArrayOfString = array of string;
+
+  TStringArrayList = class
+  private
+    FExists: Boolean;
+    FList: TStringList;
+    FArray: TArrayOfString;
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    procedure Clear();
+    procedure Add(const Value: string);
+    function ArrayList(): TArrayOfString;
+
+    property Exists: Boolean read FExists write FExists;
+  end;
 
   TTable = class(TInterfacedPersistent)
   private
@@ -36,13 +60,11 @@ type
     FField: string;
     FQuery: THQuery;
     FTabela: string;
-    FType: TRttiType;
+    FState: TState;
     FCondicao: string;
     FInsertValue: string;
     FTables: string;
     FUseParam: Boolean;
-    FContext: TRttiContext;
-    FSelect: tEstadoSelect;
     FSetFields: Boolean;
     FFields: array of string;
     FRepeatParam: string;
@@ -50,76 +72,104 @@ type
     FBlockList: array of string;
     FBetween: TBetweenRegister;
     FSelectProps: array of string;
-    FAutoSelectProperty: Boolean;
+    FAutoSelect: Boolean;
+    FAutoSelectPKS: Boolean;
+    FAutoSelectFKS: Boolean;
+    FTableSelect: TStateSelect;
     FSequenceField: string;
+    FCheckFields: Boolean;
+    FEmpty: Boolean;
+    FStringArrayList: TStringArrayList;
 
-    procedure Insert();
-    procedure Update();
-    procedure Delete();
+    //PK'S e FK'S
+    FPrimaryKeys: array of string;
+    FForeignKeys: array of string;
+    FRelationalForeign: array of string;
+    FPrimaryAndForeignKeys: Boolean;
+
     procedure Clean();
+    procedure MontarChaves();
     procedure DefinirParametros();
-    procedure MontarEstadoInsert();
-    procedure MontarEstadoDelete();
+    procedure SetInsert();
+    procedure SetDelete();
     procedure MontarComandoBetween();
+    procedure MontarEstadoSelect();
 
     function GetCheck: Byte;
-    function Select(): Boolean;
     function MAXSelect(): string;
     function SUMSelect(): string;
     function COUNTSelect(): string;
-    function MontarEstadoUpdate(): string;
-    function MontarEstadoSelect(): Boolean;
+    function SetUpdate(): string;
     function MontarComandoSelect(): string;
-    function LiberarCampo(const pNome: string): Boolean;
     function NegarCampo(const pNome: string): Boolean;
-    function LimitarCampos(const pNome: string): Boolean;
+
     procedure SetCheck(const Value: Byte);
     procedure ExecutarMesesEntre();
     function GetBetween(const pName: string): TDate;
     procedure SetBetween(const pName: string; const Value: TDate);
+    function GetSelect: TStateSelect;
+    procedure SetSelect(const Value: TStateSelect);
+
+    procedure FieldsForUpdate(const pField: array of string);
   protected
+    procedure CheckField(const pField: string);
     procedure Registros_OLD(); virtual; abstract;
+    procedure RetornarValores(); virtual; abstract;
+    procedure AddPrimaryKeys(const pValues: string); dynamic;
+    procedure AddForeignKeys(const pForeingKey: array of string; const pRelational: array of string); dynamic;
+
+    property CheckFieldsToAssign: Boolean read FCheckFields write FCheckFields;
+    property StateToAssign: TState read FState write FState;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
 
-    procedure Start();
+    procedure Last();
+    procedure Init();
     procedure Close();
     procedure First();
-    procedure Last();
+    procedure Cancel();
     procedure ClearFields();
     procedure AtribuirValoresSelect();
-    procedure Init(const pTabela: string);
-    procedure SetSequenceField(const pField: string);
+    procedure Open(const setConstraints: Boolean = True);
+    procedure SetForeignKeyValue(const pTable: TTable);
+  	procedure SetSequenceField(const pField: string);
     procedure AddTable(const pTables: array of string);
     procedure BlockProperty(const pField: array of string);
-    procedure FieldsForUpdate(const pField: array of string);
-    procedure SetAutoSelectProperty(const pFields: array of string);
+    procedure SetAutoSelect(const pFields: array of string);
+    procedure Assign(APersistent: TPersistent) ; override;
     procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
     procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
 
+    function ExecSql(): Boolean;
+    procedure Insert();
+    procedure Update();
+    procedure Delete();
+
+    function State: TState;
     function Next(): Boolean;
     function Count: Integer;
     function Prior(): Boolean;
+    function IsEmpty: Boolean;
     function TableType: tTableType; virtual; abstract;
     function SetTableToRecord(const pTabela: string): THQuery;
     function GenerateID(const pField: string): Integer;
     function MonthsBetween(const pInicial, pFinal: string): Word; overload;
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
-    function Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean; overload;
     function AssignedQueryExecute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
 
     property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
-    property AutoSelectProperty: Boolean read FAutoSelectProperty write FAutoSelectProperty;
+    property Select: TStateSelect read GetSelect write SetSelect;
   end;
 
   TTabelaPadrao = class(TTable)
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
@@ -138,6 +188,7 @@ type
     procedure SetOldId(const Value: Integer);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create(const pTabela: string);
     destructor Destroy(); override;
@@ -157,7 +208,6 @@ type
   private
     FFields: array of string;
     FIndex: TArrayOfIndex;
-    FBaseClass: TClass;
     Findexed: Boolean;
 
     function GetIndexed: Boolean;
@@ -177,13 +227,9 @@ type
     function IndexOfFields(const pObj: TObject): Integer;
 
     procedure IndexFields(const pFields: array of string);
-    procedure ShiftValues(const pInput: TObject); //metodo novo, adiciona os dados de um objeto gemeo
-    procedure IterarAdd(const pObjEntrada: TObject; const pObjeSaida: TObject);
+    procedure AddByClass(const Obj: TTable); overload;
+    procedure AddByClass(const Old: TTable; const New: TTable); overload;
     procedure AddByQuery(const Obj: TObject);
-    procedure Iterar(const pObjEntrada: TObject; const pObjeSaida: TObject);
-
-    class procedure Repassar(const pObjEntrada: TObject;
-      const pObjeSaida: TObject);
 
     property indexed: Boolean read GetIndexed write SetIndexed;
   end;
@@ -252,6 +298,7 @@ function FieldType(const pColumnType, pMask: string; const pSize: Integer): TFie
 function SetOperator(const pField, pValue: array of string; const pAND: Boolean): string;
 function StrToChar(const pString: string): Char;
 function VarToChar(const pVar: Variant): Char;
+function CreateTableFromClass(const pClassType: TClass): TTable;
 
 var
   FOracleConnection: TConnectionBase;
@@ -262,7 +309,7 @@ var
 implementation
 
 uses
-  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants, o510age;
+  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants;
 
 procedure StartTransaction();
 begin
@@ -309,7 +356,6 @@ begin
 end;
 
 {$HINTS OFF}
-
 function DataNull(pData: TDate): TDateTime;
 var
   xHint: TDate;
@@ -473,6 +519,33 @@ begin
   Result := VarToStr(pVar)[1];
 end;
 
+function CreateTableFromClass(const pClassType: TClass): TTable;
+var
+  xValue: TValue;
+  xType: TRttiType;
+  xContext: TRttiContext;
+  xRttiMethod: TRttiMethod;
+  xInstanceType: TRttiInstanceType;
+begin
+  xContext := TRttiContext.Create;
+  try
+    Result := nil;
+
+    xType := xContext.GetType(pClassType);
+    xRttiMethod := xType.GetMethod('Create');
+
+    if Assigned(xRttiMethod) then
+    begin
+      xInstanceType := xType.AsInstance;
+
+      xValue := xRttiMethod.Invoke(xInstanceType.MetaclassType, []);
+      Result := xValue.AsType<TTable>;
+    end;
+  finally
+    xContext.Free;
+  end;
+end;
+
 { TConexao }
 
 class procedure TConexao.Execute();
@@ -484,7 +557,7 @@ begin
   if (System.ParamCount > 0) then
     xBASE := ParamStr(1)
   else
-    xBASE := 'SENIOR52';
+    xBASE := 'SENIOR53';
 
   FOracleConnection := TConnectionBase.CreateBase();
   FOracleConnection.Conexao(xBASE);
@@ -506,39 +579,50 @@ end;
 procedure TTable.AtribuirValoresSelect;
 var
   xProperty: TRttiProperty;
+  xType: TRttiType;
+  xContext: TRttiContext;
 begin
+  xContext := TRttiContext.Create;
   try
-    for xProperty in FType.GetProperties do
-    begin
-      if NegarCampo(xProperty.Name) then
+    try
+      FCheckFields := False;
+      xType := xContext.GetType(Self.ClassType);
+
+      for xProperty in xType.GetProperties do
       begin
-        case xProperty.PropertyType.TypeKind of
-          tkInteger:
-            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsInteger);
+        if NegarCampo(xProperty.Name) then
+        begin
+          case xProperty.PropertyType.TypeKind of
+            tkInteger:
+              xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsInteger);
 
-          tkFloat:
-            if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-              xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name)
-                .AsDateTime))
-            else
-              xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
+            tkFloat:
+              if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+                xProperty.SetValue(Self, DataNull(FQuery.FindField(xProperty.Name)
+                  .AsDateTime))
+              else
+                xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsFloat);
 
-          tkWChar, tkChar:
-          begin
-            if (Length(FQuery.FindField(xProperty.Name).AsString) > 0) then
-              xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1])
-            else
-              xProperty.SetValue(Self, ' ');
+            tkWChar, tkChar:
+            begin
+              if (Length(FQuery.FindField(xProperty.Name).AsString) > 0) then
+                xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString[1])
+              else
+                xProperty.SetValue(Self, ' ');
+            end;
+          else
+            xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
           end;
-        else
-          xProperty.SetValue(Self, FQuery.FindField(xProperty.Name).AsString);
         end;
       end;
+    except
+      on e: exception do
+        raise;
     end;
-  except
-    on e: exception do
-      raise;
+  finally
+    xContext.Free;
   end;
+
   FSetFields := False;
   Registros_OLD();
 end;
@@ -547,7 +631,30 @@ constructor TTable.Create(const pTabela: string);
 begin
   inherited Create();
 
-  Init(pTabela);
+  FTabela := pTabela;
+  FUseParam := True;
+  FSetFields := False;
+  FCondicao := EmptyStr;
+  FInsertValue := EmptyStr;
+  FTables := EmptyStr;
+
+  FState := aoInsert;
+  FTableSelect := ssSelect;
+
+  FCheckFields := False;
+
+  FAutoSelectPKS := (Length(FPrimaryKeys) > 0);
+  FAutoSelectFKS := (Length(FForeignKeys) > 0);
+  FPrimaryAndForeignKeys := False;
+
+  FillChar(FFields, sizeOf(FFields), 0);
+  FillChar(FBlockList, sizeOf(FBlockList), 0);
+  FillChar(FLimitField, sizeOf(FLimitField), 0);
+
+  FStringArrayList := TStringArrayList.Create;
+
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState', 'AutoSelect',
+    'CheckFieldsToAssign', 'StateToAssign', 'Select']);
 end;
 
 procedure TTable.BlockProperty(const pField: array of string);
@@ -622,52 +729,108 @@ begin
     end;
   end;
 
-  if (pAND) then
-  begin
-    UltimoCaracter(FCondicao, 'AND ', True, 4);
-    UltimoCaracter(FRepeatParam, 'AND ', True, 4);
-  end
-  else
-  begin
-    UltimoCaracter(FCondicao, ',');
-    UltimoCaracter(FRepeatParam, ',');
-  end;
+  if (Length(pField) > 0) then
+    if (pAND) then
+    begin
+      UltimoCaracter(FCondicao, 'AND ', True, 4);
+      UltimoCaracter(FRepeatParam, 'AND ', True, 4);
+    end
+    else
+    begin
+      UltimoCaracter(FCondicao, ',');
+      UltimoCaracter(FRepeatParam, ',');
+    end;
 end;
 
 procedure TTable.DefinirParametros;
 var
-  xPropriedade: TRttiProperty;
+  xProperty: TRttiProperty;
+  xType: TRttiType;
+  xContext: TRttiContext;
   i: Integer;
 
   function FuncaoRetorno(const pField: string): string;
   begin
-    if AnsiSameText(Copy(pField, 1, 1), 'R') then
+    if AnsiSameText(Copy(pField, 1, 1), 'R') and ((Length(pField) = 7) or (Length(pField) = 11)) then
       Result := Copy(pField, 2, pred(Length(pField)))
     else
       Result := pField;
   end;
 
 begin
-  for i := 0 to High(FFields) do
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
+
+    for i := 0 to High(FFields) do
+    begin
+      xProperty := xType.GetProperty(FuncaoRetorno(FFields[i]));
+
+      case xProperty.PropertyType.TypeKind of
+        tkInteger:
+          FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self)
+            .AsInteger;
+
+        tkFloat:
+          begin
+            if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+              FQuery.ParamByName(FFields[i]).Value :=
+                DataNull(FloatToDateTime(xProperty.GetValue(Self).AsExtended))
+            else
+              FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self)
+                .AsExtended;
+          end;
+      else
+        FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self).ToString;
+      end;
+    end;
+  finally
+    xContext.Free;
+  end;
+end;
+
+procedure TTable.AddForeignKeys(const pForeingKey,
+  pRelational: array of string);
+ var
+  i,j: Integer;
+begin
+  for j := 0 to High(pForeingKey) do
   begin
-    xPropriedade := FType.GetProperty(FuncaoRetorno(FFields[i]));
+    i := Length(FForeignKeys);
+    Inc(i);
+    SetLength(FForeignKeys, i);
+    FForeignKeys[pred(i)] := pForeingKey[j];
+  end;
 
-    case xPropriedade.PropertyType.TypeKind of
-      tkInteger:
-        FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self)
-          .AsInteger;
+  for j := 0 to High(pRelational) do
+  begin
+    i := Length(FRelationalForeign);
+    Inc(i);
+    SetLength(FRelationalForeign, i);
+    FRelationalForeign[pred(i)] := pRelational[j];
+  end;
+end;
 
-      tkFloat:
-        begin
-          if (AnsiSameText('TDate', xPropriedade.PropertyType.Name)) then
-            FQuery.ParamByName(FFields[i]).Value :=
-              DataNull(FloatToDateTime(xPropriedade.GetValue(Self).AsExtended))
-          else
-            FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self)
-              .AsExtended;
-        end;
-    else
-      FQuery.ParamByName(FFields[i]).Value := xPropriedade.GetValue(Self).ToString;
+procedure TTable.AddPrimaryKeys(const pValues: string);
+var
+  i,j: Integer;
+  xString: string;
+begin
+  xString := EmptyStr;
+
+  for i := 1 to High(pValues) do
+  begin
+    if not(AnsiSameText(pValues[i],';')) then
+      xString := xString + pValues[i];
+
+    if (AnsiSameText(pValues[i],';')) or (i = High(pValues)) then
+    begin
+      j := Length(FPrimaryKeys);
+      Inc(j);
+      SetLength(FPrimaryKeys, j);
+
+      FPrimaryKeys[pred(j)] := xString;
+      xString := EmptyStr;
     end;
   end;
 end;
@@ -682,61 +845,54 @@ begin
   UltimoCaracter(FTables, ',');
 end;
 
-procedure TTable.Delete();
-begin
-  MontarEstadoDelete();
-end;
-
 destructor TTable.Destroy;
 begin
-  FContext.Free;
-  FreeAndNil(FQuery);
   FillChar(FBetween, sizeOf(FBetween), 0);
+
+  FreeAndNil(FQuery);
+  FreeAndNil(FStringArrayList);
 
   inherited;
 end;
 
-procedure TTable.MontarEstadoDelete;
+procedure TTable.SetDelete;
 begin
-  FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
+  FQuery := THQuery.CreatePersonalizado;
+  try
+    Self.Clean;
 
-  if (FUseParam) then
-    DefinirParametros();
+    FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
+
+    if (FUseParam) then
+      DefinirParametros();
+
+    FQuery.ExecSQL();
+    FQuery.Close;
+  finally
+    FreeAndNil(FQuery);
+  end;
 end;
 
-function TTable.Execute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
+procedure TTable.Assign(APersistent: TPersistent);
+var
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
 begin
-  if (FAutoSelectProperty) then
-    Self.PropertyForSelect(FSelectProps, True);
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
 
-  FQuery := THQuery.CreatePersonalizado;
+    for xProperty in xType.GetProperties do
+    begin
+      if (AllowedTypeKind(xProperty.PropertyType.TypeKind) and Assigned(xContext.GetType(APersistent.ClassType).GetProperty(xProperty.Name))) then
+        xProperty.SetValue(Self, xContext.GetType(APersistent.ClassType).GetProperty(xProperty.Name).GetValue(APersistent));
+    end;
 
-  Result := False;
-  FSelect := pEstadoSelect;
-  FContext := TRttiContext.Create;
-  FType := FContext.GetType(Self.ClassType);
-
-  case (pEstadoTabela) of
-    estInsert:
-      Insert();
-
-    estUpdate:
-      Update();
-
-    etSelect:
-      Result := Select();
-
-    estDelete:
-      Delete();
-  end;
-
-  if (pEstadoTabela in [estInsert, estUpdate, estDelete]) then
-    FQuery.ExecSQL();
-
-  if (FSelect <> esLoop) then
-  begin
-    FQuery.Close;
-    Self.Clean;
+    Self.CheckFieldsToAssign := TTable(APersistent).CheckFieldsToAssign;
+    Self.StateToAssign := TTable(APersistent).StateToAssign
+  finally
+    xContext.Free;
   end;
 end;
 
@@ -744,7 +900,10 @@ function TTable.AssignedQueryExecute(const pEstadoTabela: TTableState;
   const pEstadoSelect: tEstadoSelect): Boolean;
 begin
   if not(Assigned(FQuery)) then
-    Result := Execute(pEstadoTabela, pEstadoSelect)
+  begin
+    Self.Open();
+    Result := not(Self.IsEmpty);
+  end
   else
   begin
     try
@@ -758,6 +917,43 @@ begin
   end;
 end;
 
+procedure TTable.Delete;
+begin
+  FAutoSelect := True;
+  MontarChaves();
+
+  SetDelete();
+end;
+
+function TTable.ExecSql(): Boolean;
+var
+  xTable: TTable;
+begin
+  FAutoSelect := True;
+  MontarChaves();
+
+  if Assigned(FQuery) then
+  begin
+    FQuery.Close;
+    FQuery.Sql.Clear;
+  end
+  else
+    FQuery := THQuery.CreatePersonalizado;
+        {
+  xTable := CreateTableFromClass(Self.ClassType);
+  try
+    xTable.Assign(Self);
+    xTable.StateToAssign := aoExists;
+    xTable.Open();
+
+    Result := not(xTable.IsEmpty);
+    FState := iff(Result, aoUpdate, aoInsert);
+    xTable.Close;
+  finally
+    FreeAndNil(xTable);
+  end; }
+end;
+
 procedure TTable.ExecutarMesesEntre;
 begin
   if (FUseParam) then
@@ -769,8 +965,14 @@ end;
 
 procedure TTable.Close;
 begin
+  FCheckFields := False;
   FCondicao := EmptyStr;
-  FreeAndNil(FQuery);
+
+  if Assigned(FQuery) then
+  begin
+    FQuery.Close;
+    FQuery.SQL.Clear;
+  end;
 end;
 
 function TTable.Count: Integer;
@@ -790,24 +992,33 @@ end;
 
 function TTable.GenerateID(const pField: string): Integer;
 var
-  xQuery: THQuery;
   xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xQuery: THQuery;
 begin
   Result := 1;
 
-  xQuery := THQuery.CreatePersonalizado;
+  xQuery := nil;
   try
+    xContext := TRttiContext.Create;
+    xType := xContext.GetType(Self.ClassType);
+
+    xQuery := THQuery.CreatePersonalizado;
+
     xQuery.Command := 'SELECT MAX(' + pField + ') AS IDREG FROM ' + FTabela;
     xQuery.Open;
     if not(xQuery.IsEmpty) then
       Result := xQuery.FindField('IDREG').AsInteger + 1;
 
     xQuery.Close;
+
+    xProperty := xType.GetProperty(pField);
+    xProperty.SetValue(Self, Result);
   finally
     FreeAndNil(xQuery);
+    xContext.Free;
   end;
-  xProperty := FType.GetProperty(pField);
-  xProperty.SetValue(Self, Result);
 
   Clean();
 end;
@@ -828,34 +1039,36 @@ begin
   Result := FCheck;
 end;
 
-procedure TTable.Start;
+function TTable.GetSelect: TStateSelect;
+begin
+  Result := FTableSelect;
+end;
+
+procedure TTable.Init;
 begin
   FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FCondicao := EmptyStr;
+
+  if (Assigned(FStringArrayList)) then
+    FStringArrayList.Clear;
 end;
 
-procedure TTable.Init(const pTabela: string);
+procedure TTable.Insert;
 begin
-  FTabela := pTabela;
-  FUseParam := True;
-  FSetFields := False;
-  FSelect := esNormal;
-  FCondicao := EmptyStr;
-  FInsertValue := EmptyStr;
-  FTables := EmptyStr;
-
-  FillChar(FFields, sizeOf(FFields), 0);
-  FillChar(FBlockList, sizeOf(FBlockList), 0);
-  FillChar(FLimitField, sizeOf(FLimitField), 0);
-
-  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState', 'AutoSelectProperty']);
+  if not(ExecSql) then
+    Self.SetInsert();
 end;
 
-procedure TTable.Insert();
+function TTable.State: TState;
 begin
-  Self.MontarEstadoInsert();
+  Result := FState;
+end;
+
+function TTable.IsEmpty: Boolean;
+begin
+  Result := FEmpty;
 end;
 
 procedure TTable.Last();
@@ -863,36 +1076,59 @@ begin
   FQuery.Last;
 
   if (not(FQuery.Bof)) then
-  begin
     AtribuirValoresSelect();
-  end;
 end;
 
-function TTable.LiberarCampo(const pNome: string): Boolean;
-var
-  i: Integer;
+//O cancel retonar os valores OLDs para o original
+procedure TTable.Cancel;
 begin
-  Result := False;
+  RetornarValores;
 
-  if (Length(FLimitField) > 0) then
+  FCheckFields := False;
+end;
+
+procedure TTable.CheckField(const pField: string);
+var
+  xType: TRttiType;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xPropertyOld: TRttiProperty;
+begin
+  if (FCheckFields) and (FState = aoUpdate) then
   begin
-    for i := 0 to High(FLimitField) do
-    begin
-      if (AnsiSameText(FLimitField[i], pNome)) then
-      begin
-        Result := True;
-        Break;
+    xContext := TRttiContext.Create;
+    try
+      xType := xContext.GetType(Self.ClassType);
+
+      xProperty := xType.GetProperty(pField);
+      xPropertyOld := xType.GetProperty('OLD_'+ pField);
+
+      case xProperty.PropertyType.TypeKind of
+        tkInteger:
+          if (xProperty.GetValue(Self).AsInteger <> xPropertyOld.GetValue(Self).AsInteger) then
+            FStringArrayList.Add(pField);
+
+        tkFloat:
+        begin
+          if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+          begin
+            if (FloatToDateTime(xProperty.GetValue(Self).AsExtended) <> FloatToDateTime(xPropertyOld.GetValue(Self).AsExtended)) then
+              FStringArrayList.Add(pField);
+          end
+          else
+          begin
+            if (xProperty.GetValue(Self).AsExtended <> xPropertyOld.GetValue(Self).AsExtended) then
+              FStringArrayList.Add(pField);
+          end;
+        end;
+      else
+        if (xProperty.GetValue(Self).AsString <> xPropertyOld.GetValue(Self).AsString) then
+          FStringArrayList.Add(pField);
       end;
+    finally
+      xContext.Free;
     end;
   end;
-end;
-
-function TTable.LimitarCampos(const pNome: string): Boolean;
-begin
-  Result := (LiberarCampo(pNome));
-
-  if (Length(FLimitField) = 0) then
-    Result := NegarCampo(pNome)
 end;
 
 procedure TTable.Clean;
@@ -901,7 +1137,7 @@ begin
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FCondicao := EmptyStr;
-  FSelect := esNormal;
+  FTableSelect := ssSelect;
 end;
 
 procedure TTable.ClearFields;
@@ -910,151 +1146,188 @@ var
   xProperty: TRttiProperty;
   xContext: TRttiContext;
 begin
-  xType := xContext.GetType(Self.ClassType);
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
 
-  for xProperty in xType.GetProperties do
-  begin
-    if NegarCampo(xProperty.Name) then
+    for xProperty in xType.GetProperties do
     begin
-      case xProperty.PropertyType.TypeKind of
-        tkInteger:
-          xProperty.SetValue(Self, 0);
-
-        tkFloat:
-          xProperty.SetValue(Self, 0);
-
-        tkWChar, tkChar:
-          xProperty.SetValue(Self, StrToChar(emptyStr));
-      else
-        xProperty.SetValue(Self, emptyStr);
-      end;
-    end;
-  end;
-end;
-
-procedure TTable.MontarEstadoInsert();
-var
-  xProperty: TRttiProperty;
-  xCampos, xValores: string;
-begin
-  for xProperty in FType.GetProperties do
-  begin
-    if NegarCampo(xProperty.Name) then
-    begin
-      xCampos := xCampos + xProperty.Name + ',';
-      xValores := xValores + ':' + xProperty.Name + ',';
-    end;
-  end;
-
-  UltimoCaracter(xCampos, ',');
-  UltimoCaracter(xValores, ',');
-
-  FQuery.Sql.Clear;
-  FQuery.Command := 'INSERT INTO ' + FTabela + ' (' + xCampos + ') VALUES (' +
-    xValores + ')';
-
-  for xProperty in FType.GetProperties do
-  begin
-    if NegarCampo(xProperty.Name) then
-    begin
-      if (AnsiSameText(UpperCase(xProperty.Name), FSequenceField)) then
-        FQuery.ParamByName(xProperty.Name).Value := GenerateID(FSequenceField)
-      else
+      if NegarCampo(xProperty.Name) then
+      begin
         case xProperty.PropertyType.TypeKind of
           tkInteger:
-            FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self)
-              .AsInteger;
+            xProperty.SetValue(Self, 0);
 
           tkFloat:
-            begin
-              if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
-                FQuery.ParamByName(xProperty.Name).Value :=
-                  FloatToDateTime((xProperty.GetValue(Self).AsExtended))
-              else
-                FQuery.ParamByName(xProperty.Name).Value :=
-                  xProperty.GetValue(Self).AsExtended;
-            end
+            xProperty.SetValue(Self, 0);
+
+          tkWChar, tkChar:
+            xProperty.SetValue(Self, StrToChar(emptyStr));
         else
-          FQuery.ParamByName(xProperty.Name).Value :=
-            xProperty.GetValue(Self).ToString;
+          xProperty.SetValue(Self, emptyStr);
         end;
+      end;
     end;
+  finally
+    xContext.Free;
   end;
 end;
 
-function TTable.MontarEstadoSelect: Boolean;
+procedure TTable.SetInsert();
 var
   xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xCampos, xValores: string;
 begin
-  if (FUseParam) then
-    DefinirParametros();
-
+  xContext := TRttiContext.Create;
   try
-    FQuery.Prepared := True;
-    FQuery.Open;
-  except
-    on E: Exception do
-      raise;
-  end;
-  Result := not(FQuery.IsEmpty);
+    xType := xContext.GetType(Self.ClassType);
 
-  if (Result) then
-    case (FSelect) of
-      esLoop, esNormal:
-        AtribuirValoresSelect();
-
-      esMAX, esMIN, esCOUNT, esSUM:
-        begin
-          if not(FSetFields) then
-          begin
-            xProperty := FType.GetProperty(FField);
-
-            if (xProperty.PropertyType.TypeKind = tkFloat) then
-              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
-            else
-              xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsInteger);
-          end
-          else
-            AtribuirValoresSelect();
-        end;
+    for xProperty in xType.GetProperties do
+    begin
+      if NegarCampo(xProperty.Name) then
+      begin
+        xCampos := xCampos + xProperty.Name + ',';
+        xValores := xValores + ':' + xProperty.Name + ',';
+      end;
     end;
+
+    UltimoCaracter(xCampos, ',');
+    UltimoCaracter(xValores, ',');
+
+    FQuery.Sql.Clear;
+    FQuery.Command := 'INSERT INTO ' + FTabela + ' (' + xCampos + ') VALUES (' +
+      xValores + ')';
+
+    for xProperty in xType.GetProperties do
+    begin
+      if NegarCampo(xProperty.Name) then
+      begin
+        if (AnsiSameText(UpperCase(xProperty.Name), FSequenceField)) then
+          FQuery.ParamByName(xProperty.Name).Value := GenerateID(FSequenceField)
+        else
+          case xProperty.PropertyType.TypeKind of
+            tkInteger:
+              FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self).AsInteger;
+
+            tkFloat:
+              begin
+                if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
+                  FQuery.ParamByName(xProperty.Name).Value :=
+                    FloatToDateTime((xProperty.GetValue(Self).AsExtended))
+                else
+                  FQuery.ParamByName(xProperty.Name).Value :=
+                    xProperty.GetValue(Self).AsExtended;
+              end
+          else
+            FQuery.ParamByName(xProperty.Name).Value :=
+              xProperty.GetValue(Self).ToString;
+          end;
+      end;
+    end;
+
+    FQuery.ExecSQL();
+    FQuery.Close;
+    Self.Clean;
+  finally
+    xContext.Free;
+    FreeAndNil(FQuery);
+  end;
+end;
+
+procedure TTable.MontarEstadoSelect;
+var
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+begin
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
+
+    if (FUseParam) then
+      DefinirParametros();
+
+    try
+      FQuery.Prepared := True;
+      FQuery.Open;
+    except
+      on E: Exception do
+        raise;
+    end;
+    FEmpty := (FQuery.IsEmpty);
+
+    if not(FEmpty) then
+    begin
+      if (FTableSelect = ssSelect) then
+          AtribuirValoresSelect()
+      else
+      begin
+        if not(FSetFields) then
+        begin
+          xProperty := xType.GetProperty(FField);
+
+          if (xProperty.PropertyType.TypeKind = tkFloat) then
+            xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
+          else
+            xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsInteger);
+        end
+        else
+          AtribuirValoresSelect();
+      end;
+    end;
+
+    //FQuery.Prepared := False;
+  finally
+    xContext.Free;
+  end;
 end;
 
 function TTable.MAXSelect: string;
 var
   xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
   xCampos: string;
   xMaior: string;
 begin
   xCampos := EmptyStr;
   xMaior := EmptyStr;
 
-  if (FSetFields) then
-  begin
-    for xProperty in FType.GetProperties do
-      if NegarCampo(xProperty.Name) then
-        xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
 
-    UltimoCaracter(xCampos, ',');
-  end;
+    if (FSetFields) then
+    begin
+      for xProperty in xType.GetProperties do
+        if NegarCampo(xProperty.Name) then
+          xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
 
-  Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FField, FTabela]);
+      UltimoCaracter(xCampos, ',');
+    end;
 
-  if not(IsNull(FCondicao)) then
-    Result := Format('%s WHERE %s', [Result, FCondicao]);
-
-  if not(IsNull(xCampos)) then
-  begin
-    xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
+    Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FField, FTabela]);
 
     if not(IsNull(FCondicao)) then
-      xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
+      Result := Format('%s WHERE %s', [Result, FCondicao]);
 
-    xMaior := xMaior + ' AND ' + FField + ' = (' + Result + ')';
-    Result := xMaior;
+    if not(IsNull(xCampos)) then
+    begin
+      xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
+
+      if not(IsNull(FCondicao)) then
+        xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
+
+      xMaior := xMaior + ' AND ' + FField + ' = (' + Result + ')';
+      Result := xMaior;
+    end;
+
+    FQuery.LockType := ltReadOnly;
+  finally
+    xContext.Free;
   end;
-
-  FQuery.LockType := ltReadOnly;
 end;
 
 function TTable.MonthsBetween(const pInicial: string; const pFinal: TDate): Word;
@@ -1105,6 +1378,23 @@ begin
   end;
 end;
 
+procedure TTable.MontarChaves;
+begin
+  if (FAutoSelect) then
+  begin
+    FillChar(FSelectProps, sizeOf(FSelectProps), 0);
+
+    if ((FAutoSelectPKS) and not(FPrimaryAndForeignKeys)) or (State in [aoInsert, aoUpdate, aoDelete]) then
+      Self.SetAutoSelect(FPrimaryKeys);
+
+    if (not(FAutoSelectPKS) and (FAutoSelectFKS)) or (FPrimaryAndForeignKeys) then
+      Self.SetAutoSelect(FForeignKeys);
+
+    Self.PropertyForSelect(FSelectProps, True);
+    FAutoSelect := True;
+  end;
+end;
+
 procedure TTable.MontarComandoBetween;
 var
   i: Byte;
@@ -1134,38 +1424,57 @@ end;
 function TTable.MontarComandoSelect: string;
 var
   xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
   xCampos: string;
 begin
-  for xProperty in FType.GetProperties do
-    if NegarCampo(xProperty.Name) then
-      xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
 
-  UltimoCaracter(xCampos, ',');
+    for xProperty in xType.GetProperties do
+      if NegarCampo(xProperty.Name) then
+        xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
 
-  Result := 'SELECT ' + xCampos + ' FROM ' + FTabela;
+    UltimoCaracter(xCampos, ',');
 
-  if not(FTables = EmptyStr) then
-    Result := Result + ',' + FTables;
+    Result := 'SELECT ' + xCampos + ' FROM ' + FTabela;
 
-  if not(FCondicao = EmptyStr) then
-    Result := Result + ' WHERE ' + FCondicao;
+    if not(FTables = EmptyStr) then
+      Result := Result + ',' + FTables;
+
+    if not(FCondicao = EmptyStr) then
+      Result := Result + ' WHERE ' + FCondicao;
+  finally
+    xContext.Free;
+  end;
 end;
 
-function TTable.MontarEstadoUpdate(): string;
+function TTable.SetUpdate(): string;
 var
   xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+  i: Integer;
 begin
-  Result := 'UPDATE ' + FTabela + ' SET ';
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
 
-  for xProperty in FType.GetProperties do
-    if LimitarCampos(xProperty.Name) then
-      Result := Result + xProperty.Name + ' = :' + xProperty.Name + ',';
+    Result := 'UPDATE ' + FTabela + ' SET ';
 
-  UltimoCaracter(Result, ',');
-  FQuery.Command := Result + ' WHERE ' + FCondicao;
+    for i := 0 to High(FStringArrayList.ArrayList) do
+      Result := Result + FStringArrayList.ArrayList[i] + ' = :' + FStringArrayList.ArrayList[i] + ',';
 
-  for xProperty in FType.GetProperties do
-    if (LimitarCampos(xProperty.Name)) then
+    UltimoCaracter(Result, ',');
+
+    FQuery.SQL.Clear;
+    FQuery.Command := Result + ' WHERE ' + FCondicao;
+
+    for i := 0 to High(FStringArrayList.ArrayList) do
+    begin
+      xProperty := xType.GetProperty(FStringArrayList.ArrayList[i]);
+
       case xProperty.PropertyType.TypeKind of
         tkInteger:
           FQuery.ParamByName(xProperty.Name).Value := xProperty.GetValue(Self)
@@ -1184,9 +1493,18 @@ begin
         FQuery.ParamByName(xProperty.Name).Value :=
           xProperty.GetValue(Self).ToString;
       end;
+    end;
 
-  if (FUseParam) then
-    DefinirParametros();
+    if (FUseParam) then
+      DefinirParametros();
+
+    FQuery.ExecSQL();
+    FQuery.Close;
+    Self.Clean;
+  finally
+    xContext.Free;
+    FreeAndNil(FQuery);
+  end;
 end;
 
 function TTable.NegarCampo(const pNome: string): Boolean;
@@ -1215,9 +1533,7 @@ procedure TTable.First();
 begin
   FQuery.First;
   if (not(FQuery.Eof)) then
-  begin
     AtribuirValoresSelect();
-  end;
 end;
 
 function TTable.Next(): Boolean;
@@ -1230,40 +1546,98 @@ begin
     FQuery.Next;
   end
   else
+  begin
     FQuery.Close;
+    Self.Clean;
+  end;
 end;
 
-function TTable.Select: Boolean;
+procedure TTable.Open(const setConstraints: Boolean = True);
 begin
-  FQuery.Sql.Clear;
+  if Assigned(FQuery) then
+  begin
+    FQuery.Close;
+    FQuery.Sql.Clear;
+  end
+  else
+    FQuery := THQuery.CreatePersonalizado;
 
-  case (FSelect) of
-    esLoop, esNormal:
+  FCheckFields := False;
+  FAutoSelect := setConstraints;
+
+  if (State <> aoExists) then
+    FState := aoSelect;
+
+  MontarChaves();
+
+  case (FTableSelect) of
+    ssSelect:
       FQuery.Command := MontarComandoSelect();
 
-    esMAX:
+    ssMAX:
       FQuery.Command := MAXSelect;
 
-    esSUM:
+    ssSUM:
       FQuery.Command := SUMSelect;
 
-    esCOUNT:
+    ssCOUNT:
       FQuery.Command := COUNTSelect;
   end;
 
   MontarComandoBetween;
-  Result := MontarEstadoSelect();
+  MontarEstadoSelect();
+
+  FState := iff(FQuery.Count > 0, aoUpdate, aoInsert);
+  Self.Init;
 end;
 
-procedure TTable.SetAutoSelectProperty(const pFields: array of string);
+procedure TTable.SetAutoSelect(const pFields: array of string);
 var
-  i: Integer;
-begin
-  i := Length(pFields);
-  SetLength(FSelectProps, i);
+  j: Integer;
+  xProperty: TRttiProperty;
+  xType: TRttiType;
+  xContext: TRttiContext;
 
-  for i := 0 to High(pFields) do
-    FSelectProps[i] := pFields[i];
+  procedure IncPropFields();
+  var
+    i: Integer;
+  begin
+    i := Length(FSelectProps);
+    Inc(i);
+    SetLength(FSelectProps, i);
+    FSelectProps[pred(i)] := pFields[j];
+  end;
+
+begin
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Self.ClassType);
+
+    for j := 0 to High(pFields) do
+    begin
+      if (State = aoSelect) and not(FPrimaryAndForeignKeys) then
+      begin
+        xProperty := xType.GetProperty(pFields[j]);
+
+        case xProperty.PropertyType.TypeKind of
+          tkInteger:
+            if (xProperty.GetValue(Self).AsInteger > 0) then
+              IncPropFields;
+
+          tkFloat:
+            if (xProperty.GetValue(Self).AsExtended > 0) then
+              IncPropFields;
+        else
+          if not(IsNull(xProperty.GetValue(Self).ToString)) then
+            IncPropFields;
+        end;
+      end
+      else
+        IncPropFields;
+    end;
+  finally
+    xContext.Free;
+  end;
 end;
 
 procedure TTable.SetBetween(const pName: string; const Value: TDate);
@@ -1285,19 +1659,56 @@ begin
   FCheck := Value;
 end;
 
+procedure TTable.SetForeignKeyValue(const pTable: TTable);
+var
+  i: Integer;
+  xSelfProperty: TRttiProperty;
+  xSelfContext: TRttiContext;
+  xSelfType: TRttiType;
+
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+begin
+  xContext := TRttiContext.Create;
+  xSelfContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(pTable.ClassType);
+    xSelfType := xSelfContext.GetType(Self.ClassType);
+
+    for i := 0 to High(FForeignKeys) do
+    begin
+      xProperty := xType.GetProperty(FRelationalForeign[i]);
+
+      if Assigned(xProperty) then
+      begin
+        FPrimaryAndForeignKeys := True;
+
+        xSelfProperty := xSelfType.GetProperty(FForeignKeys[i]);
+        xSelfProperty.SetValue(Self, xProperty.GetValue(pTable));
+        Break;
+      end;
+    end;
+  finally
+    xContext.Free;
+    xSelfContext.Free;
+  end;
+end;
+
 procedure TTable.SetSequenceField(const pField: string);
 begin
   FSequenceField := pField;
 end;
 
+procedure TTable.SetSelect(const Value: TStateSelect);
+begin
+  FTableSelect := Value;
+end;
+
 function TTable.SetTableToRecord(const pTabela: string): THQuery;
 begin
   FQuery := THQuery.CreatePersonalizado();
-  FContext := TRttiContext.Create;
-  FType := FContext.GetType(Self.ClassType);
   FTabela := pTabela;
-
-  FQuery.Command := MontarComandoSelect();
 
   Result := FQuery;
 end;
@@ -1312,9 +1723,11 @@ begin
   FQuery.LockType := ltReadOnly;
 end;
 
-procedure TTable.Update();
+procedure TTable.Update;
 begin
-  Self.MontarEstadoUpdate();
+  if (ExecSql) then
+    if (Length(FStringArrayList.ArrayList) > 0) then
+      Self.SetUpdate()
 end;
 
 { TIterador }
@@ -1348,6 +1761,41 @@ begin
   end;
 end;
 
+procedure TIterador.AddByClass(const Old, New: TTable);
+begin
+  New.Assign(Old);
+  Self.Add(New);
+end;
+
+procedure TIterador.AddByClass(const Obj: TTable);
+var
+  xValue: TValue;
+  xType: TRttiType;
+  xContext: TRttiContext;
+  xRttiMethod: TRttiMethod;
+  xInstanceType: TRttiInstanceType;
+  xTable: TTable;
+begin
+  xContext := TRttiContext.Create;
+  try
+    xType := xContext.GetType(Obj.ClassType);
+    xRttiMethod :=  xType.GetMethod('Create');
+
+    if Assigned(xRttiMethod) then
+    begin
+      xInstanceType := xType.AsInstance;
+
+      xValue := xRttiMethod.Invoke(xInstanceType.MetaclassType, []);
+      xTable := xValue.AsType<TTable>;
+      xTable.Assign(Obj);
+
+      Self.Add(xTable);
+    end;
+  finally
+    xContext.Free;
+  end;
+end;
+
 procedure TIterador.AddByQuery(const Obj: TObject);
 var
   xClass: TPersistentClass;
@@ -1356,7 +1804,7 @@ begin
   xClass := GetClass(Obj.ClassName);
   xObj := (xClass.Create) as TTable;
 
-  Self.IterarAdd(Obj, xObj);
+  Self.Add(xObj);
 end;
 
 procedure TIterador.AddIndex(const pValue: String);
@@ -1375,8 +1823,6 @@ end;
 constructor TIterador.Create(const pBaseClass: TClass = nil);
 begin
   inherited Create;
-
-  FBaseClass := pBaseClass;
 
   FillChar(FIndex, sizeOf(FIndex), 0);
 end;
@@ -1484,93 +1930,6 @@ begin
   end;
 end;
 
-procedure TIterador.Iterar(const pObjEntrada: TObject;
-  const pObjeSaida: TObject);
-var
-  xContextEntrada: TRttiContext;
-  xTypeEntrada: TRttiType;
-  xPropertyEntrada: TRttiProperty;
-  xContextSaida: TRttiContext;
-  xTypeSaida: TRttiType;
-  xPropertySaida: TRttiProperty;
-
-  function EnumNameToTValue(): TValue;
-  begin
-    Result := xPropertyEntrada.GetValue(pObjEntrada);
-    Result := TValue.FromOrdinal(Result.TypeInfo,GetEnumValue(Result.TypeInfo,
-      GetEnumName(Result.TypeInfo, xPropertyEntrada.GetValue(pObjEntrada).AsOrdinal)));
-  end;
-
-begin
-  xContextEntrada := TRttiContext.Create;
-  try
-    xContextSaida := TRttiContext.Create;
-
-    xTypeEntrada := xContextEntrada.GetType(pObjEntrada.ClassType);
-    xTypeSaida := xContextSaida.GetType(pObjeSaida.ClassType);
-
-    for xPropertyEntrada in xTypeEntrada.GetProperties do
-    begin
-      for xPropertySaida in xTypeSaida.GetProperties do
-      begin
-        if (AllowedTypeKind(xPropertySaida.PropertyType.TypeKind)) or (AnsiSameText(xPropertySaida.Name, 'LineState')) then
-          if (AnsiSameText(xPropertyEntrada.Name, xPropertySaida.Name)) then
-          begin
-            if (xPropertySaida.PropertyType.TypeKind = tkEnumeration) then
-              xPropertySaida.SetValue(pObjeSaida, EnumNameToTValue)
-            else
-              xPropertySaida.SetValue(pObjeSaida,
-                xPropertyEntrada.GetValue(pObjEntrada));
-            Break;
-          end;
-      end;
-    end;
-  finally
-    xContextEntrada.Free;
-    xContextSaida.Free;
-  end;
-end;
-
-procedure TIterador.IterarAdd(const pObjEntrada, pObjeSaida: TObject);
-begin
-  Self.Iterar(pObjEntrada, pObjeSaida);
-  Self.Add(pObjeSaida);
-end;
-
-class procedure TIterador.Repassar(const pObjEntrada, pObjeSaida: TObject);
-var
-  xContextEntrada: TRttiContext;
-  xTypeEntrada: TRttiType;
-  xPropertyEntrada: TRttiProperty;
-  xContextSaida: TRttiContext;
-  xTypeSaida: TRttiType;
-  xPropertySaida: TRttiProperty;
-begin
-  xContextEntrada := TRttiContext.Create;
-  try
-    xContextSaida := TRttiContext.Create;
-
-    xTypeEntrada := xContextEntrada.GetType(pObjEntrada.ClassType);
-    xTypeSaida := xContextSaida.GetType(pObjeSaida.ClassType);
-
-    for xPropertyEntrada in xTypeEntrada.GetProperties do
-    begin
-      for xPropertySaida in xTypeSaida.GetProperties do
-      begin
-        if (AnsiSameText(xPropertyEntrada.Name, xPropertySaida.Name)) then
-        begin
-          xPropertySaida.SetValue(pObjeSaida,
-            xPropertyEntrada.GetValue(pObjEntrada));
-          Break;
-        end;
-      end;
-    end;
-  finally
-    xContextEntrada.Free;
-    xContextSaida.Free;
-  end;
-end;
-
 function TIterador.Selecionados: Boolean;
 var
   i: Integer;
@@ -1591,29 +1950,6 @@ begin
   Findexed := Value;
 end;
 
-//para ser usada, a classe deve ter uma unit seperada.
-procedure TIterador.ShiftValues(const pInput: TObject);
-var
-  xType: TRttiType;
-  xProperty: TRttiProperty;
-  xContext: TRttiContext;
-  xNewObj: TObject;
-  xClass: TPersistentClass;
-begin
-  xClass := GetClass(FBaseClass.ClassName);
-  xNewObj := (xClass.Create) as TObject;
-
-  xType := xContext.GetType(xNewObj.ClassType);
-
-  for xProperty in xType.GetProperties do
-  begin
-    if (AllowedTypeKind(xProperty.PropertyType.TypeKind)) then
-      xProperty.SetValue(xNewObj, xContext.GetType(pInput.ClassType).GetProperty(xProperty.Name).GetValue(pInput));
-  end;
-
-  Self.Add(xNewObj);
-end;
-
 { TTabelaPadrao }
 
 constructor TTabelaPadrao.Create(const pTabela: string);
@@ -1631,6 +1967,13 @@ end;
 procedure TTabelaPadrao.Registros_OLD;
 begin
   //nada
+
+  CheckFieldsToAssign := True;
+end;
+
+procedure TTabelaPadrao.RetornarValores;
+begin
+  //Filhos
 end;
 
 function TTabelaPadrao.TableType: tTableType;
@@ -1665,7 +2008,12 @@ end;
 
 procedure TTabelaUsuario.Registros_OLD;
 begin
-  FOldId := FID;
+  CheckFieldsToAssign := True;
+end;
+
+procedure TTabelaUsuario.RetornarValores;
+begin
+  //Filho
 end;
 
 procedure TTabelaUsuario.SetId(const pId: Integer);
@@ -1717,6 +2065,7 @@ begin
   Self.ConnectionString :=
     'Provider=MSDAORA.1;Password=s1b13n5;User ID=sapiens;Data Source=HENNPROD;Extended Properties="Unicode=True";Persist Security Info=True';
   Self.LoginPrompt := False;
+  Self.ConnectionTimeout := 1;
   Self.Open('sapiens', 's1b13n5');
 
   FBase := 'SAPIENS';
@@ -1819,7 +2168,51 @@ end;
 
 function TData.GetDayOfWeek: tDayOfWeek;
 begin
-  Result := tDayOfWeek(DayOfWeek(Data))
+  Result := tDayOfWeek(DayOfWeek(Data));
+end;
+
+{ TStringArrayList }
+
+procedure TStringArrayList.Add(const Value: string);
+var
+  i: Integer;
+begin
+  if (FList.IndexOf(Value) = -1) then
+  begin
+    i := Length(FArray);
+    Inc(i);
+    SetLength(FArray, i);
+    FArray[pred(i)] := Value;
+
+    FList.Add(Value)
+  end;
+end;
+
+function TStringArrayList.ArrayList: TArrayOfString;
+begin
+  Result := FArray;
+end;
+
+procedure TStringArrayList.Clear;
+begin
+  FillChar(FArray, sizeOf(FArray), 0);
+  FList.Clear;
+end;
+
+constructor TStringArrayList.Create;
+begin
+  inherited;
+
+  FList := TStringList.Create;
+  FillChar(FArray, sizeOf(FArray), 0);
+end;
+
+destructor TStringArrayList.Destroy;
+begin
+  FreeAndNil(FList);
+  FillChar(FArray, sizeOf(FArray), 0);
+
+  inherited;
 end;
 
 end.

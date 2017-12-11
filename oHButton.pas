@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.Menus;
 
 type
-  tButtonType = (btn_OK, btn_Cancel, btn_Yes, btn_No, btn_All, btn_Detail);
+  tButtonType = (btn_NoClick, btn_OK, btn_Cancel, btn_Yes, btn_No, btn_All, btn_Detail);
 
   TCButton = class(TButton)
   private
@@ -93,7 +93,7 @@ begin
   FForm := AOwner;
   FType := pType;
   Self.OnClick := AfterClick;
-  FillChar(FCheckClick, SizeOf(FCheckClick), 0);
+  FCheckClick := btn_NoClick;
 end;
 
 procedure TCButton.PopupClick(Sender: TObject);

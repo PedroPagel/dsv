@@ -35,9 +35,9 @@ begin
   FFacadeControladoraCRM := TFacadeControladoraCRM.Create;
   try
     try
-      FFacadeControladoraCRM.CodEmp := StrToInt(ParamStr(3));
-      FFacadeControladoraCRM.CodFil := StrToInt(ParamStr(4));
-      FFacadeControladoraCRM.NumPed := StrToInt(ParamStr(5));
+      FFacadeControladoraCRM.CodEmp := 0; //StrToInt(ParamStr(3));
+      FFacadeControladoraCRM.CodFil := 0; //StrToInt(ParamStr(4));
+      FFacadeControladoraCRM.NumPed := 0; //StrToInt(ParamStr(5));
       FFacadeControladoraCRM.Executar;
     except
       on E: exception do
@@ -52,7 +52,7 @@ begin
             x000log.DesLog := E.Message;
             x000log.UsuGer := 257;
             x000log.DatGer := Date;
-            x000log.Execute(estInsert);
+            x000log.Insert();
 
             Commit;
           except

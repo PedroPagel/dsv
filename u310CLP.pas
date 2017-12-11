@@ -175,7 +175,7 @@ type
 
     procedure FGridReaCheckClick();
     procedure FGridReaIndNovChange();
-    procedure FGridReaVlrBonChange();
+    procedure FGridReaVlrBonExit();
 
     procedure FGridConCheckClick();
     procedure FGridClpCheckClick();
@@ -198,7 +198,7 @@ var
 implementation
 
 uses
-  oTabelas, oBase, System.Math, o501tcp, o301tcr;
+  oBase, System.Math, o501tcp, o301tcr, o670bem, o160mov;
 
 {$R *.dfm}
 
@@ -568,23 +568,23 @@ begin
   if (FControladorBem.LstLigado.Count > 0) or (FControladorBem.LstNaoLigado.Count > 0) then
   begin
     for i := 0 to pred(FControladorBem.LstLigado.Count) do
-    begin
-      FGridBem.Add;
-      FGridBem.AddFields(T670BEM(FControladorBem.LstLigado[i]));
-    end;
+      FGridBem.Add(T670BEM(FControladorBem.LstLigado[i]));
+
     FGridBem.First;
 
     for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
-    begin
-      FGridBnl.Add;
-      FGridBnl.AddFields(T670BEM(FControladorBem.LstNaoLigado[i]));
-    end;
+      FGridBnl.Add(T670BEM(FControladorBem.LstNaoLigado[i]));
+
     FGridBnl.First;
 
     FGridBemEnterLine();
   end
   else
     CMessage('Não houve informações a listar!', mtErrorInform);
+
+  FGridBlg.Enabled := (FGridBlg.Count > 0);
+  FGridBnl.Enabled := (FGridBnl.Count > 0);
+  FGridBem.Enabled := (FGridBem.Count > 0);
 end;
 
 procedure TF310CLP.MostrarClick(Sender: TObject);
@@ -618,21 +618,17 @@ begin
     begin
       for i := 0 to pred(FIteradorLigacao.Count) do
       begin
-        FGridClp.Add;
         x310clp := TControle.Create;
         try
-          FIteradorLigacao.Iterar(FIteradorLigacao[i], x310clp);
-          FGridClp.AddFields(x310clp);
+          x310clp.Assign(TTable(FIteradorLigacao[i]));
+          FGridClp.Add(x310clp);
         finally
           FreeAndNil(x310clp);
         end;
       end;
 
       for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
-      begin
-        FGridDes.Add;
-        FGridDes.AddFields(T501TCP(FIteradorLigacao.Despesas[i]));
-      end;
+        FGridDes.Add(T501TCP(FIteradorLigacao.Despesas[i]));
 
       FGridDes.First;
       FGridClp.First;
@@ -643,6 +639,10 @@ begin
     end
     else
       CMessage('Não houve informações a listar!', mtErrorInform);
+
+    FGridClp.Enabled := (FGridClp.Count > 0);
+    FGridLig.Enabled := (FGridLig.Count > 0);
+    FGridDes.Enabled := (FGridDes.Count > 0);
   except
     on E: Exception do
     begin
@@ -678,10 +678,9 @@ begin
       FGridCon.Disconnect;
       for i := 0 to pred(FIteradorReajuste.Count) do
       begin
-        FGridCon.Add;
         x310clp := TControle.Create;
-        FIteradorReajuste.Iterar(FIteradorReajuste[i], x310clp);
-        FGridCon.AddFields(x310clp);
+        x310clp.Assign(TTable(FIteradorReajuste[i]));
+        FGridCon.Add(x310clp);
       end;
       FGridCon.Connect;
       FGridCon.First;
@@ -692,6 +691,10 @@ begin
     end
     else
       CMessage('Não houve informações a listar!', mtErrorInform);
+
+    FGridCon.Enabled := (FGridCon.Count > 0);
+    FGridTit.Enabled := (FGridTit.Count > 0);
+    FGridRea.Enabled := (FGridRea.Count > 0);
   except
     on E: Exception do
     begin
@@ -799,10 +802,8 @@ begin
 
     FGridBnl.Clear;
     for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
-    begin
-      FGridBnl.Add;
-      FGridBnl.AddFields(T670BEM(FControladorBem.LstNaoLigado[i]));
-    end;
+      FGridBnl.Add(T670BEM(FControladorBem.LstNaoLigado[i]));
+
     FGridBnl.First;
 
     FGridBem.First();
@@ -818,6 +819,9 @@ begin
     end;
 
     ValidarSelecaoBem();
+
+    FGridBlg.Enabled := (FGridBlg.Count > 0);
+    FGridBnl.Enabled := (FGridBnl.Count > 0);
   end;
 end;
 
@@ -833,9 +837,8 @@ begin
     FGridDes.Clear;
     for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
     begin
-      FGridDes.Add;
       T501TCP(FIteradorLigacao.Despesas[i]).Check := 0;
-      FGridDes.AddFields(T501TCP(FIteradorLigacao.Despesas[i]));
+      FGridDes.Add(T501TCP(FIteradorLigacao.Despesas[i]));
     end;
 
     FGridClp.First();
@@ -851,7 +854,9 @@ begin
     end;
 
     ValidarSelecao();
-    FGridDes.Enabled := (FIteradorLigacao.Despesas.Count > 0);
+
+    FGridLig.Enabled := (FGridLig.Count > 0);
+    FGridDes.Enabled := (FGridDes.Count > 0);
   end;
 end;
 
@@ -869,18 +874,15 @@ begin
 
     FGridTit.Disconnect;
     for i := 0 to pred(xControle.Titulo.Count) do
-    begin
-      FGridTit.Add;
-      FGridTit.AddFields(T160MOV(xControle.Titulo[i]));
-    end;
+      FGridTit.Add(TTituloControle(xControle.Titulo[i]));
+
     FGridTit.Connect;
     FGridTit.Enabled := (xControle.Titulo.Count > 0);
 
     FGridRea.Disconnect;
     for i := 0 to pred(xControle.Ajuste.Count) do
     begin
-      FGridRea.Add;
-      FGridRea.AddFields(T301TCR(xControle.Ajuste[i]));
+      FGridRea.Add(T301TCR(xControle.Ajuste[i]));
       FGridRea.FindField('IndNov').AsFloat := TTituloControle(xControle.Ajuste[i]).IndNov;
       FGridRea.FindField('VlrBon').AsCurrency := TTituloControle(xControle.Ajuste[i]).VlrBon;
     end;
@@ -952,10 +954,8 @@ begin
     xIteradorBem := TIteradorBem(FControladorBem.LstLigado[pred(FGridBem.Line)]);
 
     for i := 0 to pred(xIteradorBem.Lista.Count) do
-    begin
-      FGridBlg.Add;
-      FGridBlg.AddFields(T670BEM(xIteradorBem.Lista[i]));
-    end;
+      FGridBlg.Add(T670BEM(xIteradorBem.Lista[i]));
+
     FGridBlg.First;
 
     ValidarSelecaoBem();
@@ -1024,10 +1024,10 @@ begin
   else
     FLogEmp := 1;
 
-  DDatIni.Start;
-  DDatFim.Start;
-  DVenIni.Start;
-  DVenFim.Start;
+  DDatIni.Init;
+  DDatFim.Init;
+  DVenIni.Init;
+  DVenFim.Init;
 
   FIteradorReajuste := TIteradorControle.Create();
   FIteradorLigacao := TIteradorControle.Create();
@@ -1183,13 +1183,14 @@ begin
 
     FGridBnl.Clear;
     for i := 0 to pred(FControladorBem.LstNaoLigado.Count) do
-    begin
-      FGridBnl.Add;
-      FGridBnl.AddFields(T670BEM(FControladorBem.LstNaoLigado[i]));
-    end;
+      FGridBnl.Add(T670BEM(FControladorBem.LstNaoLigado[i]));
+
     FGridBnl.First;
 
     ValidarSelecaoBem();
+
+    FGridBlg.Enabled := (FGridBlg.Count > 0);
+    FGridBnl.Enabled := (FGridBnl.Count > 0);
   end;
 end;
 
@@ -1204,12 +1205,12 @@ begin
 
     FGridDes.Clear;
     for i := 0 to pred(FIteradorLigacao.Despesas.Count) do
-    begin
-      FGridDes.Add;
-      FGridDes.AddFields(T501TCP(FIteradorLigacao.Despesas[i]));
-    end;
+      FGridDes.Add(T501TCP(FIteradorLigacao.Despesas[i]));
 
     ValidarSelecao();
+
+    FGridLig.Enabled := (FGridLig.Count > 0);
+    FGridDes.Enabled := (FGridDes.Count > 0);
   end;
 end;
 
@@ -1226,9 +1227,8 @@ begin
 
     for i := 0 to pred(xControle.Titulo.Count) do
     begin
-      FGridLig.Add;
+      FGridLig.Add(T501TCP(xControle.Titulo[i]));
       FGridLig.FindField('PosClp').AsInteger := FGridClp.Line;
-      FGridLig.AddFields(T501TCP(xControle.Titulo[i]));
     end;
 
     FGridLig.First;
@@ -1285,12 +1285,13 @@ begin
   end;
 end;
 
-procedure TF310CLP.FGridReaVlrBonChange;
+procedure TF310CLP.FGridReaVlrBonExit;
 var
   xCalculo: Double;
   xVlrOrigem: Double;
   xRemover: Boolean;
   xSobra: Double;
+  xValorBonificado: Double;
 
   //Funcao recursiva, desce ate quando houver itens da grid.
   function MontarRateio(const pValor: Double; const pCount: Integer): Double;
@@ -1332,13 +1333,23 @@ var
       xTituloControle.VlrBon := FGridRea.FindField('VlrBon').AsCurrency;
   end;
 
+  function ValorBonificado(): Double;
+  var
+    xControle: TControle;
+  begin
+    xControle := TControle(FIteradorReajuste[pred(FGridCon.Line)]);
+    Result := TTituloControle(xControle.Ajuste[Pred(FGridRea.Line)]).VlrBon;
+  end;
+
 begin
   xSobra := 0;
   xRemover := (CRound(FGridRea.FindField('VlrBon').AsFloat,2) = 0);
+  xValorBonificado := ValorBonificado;
 
   if (FGridRea.Count > 1) then
   begin
-    if (CRound(FGridRea.FindField('VlrBon').AsFloat,2) > 0) and (CMessage('Deseja ratear o valor entre os títulos do contrato?', mtConfirmationYesNo)) then
+    if (CRound(FGridRea.FindField('VlrBon').AsFloat,2) > 0) and (CRound(FGridRea.FindField('VlrBon').AsFloat,2) <> xValorBonificado) and
+       (CMessage('Deseja ratear o valor entre os títulos do contrato?', mtConfirmationYesNo)) then
     begin
       xVlrOrigem := FGridRea.FindField('VlrBon').AsFloat;
       xCalculo := MontarRateio(xVlrOrigem, FGridRea.Count);

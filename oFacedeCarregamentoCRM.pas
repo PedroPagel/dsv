@@ -51,10 +51,8 @@ begin
   begin
     StartTransaction;
     try
-      Pedido.Start;
-      Pedido.FieldsForUpdate(['USU_NumOptCRM']);
-      Pedido.PropertyForSelect(['CODEMP', 'CODFIL', 'NUMPED'], True);
-      Pedido.Execute(estUpdate);
+      Pedido.Init;
+      Pedido.Update();
 
       Commit;
     except
@@ -73,9 +71,7 @@ begin
     for i := 0 to pred(FPendencias.Count) do
     begin
       x120pen := T120PEN(FPendencias[i]);
-      x120pen.FieldsForUpdate(['USU_NumCom']);
-      x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
-      x120pen.Execute(estUpdate);
+      x120pen.Update();
     end;
 
     Commit;
@@ -89,9 +85,9 @@ begin
   F120PED.CodEmp := pDados.CodEmp;
   F120PED.CodFil := pDados.CodFil;
   F120PED.NumPed := pDados.NumPed;
-  F120PED.PropertyForSelect(['CODEMP', 'CODFIL', 'NUMPED'], True);
+  F120PED.Open();
 
-  if (F120PED.Execute(etSelect)) then
+  if not(F120PED.IsEmpty) then
   begin
     FWebservice.Dados.oportunidadeContaId := F120PED.CodCli;
     FWebservice.Dados.oportunidadeNumeroPedido := IntToStr(F120PED.CodEmp) + '-' +
@@ -115,13 +111,13 @@ begin
       F120IPD.CodEmp := F120PED.CodEmp;
       F120IPD.CodFil := F120PED.CodFil;
       F120IPD.NumPed := F120PED.NumPed;
-      F120IPD.PropertyForSelect(['CODEMP', 'CODFIL', 'NUMPED'], True);
 
       F120IPD.AddTable(['E075PRO']);
       F120IPD.AddToCommand(' AND E075PRO.INDKIT = ''N'' AND E075PRO.CODEMP = E120IPD.CODEMP AND E075PRO.CODPRO = E120IPD.CODPRO', False);
-      FPedidoComItens := F120IPD.Execute(etSelect, esLoop);
+      F120IPD.Open();
+      FPedidoComItens := not(F120IPD.IsEmpty);
 
-      while (F120IPD.Next) do
+      if not(F120IPD.IsEmpty) then
       begin
         FWebservice.Add;
         FWebservice.Produtos.oportunidadeProdutoId := F120IPD.CodPro;
@@ -157,10 +153,10 @@ begin
                                                            'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
                                                            'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
                                                            'E120PED.SITPED = 1)', False);
-  x120pen.Execute(etSelect, esLoop);
+  x120pen.Open(False);
 
   while (x120pen.Next) do
-    FPendencias.IterarAdd(x120pen, T120PEN.Create);
+    FPendencias.AddByClass(x120pen);
 end;
 
 procedure TFacedeCarregamentoCRM.Carregar(const pDados: TFacadeBaseCRM;
@@ -200,9 +196,9 @@ begin
 
       x085cli := T085CLI.Create;
       x085cli.CodCli := x120pen.USU_CodCli;
-      x085cli.PropertyForSelect(['CODCLI']);
+      x085cli.Open();
 
-      if (x085cli.Execute(etSelect)) then
+      if not(x085cli.IsEmpty) then
       begin
         FWebservice.Agedamento.compromissoUsuarioId := x120pen.USU_UsuGer;
         FWebservice.Agedamento.compromissoTipoRecorrencia := 10;
@@ -246,20 +242,18 @@ begin
       x120pen.USU_CodEmp := F120PED.CodEmp;
       x120pen.USU_CodFil := F120PED.CodFil;
       x120pen.USU_NumPed := F120PED.NumPed;
-      x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
+      x120pen.Open();
 
-      if (x120pen.Execute(etSelect)) then
+      if not(x120pen.IsEmpty) then
       begin
         //compromisso pode ainda nao existir
         if (x120pen.USU_NumCom > 0) then
           FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
 
         //Finaliza no banco
-        x120pen.Start;
+        x120pen.Init;
         x120pen.USU_SitMov := 'I';
-        x120pen.FieldsForUpdate(['USU_SitMov']);
-        x120pen.PropertyForSelect(['USU_CodEmp','USU_CodFil','USU_NumPed'], True);
-        x120pen.Execute(estUpdate);
+        x120pen.Update();
       end;
     finally
       FreeAndNil(x120pen);
@@ -325,7 +319,7 @@ function TFacedeCarregamentoCRM.TipoExecucao: TTipoExecucao;
 begin
   Result := teOportunidade;
 
-  if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
+ // if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
     Result := teCompromisso;
 end;
 

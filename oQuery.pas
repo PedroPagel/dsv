@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  oBase, System.Rtti, System.TypInfo;
+  oBase, System.Rtti, System.TypInfo, Winapi.ADOInt;
 
 { THQuery }
 
@@ -46,6 +46,10 @@ begin
   FTabelaUsuario := pTabelaUsuario;
   Self.Connection := FOracleConnection;
   Self.Close;
+
+  Self.CursorType := TCursorType.ctOpenForwardOnly;
+  Self.LockType := TADOLockType.ltOptimistic;
+  Self.CursorLocation := TCursorLocation.clUseServer;
 end;
 
 destructor THQuery.Destroy;

@@ -3,7 +3,7 @@ unit o085cli;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -573,6 +573,16 @@ type
     procedure SetUSU_ExiOD(const pUSU_ExiOD: Char);
     function GetUSU_ConPcl: Char;
     procedure SetUSU_ConPcl(const pUSU_ConPcl: Char);
+    function GetUSU_EnvSer: Char;
+    procedure SetUSU_EnvSer(const pUSU_EnvSer: Char);
+    function GetUSU_FilB2B: Integer;
+    procedure SetUSU_FilB2B(const pUSU_FilB2B: Integer);
+    function GetUSU_ExiSG: Char;
+    procedure SetUSU_ExiSG(const pUSU_ExiSG: Char);
+    function GetUSU_EmpB2B: Integer;
+    procedure SetUSU_EmpB2B(const pUSU_EmpB2B: Integer);
+    function GetUSU_LocClp: Char;
+    procedure SetUSU_LocClp(const pUSU_LocClp: Char);
 
     function GetCodCliOld: Integer;
     procedure SetCodCliOld(const pCodCli: Integer);
@@ -850,8 +860,19 @@ type
     procedure SetUSU_ExiODOld(const pUSU_ExiOD: Char);
     function GetUSU_ConPclOld: Char;
     procedure SetUSU_ConPclOld(const pUSU_ConPcl: Char);
+    function GetUSU_EnvSerOld: Char;
+    procedure SetUSU_EnvSerOld(const pUSU_EnvSer: Char);
+    function GetUSU_FilB2BOld: Integer;
+    procedure SetUSU_FilB2BOld(const pUSU_FilB2B: Integer);
+    function GetUSU_ExiSGOld: Char;
+    procedure SetUSU_ExiSGOld(const pUSU_ExiSG: Char);
+    function GetUSU_EmpB2BOld: Integer;
+    procedure SetUSU_EmpB2BOld(const pUSU_EmpB2B: Integer);
+    function GetUSU_LocClpOld: Char;
+    procedure SetUSU_LocClpOld(const pUSU_LocClp: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -994,11 +1015,11 @@ type
     property USU_PreFix: Char read GetUSU_PreFix write SetUSU_PreFix;
     property USU_ExiOD: Char read GetUSU_ExiOD write SetUSU_ExiOD;
     property USU_ConPcl: Char read GetUSU_ConPcl write SetUSU_ConPcl;
-   // property USU_EnvSer: Char read GetUSU_EnvSer write SetUSU_EnvSer;
-  //  property USU_FilB2B: Integer read GetUSU_FilB2B write SetUSU_FilB2B;
-   // property USU_ExiSG: Char read GetUSU_ExiSG write SetUSU_ExiSG;
-   // property USU_EmpB2B: Integer read GetUSU_EmpB2B write SetUSU_EmpB2B;
-    //property USU_LocClp: Char read GetUSU_LocClp write SetUSU_LocClp;
+    property USU_EnvSer: Char read GetUSU_EnvSer write SetUSU_EnvSer;
+    property USU_FilB2B: Integer read GetUSU_FilB2B write SetUSU_FilB2B;
+    property USU_ExiSG: Char read GetUSU_ExiSG write SetUSU_ExiSG;
+    property USU_EmpB2B: Integer read GetUSU_EmpB2B write SetUSU_EmpB2B;
+    property USU_LocClp: Char read GetUSU_LocClp write SetUSU_LocClp;
 
     property OLD_CodCli: Integer read GetCodCliOLD write SetCodCliOLD;
     property OLD_NomCli: string read GetNomCliOLD write SetNomCliOLD;
@@ -1138,11 +1159,11 @@ type
     property OLD_USU_PreFix: Char read GetUSU_PreFixOLD write SetUSU_PreFixOLD;
     property OLD_USU_ExiOD: Char read GetUSU_ExiODOLD write SetUSU_ExiODOLD;
     property OLD_USU_ConPcl: Char read GetUSU_ConPclOLD write SetUSU_ConPclOLD;
-  //  property OLD_USU_EnvSer: Char read GetUSU_EnvSerOLD write SetUSU_EnvSerOLD;
-  //  property OLD_USU_FilB2B: Integer read GetUSU_FilB2BOLD write SetUSU_FilB2BOLD;
-  //  property OLD_USU_ExiSG: Char read GetUSU_ExiSGOLD write SetUSU_ExiSGOLD;
-   // property OLD_USU_EmpB2B: Integer read GetUSU_EmpB2BOLD write SetUSU_EmpB2BOLD;
-    //property OLD_USU_LocClp: Char read GetUSU_LocClpOLD write SetUSU_LocClpOLD;
+    property OLD_USU_EnvSer: Char read GetUSU_EnvSerOLD write SetUSU_EnvSerOLD;
+    property OLD_USU_FilB2B: Integer read GetUSU_FilB2BOLD write SetUSU_FilB2BOLD;
+    property OLD_USU_ExiSG: Char read GetUSU_ExiSGOLD write SetUSU_ExiSGOLD;
+    property OLD_USU_EmpB2B: Integer read GetUSU_EmpB2BOLD write SetUSU_EmpB2BOLD;
+    property OLD_USU_LocClp: Char read GetUSU_LocClpOLD write SetUSU_LocClpOLD;
   end;
 
 implementation
@@ -1151,6 +1172,8 @@ implementation
 
 constructor T085CLI.Create();
 begin
+  AddPrimaryKeys('CodCli');
+
   inherited Create('E085CLI');
 end;
 
@@ -1158,6 +1181,7 @@ destructor T085CLI.Destroy();
 begin
   inherited;
 end;
+
 function T085CLI.GetCodCli: Integer;
 begin
   Result := FCodCli;
@@ -1166,6 +1190,8 @@ end;
 procedure T085CLI.SetCodCli(const pCodCli: Integer);
 begin
   FCodCli := pCodCli;
+
+  CheckField('CodCli');
 end;
 
 function T085CLI.GetNomCli: string;
@@ -1176,6 +1202,8 @@ end;
 procedure T085CLI.SetNomCli(const pNomCli: string);
 begin
   FNomCli := pNomCli;
+
+  CheckField('NomCli');
 end;
 
 function T085CLI.GetApeCli: string;
@@ -1186,6 +1214,8 @@ end;
 procedure T085CLI.SetApeCli(const pApeCli: string);
 begin
   FApeCli := pApeCli;
+
+  CheckField('ApeCli');
 end;
 
 function T085CLI.GetMarCli: string;
@@ -1196,6 +1226,8 @@ end;
 procedure T085CLI.SetMarCli(const pMarCli: string);
 begin
   FMarCli := pMarCli;
+
+  CheckField('MarCli');
 end;
 
 function T085CLI.GetSenCli: string;
@@ -1206,6 +1238,8 @@ end;
 procedure T085CLI.SetSenCli(const pSenCli: string);
 begin
   FSenCli := pSenCli;
+
+  CheckField('SenCli');
 end;
 
 function T085CLI.GetTipCli: Char;
@@ -1216,6 +1250,8 @@ end;
 procedure T085CLI.SetTipCli(const pTipCli: Char);
 begin
   FTipCli := pTipCli;
+
+  CheckField('TipCli');
 end;
 
 function T085CLI.GetTipMer: Char;
@@ -1226,6 +1262,8 @@ end;
 procedure T085CLI.SetTipMer(const pTipMer: Char);
 begin
   FTipMer := pTipMer;
+
+  CheckField('TipMer');
 end;
 
 function T085CLI.GetTipEmc: Integer;
@@ -1236,6 +1274,8 @@ end;
 procedure T085CLI.SetTipEmc(const pTipEmc: Integer);
 begin
   FTipEmc := pTipEmc;
+
+  CheckField('TipEmc');
 end;
 
 function T085CLI.GetCliCon: Char;
@@ -1246,6 +1286,8 @@ end;
 procedure T085CLI.SetCliCon(const pCliCon: Char);
 begin
   FCliCon := pCliCon;
+
+  CheckField('CliCon');
 end;
 
 function T085CLI.GetCodRam: string;
@@ -1256,6 +1298,8 @@ end;
 procedure T085CLI.SetCodRam(const pCodRam: string);
 begin
   FCodRam := pCodRam;
+
+  CheckField('CodRam');
 end;
 
 function T085CLI.GetInsEst: string;
@@ -1266,6 +1310,8 @@ end;
 procedure T085CLI.SetInsEst(const pInsEst: string);
 begin
   FInsEst := pInsEst;
+
+  CheckField('InsEst');
 end;
 
 function T085CLI.GetInsMun: string;
@@ -1276,6 +1322,8 @@ end;
 procedure T085CLI.SetInsMun(const pInsMun: string);
 begin
   FInsMun := pInsMun;
+
+  CheckField('InsMun');
 end;
 
 function T085CLI.GetCgcCpf: Integer;
@@ -1286,6 +1334,8 @@ end;
 procedure T085CLI.SetCgcCpf(const pCgcCpf: Integer);
 begin
   FCgcCpf := pCgcCpf;
+
+  CheckField('CgcCpf');
 end;
 
 function T085CLI.GetCodGre: Integer;
@@ -1296,6 +1346,8 @@ end;
 procedure T085CLI.SetCodGre(const pCodGre: Integer);
 begin
   FCodGre := pCodGre;
+
+  CheckField('CodGre');
 end;
 
 function T085CLI.GetZonFra: Integer;
@@ -1306,6 +1358,8 @@ end;
 procedure T085CLI.SetZonFra(const pZonFra: Integer);
 begin
   FZonFra := pZonFra;
+
+  CheckField('ZonFra');
 end;
 
 function T085CLI.GetCodSuf: string;
@@ -1316,6 +1370,8 @@ end;
 procedure T085CLI.SetCodSuf(const pCodSuf: string);
 begin
   FCodSuf := pCodSuf;
+
+  CheckField('CodSuf');
 end;
 
 function T085CLI.GetEndCli: string;
@@ -1326,6 +1382,8 @@ end;
 procedure T085CLI.SetEndCli(const pEndCli: string);
 begin
   FEndCli := pEndCli;
+
+  CheckField('EndCli');
 end;
 
 function T085CLI.GetCplEnd: string;
@@ -1336,6 +1394,8 @@ end;
 procedure T085CLI.SetCplEnd(const pCplEnd: string);
 begin
   FCplEnd := pCplEnd;
+
+  CheckField('CplEnd');
 end;
 
 function T085CLI.GetCliPrx: string;
@@ -1346,6 +1406,8 @@ end;
 procedure T085CLI.SetCliPrx(const pCliPrx: string);
 begin
   FCliPrx := pCliPrx;
+
+  CheckField('CliPrx');
 end;
 
 function T085CLI.GetZipCod: string;
@@ -1356,6 +1418,8 @@ end;
 procedure T085CLI.SetZipCod(const pZipCod: string);
 begin
   FZipCod := pZipCod;
+
+  CheckField('ZipCod');
 end;
 
 function T085CLI.GetCepCli: Integer;
@@ -1366,6 +1430,8 @@ end;
 procedure T085CLI.SetCepCli(const pCepCli: Integer);
 begin
   FCepCli := pCepCli;
+
+  CheckField('CepCli');
 end;
 
 function T085CLI.GetCepIni: Integer;
@@ -1376,6 +1442,8 @@ end;
 procedure T085CLI.SetCepIni(const pCepIni: Integer);
 begin
   FCepIni := pCepIni;
+
+  CheckField('CepIni');
 end;
 
 function T085CLI.GetBaiCli: string;
@@ -1386,6 +1454,8 @@ end;
 procedure T085CLI.SetBaiCli(const pBaiCli: string);
 begin
   FBaiCli := pBaiCli;
+
+  CheckField('BaiCli');
 end;
 
 function T085CLI.GetCidCli: string;
@@ -1396,6 +1466,8 @@ end;
 procedure T085CLI.SetCidCli(const pCidCli: string);
 begin
   FCidCli := pCidCli;
+
+  CheckField('CidCli');
 end;
 
 function T085CLI.GetSigUfs: string;
@@ -1406,6 +1478,8 @@ end;
 procedure T085CLI.SetSigUfs(const pSigUfs: string);
 begin
   FSigUfs := pSigUfs;
+
+  CheckField('SigUfs');
 end;
 
 function T085CLI.GetCodPai: string;
@@ -1416,6 +1490,8 @@ end;
 procedure T085CLI.SetCodPai(const pCodPai: string);
 begin
   FCodPai := pCodPai;
+
+  CheckField('CodPai');
 end;
 
 function T085CLI.GetTemEnt: Char;
@@ -1426,6 +1502,8 @@ end;
 procedure T085CLI.SetTemEnt(const pTemEnt: Char);
 begin
   FTemEnt := pTemEnt;
+
+  CheckField('TemEnt');
 end;
 
 function T085CLI.GetEndEnt: string;
@@ -1436,6 +1514,8 @@ end;
 procedure T085CLI.SetEndEnt(const pEndEnt: string);
 begin
   FEndEnt := pEndEnt;
+
+  CheckField('EndEnt');
 end;
 
 function T085CLI.GetCplEnt: string;
@@ -1446,6 +1526,8 @@ end;
 procedure T085CLI.SetCplEnt(const pCplEnt: string);
 begin
   FCplEnt := pCplEnt;
+
+  CheckField('CplEnt');
 end;
 
 function T085CLI.GetCepEnt: Integer;
@@ -1456,6 +1538,8 @@ end;
 procedure T085CLI.SetCepEnt(const pCepEnt: Integer);
 begin
   FCepEnt := pCepEnt;
+
+  CheckField('CepEnt');
 end;
 
 function T085CLI.GetIniEnt: Integer;
@@ -1466,6 +1550,8 @@ end;
 procedure T085CLI.SetIniEnt(const pIniEnt: Integer);
 begin
   FIniEnt := pIniEnt;
+
+  CheckField('IniEnt');
 end;
 
 function T085CLI.GetCidEnt: string;
@@ -1476,6 +1562,8 @@ end;
 procedure T085CLI.SetCidEnt(const pCidEnt: string);
 begin
   FCidEnt := pCidEnt;
+
+  CheckField('CidEnt');
 end;
 
 function T085CLI.GetEstEnt: string;
@@ -1486,6 +1574,8 @@ end;
 procedure T085CLI.SetEstEnt(const pEstEnt: string);
 begin
   FEstEnt := pEstEnt;
+
+  CheckField('EstEnt');
 end;
 
 function T085CLI.GetInsEnt: string;
@@ -1496,6 +1586,8 @@ end;
 procedure T085CLI.SetInsEnt(const pInsEnt: string);
 begin
   FInsEnt := pInsEnt;
+
+  CheckField('InsEnt');
 end;
 
 function T085CLI.GetCgcEnt: Integer;
@@ -1506,6 +1598,8 @@ end;
 procedure T085CLI.SetCgcEnt(const pCgcEnt: Integer);
 begin
   FCgcEnt := pCgcEnt;
+
+  CheckField('CgcEnt');
 end;
 
 function T085CLI.GetTemCob: Char;
@@ -1516,6 +1610,8 @@ end;
 procedure T085CLI.SetTemCob(const pTemCob: Char);
 begin
   FTemCob := pTemCob;
+
+  CheckField('TemCob');
 end;
 
 function T085CLI.GetEndCob: string;
@@ -1526,6 +1622,8 @@ end;
 procedure T085CLI.SetEndCob(const pEndCob: string);
 begin
   FEndCob := pEndCob;
+
+  CheckField('EndCob');
 end;
 
 function T085CLI.GetCplCob: string;
@@ -1536,6 +1634,8 @@ end;
 procedure T085CLI.SetCplCob(const pCplCob: string);
 begin
   FCplCob := pCplCob;
+
+  CheckField('CplCob');
 end;
 
 function T085CLI.GetCepCob: Integer;
@@ -1546,6 +1646,8 @@ end;
 procedure T085CLI.SetCepCob(const pCepCob: Integer);
 begin
   FCepCob := pCepCob;
+
+  CheckField('CepCob');
 end;
 
 function T085CLI.GetIniCob: Integer;
@@ -1556,6 +1658,8 @@ end;
 procedure T085CLI.SetIniCob(const pIniCob: Integer);
 begin
   FIniCob := pIniCob;
+
+  CheckField('IniCob');
 end;
 
 function T085CLI.GetCidCob: string;
@@ -1566,6 +1670,8 @@ end;
 procedure T085CLI.SetCidCob(const pCidCob: string);
 begin
   FCidCob := pCidCob;
+
+  CheckField('CidCob');
 end;
 
 function T085CLI.GetEstCob: string;
@@ -1576,6 +1682,8 @@ end;
 procedure T085CLI.SetEstCob(const pEstCob: string);
 begin
   FEstCob := pEstCob;
+
+  CheckField('EstCob');
 end;
 
 function T085CLI.GetCgcCob: Integer;
@@ -1586,6 +1694,8 @@ end;
 procedure T085CLI.SetCgcCob(const pCgcCob: Integer);
 begin
   FCgcCob := pCgcCob;
+
+  CheckField('CgcCob');
 end;
 
 function T085CLI.GetEntCor: Char;
@@ -1596,6 +1706,8 @@ end;
 procedure T085CLI.SetEntCor(const pEntCor: Char);
 begin
   FEntCor := pEntCor;
+
+  CheckField('EntCor');
 end;
 
 function T085CLI.GetFonCli: string;
@@ -1606,6 +1718,8 @@ end;
 procedure T085CLI.SetFonCli(const pFonCli: string);
 begin
   FFonCli := pFonCli;
+
+  CheckField('FonCli');
 end;
 
 function T085CLI.GetFonCl2: string;
@@ -1616,6 +1730,8 @@ end;
 procedure T085CLI.SetFonCl2(const pFonCl2: string);
 begin
   FFonCl2 := pFonCl2;
+
+  CheckField('FonCl2');
 end;
 
 function T085CLI.GetFonCl3: string;
@@ -1626,6 +1742,8 @@ end;
 procedure T085CLI.SetFonCl3(const pFonCl3: string);
 begin
   FFonCl3 := pFonCl3;
+
+  CheckField('FonCl3');
 end;
 
 function T085CLI.GetFonCl4: string;
@@ -1636,6 +1754,8 @@ end;
 procedure T085CLI.SetFonCl4(const pFonCl4: string);
 begin
   FFonCl4 := pFonCl4;
+
+  CheckField('FonCl4');
 end;
 
 function T085CLI.GetFonCl5: string;
@@ -1646,6 +1766,8 @@ end;
 procedure T085CLI.SetFonCl5(const pFonCl5: string);
 begin
   FFonCl5 := pFonCl5;
+
+  CheckField('FonCl5');
 end;
 
 function T085CLI.GetFaxCli: string;
@@ -1656,6 +1778,8 @@ end;
 procedure T085CLI.SetFaxCli(const pFaxCli: string);
 begin
   FFaxCli := pFaxCli;
+
+  CheckField('FaxCli');
 end;
 
 function T085CLI.GetCxaPst: Integer;
@@ -1666,6 +1790,8 @@ end;
 procedure T085CLI.SetCxaPst(const pCxaPst: Integer);
 begin
   FCxaPst := pCxaPst;
+
+  CheckField('CxaPst');
 end;
 
 function T085CLI.GetIntNet: string;
@@ -1676,6 +1802,8 @@ end;
 procedure T085CLI.SetIntNet(const pIntNet: string);
 begin
   FIntNet := pIntNet;
+
+  CheckField('IntNet');
 end;
 
 function T085CLI.GetCodRoe: string;
@@ -1686,6 +1814,8 @@ end;
 procedure T085CLI.SetCodRoe(const pCodRoe: string);
 begin
   FCodRoe := pCodRoe;
+
+  CheckField('CodRoe');
 end;
 
 function T085CLI.GetSeqRoe: Integer;
@@ -1696,6 +1826,8 @@ end;
 procedure T085CLI.SetSeqRoe(const pSeqRoe: Integer);
 begin
   FSeqRoe := pSeqRoe;
+
+  CheckField('SeqRoe');
 end;
 
 function T085CLI.GetCodFor: Integer;
@@ -1706,6 +1838,8 @@ end;
 procedure T085CLI.SetCodFor(const pCodFor: Integer);
 begin
   FCodFor := pCodFor;
+
+  CheckField('CodFor');
 end;
 
 function T085CLI.GetCliRep: Integer;
@@ -1716,6 +1850,8 @@ end;
 procedure T085CLI.SetCliRep(const pCliRep: Integer);
 begin
   FCliRep := pCliRep;
+
+  CheckField('CliRep');
 end;
 
 function T085CLI.GetCliTra: Integer;
@@ -1726,6 +1862,8 @@ end;
 procedure T085CLI.SetCliTra(const pCliTra: Integer);
 begin
   FCliTra := pCliTra;
+
+  CheckField('CliTra');
 end;
 
 function T085CLI.GetUsuCad: Integer;
@@ -1736,6 +1874,8 @@ end;
 procedure T085CLI.SetUsuCad(const pUsuCad: Integer);
 begin
   FUsuCad := pUsuCad;
+
+  CheckField('UsuCad');
 end;
 
 function T085CLI.GetDatCad: TDate;
@@ -1746,6 +1886,8 @@ end;
 procedure T085CLI.SetDatCad(const pDatCad: TDate);
 begin
   FDatCad := pDatCad;
+
+  CheckField('DatCad');
 end;
 
 function T085CLI.GetDatFim: TDate;
@@ -1756,6 +1898,8 @@ end;
 procedure T085CLI.SetDatFim(const pDatFim: TDate);
 begin
   FDatFim := pDatFim;
+
+  CheckField('DatFim');
 end;
 
 function T085CLI.GetHorCad: Integer;
@@ -1766,6 +1910,8 @@ end;
 procedure T085CLI.SetHorCad(const pHorCad: Integer);
 begin
   FHorCad := pHorCad;
+
+  CheckField('HorCad');
 end;
 
 function T085CLI.GetHorFim: Integer;
@@ -1776,6 +1922,8 @@ end;
 procedure T085CLI.SetHorFim(const pHorFim: Integer);
 begin
   FHorFim := pHorFim;
+
+  CheckField('HorFim');
 end;
 
 function T085CLI.GetDatVct: TDate;
@@ -1786,6 +1934,8 @@ end;
 procedure T085CLI.SetDatVct(const pDatVct: TDate);
 begin
   FDatVct := pDatVct;
+
+  CheckField('DatVct');
 end;
 
 function T085CLI.GetDatAtu: TDate;
@@ -1796,6 +1946,8 @@ end;
 procedure T085CLI.SetDatAtu(const pDatAtu: TDate);
 begin
   FDatAtu := pDatAtu;
+
+  CheckField('DatAtu');
 end;
 
 function T085CLI.GetHorAtu: Integer;
@@ -1806,6 +1958,8 @@ end;
 procedure T085CLI.SetHorAtu(const pHorAtu: Integer);
 begin
   FHorAtu := pHorAtu;
+
+  CheckField('HorAtu');
 end;
 
 function T085CLI.GetUsuAtu: Integer;
@@ -1816,6 +1970,8 @@ end;
 procedure T085CLI.SetUsuAtu(const pUsuAtu: Integer);
 begin
   FUsuAtu := pUsuAtu;
+
+  CheckField('UsuAtu');
 end;
 
 function T085CLI.GetQtdAtu: Integer;
@@ -1826,6 +1982,8 @@ end;
 procedure T085CLI.SetQtdAtu(const pQtdAtu: Integer);
 begin
   FQtdAtu := pQtdAtu;
+
+  CheckField('QtdAtu');
 end;
 
 function T085CLI.GetDatIcv: TDate;
@@ -1836,6 +1994,8 @@ end;
 procedure T085CLI.SetDatIcv(const pDatIcv: TDate);
 begin
   FDatIcv := pDatIcv;
+
+  CheckField('DatIcv');
 end;
 
 function T085CLI.GetSitCli: Char;
@@ -1846,6 +2006,8 @@ end;
 procedure T085CLI.SetSitCli(const pSitCli: Char);
 begin
   FSitCli := pSitCli;
+
+  CheckField('SitCli');
 end;
 
 function T085CLI.GetCodMot: Integer;
@@ -1856,6 +2018,8 @@ end;
 procedure T085CLI.SetCodMot(const pCodMot: Integer);
 begin
   FCodMot := pCodMot;
+
+  CheckField('CodMot');
 end;
 
 function T085CLI.GetBloCre: Char;
@@ -1866,6 +2030,8 @@ end;
 procedure T085CLI.SetBloCre(const pBloCre: Char);
 begin
   FBloCre := pBloCre;
+
+  CheckField('BloCre');
 end;
 
 function T085CLI.GetObsMot: string;
@@ -1876,6 +2042,8 @@ end;
 procedure T085CLI.SetObsMot(const pObsMot: string);
 begin
   FObsMot := pObsMot;
+
+  CheckField('ObsMot');
 end;
 
 function T085CLI.GetUsuMot: Integer;
@@ -1886,6 +2054,8 @@ end;
 procedure T085CLI.SetUsuMot(const pUsuMot: Integer);
 begin
   FUsuMot := pUsuMot;
+
+  CheckField('UsuMot');
 end;
 
 function T085CLI.GetDatMot: TDate;
@@ -1896,6 +2066,8 @@ end;
 procedure T085CLI.SetDatMot(const pDatMot: TDate);
 begin
   FDatMot := pDatMot;
+
+  CheckField('DatMot');
 end;
 
 function T085CLI.GetHorMot: Integer;
@@ -1906,6 +2078,8 @@ end;
 procedure T085CLI.SetHorMot(const pHorMot: Integer);
 begin
   FHorMot := pHorMot;
+
+  CheckField('HorMot');
 end;
 
 function T085CLI.GetUsuOpe: Integer;
@@ -1916,6 +2090,8 @@ end;
 procedure T085CLI.SetUsuOpe(const pUsuOpe: Integer);
 begin
   FUsuOpe := pUsuOpe;
+
+  CheckField('UsuOpe');
 end;
 
 function T085CLI.GetCodAma: string;
@@ -1926,6 +2102,8 @@ end;
 procedure T085CLI.SetCodAma(const pCodAma: string);
 begin
   FCodAma := pCodAma;
+
+  CheckField('CodAma');
 end;
 
 function T085CLI.GetCodSab: string;
@@ -1936,6 +2114,8 @@ end;
 procedure T085CLI.SetCodSab(const pCodSab: string);
 begin
   FCodSab := pCodSab;
+
+  CheckField('CodSab');
 end;
 
 function T085CLI.GetCodGal: string;
@@ -1946,6 +2126,8 @@ end;
 procedure T085CLI.SetCodGal(const pCodGal: string);
 begin
   FCodGal := pCodGal;
+
+  CheckField('CodGal');
 end;
 
 function T085CLI.GetTriIcm: Char;
@@ -1956,6 +2138,8 @@ end;
 procedure T085CLI.SetTriIcm(const pTriIcm: Char);
 begin
   FTriIcm := pTriIcm;
+
+  CheckField('TriIcm');
 end;
 
 function T085CLI.GetTriIpi: Char;
@@ -1966,6 +2150,8 @@ end;
 procedure T085CLI.SetTriIpi(const pTriIpi: Char);
 begin
   FTriIpi := pTriIpi;
+
+  CheckField('TriIpi');
 end;
 
 function T085CLI.GetBaiEnt: string;
@@ -1976,6 +2162,8 @@ end;
 procedure T085CLI.SetBaiEnt(const pBaiEnt: string);
 begin
   FBaiEnt := pBaiEnt;
+
+  CheckField('BaiEnt');
 end;
 
 function T085CLI.GetBaiCob: string;
@@ -1986,6 +2174,8 @@ end;
 procedure T085CLI.SetBaiCob(const pBaiCob: string);
 begin
   FBaiCob := pBaiCob;
+
+  CheckField('BaiCob');
 end;
 
 function T085CLI.GetCliFor: Char;
@@ -1996,6 +2186,8 @@ end;
 procedure T085CLI.SetCliFor(const pCliFor: Char);
 begin
   FCliFor := pCliFor;
+
+  CheckField('CliFor');
 end;
 
 function T085CLI.GetIdeCli: string;
@@ -2006,6 +2198,8 @@ end;
 procedure T085CLI.SetIdeCli(const pIdeCli: string);
 begin
   FIdeCli := pIdeCli;
+
+  CheckField('IdeCli');
 end;
 
 function T085CLI.GetTriPis: Char;
@@ -2016,6 +2210,8 @@ end;
 procedure T085CLI.SetTriPis(const pTriPis: Char);
 begin
   FTriPis := pTriPis;
+
+  CheckField('TriPis');
 end;
 
 function T085CLI.GetTriCof: Char;
@@ -2026,6 +2222,8 @@ end;
 procedure T085CLI.SetTriCof(const pTriCof: Char);
 begin
   FTriCof := pTriCof;
+
+  CheckField('TriCof');
 end;
 
 function T085CLI.GetIndExp: Integer;
@@ -2036,6 +2234,8 @@ end;
 procedure T085CLI.SetIndExp(const pIndExp: Integer);
 begin
   FIndExp := pIndExp;
+
+  CheckField('IndExp');
 end;
 
 function T085CLI.GetDatPal: TDate;
@@ -2046,6 +2246,8 @@ end;
 procedure T085CLI.SetDatPal(const pDatPal: TDate);
 begin
   FDatPal := pDatPal;
+
+  CheckField('DatPal');
 end;
 
 function T085CLI.GetHorPal: Integer;
@@ -2056,6 +2258,8 @@ end;
 procedure T085CLI.SetHorPal(const pHorPal: Integer);
 begin
   FHorPal := pHorPal;
+
+  CheckField('HorPal');
 end;
 
 function T085CLI.GetRetCof: Char;
@@ -2066,6 +2270,8 @@ end;
 procedure T085CLI.SetRetCof(const pRetCof: Char);
 begin
   FRetCof := pRetCof;
+
+  CheckField('RetCof');
 end;
 
 function T085CLI.GetRetCsl: Char;
@@ -2076,6 +2282,8 @@ end;
 procedure T085CLI.SetRetCsl(const pRetCsl: Char);
 begin
   FRetCsl := pRetCsl;
+
+  CheckField('RetCsl');
 end;
 
 function T085CLI.GetRetPis: Char;
@@ -2086,6 +2294,8 @@ end;
 procedure T085CLI.SetRetPis(const pRetPis: Char);
 begin
   FRetPis := pRetPis;
+
+  CheckField('RetPis');
 end;
 
 function T085CLI.GetRetOur: Char;
@@ -2096,6 +2306,8 @@ end;
 procedure T085CLI.SetRetOur(const pRetOur: Char);
 begin
   FRetOur := pRetOur;
+
+  CheckField('RetOur');
 end;
 
 function T085CLI.GetCodSro: string;
@@ -2106,6 +2318,8 @@ end;
 procedure T085CLI.SetCodSro(const pCodSro: string);
 begin
   FCodSro := pCodSro;
+
+  CheckField('CodSro');
 end;
 
 function T085CLI.GetDatSuf: TDate;
@@ -2116,6 +2330,8 @@ end;
 procedure T085CLI.SetDatSuf(const pDatSuf: TDate);
 begin
   FDatSuf := pDatSuf;
+
+  CheckField('DatSuf');
 end;
 
 function T085CLI.GetCepFre: Integer;
@@ -2126,6 +2342,8 @@ end;
 procedure T085CLI.SetCepFre(const pCepFre: Integer);
 begin
   FCepFre := pCepFre;
+
+  CheckField('CepFre');
 end;
 
 function T085CLI.GetCodPdv: Integer;
@@ -2136,6 +2354,8 @@ end;
 procedure T085CLI.SetCodPdv(const pCodPdv: Integer);
 begin
   FCodPdv := pCodPdv;
+
+  CheckField('CodPdv');
 end;
 
 function T085CLI.GetDatPdv: TDate;
@@ -2146,6 +2366,8 @@ end;
 procedure T085CLI.SetDatPdv(const pDatPdv: TDate);
 begin
   FDatPdv := pDatPdv;
+
+  CheckField('DatPdv');
 end;
 
 function T085CLI.GetHorPdv: Integer;
@@ -2156,6 +2378,8 @@ end;
 procedure T085CLI.SetHorPdv(const pHorPdv: Integer);
 begin
   FHorPdv := pHorPdv;
+
+  CheckField('HorPdv');
 end;
 
 function T085CLI.GetRetPro: Char;
@@ -2166,6 +2390,8 @@ end;
 procedure T085CLI.SetRetPro(const pRetPro: Char);
 begin
   FRetPro := pRetPro;
+
+  CheckField('RetPro');
 end;
 
 function T085CLI.GetRetIrf: Char;
@@ -2176,6 +2402,8 @@ end;
 procedure T085CLI.SetRetIrf(const pRetIrf: Char);
 begin
   FRetIrf := pRetIrf;
+
+  CheckField('RetIrf');
 end;
 
 function T085CLI.GetLimRet: Char;
@@ -2186,6 +2414,8 @@ end;
 procedure T085CLI.SetLimRet(const pLimRet: Char);
 begin
   FLimRet := pLimRet;
+
+  CheckField('LimRet');
 end;
 
 function T085CLI.GetCodCnv: Integer;
@@ -2196,6 +2426,8 @@ end;
 procedure T085CLI.SetCodCnv(const pCodCnv: Integer);
 begin
   FCodCnv := pCodCnv;
+
+  CheckField('CodCnv');
 end;
 
 function T085CLI.GetCalFun: Char;
@@ -2206,6 +2438,8 @@ end;
 procedure T085CLI.SetCalFun(const pCalFun: Char);
 begin
   FCalFun := pCalFun;
+
+  CheckField('CalFun');
 end;
 
 function T085CLI.GetEenCli: string;
@@ -2216,6 +2450,8 @@ end;
 procedure T085CLI.SetEenCli(const pEenCli: string);
 begin
   FEenCli := pEenCli;
+
+  CheckField('EenCli');
 end;
 
 function T085CLI.GetEenEnt: string;
@@ -2226,6 +2462,8 @@ end;
 procedure T085CLI.SetEenEnt(const pEenEnt: string);
 begin
   FEenEnt := pEenEnt;
+
+  CheckField('EenEnt');
 end;
 
 function T085CLI.GetEenCob: string;
@@ -2236,6 +2474,8 @@ end;
 procedure T085CLI.SetEenCob(const pEenCob: string);
 begin
   FEenCob := pEenCob;
+
+  CheckField('EenCob');
 end;
 
 function T085CLI.GetPerAin: Double;
@@ -2246,6 +2486,8 @@ end;
 procedure T085CLI.SetPerAin(const pPerAin: Double);
 begin
   FPerAin := pPerAin;
+
+  CheckField('PerAin');
 end;
 
 function T085CLI.GetNenCli: string;
@@ -2256,6 +2498,8 @@ end;
 procedure T085CLI.SetNenCli(const pNenCli: string);
 begin
   FNenCli := pNenCli;
+
+  CheckField('NenCli');
 end;
 
 function T085CLI.GetNenEnt: string;
@@ -2266,6 +2510,8 @@ end;
 procedure T085CLI.SetNenEnt(const pNenEnt: string);
 begin
   FNenEnt := pNenEnt;
+
+  CheckField('NenEnt');
 end;
 
 function T085CLI.GetNenCob: string;
@@ -2276,6 +2522,8 @@ end;
 procedure T085CLI.SetNenCob(const pNenCob: string);
 begin
   FNenCob := pNenCob;
+
+  CheckField('NenCob');
 end;
 
 function T085CLI.GetTipAce: Integer;
@@ -2286,6 +2534,8 @@ end;
 procedure T085CLI.SetTipAce(const pTipAce: Integer);
 begin
   FTipAce := pTipAce;
+
+  CheckField('TipAce');
 end;
 
 function T085CLI.GetEmaNfe: string;
@@ -2296,6 +2546,8 @@ end;
 procedure T085CLI.SetEmaNfe(const pEmaNfe: string);
 begin
   FEmaNfe := pEmaNfe;
+
+  CheckField('EmaNfe');
 end;
 
 function T085CLI.GetInsAnp: Integer;
@@ -2306,6 +2558,8 @@ end;
 procedure T085CLI.SetInsAnp(const pInsAnp: Integer);
 begin
   FInsAnp := pInsAnp;
+
+  CheckField('InsAnp');
 end;
 
 function T085CLI.GetIndCoo: Char;
@@ -2316,6 +2570,8 @@ end;
 procedure T085CLI.SetIndCoo(const pIndCoo: Char);
 begin
   FIndCoo := pIndCoo;
+
+  CheckField('IndCoo');
 end;
 
 function T085CLI.GetCodRtr: Integer;
@@ -2326,6 +2582,8 @@ end;
 procedure T085CLI.SetCodRtr(const pCodRtr: Integer);
 begin
   FCodRtr := pCodRtr;
+
+  CheckField('CodRtr');
 end;
 
 function T085CLI.GetRegEst: Integer;
@@ -2336,6 +2594,8 @@ end;
 procedure T085CLI.SetRegEst(const pRegEst: Integer);
 begin
   FRegEst := pRegEst;
+
+  CheckField('RegEst');
 end;
 
 function T085CLI.GetNatRet: Integer;
@@ -2346,6 +2606,8 @@ end;
 procedure T085CLI.SetNatRet(const pNatRet: Integer);
 begin
   FNatRet := pNatRet;
+
+  CheckField('NatRet');
 end;
 
 function T085CLI.GetNatPis: Integer;
@@ -2356,6 +2618,8 @@ end;
 procedure T085CLI.SetNatPis(const pNatPis: Integer);
 begin
   FNatPis := pNatPis;
+
+  CheckField('NatPis');
 end;
 
 function T085CLI.GetNatCof: Integer;
@@ -2366,6 +2630,8 @@ end;
 procedure T085CLI.SetNatCof(const pNatCof: Integer);
 begin
   FNatCof := pNatCof;
+
+  CheckField('NatCof');
 end;
 
 function T085CLI.GetConFin: Char;
@@ -2376,6 +2642,8 @@ end;
 procedure T085CLI.SetConFin(const pConFin: Char);
 begin
   FConFin := pConFin;
+
+  CheckField('ConFin');
 end;
 
 function T085CLI.GetUSU_NegSci: Char;
@@ -2386,6 +2654,8 @@ end;
 procedure T085CLI.SetUSU_NegSci(const pUSU_NegSci: Char);
 begin
   FUSU_NegSci := pUSU_NegSci;
+
+  CheckField('USU_NegSci');
 end;
 
 function T085CLI.GetUSU_SepEsp: Char;
@@ -2396,6 +2666,8 @@ end;
 procedure T085CLI.SetUSU_SepEsp(const pUSU_SepEsp: Char);
 begin
   FUSU_SepEsp := pUSU_SepEsp;
+
+  CheckField('USU_SepEsp');
 end;
 
 function T085CLI.GetUSU_TesMan: Char;
@@ -2406,6 +2678,8 @@ end;
 procedure T085CLI.SetUSU_TesMan(const pUSU_TesMan: Char);
 begin
   FUSU_TesMan := pUSU_TesMan;
+
+  CheckField('USU_TesMan');
 end;
 
 function T085CLI.GetUSU_EnvCam: Char;
@@ -2416,6 +2690,8 @@ end;
 procedure T085CLI.SetUSU_EnvCam(const pUSU_EnvCam: Char);
 begin
   FUSU_EnvCam := pUSU_EnvCam;
+
+  CheckField('USU_EnvCam');
 end;
 
 function T085CLI.GetUSU_Site: string;
@@ -2426,6 +2702,8 @@ end;
 procedure T085CLI.SetUSU_Site(const pUSU_Site: string);
 begin
   FUSU_Site := pUSU_Site;
+
+  CheckField('USU_Site');
 end;
 
 function T085CLI.GetUSU_DatFun: TDate;
@@ -2436,6 +2714,8 @@ end;
 procedure T085CLI.SetUSU_DatFun(const pUSU_DatFun: TDate);
 begin
   FUSU_DatFun := pUSU_DatFun;
+
+  CheckField('USU_DatFun');
 end;
 
 function T085CLI.GetUSU_AvFaPr: Char;
@@ -2446,6 +2726,8 @@ end;
 procedure T085CLI.SetUSU_AvFaPr(const pUSU_AvFaPr: Char);
 begin
   FUSU_AvFaPr := pUSU_AvFaPr;
+
+  CheckField('USU_AvFaPr');
 end;
 
 function T085CLI.GetUSU_IndEnv: Char;
@@ -2456,6 +2738,8 @@ end;
 procedure T085CLI.SetUSU_IndEnv(const pUSU_IndEnv: Char);
 begin
   FUSU_IndEnv := pUSU_IndEnv;
+
+  CheckField('USU_IndEnv');
 end;
 
 function T085CLI.GetUSU_AcMGen: Char;
@@ -2466,6 +2750,8 @@ end;
 procedure T085CLI.SetUSU_AcMGen(const pUSU_AcMGen: Char);
 begin
   FUSU_AcMGen := pUSU_AcMGen;
+
+  CheckField('USU_AcMGen');
 end;
 
 function T085CLI.GetUSU_TemBen: Char;
@@ -2476,6 +2762,8 @@ end;
 procedure T085CLI.SetUSU_TemBen(const pUSU_TemBen: Char);
 begin
   FUSU_TemBen := pUSU_TemBen;
+
+  CheckField('USU_TemBen');
 end;
 
 function T085CLI.GetUSU_QMultVen: Char;
@@ -2486,6 +2774,8 @@ end;
 procedure T085CLI.SetUSU_QMultVen(const pUSU_QMultVen: Char);
 begin
   FUSU_QMultVen := pUSU_QMultVen;
+
+  CheckField('USU_QMultVen');
 end;
 
 function T085CLI.GetUSU_ExiOC: Char;
@@ -2496,6 +2786,8 @@ end;
 procedure T085CLI.SetUSU_ExiOC(const pUSU_ExiOC: Char);
 begin
   FUSU_ExiOC := pUSU_ExiOC;
+
+  CheckField('USU_ExiOC');
 end;
 
 function T085CLI.GetUSU_EnvPDF: Char;
@@ -2506,6 +2798,8 @@ end;
 procedure T085CLI.SetUSU_EnvPDF(const pUSU_EnvPDF: Char);
 begin
   FUSU_EnvPDF := pUSU_EnvPDF;
+
+  CheckField('USU_EnvPDF');
 end;
 
 function T085CLI.GetUSU_PreFix: Char;
@@ -2516,6 +2810,8 @@ end;
 procedure T085CLI.SetUSU_PreFix(const pUSU_PreFix: Char);
 begin
   FUSU_PreFix := pUSU_PreFix;
+
+  CheckField('USU_PreFix');
 end;
 
 function T085CLI.GetUSU_ExiOD: Char;
@@ -2526,6 +2822,8 @@ end;
 procedure T085CLI.SetUSU_ExiOD(const pUSU_ExiOD: Char);
 begin
   FUSU_ExiOD := pUSU_ExiOD;
+
+  CheckField('USU_ExiOD');
 end;
 
 function T085CLI.GetUSU_ConPcl: Char;
@@ -2536,6 +2834,68 @@ end;
 procedure T085CLI.SetUSU_ConPcl(const pUSU_ConPcl: Char);
 begin
   FUSU_ConPcl := pUSU_ConPcl;
+
+  CheckField('USU_ConPcl');
+end;
+
+function T085CLI.GetUSU_EnvSer: Char;
+begin
+  Result := FUSU_EnvSer;
+end;
+
+procedure T085CLI.SetUSU_EnvSer(const pUSU_EnvSer: Char);
+begin
+  FUSU_EnvSer := pUSU_EnvSer;
+
+  CheckField('USU_EnvSer');
+end;
+
+function T085CLI.GetUSU_FilB2B: Integer;
+begin
+  Result := FUSU_FilB2B;
+end;
+
+procedure T085CLI.SetUSU_FilB2B(const pUSU_FilB2B: Integer);
+begin
+  FUSU_FilB2B := pUSU_FilB2B;
+
+  CheckField('USU_FilB2B');
+end;
+
+function T085CLI.GetUSU_ExiSG: Char;
+begin
+  Result := FUSU_ExiSG;
+end;
+
+procedure T085CLI.SetUSU_ExiSG(const pUSU_ExiSG: Char);
+begin
+  FUSU_ExiSG := pUSU_ExiSG;
+
+  CheckField('USU_ExiSG');
+end;
+
+function T085CLI.GetUSU_EmpB2B: Integer;
+begin
+  Result := FUSU_EmpB2B;
+end;
+
+procedure T085CLI.SetUSU_EmpB2B(const pUSU_EmpB2B: Integer);
+begin
+  FUSU_EmpB2B := pUSU_EmpB2B;
+
+  CheckField('USU_EmpB2B');
+end;
+
+function T085CLI.GetUSU_LocClp: Char;
+begin
+  Result := FUSU_LocClp;
+end;
+
+procedure T085CLI.SetUSU_LocClp(const pUSU_LocClp: Char);
+begin
+  FUSU_LocClp := pUSU_LocClp;
+
+  CheckField('USU_LocClp');
 end;
 
 function T085CLI.GetCodCliOLD: Integer;
@@ -3918,6 +4278,56 @@ begin
   FUSU_ConPclOLD := pUSU_ConPcl;
 end;
 
+function T085CLI.GetUSU_EnvSerOLD: Char;
+begin
+  Result := FUSU_EnvSerOLD;
+end;
+
+procedure T085CLI.SetUSU_EnvSerOLD(const pUSU_EnvSer: Char);
+begin
+  FUSU_EnvSerOLD := pUSU_EnvSer;
+end;
+
+function T085CLI.GetUSU_FilB2BOLD: Integer;
+begin
+  Result := FUSU_FilB2BOLD;
+end;
+
+procedure T085CLI.SetUSU_FilB2BOLD(const pUSU_FilB2B: Integer);
+begin
+  FUSU_FilB2BOLD := pUSU_FilB2B;
+end;
+
+function T085CLI.GetUSU_ExiSGOLD: Char;
+begin
+  Result := FUSU_ExiSGOLD;
+end;
+
+procedure T085CLI.SetUSU_ExiSGOLD(const pUSU_ExiSG: Char);
+begin
+  FUSU_ExiSGOLD := pUSU_ExiSG;
+end;
+
+function T085CLI.GetUSU_EmpB2BOLD: Integer;
+begin
+  Result := FUSU_EmpB2BOLD;
+end;
+
+procedure T085CLI.SetUSU_EmpB2BOLD(const pUSU_EmpB2B: Integer);
+begin
+  FUSU_EmpB2BOLD := pUSU_EmpB2B;
+end;
+
+function T085CLI.GetUSU_LocClpOLD: Char;
+begin
+  Result := FUSU_LocClpOLD;
+end;
+
+procedure T085CLI.SetUSU_LocClpOLD(const pUSU_LocClp: Char);
+begin
+  FUSU_LocClpOLD := pUSU_LocClp;
+end;
+
 procedure T085CLI.Registros_OLD();
 begin
   FCodCliOLD := FCodCli;
@@ -4063,6 +4473,155 @@ begin
   FUSU_ExiSGOLD := FUSU_ExiSG;
   FUSU_EmpB2BOLD := FUSU_EmpB2B;
   FUSU_LocClpOLD := FUSU_LocClp;
+
+  inherited;
+end;
+
+procedure T085CLI.RetornarValores();
+begin
+  FCodCli := FCodCliOLD;
+  FNomCli := FNomCliOLD;
+  FApeCli := FApeCliOLD;
+  FMarCli := FMarCliOLD;
+  FSenCli := FSenCliOLD;
+  FTipCli := FTipCliOLD;
+  FTipMer := FTipMerOLD;
+  FTipEmc := FTipEmcOLD;
+  FCliCon := FCliConOLD;
+  FCodRam := FCodRamOLD;
+  FInsEst := FInsEstOLD;
+  FInsMun := FInsMunOLD;
+  FCgcCpf := FCgcCpfOLD;
+  FCodGre := FCodGreOLD;
+  FZonFra := FZonFraOLD;
+  FCodSuf := FCodSufOLD;
+  FEndCli := FEndCliOLD;
+  FCplEnd := FCplEndOLD;
+  FCliPrx := FCliPrxOLD;
+  FZipCod := FZipCodOLD;
+  FCepCli := FCepCliOLD;
+  FCepIni := FCepIniOLD;
+  FBaiCli := FBaiCliOLD;
+  FCidCli := FCidCliOLD;
+  FSigUfs := FSigUfsOLD;
+  FCodPai := FCodPaiOLD;
+  FTemEnt := FTemEntOLD;
+  FEndEnt := FEndEntOLD;
+  FCplEnt := FCplEntOLD;
+  FCepEnt := FCepEntOLD;
+  FIniEnt := FIniEntOLD;
+  FCidEnt := FCidEntOLD;
+  FEstEnt := FEstEntOLD;
+  FInsEnt := FInsEntOLD;
+  FCgcEnt := FCgcEntOLD;
+  FTemCob := FTemCobOLD;
+  FEndCob := FEndCobOLD;
+  FCplCob := FCplCobOLD;
+  FCepCob := FCepCobOLD;
+  FIniCob := FIniCobOLD;
+  FCidCob := FCidCobOLD;
+  FEstCob := FEstCobOLD;
+  FCgcCob := FCgcCobOLD;
+  FEntCor := FEntCorOLD;
+  FFonCli := FFonCliOLD;
+  FFonCl2 := FFonCl2OLD;
+  FFonCl3 := FFonCl3OLD;
+  FFonCl4 := FFonCl4OLD;
+  FFonCl5 := FFonCl5OLD;
+  FFaxCli := FFaxCliOLD;
+  FCxaPst := FCxaPstOLD;
+  FIntNet := FIntNetOLD;
+  FCodRoe := FCodRoeOLD;
+  FSeqRoe := FSeqRoeOLD;
+  FCodFor := FCodForOLD;
+  FCliRep := FCliRepOLD;
+  FCliTra := FCliTraOLD;
+  FUsuCad := FUsuCadOLD;
+  FDatCad := FDatCadOLD;
+  FDatFim := FDatFimOLD;
+  FHorCad := FHorCadOLD;
+  FHorFim := FHorFimOLD;
+  FDatVct := FDatVctOLD;
+  FDatAtu := FDatAtuOLD;
+  FHorAtu := FHorAtuOLD;
+  FUsuAtu := FUsuAtuOLD;
+  FQtdAtu := FQtdAtuOLD;
+  FDatIcv := FDatIcvOLD;
+  FSitCli := FSitCliOLD;
+  FCodMot := FCodMotOLD;
+  FBloCre := FBloCreOLD;
+  FObsMot := FObsMotOLD;
+  FUsuMot := FUsuMotOLD;
+  FDatMot := FDatMotOLD;
+  FHorMot := FHorMotOLD;
+  FUsuOpe := FUsuOpeOLD;
+  FCodAma := FCodAmaOLD;
+  FCodSab := FCodSabOLD;
+  FCodGal := FCodGalOLD;
+  FTriIcm := FTriIcmOLD;
+  FTriIpi := FTriIpiOLD;
+  FBaiEnt := FBaiEntOLD;
+  FBaiCob := FBaiCobOLD;
+  FCliFor := FCliForOLD;
+  FIdeCli := FIdeCliOLD;
+  FTriPis := FTriPisOLD;
+  FTriCof := FTriCofOLD;
+  FIndExp := FIndExpOLD;
+  FDatPal := FDatPalOLD;
+  FHorPal := FHorPalOLD;
+  FRetCof := FRetCofOLD;
+  FRetCsl := FRetCslOLD;
+  FRetPis := FRetPisOLD;
+  FRetOur := FRetOurOLD;
+  FCodSro := FCodSroOLD;
+  FDatSuf := FDatSufOLD;
+  FCepFre := FCepFreOLD;
+  FCodPdv := FCodPdvOLD;
+  FDatPdv := FDatPdvOLD;
+  FHorPdv := FHorPdvOLD;
+  FRetPro := FRetProOLD;
+  FRetIrf := FRetIrfOLD;
+  FLimRet := FLimRetOLD;
+  FCodCnv := FCodCnvOLD;
+  FCalFun := FCalFunOLD;
+  FEenCli := FEenCliOLD;
+  FEenEnt := FEenEntOLD;
+  FEenCob := FEenCobOLD;
+  FPerAin := FPerAinOLD;
+  FNenCli := FNenCliOLD;
+  FNenEnt := FNenEntOLD;
+  FNenCob := FNenCobOLD;
+  FTipAce := FTipAceOLD;
+  FEmaNfe := FEmaNfeOLD;
+  FInsAnp := FInsAnpOLD;
+  FIndCoo := FIndCooOLD;
+  FCodRtr := FCodRtrOLD;
+  FRegEst := FRegEstOLD;
+  FNatRet := FNatRetOLD;
+  FNatPis := FNatPisOLD;
+  FNatCof := FNatCofOLD;
+  FConFin := FConFinOLD;
+  FUSU_NegSci := FUSU_NegSciOLD;
+  FUSU_SepEsp := FUSU_SepEspOLD;
+  FUSU_TesMan := FUSU_TesManOLD;
+  FUSU_EnvCam := FUSU_EnvCamOLD;
+  FUSU_Site := FUSU_SiteOLD;
+  FUSU_DatFun := FUSU_DatFunOLD;
+  FUSU_AvFaPr := FUSU_AvFaPrOLD;
+  FUSU_IndEnv := FUSU_IndEnvOLD;
+  FUSU_AcMGen := FUSU_AcMGenOLD;
+  FUSU_TemBen := FUSU_TemBenOLD;
+  FUSU_QMultVen := FUSU_QMultVenOLD;
+  FUSU_ExiOC := FUSU_ExiOCOLD;
+  FUSU_EnvPDF := FUSU_EnvPDFOLD;
+  FUSU_PreFix := FUSU_PreFixOLD;
+  FUSU_ExiOD := FUSU_ExiODOLD;
+  FUSU_ConPcl := FUSU_ConPclOLD;
+  FUSU_EnvSer := FUSU_EnvSerOLD;
+  FUSU_FilB2B := FUSU_FilB2BOLD;
+  FUSU_ExiSG := FUSU_ExiSGOLD;
+  FUSU_EmpB2B := FUSU_EmpB2BOLD;
+  FUSU_LocClp := FUSU_LocClpOLD;
 end;
 
 end.

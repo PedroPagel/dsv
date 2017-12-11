@@ -3,7 +3,7 @@ unit o501mcp;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -620,6 +620,7 @@ type
     procedure SetSitAprOld(const pSitApr: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -835,6 +836,9 @@ implementation
 
 constructor T501MCP.Create();
 begin
+  AddForeignKeys(['CodEmp','CodFil','NumTit','CodTpt','CodFor','CodTns'], ['CodEmp','CodFil','NumTit','CodTpt','CodFor','CodTns']);
+  AddPrimaryKeys('CodEmp;CodFil;NumTit;CodTpt;CodFor;SeqMov');
+
   inherited Create('E501MCP');
 end;
 
@@ -851,6 +855,8 @@ end;
 procedure T501MCP.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T501MCP.GetCodFil: Integer;
@@ -861,6 +867,8 @@ end;
 procedure T501MCP.SetCodFil(const pCodFil: Integer);
 begin
   FCodFil := pCodFil;
+
+  CheckField('CodFil');
 end;
 
 function T501MCP.GetNumTit: string;
@@ -871,6 +879,8 @@ end;
 procedure T501MCP.SetNumTit(const pNumTit: string);
 begin
   FNumTit := pNumTit;
+
+  CheckField('NumTit');
 end;
 
 function T501MCP.GetCodTpt: string;
@@ -881,6 +891,8 @@ end;
 procedure T501MCP.SetCodTpt(const pCodTpt: string);
 begin
   FCodTpt := pCodTpt;
+
+  CheckField('CodTpt');
 end;
 
 function T501MCP.GetCodFor: Integer;
@@ -891,6 +903,8 @@ end;
 procedure T501MCP.SetCodFor(const pCodFor: Integer);
 begin
   FCodFor := pCodFor;
+
+  CheckField('CodFor');
 end;
 
 function T501MCP.GetSeqMov: Integer;
@@ -901,6 +915,8 @@ end;
 procedure T501MCP.SetSeqMov(const pSeqMov: Integer);
 begin
   FSeqMov := pSeqMov;
+
+  CheckField('SeqMov');
 end;
 
 function T501MCP.GetCodTns: string;
@@ -911,6 +927,8 @@ end;
 procedure T501MCP.SetCodTns(const pCodTns: string);
 begin
   FCodTns := pCodTns;
+
+  CheckField('CodTns');
 end;
 
 function T501MCP.GetDatMov: TDate;
@@ -921,6 +939,8 @@ end;
 procedure T501MCP.SetDatMov(const pDatMov: TDate);
 begin
   FDatMov := pDatMov;
+
+  CheckField('DatMov');
 end;
 
 function T501MCP.GetNumDoc: string;
@@ -931,6 +951,8 @@ end;
 procedure T501MCP.SetNumDoc(const pNumDoc: string);
 begin
   FNumDoc := pNumDoc;
+
+  CheckField('NumDoc');
 end;
 
 function T501MCP.GetObsMcp: string;
@@ -941,6 +963,8 @@ end;
 procedure T501MCP.SetObsMcp(const pObsMcp: string);
 begin
   FObsMcp := pObsMcp;
+
+  CheckField('ObsMcp');
 end;
 
 function T501MCP.GetVctPro: TDate;
@@ -951,6 +975,8 @@ end;
 procedure T501MCP.SetVctPro(const pVctPro: TDate);
 begin
   FVctPro := pVctPro;
+
+  CheckField('VctPro');
 end;
 
 function T501MCP.GetProJrs: Char;
@@ -961,6 +987,8 @@ end;
 procedure T501MCP.SetProJrs(const pProJrs: Char);
 begin
   FProJrs := pProJrs;
+
+  CheckField('ProJrs');
 end;
 
 function T501MCP.GetVlrAbe: Double;
@@ -971,6 +999,8 @@ end;
 procedure T501MCP.SetVlrAbe(const pVlrAbe: Double);
 begin
   FVlrAbe := pVlrAbe;
+
+  CheckField('VlrAbe');
 end;
 
 function T501MCP.GetCodFrj: string;
@@ -981,6 +1011,8 @@ end;
 procedure T501MCP.SetCodFrj(const pCodFrj: string);
 begin
   FCodFrj := pCodFrj;
+
+  CheckField('CodFrj');
 end;
 
 function T501MCP.GetDatPgt: TDate;
@@ -991,6 +1023,8 @@ end;
 procedure T501MCP.SetDatPgt(const pDatPgt: TDate);
 begin
   FDatPgt := pDatPgt;
+
+  CheckField('DatPgt');
 end;
 
 function T501MCP.GetCodFpg: Integer;
@@ -1001,6 +1035,8 @@ end;
 procedure T501MCP.SetCodFpg(const pCodFpg: Integer);
 begin
   FCodFpg := pCodFpg;
+
+  CheckField('CodFpg');
 end;
 
 function T501MCP.GetCotMcp: Double;
@@ -1011,6 +1047,8 @@ end;
 procedure T501MCP.SetCotMcp(const pCotMcp: Double);
 begin
   FCotMcp := pCotMcp;
+
+  CheckField('CotMcp');
 end;
 
 function T501MCP.GetDiaAtr: Integer;
@@ -1021,6 +1059,8 @@ end;
 procedure T501MCP.SetDiaAtr(const pDiaAtr: Integer);
 begin
   FDiaAtr := pDiaAtr;
+
+  CheckField('DiaAtr');
 end;
 
 function T501MCP.GetDiaJrs: Integer;
@@ -1031,6 +1071,8 @@ end;
 procedure T501MCP.SetDiaJrs(const pDiaJrs: Integer);
 begin
   FDiaJrs := pDiaJrs;
+
+  CheckField('DiaJrs');
 end;
 
 function T501MCP.GetSeqChe: string;
@@ -1041,6 +1083,8 @@ end;
 procedure T501MCP.SetSeqChe(const pSeqChe: string);
 begin
   FSeqChe := pSeqChe;
+
+  CheckField('SeqChe');
 end;
 
 function T501MCP.GetTnsCxb: string;
@@ -1051,6 +1095,8 @@ end;
 procedure T501MCP.SetTnsCxb(const pTnsCxb: string);
 begin
   FTnsCxb := pTnsCxb;
+
+  CheckField('TnsCxb');
 end;
 
 function T501MCP.GetDatLib: TDate;
@@ -1061,6 +1107,8 @@ end;
 procedure T501MCP.SetDatLib(const pDatLib: TDate);
 begin
   FDatLib := pDatLib;
+
+  CheckField('DatLib');
 end;
 
 function T501MCP.GetCodUsu: Integer;
@@ -1071,6 +1119,8 @@ end;
 procedure T501MCP.SetCodUsu(const pCodUsu: Integer);
 begin
   FCodUsu := pCodUsu;
+
+  CheckField('CodUsu');
 end;
 
 function T501MCP.GetDatApr: TDate;
@@ -1081,6 +1131,8 @@ end;
 procedure T501MCP.SetDatApr(const pDatApr: TDate);
 begin
   FDatApr := pDatApr;
+
+  CheckField('DatApr');
 end;
 
 function T501MCP.GetHorApr: Integer;
@@ -1091,6 +1143,8 @@ end;
 procedure T501MCP.SetHorApr(const pHorApr: Integer);
 begin
   FHorApr := pHorApr;
+
+  CheckField('HorApr');
 end;
 
 function T501MCP.GetVlrMov: Double;
@@ -1101,6 +1155,8 @@ end;
 procedure T501MCP.SetVlrMov(const pVlrMov: Double);
 begin
   FVlrMov := pVlrMov;
+
+  CheckField('VlrMov');
 end;
 
 function T501MCP.GetVlrDsc: Double;
@@ -1111,6 +1167,8 @@ end;
 procedure T501MCP.SetVlrDsc(const pVlrDsc: Double);
 begin
   FVlrDsc := pVlrDsc;
+
+  CheckField('VlrDsc');
 end;
 
 function T501MCP.GetVlrOde: Double;
@@ -1121,6 +1179,8 @@ end;
 procedure T501MCP.SetVlrOde(const pVlrOde: Double);
 begin
   FVlrOde := pVlrOde;
+
+  CheckField('VlrOde');
 end;
 
 function T501MCP.GetVlrJrs: Double;
@@ -1131,6 +1191,8 @@ end;
 procedure T501MCP.SetVlrJrs(const pVlrJrs: Double);
 begin
   FVlrJrs := pVlrJrs;
+
+  CheckField('VlrJrs');
 end;
 
 function T501MCP.GetVlrMul: Double;
@@ -1141,6 +1203,8 @@ end;
 procedure T501MCP.SetVlrMul(const pVlrMul: Double);
 begin
   FVlrMul := pVlrMul;
+
+  CheckField('VlrMul');
 end;
 
 function T501MCP.GetVlrEnc: Double;
@@ -1151,6 +1215,8 @@ end;
 procedure T501MCP.SetVlrEnc(const pVlrEnc: Double);
 begin
   FVlrEnc := pVlrEnc;
+
+  CheckField('VlrEnc');
 end;
 
 function T501MCP.GetVlrCor: Double;
@@ -1161,6 +1227,8 @@ end;
 procedure T501MCP.SetVlrCor(const pVlrCor: Double);
 begin
   FVlrCor := pVlrCor;
+
+  CheckField('VlrCor');
 end;
 
 function T501MCP.GetVlrOac: Double;
@@ -1171,6 +1239,8 @@ end;
 procedure T501MCP.SetVlrOac(const pVlrOac: Double);
 begin
   FVlrOac := pVlrOac;
+
+  CheckField('VlrOac');
 end;
 
 function T501MCP.GetVlrIrf: Double;
@@ -1181,6 +1251,8 @@ end;
 procedure T501MCP.SetVlrIrf(const pVlrIrf: Double);
 begin
   FVlrIrf := pVlrIrf;
+
+  CheckField('VlrIrf');
 end;
 
 function T501MCP.GetOriIrf: Double;
@@ -1191,6 +1263,8 @@ end;
 procedure T501MCP.SetOriIrf(const pOriIrf: Double);
 begin
   FOriIrf := pOriIrf;
+
+  CheckField('OriIrf');
 end;
 
 function T501MCP.GetVlrIss: Double;
@@ -1201,6 +1275,8 @@ end;
 procedure T501MCP.SetVlrIss(const pVlrIss: Double);
 begin
   FVlrIss := pVlrIss;
+
+  CheckField('VlrIss');
 end;
 
 function T501MCP.GetOriIss: Double;
@@ -1211,6 +1287,8 @@ end;
 procedure T501MCP.SetOriIss(const pOriIss: Double);
 begin
   FOriIss := pOriIss;
+
+  CheckField('OriIss');
 end;
 
 function T501MCP.GetVlrIns: Double;
@@ -1221,6 +1299,8 @@ end;
 procedure T501MCP.SetVlrIns(const pVlrIns: Double);
 begin
   FVlrIns := pVlrIns;
+
+  CheckField('VlrIns');
 end;
 
 function T501MCP.GetOriIns: Double;
@@ -1231,6 +1311,8 @@ end;
 procedure T501MCP.SetOriIns(const pOriIns: Double);
 begin
   FOriIns := pOriIns;
+
+  CheckField('OriIns');
 end;
 
 function T501MCP.GetVlrPit: Double;
@@ -1241,6 +1323,8 @@ end;
 procedure T501MCP.SetVlrPit(const pVlrPit: Double);
 begin
   FVlrPit := pVlrPit;
+
+  CheckField('VlrPit');
 end;
 
 function T501MCP.GetOriPit: Double;
@@ -1251,6 +1335,8 @@ end;
 procedure T501MCP.SetOriPit(const pOriPit: Double);
 begin
   FOriPit := pOriPit;
+
+  CheckField('OriPit');
 end;
 
 function T501MCP.GetVlrBpt: Double;
@@ -1261,6 +1347,8 @@ end;
 procedure T501MCP.SetVlrBpt(const pVlrBpt: Double);
 begin
   FVlrBpt := pVlrBpt;
+
+  CheckField('VlrBpt');
 end;
 
 function T501MCP.GetVlrOpt: Double;
@@ -1271,6 +1359,8 @@ end;
 procedure T501MCP.SetVlrOpt(const pVlrOpt: Double);
 begin
   FVlrOpt := pVlrOpt;
+
+  CheckField('VlrOpt');
 end;
 
 function T501MCP.GetVlrCrt: Double;
@@ -1281,6 +1371,8 @@ end;
 procedure T501MCP.SetVlrCrt(const pVlrCrt: Double);
 begin
   FVlrCrt := pVlrCrt;
+
+  CheckField('VlrCrt');
 end;
 
 function T501MCP.GetOriCrt: Double;
@@ -1291,6 +1383,8 @@ end;
 procedure T501MCP.SetOriCrt(const pOriCrt: Double);
 begin
   FOriCrt := pOriCrt;
+
+  CheckField('OriCrt');
 end;
 
 function T501MCP.GetVlrBct: Double;
@@ -1301,6 +1395,8 @@ end;
 procedure T501MCP.SetVlrBct(const pVlrBct: Double);
 begin
   FVlrBct := pVlrBct;
+
+  CheckField('VlrBct');
 end;
 
 function T501MCP.GetVlrOct: Double;
@@ -1311,6 +1407,8 @@ end;
 procedure T501MCP.SetVlrOct(const pVlrOct: Double);
 begin
   FVlrOct := pVlrOct;
+
+  CheckField('VlrOct');
 end;
 
 function T501MCP.GetVlrCsl: Double;
@@ -1321,6 +1419,8 @@ end;
 procedure T501MCP.SetVlrCsl(const pVlrCsl: Double);
 begin
   FVlrCsl := pVlrCsl;
+
+  CheckField('VlrCsl');
 end;
 
 function T501MCP.GetOriCsl: Double;
@@ -1331,6 +1431,8 @@ end;
 procedure T501MCP.SetOriCsl(const pOriCsl: Double);
 begin
   FOriCsl := pOriCsl;
+
+  CheckField('OriCsl');
 end;
 
 function T501MCP.GetVlrBcl: Double;
@@ -1341,6 +1443,8 @@ end;
 procedure T501MCP.SetVlrBcl(const pVlrBcl: Double);
 begin
   FVlrBcl := pVlrBcl;
+
+  CheckField('VlrBcl');
 end;
 
 function T501MCP.GetVlrOcl: Double;
@@ -1351,6 +1455,8 @@ end;
 procedure T501MCP.SetVlrOcl(const pVlrOcl: Double);
 begin
   FVlrOcl := pVlrOcl;
+
+  CheckField('VlrOcl');
 end;
 
 function T501MCP.GetVlrOur: Double;
@@ -1361,6 +1467,8 @@ end;
 procedure T501MCP.SetVlrOur(const pVlrOur: Double);
 begin
   FVlrOur := pVlrOur;
+
+  CheckField('VlrOur');
 end;
 
 function T501MCP.GetOriOur: Double;
@@ -1371,6 +1479,8 @@ end;
 procedure T501MCP.SetOriOur(const pOriOur: Double);
 begin
   FOriOur := pOriOur;
+
+  CheckField('OriOur');
 end;
 
 function T501MCP.GetVlrBor: Double;
@@ -1381,6 +1491,8 @@ end;
 procedure T501MCP.SetVlrBor(const pVlrBor: Double);
 begin
   FVlrBor := pVlrBor;
+
+  CheckField('VlrBor');
 end;
 
 function T501MCP.GetVlrOor: Double;
@@ -1391,6 +1503,8 @@ end;
 procedure T501MCP.SetVlrOor(const pVlrOor: Double);
 begin
   FVlrOor := pVlrOor;
+
+  CheckField('VlrOor');
 end;
 
 function T501MCP.GetVlrPis: Double;
@@ -1401,6 +1515,8 @@ end;
 procedure T501MCP.SetVlrPis(const pVlrPis: Double);
 begin
   FVlrPis := pVlrPis;
+
+  CheckField('VlrPis');
 end;
 
 function T501MCP.GetVlrBpr: Double;
@@ -1411,6 +1527,8 @@ end;
 procedure T501MCP.SetVlrBpr(const pVlrBpr: Double);
 begin
   FVlrBpr := pVlrBpr;
+
+  CheckField('VlrBpr');
 end;
 
 function T501MCP.GetVlrCof: Double;
@@ -1421,6 +1539,8 @@ end;
 procedure T501MCP.SetVlrCof(const pVlrCof: Double);
 begin
   FVlrCof := pVlrCof;
+
+  CheckField('VlrCof');
 end;
 
 function T501MCP.GetVlrBcr: Double;
@@ -1431,6 +1551,8 @@ end;
 procedure T501MCP.SetVlrBcr(const pVlrBcr: Double);
 begin
   FVlrBcr := pVlrBcr;
+
+  CheckField('VlrBcr');
 end;
 
 function T501MCP.GetVlrLiq: Double;
@@ -1441,6 +1563,8 @@ end;
 procedure T501MCP.SetVlrLiq(const pVlrLiq: Double);
 begin
   FVlrLiq := pVlrLiq;
+
+  CheckField('VlrLiq');
 end;
 
 function T501MCP.GetPerJrs: Double;
@@ -1451,6 +1575,8 @@ end;
 procedure T501MCP.SetPerJrs(const pPerJrs: Double);
 begin
   FPerJrs := pPerJrs;
+
+  CheckField('PerJrs');
 end;
 
 function T501MCP.GetUltPgt: TDate;
@@ -1461,6 +1587,8 @@ end;
 procedure T501MCP.SetUltPgt(const pUltPgt: TDate);
 begin
   FUltPgt := pUltPgt;
+
+  CheckField('UltPgt');
 end;
 
 function T501MCP.GetCjmAnt: TDate;
@@ -1471,6 +1599,8 @@ end;
 procedure T501MCP.SetCjmAnt(const pCjmAnt: TDate);
 begin
   FCjmAnt := pCjmAnt;
+
+  CheckField('CjmAnt');
 end;
 
 function T501MCP.GetJrsCal: Double;
@@ -1481,6 +1611,8 @@ end;
 procedure T501MCP.SetJrsCal(const pJrsCal: Double);
 begin
   FJrsCal := pJrsCal;
+
+  CheckField('JrsCal');
 end;
 
 function T501MCP.GetCodPor: string;
@@ -1491,6 +1623,8 @@ end;
 procedure T501MCP.SetCodPor(const pCodPor: string);
 begin
   FCodPor := pCodPor;
+
+  CheckField('CodPor');
 end;
 
 function T501MCP.GetCodCrt: string;
@@ -1501,6 +1635,8 @@ end;
 procedure T501MCP.SetCodCrt(const pCodCrt: string);
 begin
   FCodCrt := pCodCrt;
+
+  CheckField('CodCrt');
 end;
 
 function T501MCP.GetPorAnt: string;
@@ -1511,6 +1647,8 @@ end;
 procedure T501MCP.SetPorAnt(const pPorAnt: string);
 begin
   FPorAnt := pPorAnt;
+
+  CheckField('PorAnt');
 end;
 
 function T501MCP.GetCrtAnt: string;
@@ -1521,6 +1659,8 @@ end;
 procedure T501MCP.SetCrtAnt(const pCrtAnt: string);
 begin
   FCrtAnt := pCrtAnt;
+
+  CheckField('CrtAnt');
 end;
 
 function T501MCP.GetEmpCco: Integer;
@@ -1531,6 +1671,8 @@ end;
 procedure T501MCP.SetEmpCco(const pEmpCco: Integer);
 begin
   FEmpCco := pEmpCco;
+
+  CheckField('EmpCco');
 end;
 
 function T501MCP.GetNumCco: string;
@@ -1541,6 +1683,8 @@ end;
 procedure T501MCP.SetNumCco(const pNumCco: string);
 begin
   FNumCco := pNumCco;
+
+  CheckField('NumCco');
 end;
 
 function T501MCP.GetDatCco: TDate;
@@ -1551,6 +1695,8 @@ end;
 procedure T501MCP.SetDatCco(const pDatCco: TDate);
 begin
   FDatCco := pDatCco;
+
+  CheckField('DatCco');
 end;
 
 function T501MCP.GetSeqCco: Integer;
@@ -1561,6 +1707,8 @@ end;
 procedure T501MCP.SetSeqCco(const pSeqCco: Integer);
 begin
   FSeqCco := pSeqCco;
+
+  CheckField('SeqCco');
 end;
 
 function T501MCP.GetNumPrj: Integer;
@@ -1571,6 +1719,8 @@ end;
 procedure T501MCP.SetNumPrj(const pNumPrj: Integer);
 begin
   FNumPrj := pNumPrj;
+
+  CheckField('NumPrj');
 end;
 
 function T501MCP.GetCodFpj: Integer;
@@ -1581,6 +1731,8 @@ end;
 procedure T501MCP.SetCodFpj(const pCodFpj: Integer);
 begin
   FCodFpj := pCodFpj;
+
+  CheckField('CodFpj');
 end;
 
 function T501MCP.GetCtaFin: Integer;
@@ -1591,6 +1743,8 @@ end;
 procedure T501MCP.SetCtaFin(const pCtaFin: Integer);
 begin
   FCtaFin := pCtaFin;
+
+  CheckField('CtaFin');
 end;
 
 function T501MCP.GetCtaRed: Integer;
@@ -1601,6 +1755,8 @@ end;
 procedure T501MCP.SetCtaRed(const pCtaRed: Integer);
 begin
   FCtaRed := pCtaRed;
+
+  CheckField('CtaRed');
 end;
 
 function T501MCP.GetCodCcu: string;
@@ -1611,6 +1767,8 @@ end;
 procedure T501MCP.SetCodCcu(const pCodCcu: string);
 begin
   FCodCcu := pCodCcu;
+
+  CheckField('CodCcu');
 end;
 
 function T501MCP.GetFilRlc: Integer;
@@ -1621,6 +1779,8 @@ end;
 procedure T501MCP.SetFilRlc(const pFilRlc: Integer);
 begin
   FFilRlc := pFilRlc;
+
+  CheckField('FilRlc');
 end;
 
 function T501MCP.GetNumRlc: string;
@@ -1631,6 +1791,8 @@ end;
 procedure T501MCP.SetNumRlc(const pNumRlc: string);
 begin
   FNumRlc := pNumRlc;
+
+  CheckField('NumRlc');
 end;
 
 function T501MCP.GetTptRlc: string;
@@ -1641,6 +1803,8 @@ end;
 procedure T501MCP.SetTptRlc(const pTptRlc: string);
 begin
   FTptRlc := pTptRlc;
+
+  CheckField('TptRlc');
 end;
 
 function T501MCP.GetForRlc: Integer;
@@ -1651,6 +1815,8 @@ end;
 procedure T501MCP.SetForRlc(const pForRlc: Integer);
 begin
   FForRlc := pForRlc;
+
+  CheckField('ForRlc');
 end;
 
 function T501MCP.GetSeqMcp: Integer;
@@ -1661,6 +1827,8 @@ end;
 procedure T501MCP.SetSeqMcp(const pSeqMcp: Integer);
 begin
   FSeqMcp := pSeqMcp;
+
+  CheckField('SeqMcp');
 end;
 
 function T501MCP.GetSeqMcr: Integer;
@@ -1671,6 +1839,8 @@ end;
 procedure T501MCP.SetSeqMcr(const pSeqMcr: Integer);
 begin
   FSeqMcr := pSeqMcr;
+
+  CheckField('SeqMcr');
 end;
 
 function T501MCP.GetTipPgt: string;
@@ -1681,6 +1851,8 @@ end;
 procedure T501MCP.SetTipPgt(const pTipPgt: string);
 begin
   FTipPgt := pTipPgt;
+
+  CheckField('TipPgt');
 end;
 
 function T501MCP.GetCodBan: string;
@@ -1691,6 +1863,8 @@ end;
 procedure T501MCP.SetCodBan(const pCodBan: string);
 begin
   FCodBan := pCodBan;
+
+  CheckField('CodBan');
 end;
 
 function T501MCP.GetCodAge: string;
@@ -1701,6 +1875,8 @@ end;
 procedure T501MCP.SetCodAge(const pCodAge: string);
 begin
   FCodAge := pCodAge;
+
+  CheckField('CodAge');
 end;
 
 function T501MCP.GetCcbFor: string;
@@ -1711,6 +1887,8 @@ end;
 procedure T501MCP.SetCcbFor(const pCcbFor: string);
 begin
   FCcbFor := pCcbFor;
+
+  CheckField('CcbFor');
 end;
 
 function T501MCP.GetIndVcr: Char;
@@ -1721,6 +1899,8 @@ end;
 procedure T501MCP.SetIndVcr(const pIndVcr: Char);
 begin
   FIndVcr := pIndVcr;
+
+  CheckField('IndVcr');
 end;
 
 function T501MCP.GetLctFin: Char;
@@ -1731,6 +1911,8 @@ end;
 procedure T501MCP.SetLctFin(const pLctFin: Char);
 begin
   FLctFin := pLctFin;
+
+  CheckField('LctFin');
 end;
 
 function T501MCP.GetLotBai: Integer;
@@ -1741,6 +1923,8 @@ end;
 procedure T501MCP.SetLotBai(const pLotBai: Integer);
 begin
   FLotBai := pLotBai;
+
+  CheckField('LotBai');
 end;
 
 function T501MCP.GetNumLot: Integer;
@@ -1751,6 +1935,8 @@ end;
 procedure T501MCP.SetNumLot(const pNumLot: Integer);
 begin
   FNumLot := pNumLot;
+
+  CheckField('NumLot');
 end;
 
 function T501MCP.GetUsuGer: Integer;
@@ -1761,6 +1947,8 @@ end;
 procedure T501MCP.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T501MCP.GetDatGer: TDate;
@@ -1771,6 +1959,8 @@ end;
 procedure T501MCP.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T501MCP.GetHorGer: Integer;
@@ -1781,6 +1971,8 @@ end;
 procedure T501MCP.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T501MCP.GetIndExp: Integer;
@@ -1791,6 +1983,8 @@ end;
 procedure T501MCP.SetIndExp(const pIndExp: Integer);
 begin
   FIndExp := pIndExp;
+
+  CheckField('IndExp');
 end;
 
 function T501MCP.GetFilFix: Integer;
@@ -1801,6 +1995,8 @@ end;
 procedure T501MCP.SetFilFix(const pFilFix: Integer);
 begin
   FFilFix := pFilFix;
+
+  CheckField('FilFix');
 end;
 
 function T501MCP.GetNumFix: Integer;
@@ -1811,6 +2007,8 @@ end;
 procedure T501MCP.SetNumFix(const pNumFix: Integer);
 begin
   FNumFix := pNumFix;
+
+  CheckField('NumFix');
 end;
 
 function T501MCP.GetIntImp: Char;
@@ -1821,6 +2019,8 @@ end;
 procedure T501MCP.SetIntImp(const pIntImp: Char);
 begin
   FIntImp := pIntImp;
+
+  CheckField('IntImp');
 end;
 
 function T501MCP.GetRotNap: Integer;
@@ -1831,6 +2031,8 @@ end;
 procedure T501MCP.SetRotNap(const pRotNap: Integer);
 begin
   FRotNap := pRotNap;
+
+  CheckField('RotNap');
 end;
 
 function T501MCP.GetNumApr: Integer;
@@ -1841,6 +2043,8 @@ end;
 procedure T501MCP.SetNumApr(const pNumApr: Integer);
 begin
   FNumApr := pNumApr;
+
+  CheckField('NumApr');
 end;
 
 function T501MCP.GetSitApr: string;
@@ -1851,6 +2055,8 @@ end;
 procedure T501MCP.SetSitApr(const pSitApr: string);
 begin
   FSitApr := pSitApr;
+
+  CheckField('SitApr');
 end;
 
 function T501MCP.GetCodEmpOLD: Integer;
@@ -2966,6 +3172,113 @@ begin
   FRotNapOLD := FRotNap;
   FNumAprOLD := FNumApr;
   FSitAprOLD := FSitApr;
+
+  inherited;
+end;
+
+procedure T501MCP.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodFil := FCodFilOLD;
+  FNumTit := FNumTitOLD;
+  FCodTpt := FCodTptOLD;
+  FCodFor := FCodForOLD;
+  FSeqMov := FSeqMovOLD;
+  FCodTns := FCodTnsOLD;
+  FDatMov := FDatMovOLD;
+  FNumDoc := FNumDocOLD;
+  FObsMcp := FObsMcpOLD;
+  FVctPro := FVctProOLD;
+  FProJrs := FProJrsOLD;
+  FVlrAbe := FVlrAbeOLD;
+  FCodFrj := FCodFrjOLD;
+  FDatPgt := FDatPgtOLD;
+  FCodFpg := FCodFpgOLD;
+  FCotMcp := FCotMcpOLD;
+  FDiaAtr := FDiaAtrOLD;
+  FDiaJrs := FDiaJrsOLD;
+  FSeqChe := FSeqCheOLD;
+  FTnsCxb := FTnsCxbOLD;
+  FDatLib := FDatLibOLD;
+  FCodUsu := FCodUsuOLD;
+  FDatApr := FDatAprOLD;
+  FHorApr := FHorAprOLD;
+  FVlrMov := FVlrMovOLD;
+  FVlrDsc := FVlrDscOLD;
+  FVlrOde := FVlrOdeOLD;
+  FVlrJrs := FVlrJrsOLD;
+  FVlrMul := FVlrMulOLD;
+  FVlrEnc := FVlrEncOLD;
+  FVlrCor := FVlrCorOLD;
+  FVlrOac := FVlrOacOLD;
+  FVlrIrf := FVlrIrfOLD;
+  FOriIrf := FOriIrfOLD;
+  FVlrIss := FVlrIssOLD;
+  FOriIss := FOriIssOLD;
+  FVlrIns := FVlrInsOLD;
+  FOriIns := FOriInsOLD;
+  FVlrPit := FVlrPitOLD;
+  FOriPit := FOriPitOLD;
+  FVlrBpt := FVlrBptOLD;
+  FVlrOpt := FVlrOptOLD;
+  FVlrCrt := FVlrCrtOLD;
+  FOriCrt := FOriCrtOLD;
+  FVlrBct := FVlrBctOLD;
+  FVlrOct := FVlrOctOLD;
+  FVlrCsl := FVlrCslOLD;
+  FOriCsl := FOriCslOLD;
+  FVlrBcl := FVlrBclOLD;
+  FVlrOcl := FVlrOclOLD;
+  FVlrOur := FVlrOurOLD;
+  FOriOur := FOriOurOLD;
+  FVlrBor := FVlrBorOLD;
+  FVlrOor := FVlrOorOLD;
+  FVlrPis := FVlrPisOLD;
+  FVlrBpr := FVlrBprOLD;
+  FVlrCof := FVlrCofOLD;
+  FVlrBcr := FVlrBcrOLD;
+  FVlrLiq := FVlrLiqOLD;
+  FPerJrs := FPerJrsOLD;
+  FUltPgt := FUltPgtOLD;
+  FCjmAnt := FCjmAntOLD;
+  FJrsCal := FJrsCalOLD;
+  FCodPor := FCodPorOLD;
+  FCodCrt := FCodCrtOLD;
+  FPorAnt := FPorAntOLD;
+  FCrtAnt := FCrtAntOLD;
+  FEmpCco := FEmpCcoOLD;
+  FNumCco := FNumCcoOLD;
+  FDatCco := FDatCcoOLD;
+  FSeqCco := FSeqCcoOLD;
+  FNumPrj := FNumPrjOLD;
+  FCodFpj := FCodFpjOLD;
+  FCtaFin := FCtaFinOLD;
+  FCtaRed := FCtaRedOLD;
+  FCodCcu := FCodCcuOLD;
+  FFilRlc := FFilRlcOLD;
+  FNumRlc := FNumRlcOLD;
+  FTptRlc := FTptRlcOLD;
+  FForRlc := FForRlcOLD;
+  FSeqMcp := FSeqMcpOLD;
+  FSeqMcr := FSeqMcrOLD;
+  FTipPgt := FTipPgtOLD;
+  FCodBan := FCodBanOLD;
+  FCodAge := FCodAgeOLD;
+  FCcbFor := FCcbForOLD;
+  FIndVcr := FIndVcrOLD;
+  FLctFin := FLctFinOLD;
+  FLotBai := FLotBaiOLD;
+  FNumLot := FNumLotOLD;
+  FUsuGer := FUsuGerOLD;
+  FDatGer := FDatGerOLD;
+  FHorGer := FHorGerOLD;
+  FIndExp := FIndExpOLD;
+  FFilFix := FFilFixOLD;
+  FNumFix := FNumFixOLD;
+  FIntImp := FIntImpOLD;
+  FRotNap := FRotNapOLD;
+  FNumApr := FNumAprOLD;
+  FSitApr := FSitAprOLD;
 end;
 
 end.

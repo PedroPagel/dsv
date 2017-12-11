@@ -4,8 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, DateUtils, oSubFacadeImportador, Vcl.ExtCtrls,
-  Vcl.Forms, uTimeFacade;
+  DateUtils, oSubFacadeImportador, Vcl.ExtCtrls, Vcl.Forms, uTimeFacade;
 
 type
   TExecuteType = (etImport, etNone);

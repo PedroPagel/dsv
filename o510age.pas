@@ -6,6 +6,7 @@ uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
+
   T510AGE = class(TTabelaUsuario)
   private
     FUSU_CodPra: Integer;
@@ -43,6 +44,7 @@ type
     procedure SetUSU_BkpDirOld(const pUSU_BkpDir: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -66,6 +68,8 @@ implementation
 
 constructor T510AGE.Create();
 begin
+  AddPrimaryKeys('USU_ID');
+
   inherited Create('USU_T510AGE');
 end;
 
@@ -82,6 +86,8 @@ end;
 procedure T510AGE.SetUSU_CodPra(const pUSU_CodPra: Integer);
 begin
   FUSU_CodPra := pUSU_CodPra;
+
+  CheckField('USU_CodPra');
 end;
 
 function T510AGE.GetUSU_DirArq: string;
@@ -92,6 +98,8 @@ end;
 procedure T510AGE.SetUSU_DirArq(const pUSU_DirArq: string);
 begin
   FUSU_DirArq := pUSU_DirArq;
+
+  CheckField('USU_DirArq');
 end;
 
 function T510AGE.GetUSU_RaiCnp: Char;
@@ -102,6 +110,8 @@ end;
 procedure T510AGE.SetUSU_RaiCnp(const pUSU_RaiCnp: Char);
 begin
   FUSU_RaiCnp := pUSU_RaiCnp;
+
+  CheckField('USU_RaiCnp');
 end;
 
 function T510AGE.GetUSU_CodPor: string;
@@ -112,6 +122,8 @@ end;
 procedure T510AGE.SetUSU_CodPor(const pUSU_CodPor: string);
 begin
   FUSU_CodPor := pUSU_CodPor;
+
+  CheckField('USU_CodPor');
 end;
 
 function T510AGE.GetUSU_BkpDir: string;
@@ -122,6 +134,8 @@ end;
 procedure T510AGE.SetUSU_BkpDir(const pUSU_BkpDir: string);
 begin
   FUSU_BkpDir := pUSU_BkpDir;
+
+  CheckField('USU_BkpDir');
 end;
 
 function T510AGE.GetUSU_CodPraOLD: Integer;
@@ -181,6 +195,17 @@ begin
   FUSU_RaiCnpOLD := FUSU_RaiCnp;
   FUSU_CodPorOLD := FUSU_CodPor;
   FUSU_BkpDirOLD := FUSU_BkpDir;
+
+  inherited;
+end;
+
+procedure T510AGE.RetornarValores();
+begin
+  FUSU_CodPra := FUSU_CodPraOLD;
+  FUSU_DirArq := FUSU_DirArqOLD;
+  FUSU_RaiCnp := FUSU_RaiCnpOLD;
+  FUSU_CodPor := FUSU_CodPorOLD;
+  FUSU_BkpDir := FUSU_BkpDirOLD;
 end;
 
 end.

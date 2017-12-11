@@ -48,6 +48,7 @@ object F000IMP: TF000IMP
         isAlfa = False
         isFloat = False
         OpenDialog = True
+        Required = False
       end
       object Importar: TButton
         Left = 69

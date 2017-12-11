@@ -30,7 +30,7 @@ type
     { Protected declarations }
   public
     { Public declarations }
-    procedure Start();
+    procedure Init();
 
     property Date: TDateTime read GetDate write SetDate;
   published
@@ -102,7 +102,7 @@ begin
   FDate := Value;
 end;
 
-procedure THDateTimePicker.Start;
+procedure THDateTimePicker.Init;
 begin
   FEnter := False;
   FDatePressed := False;
