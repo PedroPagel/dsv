@@ -30,9 +30,9 @@ procedure TF510ARM.FormCreate(Sender: TObject);
 var
   xArmazenamento: TArmazenamento;
 begin
-  FLogEmp := 1; //StrToInt(ParamStr(3));
+  FLogEmp := StrToInt(ParamStr(3));
   try
-    xArmazenamento := TArmazenamento.Create(2764);  //StrToInt(ParamStr(4)));
+    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();

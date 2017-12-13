@@ -22,8 +22,6 @@ type
     Posicao: Integer;
     Edicao: Boolean;
     Geral: Boolean;
-    Alterado: Boolean;
-    Padrao: tCamposPadrao;
     NomeClasse: string;
     NomeTabela: string;
     Required: Boolean;
@@ -93,6 +91,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure ApplicationEvents1Hint(Sender: TObject);
     procedure GeralEnter(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
   private
     { Private declarations }
     FCamposSelect: array of string;
@@ -268,6 +267,8 @@ begin
         end;
       end;
 
+      THButtonedEdit(Self.Components[i]).SetFormForEdit(Self);
+
       xType := xContext.GetType(ClassePorComponente(Self.Components[i]).ClassType);
       xProperty := xType.GetProperty(NomeCampo(Self.Components[i]));
 
@@ -406,7 +407,6 @@ var
   xContext: TRttiContext;
   xField: TRttiProperty;
   xAlterar: Boolean;
-  xPadrao: Boolean;
   xType: TRttiType;
   xTable: TTable;
 
@@ -430,8 +430,7 @@ var
     begin
       xProperty := xType.GetProperty(Campo());
 
-      if (AnsiSameText(UpperCase(xProperty.Name), UpperCase(pArray[i].Nome)) or
-        (xPadrao and (pArray[i].Padrao = cpAlteracao))) then
+      if AnsiSameText(UpperCase(xProperty.Name), UpperCase(pArray[i].Nome)) then
       begin
         xField := xType.GetProperty('OLD_' + xProperty.Name);
         xComponente := THButtonedEdit(Self.Components[pArray[i].Posicao]);
@@ -477,15 +476,6 @@ var
           xProperty.SetValue(xTable, xComponente.Text);
         end;
 
-        if (FPosicaoRotina = psChave) then
-          FCamposChave[i].Alterado := xAlterar;
-
-        if (FPosicaoRotina = psGeral) then
-          FCamposGerais[i].Alterado := xAlterar;
-
-        if (FPosicaoRotina = psPadrao) then
-          FCamposPadrao[i].Alterado := xAlterar;
-
         Break;
       end;
 
@@ -502,8 +492,6 @@ begin
     xTable := ClassePorComponente(TComponent(Sender));
     xType := xContext.GetType(xTable.ClassType);
 
-    xPadrao := False;
-
     if (FPosicaoRotina = psChave) then
       MontaAltear(FCamposChave, True);
 
@@ -511,10 +499,6 @@ begin
     begin
       if (FPosicaoRotina = psGeral) then
         MontaAltear(FCamposGerais, True);
-
-      xPadrao := True;
-      if (FPosicaoRotina = psPadrao) then
-        MontaAltear(FCamposPadrao, True);
     end;
   end;
 end;
@@ -685,7 +669,7 @@ begin
 
         FTable.Init;
         FTable.Close;
-        FTable.PropertyForSelect(MontarCampos);
+        FTable.PropertyForSelect(MontarCampos, True);
         FTable.Open(False);
 
         if not(FTable.IsEmpty) then
@@ -822,14 +806,14 @@ procedure TF000CAD.CarregarCamposPadrao(const pComponente: TComponent;
       SetLength(FCamposPadrao, i);
       FCamposPadrao[pred(i)].Nome := pValor;
       FCamposPadrao[pred(i)].Posicao := pPos;
-      FCamposPadrao[pred(i)].Padrao := cpNenhum;
 
       if (pComponente.ClassType = THButtonedEdit) then
       begin
         FCamposPadrao[pred(i)].NomeTabela := THButtonedEdit(pComponente).DataBaseTable;
-        THButtonedEdit(pComponente).Enabled := False
+        THButtonedEdit(pComponente).Enabled := False;
       end
-      else if (pComponente.ClassType = THDateTimePicker) then
+      else
+      if (pComponente.ClassType = THDateTimePicker) then
       begin
         FCamposPadrao[pred(i)].NomeTabela := THDateTimePicker(pComponente).DataBaseTable;
         THDateTimePicker(pComponente).Enabled := False;
@@ -947,73 +931,26 @@ begin
 
   for i := 0 to High(FCamposPadrao) do
   begin
-    for xProperty in xType.GetProperties do
+    xProperty := xType.GetProperty(FCamposPadrao[i].Nome);
+
+    if (((pValor = erInserir) and (AnsiSameText(FCamposPadrao[i].Nome, 'USU_DatGer') or
+                                  (AnsiSameText(FCamposPadrao[i].Nome, 'USU_UsuGer')) or
+                                  (AnsiSameText(FCamposPadrao[i].Nome, 'DatGer')) or
+                                  (AnsiSameText(FCamposPadrao[i].Nome, 'UsuGer')))) or
+       ((pValor = erAtualizar) and (AnsiSameText(FCamposPadrao[i].Nome, 'USU_DatAlt') or
+                                 (AnsiSameText(FCamposPadrao[i].Nome, 'USU_UsuAlt')) or
+                                 (AnsiSameText(FCamposPadrao[i].Nome, 'DatAlt')) or
+                                 (AnsiSameText(FCamposPadrao[i].Nome, 'UsuAlt'))))) then
     begin
-      if AnsiSameText(FCamposPadrao[i].Nome, xProperty.Name) then
+      if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
       begin
-        case (pValor) of
-          erInserir:
-            begin
-              if (AnsiSameText('USU_DatGer', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpGeracao;
-                THDateTimePicker(Self.Components[FCamposPadrao[i].Posicao])
-                  .DateTime := Date
-              end;
-
-              if (AnsiSameText('USU_UsuGer', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpGeracao;
-                THButtonedEdit(Self.Components[FCamposPadrao[i].Posicao]).Text
-                  := IntToStr(FLogUsu);
-              end;
-
-              if (AnsiSameText('DatGer', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpGeracao;
-                THDateTimePicker(Self.Components[FCamposPadrao[i].Posicao])
-                  .DateTime := Date;
-              end;
-
-              if (AnsiSameText('UsuGer', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpGeracao;
-                THButtonedEdit(Self.Components[FCamposPadrao[i].Posicao]).Text
-                  := IntToStr(FLogUsu);
-              end;
-            end;
-
-          erAtualizar:
-            begin
-              if (AnsiSameText('DatAlt', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpAlteracao;
-                THDateTimePicker(Self.Components[FCamposPadrao[i].Posicao])
-                  .DateTime := Date;
-              end;
-
-              if (AnsiSameText('UsuAlt', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpAlteracao;
-                THButtonedEdit(Self.Components[FCamposPadrao[i].Posicao]).Text
-                  := IntToStr(FLogUsu);
-              end;
-
-              if (AnsiSameText('USU_DatAlt', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpAlteracao;
-                THDateTimePicker(Self.Components[FCamposPadrao[i].Posicao])
-                  .DateTime := Date;
-              end;
-
-              if (AnsiSameText('USU_UsuAlt', xProperty.Name)) then
-              begin
-                FCamposPadrao[i].Padrao := cpAlteracao;
-                THButtonedEdit(Self.Components[FCamposPadrao[i].Posicao]).Text
-                  := IntToStr(FLogUsu);
-              end;
-            end;
-        end;
+        xProperty.SetValue(FTable, TValue.FromVariant(Date));
+        THDateTimePicker(Self.Components[FCamposPadrao[i].Posicao]).DateTime := Date;
+      end
+      else
+      begin
+        xProperty.SetValue(FTable, TValue.FromVariant(FLogUsu));
+        THButtonedEdit(Self.Components[FCamposPadrao[i].Posicao]).Text := IntToStr(FLogUsu);
       end;
     end;
   end;
@@ -1095,6 +1032,13 @@ begin
   FButtonEdit := EmptyStr;
 
   FList := TIterador.Create;
+end;
+
+procedure TF000CAD.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Key = 27) then
+    Cancelar.Click;
 end;
 
 procedure TF000CAD.FormMouseActivate(Sender: TObject; Button: TMouseButton;
@@ -1282,10 +1226,12 @@ end;
 procedure TF000CAD.PerformLastControlFocused(Sender: TObject);
 var
   xComponent: TComponent;
+  xRefComponent: TComponent;
 begin
   xComponent := Self.FindComponent(Screen.ActiveControl.Name);
+  xRefComponent := xComponent.GetParentComponent;
 
-  if not(AnsiSameText('Botoes', xComponent.GetParentComponent.Name)) then
+  if not(AnsiSameText('Botoes', xRefComponent.Name)) then
   begin
     if (xComponent.ClassType = THMemo) then
       THMemo(xComponent).OnExit(Sender);
@@ -1294,13 +1240,10 @@ begin
       THDateTimePicker(xComponent).OnExit(Sender);
 
     if (xComponent.ClassType = THButtonedEdit) then
-      THButtonedEdit(xComponent).OnExit(Sender);
+      THButtonedEdit(xComponent).OnExit(xComponent);
 
     if (xComponent.ClassType = TDataSetGrid) then
-    begin
-      if (TDataSetGrid(xComponent).Count > 0) then
-        TDataSetGrid(xComponent).PerformUpdateGrid();
-    end;
+      TDataSetGrid(xComponent).PerformUpdateGrid();
   end;
 end;
 
@@ -1401,53 +1344,35 @@ begin
               case xProperty.PropertyType.TypeKind of
                 tkInteger:
                   begin
-                    xProperty.SetValue(FTable,
-                      TValue.FromVariant(pGrid.Selected(xProperty.Name))
-                      .AsInteger);
-                    THButtonedEdit(Self.Components[j]).Text :=
-                      IntToStr(xProperty.GetValue(FTable).AsInteger);
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsInteger);
+                    THButtonedEdit(Self.Components[j]).Text := IntToStr(xProperty.GetValue(FTable).AsInteger);
                   end;
 
                 tkFloat:
                   if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
                   begin
-                    xProperty.SetValue(FTable,
-                      TValue.FromVariant(pGrid.Selected(xProperty.Name))
-                      .AsExtended);
-                    THButtonedEdit(Self.Components[j]).Text :=
-                      DateToStr(DataNull
-                      (FloatToDateTime(xProperty.GetValue(FTable).AsExtended)));
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsExtended);
+                    THButtonedEdit(Self.Components[j]).Text := DateToStr(DataNull(FloatToDateTime(xProperty.GetValue(FTable).AsExtended)));
                   end
                   else
                   begin
-                    xProperty.SetValue(FTable,
-                      TValue.FromVariant(pGrid.Selected(xProperty.Name))
-                      .AsExtended);
-                    THButtonedEdit(Self.Components[j]).Text :=
-                      FormatFloat('#,0.00', xProperty.GetValue(FTable)
-                      .AsExtended);
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsExtended);
+                    THButtonedEdit(Self.Components[j]).Text := FormatFloat('#,0.00', xProperty.GetValue(FTable).AsExtended);
                   end;
 
                 tkWChar, tkChar:
                   begin
                     if (Length(xProperty.GetValue(FTable).AsString) > 0) then
                     begin
-                      xProperty.SetValue(FTable,
-                        TValue.FromVariant(pGrid.Selected(xProperty.Name))
-                        .AsString[1]);
-                      THButtonedEdit(Self.Components[j]).Text :=
-                        StrToChar(xProperty.GetValue(FTable).AsString[1]);
+                      xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsString[1]);
+                      THButtonedEdit(Self.Components[j]).Text := StrToChar(xProperty.GetValue(FTable).AsString[1]);
                     end
                     else
                       THButtonedEdit(Self.Components[j]).Text := EmptyStr;
                   end;
               else
-                xProperty.SetValue(FTable,
-                  StringReplace(TValue.FromVariant
-                  (pGrid.Selected(xProperty.Name)).AsString, Chr(39), '',
-                  [rfReplaceAll]));
-                THButtonedEdit(Self.Components[j]).Text :=
-                  xProperty.GetValue(FTable).AsString;
+                xProperty.SetValue(FTable, StringReplace(TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsString, Chr(39), '',[rfReplaceAll]));
+                THButtonedEdit(Self.Components[j]).Text := xProperty.GetValue(FTable).AsString;
               end;
 
               Break;

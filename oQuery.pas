@@ -46,10 +46,6 @@ begin
   FTabelaUsuario := pTabelaUsuario;
   Self.Connection := FOracleConnection;
   Self.Close;
-
-  Self.CursorType := TCursorType.ctOpenForwardOnly;
-  Self.LockType := TADOLockType.ltOptimistic;
-  Self.CursorLocation := TCursorLocation.clUseServer;
 end;
 
 destructor THQuery.Destroy;

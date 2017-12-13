@@ -67,11 +67,14 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
-    procedure CreateLookup();
+    function TesteForm: TForm;
+
     procedure CheckEnum();
+    procedure CreateLookup();
     procedure ExitButton(Sender: TObject);
-    procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
+    procedure SetFormForEdit(const pForm: TForm);
     procedure AddLeftTableForm(const pForm: TForm);
+    procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
 
     property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
     property DataBaseRegisters: Boolean read FDataBaseRegisters write FDataBaseRegisters;
@@ -164,9 +167,11 @@ var
   xText: string;
   x998lsf: T998LSF;
   xFim: Boolean;
+  xNewText: string;
 begin
   Result := False;
   xFim := False;
+  xNewText := EmptyStr;
 
   if (FLookup) and IsNull(FENumerator) and (not(IsNull(Text)) or (Self.Required)) then
   begin
@@ -225,6 +230,21 @@ begin
             end;
           end;
 
+          if not(IsNull(xNewText)) then
+          begin
+            if (FAlfa) then
+              xNewText := xNewText + ',''' + xValue + ''''
+            else
+              xNewText := xNewText + ',' + xValue;
+          end
+          else
+          begin
+            if (FAlfa) then
+              xNewText := '''' + xValue + ''''
+            else
+              xNewText := xValue;
+          end;
+
           xQuery.Reset;
           xQuery.Command := xComando;
           xQuery.Open;
@@ -236,6 +256,8 @@ begin
           if Result then
             Break;
         end;
+
+        Self.Text := xNewText;
       end;
     finally
       FreeAndNil(xQuery);
@@ -394,11 +416,11 @@ var
   xValue: string;
 begin
   FButtonClicked := True;
+  UltimoCaracter(FString, ',', True);
 
   if not(FAlfa) and not(FIsFloat) then
   begin
     FString := Self.Text;
-    UltimoCaracter(FString, ',', True);
     Self.Text := FString;
   end;
 
@@ -546,6 +568,12 @@ begin
   FFilter := Value;
 end;
 
+procedure THButtonedEdit.SetFormForEdit(const pForm: TForm);
+begin
+  if not(Assigned(FForm)) then
+    FForm := pForm;
+end;
+
 procedure THButtonedEdit.SetIndexFields(const Value: string);
 begin
   FIndexFields := Value;
@@ -559,6 +587,11 @@ end;
 procedure THButtonedEdit.SetTable(const Value: string);
 begin
   FTable := Value;
+end;
+
+function THButtonedEdit.TesteForm: TForm;
+begin
+  Result := FForm;
 end;
 
 end.

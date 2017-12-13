@@ -34,7 +34,6 @@ var
   i: Integer;
   xForm: TForm;
   xMensagem: string;
-  xModalResult: TModalResult;
   xMessageType: TMsgDlgType;
 
   procedure FixMessage();

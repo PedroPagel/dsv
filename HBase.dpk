@@ -83,6 +83,7 @@ contains
   o095hfo in 'o095hfo.pas',
   o030etc in 'o030etc.pas',
   o000dbc in 'o000dbc.pas',
-  o510lay in 'o510lay.pas';
+  o510lay in 'o510lay.pas',
+  o000isc in 'o000isc.pas';
 
 end.

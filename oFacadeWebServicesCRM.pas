@@ -20,7 +20,7 @@ type
     FFechamentoCompromisso: concluiCompromisso;
 
     function GetRegistros: produtosRecebe;
-    procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
+    //procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -54,6 +54,7 @@ begin
 end;
 
 //Carrega o xml para consulta
+{
 procedure TFacadeWebServicesCRM.BeforeExecute(const MethodName: string;
   SOAPRequest: TStream);
 var
@@ -82,7 +83,7 @@ begin
 
   //gambi para remover hint
   //BeforeExecute('', nil);
-end;
+end;  }
 
 function TFacadeWebServicesCRM.ConsumirCompromisso: compromissoRetornoDados;
 begin
@@ -126,7 +127,7 @@ begin
     xRIO.HTTPWebNode.UseUTF8InHeader := False;
     xRIO.Converter.Encoding := 'ISO-8859-1';
     xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
-    xRIO.OnBeforeExecute := BeforeExecute;
+    //xRIO.OnBeforeExecute := BeforeExecute;
   end;
 
   FServico := GetWConnect_CRM_SeniorPortType(False, '', xRIO);

@@ -7,21 +7,22 @@ uses
   oBase,
   midaslib,
   System.SysUtils,
-  u310CLP in 'u310CLP.pas' {F310CLP} ,
+  u310CLP in 'u310CLP.pas' {F310CLP},
   o310clp in 'o310clp.pas',
-  u000crm in 'u000crm.pas' {F000CRM} ,
+  u000crm in 'u000crm.pas' {F000CRM},
   oFacadeControladoraCRM in 'oFacadeControladoraCRM.pas',
   oFacadeWebServicesCRM in 'oFacadeWebServicesCRM.pas',
   oFacedeCarregamentoCRM in 'oFacedeCarregamentoCRM.pas',
   oFacadeOperadora in 'oFacadeOperadora.pas',
   WConnect_WSDL in 'WConnect_WSDL.pas',
   oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
-  u510ARM in 'u510ARM.pas' {F510ARM} ,
+  u510ARM in 'u510ARM.pas' {F510ARM},
   oArmazenamento in 'oArmazenamento.pas',
-  u510CON in 'u510CON.pas' {F510CON} ,
+  u510CON in 'u510CON.pas' {F510CON},
   oConsulta in 'oConsulta.pas',
-  u510lay in 'u510lay.pas' {F510LAY} ,
-  u510lte in 'u510lte.pas' {F510LTE};
+  u510lay in 'u510lay.pas' {F510LAY},
+  u510lte in 'u510lte.pas' {F510LTE},
+  u000isc in 'u000isc.pas' {F000ISC};
 
 {$R *.res}
 
@@ -31,7 +32,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
 
-    //if (System.ParamCount > 0) then
+    if (System.ParamCount > 0) then
     begin
       //if ('TF000CRM' = TF000CRM.ClassName) then
       if (ParamStr(2) = TF000CRM.ClassName) then
@@ -47,8 +48,8 @@ begin
         Application.Run;
       end
       else
-      if ('TF510ARM' = TF510ARM.ClassName) then
-      //if (ParamStr(2) = TF510ARM.ClassName) then
+      //if ('TF510ARM' = TF510ARM.ClassName) then
+      if (ParamStr(2) = TF510ARM.ClassName) then
       begin
         Application.ShowMainForm := False;
         Application.CreateForm(TF510ARM, F510ARM);
@@ -72,6 +73,12 @@ begin
       //if ('TF510LTE' = TF510LTE.ClassName) then
       begin
         Application.CreateForm(TF510LTE, F510LTE);
+        Application.Run;
+      end;
+      if (ParamStr(2) = TF510LTE.ClassName) then
+      //if ('TF000ISC' = TF000ISC.ClassName) then
+      begin
+        Application.CreateForm(TF000ISC, F000ISC);
         Application.Run;
       end;
     end;

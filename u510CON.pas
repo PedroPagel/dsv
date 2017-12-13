@@ -572,8 +572,6 @@ begin
     FGridAss.Add(x510TIT.Titulo);
     FGridAss.Connect;
   end;
-
-  //FGridAss.First;
 end;
 
 procedure TF510CON.FormClose(Sender: TObject; var Action: TCloseAction);

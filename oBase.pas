@@ -80,6 +80,7 @@ type
     FCheckFields: Boolean;
     FEmpty: Boolean;
     FStringArrayList: TStringArrayList;
+    FOrdenation: string;
 
     //PK'S e FK'S
     FPrimaryKeys: array of string;
@@ -109,8 +110,6 @@ type
     procedure SetBetween(const pName: string; const Value: TDate);
     function GetSelect: TStateSelect;
     procedure SetSelect(const Value: TStateSelect);
-
-    procedure FieldsForUpdate(const pField: array of string);
   protected
     procedure CheckField(const pField: string);
     procedure Registros_OLD(); virtual; abstract;
@@ -131,6 +130,7 @@ type
     procedure Cancel();
     procedure ClearFields();
     procedure AtribuirValoresSelect();
+    procedure OrdenationCommand(const pValue: string);
     procedure Open(const setConstraints: Boolean = True);
     procedure SetForeignKeyValue(const pTable: TTable);
   	procedure SetSequenceField(const pField: string);
@@ -557,7 +557,7 @@ begin
   if (System.ParamCount > 0) then
     xBASE := ParamStr(1)
   else
-    xBASE := 'SENIOR53';
+    xBASE := 'SENIOR52';
 
   FOracleConnection := TConnectionBase.CreateBase();
   FOracleConnection.Conexao(xBASE);
@@ -635,6 +635,7 @@ begin
   FUseParam := True;
   FSetFields := False;
   FCondicao := EmptyStr;
+  FOrdenation := EmptyStr;
   FInsertValue := EmptyStr;
   FTables := EmptyStr;
 
@@ -672,19 +673,6 @@ var
 begin
   for i := 0 to High(pField) do
     Aumentar(pField[i]);
-end;
-
-procedure TTable.FieldsForUpdate(const pField: array of string);
-var
-  i, j: Integer;
-begin
-  for i := 0 to High(pField) do
-  begin
-    j := Length(FLimitField);
-    Inc(j);
-    SetLength(FLimitField, j);
-    FLimitField[pred(j)] := pField[i];
-  end;
 end;
 
 function TTable.Prior(): Boolean;
@@ -859,8 +847,6 @@ procedure TTable.SetDelete;
 begin
   FQuery := THQuery.CreatePersonalizado;
   try
-    Self.Clean;
-
     FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
 
     if (FUseParam) then
@@ -939,7 +925,7 @@ begin
   end
   else
     FQuery := THQuery.CreatePersonalizado;
-        {
+
   xTable := CreateTableFromClass(Self.ClassType);
   try
     xTable.Assign(Self);
@@ -951,7 +937,7 @@ begin
     xTable.Close;
   finally
     FreeAndNil(xTable);
-  end; }
+  end;
 end;
 
 procedure TTable.ExecutarMesesEntre;
@@ -967,12 +953,9 @@ procedure TTable.Close;
 begin
   FCheckFields := False;
   FCondicao := EmptyStr;
+  FOrdenation := EmptyStr;
 
-  if Assigned(FQuery) then
-  begin
-    FQuery.Close;
-    FQuery.SQL.Clear;
-  end;
+  FreeAndNil(FQuery);
 end;
 
 function TTable.Count: Integer;
@@ -1049,10 +1032,8 @@ begin
   FillChar(FFields, sizeOf(FFields), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
+  FOrdenation := EmptyStr;
   FCondicao := EmptyStr;
-
-  if (Assigned(FStringArrayList)) then
-    FStringArrayList.Clear;
 end;
 
 procedure TTable.Insert;
@@ -1137,7 +1118,11 @@ begin
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FCondicao := EmptyStr;
+  FOrdenation := EmptyStr;
   FTableSelect := ssSelect;
+
+  if Assigned(FStringArrayList) then
+    FStringArrayList.Clear;
 end;
 
 procedure TTable.ClearFields;
@@ -1228,7 +1213,6 @@ begin
     end;
 
     FQuery.ExecSQL();
-    FQuery.Close;
     Self.Clean;
   finally
     xContext.Free;
@@ -1277,8 +1261,6 @@ begin
           AtribuirValoresSelect();
       end;
     end;
-
-    //FQuery.Prepared := False;
   finally
     xContext.Free;
   end;
@@ -1440,11 +1422,14 @@ begin
 
     Result := 'SELECT ' + xCampos + ' FROM ' + FTabela;
 
-    if not(FTables = EmptyStr) then
+    if not(IsNull(FTables)) then
       Result := Result + ',' + FTables;
 
-    if not(FCondicao = EmptyStr) then
+    if not(IsNull(FCondicao)) then
       Result := Result + ' WHERE ' + FCondicao;
+
+    if not(IsNull(FOrdenation)) then
+      Result := Result + ' ' + FOrdenation;
   finally
     xContext.Free;
   end;
@@ -1499,7 +1484,6 @@ begin
       DefinirParametros();
 
     FQuery.ExecSQL();
-    FQuery.Close;
     Self.Clean;
   finally
     xContext.Free;
@@ -1589,6 +1573,11 @@ begin
 
   FState := iff(FQuery.Count > 0, aoUpdate, aoInsert);
   Self.Init;
+end;
+
+procedure TTable.OrdenationCommand(const pValue: string);
+begin
+  FOrdenation := pValue;
 end;
 
 procedure TTable.SetAutoSelect(const pFields: array of string);

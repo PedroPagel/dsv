@@ -319,7 +319,7 @@ function TFacedeCarregamentoCRM.TipoExecucao: TTipoExecucao;
 begin
   Result := teOportunidade;
 
- // if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
+  if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
     Result := teCompromisso;
 end;
 

@@ -1,7 +1,5 @@
 inherited F510LTE: TF510LTE
   Caption = 'D'#233'bito Direto Autorizado - Liga'#231#227'o de Esp'#233'cie e Tipo Interno'
-  ExplicitWidth = 634
-  ExplicitHeight = 732
   PixelsPerInch = 96
   TextHeight = 13
   inherited Panel1: TPanel

@@ -970,7 +970,7 @@ type
     property USU_MetCon: Double read GetUSU_MetCon write SetUSU_MetCon;
     property USU_IDLIB: Integer read GetUSU_IDLIB write SetUSU_IDLIB;
     property USU_BemPri: Char read GetUSU_BemPri write SetUSU_BemPri;
-    //property USU_IndCom: Char read GetUSU_IndCom write SetUSU_IndCom;
+    property USU_IndCom: Char read GetUSU_IndCom write SetUSU_IndCom;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodBem: string read GetCodBemOLD write SetCodBemOLD;
@@ -1107,7 +1107,7 @@ type
     property OLD_USU_MetCon: Double read GetUSU_MetConOLD write SetUSU_MetConOLD;
     property OLD_USU_IDLIB: Integer read GetUSU_IDLIBOLD write SetUSU_IDLIBOLD;
     property OLD_USU_BemPri: Char read GetUSU_BemPriOLD write SetUSU_BemPriOLD;
-    //property OLD_USU_IndCom: Char read GetUSU_IndComOLD write SetUSU_IndComOLD;
+    property OLD_USU_IndCom: Char read GetUSU_IndComOLD write SetUSU_IndComOLD;
   end;
 
 implementation

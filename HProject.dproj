@@ -129,6 +129,10 @@
             <Form>F510LTE</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="u000isc.pas">
+            <Form>F000ISC</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <None Include="ModelSupport_HProject\default.txaPackage"/>
         <RcItem Include="..\..\Icones\flecha.bmp">
             <ResourceType>BITMAP</ResourceType>

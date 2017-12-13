@@ -25,7 +25,7 @@ type
   TLineState = (lsNewLine, lsEvents, lsStop);
   TGridState = (gsBrowse, gsInsert, gsEdit,
                 gsNone, gsOnEnter, gsOnExit,
-                gsNewValue, gsCallCheck);
+                gsNewValue);
 
   TFieldPosition = record
     Name: string;
@@ -478,7 +478,6 @@ begin
   if (FOldColumn < 1) then
     FOldColumn := 1;
 
-  FFieldState := gsBrowse;
   if (FOldValue <> Self.Columns[(FOldColumn)].Field.Value) then
   begin
     FOldValue := Self.Columns[(FOldColumn)].Field.Value;
@@ -511,15 +510,13 @@ begin
     begin
       FChangeLine := True;
       FNewLine := Self.DataSource.DataSet.RecNo;
-      FFieldState := gsCallCheck;
 
       //Passado outro FS, pois o RecNo ira chamar o ChangeData
       if (FOldLine > 0) and not(FAllowNewLine) then
         Self.DataSource.DataSet.RecNo := FOldLine;
-    end;
 
-    if (FFieldState = gsCallCheck) then
       CallCheck();
+    end;
   end;
 
   FGridState := gsBrowse;

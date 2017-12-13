@@ -168,8 +168,6 @@ begin
 
         Self.AddTitulo();
       end;
-
-      x510tit.Close;
     finally
       FreeAndNil(x510tit);
     end;
@@ -232,12 +230,12 @@ end;
 
 procedure TArmazenamento.Processar;
 begin
-
+  StartTransaction;
   try
     Self.BuscarExistentes();
     Self.AtualizarTitulos();
 
-
+    Commit;
   except
     on e: Exception do
       Rollback;
@@ -345,57 +343,6 @@ begin
       FListaTituloBanco.Add(xTitulo)
     else
     begin
-      xTitulo.Close;
-      xRaiz := F095FOR.FornecedoresRaiz(x510Tit.USU_CodFor);
-
-      if not(IsNull(xRaiz)) then
-      begin
-        xTitulo.Init;
-        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ', False);
-        xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI'], True);
-        xTitulo.Open(False);
-
-        if (xTitulo.IsEmpty) then
-          GerarLogTitulo('Título não encontrado!')
-        else
-          FListaTituloBanco.Add(xTitulo);
-      end
-      else
-        GerarLogTitulo('Título não encontrado!');
-    end;
-
-    xTitulo.Close;
-  end;
-
-  for i := 0 to pred(FListaTituloGeral.Count) do
-  begin
-    x510Tit := TTituloDebitoDiretoAutorizado(FListaTituloGeral[i]);
-    F095FOR.CgcCpf := x510Tit.USU_CgcCpf;
-
-    xTitulo := TSubTituloDebitoDiretoAutorizado.Create();
-    xTitulo.CodEmp := x510Tit.USU_CodEmp;
-    xTitulo.CodFil := x510Tit.USU_CodFil;
-    xTitulo.CodTpt := FListaEspecieTitulo.CarregarEspecie(x510Tit.USU_CodTpt);
-    xTitulo.CodFor := iff(x510Tit.USU_CodFor = 0, F095FOR.CodigoDoFornecedor, x510Tit.USU_CodFor);
-    xTitulo.VctOri := x510Tit.USU_VctOri;
-    xTitulo.VlrOri := x510Tit.USU_VlrOri;
-    xTitulo.CodPor := Self.Agendamento.USU_CodPor;
-    xTitulo.Anexar(x510Tit);
-    xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR'], True);
-
-    if (IsNull(xTitulo.CodTpt)) then
-    begin
-      GerarLogTitulo(Format('Espécie bancária "%s" não localizada!', [x510Tit.USU_CodTpt]));
-      Continue;
-    end;
-
-    xTitulo.Open(False);
-
-    if not(xTitulo.IsEmpty) then
-      FListaTituloBanco.Add(xTitulo)
-    else
-    begin
-      xTitulo.Close;
       xRaiz := F095FOR.FornecedoresRaiz(x510Tit.USU_CodFor);
 
       if not(IsNull(xRaiz)) then
@@ -424,6 +371,7 @@ destructor TArmazenamento.Destroy;
 begin
   FillChar(FCamposBuscaEmpFil, sizeOf(FCamposBuscaEmpFil), 0);
 
+  FreeAndNil(F510TIT);
   FreeAndNil(FListaArmazenamento);
   FreeAndNil(FListaTituloGeral);
   FreeAndNil(FListaTituloBanco);
@@ -431,7 +379,6 @@ begin
   FreeAndNil(FListaEspecieTitulo);
   FreeAndNil(F510AGE);
   FreeAndNil(FIterador);
-  FreeAndNil(F510TIT);
 
   inherited;
 end;

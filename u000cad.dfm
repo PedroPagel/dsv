@@ -10,9 +10,11 @@ object F000CAD: TF000CAD
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   Position = poDesktopCenter
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   OnMouseActivate = FormMouseActivate
   PixelsPerInch = 96
   TextHeight = 13
