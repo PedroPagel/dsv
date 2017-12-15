@@ -1,4 +1,4 @@
-unit oFacedeCarregamentoCRM;
+unit oFacadeCarregamentoCRM;
 
 interface
 
@@ -89,6 +89,8 @@ begin
 
   if not(F120PED.IsEmpty) then
   begin
+    FWebservice.CodEmp := pDados.CodEmp;
+
     FWebservice.Dados.oportunidadeContaId := F120PED.CodCli;
     FWebservice.Dados.oportunidadeNumeroPedido := IntToStr(F120PED.CodEmp) + '-' +
       IntToStr(F120PED.CodFil) + '-' + IntToStr(F120PED.NumPed);
@@ -200,6 +202,7 @@ begin
 
       if not(x085cli.IsEmpty) then
       begin
+        FWebservice.CodEmp := x120pen.USU_CodEmp;
         FWebservice.Agedamento.compromissoUsuarioId := x120pen.USU_UsuGer;
         FWebservice.Agedamento.compromissoTipoRecorrencia := 10;
         FWebservice.Agedamento.compromissoAtividade := 3;
@@ -319,7 +322,7 @@ function TFacedeCarregamentoCRM.TipoExecucao: TTipoExecucao;
 begin
   Result := teOportunidade;
 
-  if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
+ // if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
     Result := teCompromisso;
 end;
 

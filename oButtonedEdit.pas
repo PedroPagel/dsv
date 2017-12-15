@@ -104,7 +104,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs, oMensagem,
-  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, Grids, oQuery, Data.DB;
+  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, oQuery, Data.DB;
 
 procedure Register;
 begin

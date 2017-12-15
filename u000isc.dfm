@@ -12,22 +12,15 @@ inherited F000ISC: TF000ISC
     end
     inherited Panel4: TPanel
       inherited Cabecalho: THPanel
-        Height = 78
+        Height = 48
         DataBaseTable = 'USU_T000ISC'
-        ExplicitHeight = 78
+        ExplicitHeight = 48
         object Label2: TLabel
           Left = 85
           Top = 21
           Width = 45
           Height = 13
           Caption = 'Empresa:'
-        end
-        object Label1: TLabel
-          Left = 106
-          Top = 48
-          Width = 24
-          Height = 13
-          Caption = 'Filial:'
         end
         object BECodEmp: THButtonedEdit
           Left = 136
@@ -55,86 +48,67 @@ inherited F000ISC: TF000ISC
           DataBaseField = 'USU_CODEMP'
           Required = True
         end
-        object BECodFil: THButtonedEdit
-          Left = 136
-          Top = 45
-          Width = 121
-          Height = 21
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          RightButton.ImageIndex = 0
-          RightButton.Visible = True
-          TabOrder = 1
-          Table = 'E070FIL'
-          Lookup = True
-          Field = 'CODFIL'
-          AvoidSelections = True
-          isNumber = False
-          isAlfa = True
-          isFloat = False
-          OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
-          DataBaseField = 'USU_CODFIL'
-          Required = True
-        end
       end
       inherited Geral: THPanel
-        Top = 79
-        Height = 612
+        Top = 49
+        Height = 642
         ExplicitTop = 79
         ExplicitHeight = 612
         object Label6: TLabel
           Left = 48
-          Top = 68
+          Top = 95
           Width = 83
           Height = 13
           Caption = 'Usu'#225'rio Gera'#231#227'o:'
         end
         object Label7: TLabel
           Left = 61
-          Top = 94
+          Top = 121
           Width = 70
           Height = 13
           Caption = 'Data Gera'#231#227'o:'
         end
         object Label8: TLabel
           Left = 42
-          Top = 122
+          Top = 149
           Width = 89
           Height = 13
           Caption = 'Usu'#225'rio Altera'#231#227'o:'
         end
         object Label9: TLabel
           Left = 55
-          Top = 148
+          Top = 175
           Width = 76
           Height = 13
           Caption = 'Data Altera'#231#227'o:'
         end
         object Label3: TLabel
-          Left = 84
+          Left = 91
           Top = 14
           Width = 40
           Height = 13
           Caption = 'Usu'#225'rio:'
         end
         object Label4: TLabel
-          Left = 84
+          Left = 97
           Top = 41
           Width = 34
           Height = 13
           Caption = 'Senha:'
         end
+        object Label5: TLabel
+          Left = 108
+          Top = 68
+          Width = 23
+          Height = 13
+          Caption = 'URL:'
+        end
         object BEUsuGer: THButtonedEdit
           Left = 136
-          Top = 65
+          Top = 92
           Width = 121
           Height = 21
-          TabOrder = 0
+          TabOrder = 3
           Lookup = False
           AvoidSelections = False
           isNumber = True
@@ -147,10 +121,10 @@ inherited F000ISC: TF000ISC
         end
         object BEUsuAlt: THButtonedEdit
           Left = 136
-          Top = 119
+          Top = 146
           Width = 121
           Height = 21
-          TabOrder = 1
+          TabOrder = 5
           Lookup = False
           AvoidSelections = False
           isNumber = True
@@ -163,23 +137,23 @@ inherited F000ISC: TF000ISC
         end
         object DTDatGer: THDateTimePicker
           Left = 136
-          Top = 92
+          Top = 119
           Width = 121
           Height = 21
           Date = 43000.498434016200000000
           Time = 43000.498434016200000000
-          TabOrder = 2
+          TabOrder = 4
           DataBaseTable = 'USU_T000ISC'
           DataBaseField = 'USU_DATGER'
         end
         object DTDatAlt: THDateTimePicker
           Left = 136
-          Top = 146
+          Top = 173
           Width = 121
           Height = 21
           Date = 43000.498434016200000000
           Time = 43000.498434016200000000
-          TabOrder = 3
+          TabOrder = 6
           DataBaseTable = 'USU_T000ISC'
           DataBaseField = 'USU_DATALT'
         end
@@ -196,7 +170,7 @@ inherited F000ISC: TF000ISC
           ParentFont = False
           RightButton.ImageIndex = 0
           RightButton.Visible = True
-          TabOrder = 4
+          TabOrder = 0
           Table = 'E039POR'
           Lookup = False
           AvoidSelections = True
@@ -221,7 +195,7 @@ inherited F000ISC: TF000ISC
           ParentFont = False
           RightButton.ImageIndex = 0
           RightButton.Visible = True
-          TabOrder = 5
+          TabOrder = 1
           Table = 'E039POR'
           Lookup = False
           Field = 'CODPOR'
@@ -233,6 +207,22 @@ inherited F000ISC: TF000ISC
           DataBaseTable = 'USU_T000ISC'
           DataBaseField = 'USU_SenCrm'
           Required = True
+        end
+        object BEUrlCrm: THButtonedEdit
+          Left = 136
+          Top = 65
+          Width = 353
+          Height = 21
+          TabOrder = 2
+          Lookup = False
+          AvoidSelections = False
+          isNumber = True
+          isAlfa = False
+          isFloat = False
+          OpenDialog = False
+          DataBaseTable = 'USU_T000ISC'
+          DataBaseField = 'USU_UrlCrm'
+          Required = False
         end
       end
     end

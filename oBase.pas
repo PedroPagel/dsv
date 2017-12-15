@@ -225,6 +225,7 @@ type
     function Exists(const pItem: Integer): Boolean;
     function SearchIndexValue(const pObj: TObject): Boolean;
     function IndexOfFields(const pObj: TObject): Integer;
+    function IndexOf(const Value: string): Integer; overload;
 
     procedure IndexFields(const pFields: array of string);
     procedure AddByClass(const Obj: TTable); overload;
@@ -1850,6 +1851,11 @@ begin
     SetLength(FFields, j);
     FFields[pred(j)] := pFields[i];
   end;
+end;
+
+function TIterador.IndexOf(const Value: string): Integer;
+begin
+  Result := IndexOfValues(Value);
 end;
 
 function TIterador.IndexOfFields(const pObj: TObject): Integer;

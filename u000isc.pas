@@ -19,12 +19,12 @@ type
     DTDatAlt: THDateTimePicker;
     BECodEmp: THButtonedEdit;
     Label2: TLabel;
-    BECodFil: THButtonedEdit;
-    Label1: TLabel;
     BEUsuCrm: THButtonedEdit;
     Label3: TLabel;
     BESenCrm: THButtonedEdit;
     Label4: TLabel;
+    Label5: TLabel;
+    BEUrlCrm: THButtonedEdit;
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
@@ -38,8 +38,6 @@ var
 implementation
 
 {$R *.dfm}
-
-
 
 procedure TF000ISC.FormCreate(Sender: TObject);
 begin

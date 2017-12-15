@@ -23,9 +23,7 @@ type
 
   TProcedureCheck = procedure(const pCheck: TCheckMethod; const pGrid: TDataSetGrid; const pField: string) of object;
   TLineState = (lsNewLine, lsEvents, lsStop);
-  TGridState = (gsBrowse, gsInsert, gsEdit,
-                gsNone, gsOnEnter, gsOnExit,
-                gsNewValue);
+  TGridState = (gsBrowse, gsOnEnter, gsNewValue, gsDisconnect);
 
   TFieldPosition = record
     Name: string;
@@ -524,7 +522,7 @@ end;
 
 procedure TDataSetGrid.EnterLineDataSet(DataSet: TDataSet);
 begin
-  if (FINIT) and (Self.Count > 0) then
+  if ((FINIT) and (Self.Count > 0) and not(FGridState = gsDisconnect)) then
     FEnterLine(Self);
 end;
 
@@ -615,13 +613,12 @@ begin
   if (FFieldState = gsNewValue) then
     CallCheck();
 
-  FFieldState := gsOnExit;
   ExitCol(Sender);
 end;
 
 procedure TDataSetGrid.ExitLine(DataSet: TDataSet);
 begin
-  if (FINIT) and (Self.Count > 0) then
+  if ((FINIT) and (Self.Count > 0) and not(FGridState = gsDisconnect)) then
   begin
     ExitCol(Self);
     CheckMethod(EmptyStr, cmExitLine);
@@ -643,8 +640,6 @@ begin
     if (xProperty.PropertyType.TypeKind in [tkInteger, tkFloat, tkString, tkUString, tkWChar, tkWString]) then
       if not(BuscarString('ID', [DesmontaID(xProperty.Name)])) and not(AnsiSameText(UpperCase(Copy(xProperty.Name, 0, 4)), 'OLD_')) then
       begin
-        FGridState := gsInsert;
-
         if (Assigned(FClientDataSet.FindField(xProperty.Name))) then
         begin
           if (FClientDataSet.FindField(xProperty.Name).DataType in [ftDateTime, ftDate]) then
@@ -662,7 +657,6 @@ begin
         end;
       end;
 
-  FGridState := gsInsert;
   FClientDataSet.Post;
   Inc(FCount);
 
@@ -925,6 +919,7 @@ end;
 procedure TDataSetGrid.Disconnect;
 begin
   Self.DataSource.DataSet := nil;
+  FGridState := gsDisconnect;
 end;
 
 procedure TDataSetGrid.Draw(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
@@ -972,13 +967,14 @@ end;
 procedure TDataSetGrid.CheckFields(const pField: string; const pValue: Integer);
 begin
   Disconnect;
-  FClientDataSet.First();
+  FClientDataSet.First;
   while not(Self.Eof) do
   begin
     FClientDataSet.FindField(pField).AsInteger := pValue;
     FClientDataSet.Post();
-    FClientDataSet.Next
+    FClientDataSet.Next;
   end;
+  FClientDataSet.First;
   Connect;
 end;
 
@@ -1089,7 +1085,7 @@ end;
 
 procedure TDataSetGrid.Clear;
 begin
-  FGridState := gsNone;
+  FGridState := gsBrowse;
   FClientDataSet.EmptyDataSet;
   FINIT := False;
   FCount := 0;
@@ -1099,6 +1095,7 @@ end;
 procedure TDataSetGrid.Connect;
 begin
   Self.DataSource.DataSet := FClientDataSet;
+  FGridState := gsBrowse;
 end;
 
 function TDataSetGrid.Count: Integer;

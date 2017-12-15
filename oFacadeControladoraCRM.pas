@@ -3,7 +3,7 @@ unit oFacadeControladoraCRM;
 interface
 
 uses
-  oFacadeOperadora, oFacadeBaseCRM, oFacedeCarregamentoCRM, oFacadeWebServicesCRM,
+  oFacadeOperadora, oFacadeBaseCRM, oFacadeCarregamentoCRM, oFacadeWebServicesCRM,
   System.SysUtils;
 
 type

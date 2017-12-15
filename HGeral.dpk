@@ -1,4 +1,4 @@
-package HBaseComponente;
+package HGeral;
 
 {$R *.res}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
@@ -29,32 +29,28 @@ package HBaseComponente;
 
 requires
   rtl,
+  xmlrtl,
   vcl,
   DbxCommonDriver,
   dbrtl,
   dbexpress,
-  vcldb,
-  DBXOracleDriver,
-  designide,
-  vclactnband,
-  vclx,
-  xmlrtl,
-  dsnap,
+  soaprtl,
+  inet,
   adortl,
-  vclimg,
-  HBase;
+  DBXOracleDriver,
+  HBase,
+  HComponente;
 
 contains
-  oDataSetGrid in 'oDataSetGrid.pas',
-  oButtonedEdit in 'oButtonedEdit.pas',
-  oDateTimePicker in 'oDateTimePicker.pas',
-  uPesHen in 'uPesHen.pas' {FPesHen},
-  oMemo in 'oMemo.pas',
-  oPanel in 'oPanel.pas',
-  u000cad in 'u000cad.pas' {F000CAD},
-  oValueListEditor in 'oValueListEditor.pas',
-  oHButton in 'oHButton.pas',
-  oMensagem in 'oMensagem.pas';
+  oArmazenamento in 'oArmazenamento.pas',
+  oConsulta in 'oConsulta.pas',
+  WConnect_WSDL in 'WConnect_WSDL.pas',
+  oFacadeCarregamentoCRM in 'oFacadeCarregamentoCRM.pas',
+  oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
+  oFacadeControladoraCRM in 'oFacadeControladoraCRM.pas',
+  oFacadeWebServicesCRM in 'oFacadeWebServicesCRM.pas',
+  oFacadeOperadora in 'oFacadeOperadora.pas',
+  o310clp in 'o310clp.pas',
+  oFacadeListaServicos in 'oFacadeListaServicos.pas';
 
 end.
-
