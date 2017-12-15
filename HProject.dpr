@@ -66,7 +66,7 @@ begin
       Application.CreateForm(TF510LTE, F510LTE);
       Application.Run;
     end;
-    if (ParamStr(2) = TF510LTE.ClassName) then
+    if (ParamStr(2) = TF000ISC.ClassName) then
     //if ('TF000ISC' = TF000ISC.ClassName) then
     begin
       Application.CreateForm(TF000ISC, F000ISC);

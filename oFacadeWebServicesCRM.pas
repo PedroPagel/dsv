@@ -127,6 +127,7 @@ begin
     while (x000isc.Next) do
     begin
       xFacadeListaServico := TFacadeListaServico.Create(x000isc);
+      xFacadeListaServico.CodEmp := x000isc.USU_CodEmp;
       inherited Add(xFacadeListaServico);
     end;
   finally
