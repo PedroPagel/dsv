@@ -31,6 +31,7 @@ var
   xArmazenamento: TArmazenamento;
 begin
   FLogEmp := StrToInt(ParamStr(3));
+  StartTransaction;
   try
     xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
     try
@@ -41,9 +42,11 @@ begin
     finally
       FreeAndNil(xArmazenamento);
     end;
+
+    Commit;
   except
     on e: Exception do
-      Abort;
+      RollBack;
   end;
 end;
 

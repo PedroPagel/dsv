@@ -194,6 +194,7 @@ begin
 
     while (x510lay.Next) do
     begin
+      xQuery.First;
       while not(xQuery.Eof) do
       begin
         if AnsiSameText(xQuery.FindField('FLDNAM').AsString, x510lay.USU_NomCol)  then

@@ -27,8 +27,6 @@ type
     FCamposBuscaEmpFil: TArrayOfString;
 
     procedure AdicionarPath();
-    procedure BuscarExistentes();
-    procedure AtualizarTitulos();
     procedure GerarArmazenamento(const pNome: string);
 
     procedure AddTitulo();
@@ -83,7 +81,7 @@ begin
   case (F510TIT.Registro.RegLay) of
     rlHeader:
     begin
-      FListaFilial.EmpresaPorContribuinte(F510TIT.Registro.CgcCpf, True);
+      FListaFilial.EmpresaPorContribuinte(F510TIT.Registro.CgcCpf);
       FLogEmp := FListaFilial.CodEmp;
     end;
 
@@ -229,89 +227,37 @@ begin
 end;
 
 procedure TArmazenamento.Processar;
-begin
-  StartTransaction;
-  try
-    Self.BuscarExistentes();
-    Self.AtualizarTitulos();
-
-    Commit;
-  except
-    on e: Exception do
-      Rollback;
-  end;
-end;
-
-procedure TArmazenamento.AddTitulo;
-var
-  xTitulo: TSubTituloDebitoDiretoAutorizado;
-begin
-  F510TIT.USU_CodFor := F095FOR.AdicionarFonecedor(F510TIT.USU_CgcCpf);
-
-  if (F510TIT.USU_CodFor > 0) then
-    FListaTituloGeral.AddByClass(F510TIT, TTituloDebitoDiretoAutorizado.CreateCarregado())
-  else
-  begin
-    F510TIT.USU_LogTit := Format('Fornecedor com o CNPJ: "%s" não existe!', [FloatToStr(F510TIT.USU_CgcCpf)]);
-
-    if (F510TIT.USU_ID > 0) then
-    begin
-      xTitulo := TSubTituloDebitoDiretoAutorizado.Create();
-      xTitulo.Anexar(F510TIT);
-      xTitulo.GerarLog();
-    end;
-  end;
-end;
-
-procedure TArmazenamento.AtualizarArmazenamento;
-var
-  i: Integer;
-  x510TIT: TTituloDebitoDiretoAutorizado;
-  x510ARM: T510ARM;
-begin
-  StartTransaction;
-  try
-    for i := 0 to pred(FListaArmazenamento.Count) do
-    begin
-      x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado;
-      x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
-      x510TIT.USU_SitArm := 'N';
-      x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
-  	  x510TIT.Open(False);
-
-      if (x510TIT.IsEmpty) then
-      begin
-        x510ARM := T510ARM(FListaArmazenamento[i]);
-        x510ARM.RemoverArquivo();
-      end;
-
-      x510TIT.Close;
-    end;
-
-    Commit;
-  except
-    on e: Exception do
-      Rollback;
-  end;
-end;
-
-procedure TArmazenamento.AtualizarTitulos;
-begin
-  FListaTituloBanco.Atualizar();
-end;
-
-procedure TArmazenamento.BuscarExistentes;
 var
   i: Integer;
   x510Tit: TTituloDebitoDiretoAutorizado;
   xRaiz: string;
   xTitulo: TSubTituloDebitoDiretoAutorizado;
 
+  procedure Associar();
+  begin
+    xTitulo.Init;
+    xTitulo.USU_IDTIT := x510tit.USU_ID;
+    xTitulo.CodBar := x510tit.USU_CodBar;
+    xTitulo.Update();
+
+    x510tit.USU_CodEmp := xTitulo.CodEmp;
+    x510tit.USU_CodFil := xTitulo.CodFil;
+    x510tit.USU_CodFor := xTitulo.CodFor;
+    x510tit.USU_SitTit := xTitulo.SitTit;
+    x510tit.USU_SitArm := 'S';
+    x510tit.Update();
+  end;
+
   procedure GerarLogTitulo(const pLog: string);
   begin
-    x510Tit.USU_LogTit := pLog;
-    xTitulo.Anexar(x510Tit);
-    xTitulo.GerarLog();
+    if AnsiSameText(x510tit.USU_LogTit, 'OK') then
+      Associar()
+    else
+    begin
+      x510Tit.USU_LogTit := pLog;
+      x510Tit.USU_SitArm := 'N';
+      x510Tit.Update;
+    end;
   end;
 
 begin
@@ -328,7 +274,6 @@ begin
     xTitulo.VctOri := x510Tit.USU_VctOri;
     xTitulo.VlrOri := x510Tit.USU_VlrOri;
     xTitulo.CodPor := Self.Agendamento.USU_CodPor;
-    xTitulo.Anexar(x510Tit);
     xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR'], True);
 
     if (IsNull(xTitulo.CodTpt)) then
@@ -340,7 +285,7 @@ begin
     xTitulo.Open(False);
 
     if not(xTitulo.IsEmpty) then
-      FListaTituloBanco.Add(xTitulo)
+      GerarLogTitulo(xTitulo.Consistir)
     else
     begin
       xRaiz := F095FOR.FornecedoresRaiz(x510Tit.USU_CodFor);
@@ -355,7 +300,7 @@ begin
         if (xTitulo.IsEmpty) then
           GerarLogTitulo('Título não encontrado!')
         else
-          FListaTituloBanco.Add(xTitulo);
+          GerarLogTitulo(xTitulo.Consistir);
       end
       else
         GerarLogTitulo('Título não encontrado!');
@@ -365,6 +310,48 @@ begin
   end;
 
   FListaTituloGeral.Clear;
+end;
+
+procedure TArmazenamento.AddTitulo;
+begin
+  F510TIT.USU_CodFor := F095FOR.AdicionarFonecedor(F510TIT.USU_CgcCpf);
+
+  if (F510TIT.USU_CodFor > 0) then
+    FListaTituloGeral.AddByClass(F510TIT, TTituloDebitoDiretoAutorizado.CreateCarregado())
+  else
+  begin
+    F510TIT.USU_LogTit := Format('Fornecedor com o CNPJ: "%s" não existe!', [FloatToStr(F510TIT.USU_CgcCpf)]);
+
+    if (F510TIT.USU_ID > 0) then
+    begin
+      F510TIT.USU_SitArm := 'N';
+      F510TIT.Update;
+    end;
+  end;
+end;
+
+procedure TArmazenamento.AtualizarArmazenamento;
+var
+  i: Integer;
+  x510TIT: TTituloDebitoDiretoAutorizado;
+  x510ARM: T510ARM;
+begin
+  for i := 0 to pred(FListaArmazenamento.Count) do
+  begin
+    x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado;
+    x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
+    x510TIT.USU_SitArm := 'N';
+    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
+    x510TIT.Open(False);
+
+    if (x510TIT.IsEmpty) then
+    begin
+      x510ARM := T510ARM(FListaArmazenamento[i]);
+      x510ARM.RemoverArquivo();
+    end;
+
+    x510TIT.Close;
+  end;
 end;
 
 destructor TArmazenamento.Destroy;
@@ -384,7 +371,10 @@ begin
 end;
 
 procedure TArmazenamento.GerarArmazenamento(const pNome: string);
+var
+  x510arm: T510ARM;
 begin
+  Self.ClearFields;
   Self.USU_CodPor := Self.Agendamento.USU_CodPor;
   Self.USU_NomArq := pNome;
   Self.USU_DatGer := Date;
@@ -396,9 +386,16 @@ begin
   if not(FArquivoExiste) then
   begin
     Self.USU_SitArm := 'N';
-    inherited Insert;
-  end;
 
+    x510arm := T510ARM.Create;
+    x510arm.Assign(Self);
+    x510arm.Init;
+    x510arm.Insert;
+    Self.USU_ID := x510arm.USU_ID;
+
+    FListaArmazenamento.AddByClass(x510arm);
+  end
+  else
   if not(AnsiSameText(Self.USU_SitArm, 'S')) then
     FListaArmazenamento.AddByClass(Self, T510ARM.Create());
 

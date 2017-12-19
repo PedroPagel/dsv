@@ -1344,19 +1344,19 @@ begin
               case xProperty.PropertyType.TypeKind of
                 tkInteger:
                   begin
-                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsInteger);
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)));
                     THButtonedEdit(Self.Components[j]).Text := IntToStr(xProperty.GetValue(FTable).AsInteger);
                   end;
 
                 tkFloat:
                   if (AnsiSameText('TDate', xProperty.PropertyType.Name)) then
                   begin
-                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsExtended);
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)));
                     THButtonedEdit(Self.Components[j]).Text := DateToStr(DataNull(FloatToDateTime(xProperty.GetValue(FTable).AsExtended)));
                   end
                   else
                   begin
-                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsExtended);
+                    xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)));
                     THButtonedEdit(Self.Components[j]).Text := FormatFloat('#,0.00', xProperty.GetValue(FTable).AsExtended);
                   end;
 
@@ -1364,14 +1364,14 @@ begin
                   begin
                     if (Length(xProperty.GetValue(FTable).AsString) > 0) then
                     begin
-                      xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsString[1]);
+                      xProperty.SetValue(FTable, TValue.FromVariant(pGrid.Selected(xProperty.Name)));
                       THButtonedEdit(Self.Components[j]).Text := StrToChar(xProperty.GetValue(FTable).AsString[1]);
                     end
                     else
                       THButtonedEdit(Self.Components[j]).Text := EmptyStr;
                   end;
               else
-                xProperty.SetValue(FTable, StringReplace(TValue.FromVariant(pGrid.Selected(xProperty.Name)).AsString, Chr(39), '',[rfReplaceAll]));
+                xProperty.SetValue(FTable, StringReplace(pGrid.Selected(xProperty.Name).AsString, Chr(39), '',[rfReplaceAll]));
                 THButtonedEdit(Self.Components[j]).Text := xProperty.GetValue(FTable).AsString;
               end;
 

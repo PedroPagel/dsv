@@ -30,8 +30,7 @@ type
     function DadosFilial(const pNumCgc: Double): T070FIL; overload;
     function DadosFilial(const pCodEmp: Integer; const pCodFil: Integer): T070FIL; overload;
 
-    procedure AddTodas();
-    procedure EmpresaPorContribuinte(const pNumCgc: Double; const pAdicionarFiliais: Boolean = False);
+    procedure EmpresaPorContribuinte(const pNumCgc: Double);
   end;
 
   TListFil = class
@@ -88,28 +87,21 @@ type
 
    TSubTituloDebitoDiretoAutorizado = class(T501TCP)
    private
-     F510TIT: TTituloDebitoDiretoAutorizado;
      FListaHistorico: TIterador;
      FFilial: T070FIL;
-     FNomArq: string;
      FIteradorHistoricoFornecedor: TIteradorHistoricoFornecedor;
 
      function GetFilial: T070FIL;
      function VerificarCodigoDeBarras(): Boolean;
-     function VerificarTituloArmazenado(): Boolean;
      function VerificarContabilizacao(): Boolean;
      procedure SetFilial(const pFilial: T070FIL);
    public
      constructor Create();
      destructor Destroy(); override;
 
-     procedure Consistir();
+     function Consistir(): string;
      procedure Processar();
      procedure Preparar();
-     procedure GerarLog();
-
-     procedure AddLog(const pLog: string);
-     procedure Anexar(const p510TIT: TTituloDebitoDiretoAutorizado);
 
      property Filial: T070FIL read GetFilial write SetFilial;
   end;
@@ -129,21 +121,13 @@ uses
 
 { TListaFilial }
 
-procedure TListaFilial.AddTodas;
-begin
-  Self.Open;
-
-  while (Self.Next) do
-    FLista.AddByClass(Self);
-
-  Self.Close;
-end;
-
 constructor TListaFilial.Create;
 begin
   inherited Create();
 
   FLista := TIterador.Create();
+  FLista.indexed := True;
+  FLista.IndexFields(['CODEMP']);
 end;
 
 function TListaFilial.DadosFilial(const pCodEmp: Integer;
@@ -193,17 +177,25 @@ begin
 end;
 
 
-procedure TListaFilial.EmpresaPorContribuinte(const pNumCgc: Double; const pAdicionarFiliais: Boolean = False);
+procedure TListaFilial.EmpresaPorContribuinte(const pNumCgc: Double);
+var
+  xRaiz: string;
 begin
+  xRaiz := FloatToStrF(pNumCgc, ffFixed, 14, 0);
+  xRaiz := '''%' + Copy(xRaiz, 1, 8) + '%''';
+
   Self.Init;
-  Self.NumCgc := pNumCgc;
-  Self.PropertyForSelect(['NUMCGC']);
-  Self.Open();
+  Self.ClearFields;
+  Self.AddToCommand(Format('NUMCGC LIKE %s', [xRaiz]));
+  Self.Open(False);
 
-  if (pAdicionarFiliais) then
-    Self.AddTodas;
+  if (FLista.IndexOf(IntToStr(Self.CodEmp)) = -1) then
+  begin
+    while (Self.Next) do
+      FLista.AddByClass(Self);
+  end;
 
-  Self.Close();
+  Self.Close;
 end;
 
 { T095FOR }
@@ -399,53 +391,48 @@ end;
 
 { TTituloDebitoDiretoAutorizado }
 
-procedure TSubTituloDebitoDiretoAutorizado.AddLog(const pLog: string);
-begin
-  if not(IsNull(F510TIT.USU_LogTit)) then
-    F510TIT.USU_LogTit := F510TIT.USU_LogTit + ' - ' + pLog
-  else
-    F510TIT.USU_LogTit := pLog;
-end;
-
-procedure TSubTituloDebitoDiretoAutorizado.Anexar(const p510TIT: TTituloDebitoDiretoAutorizado);
-begin
-  F510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado;
-  F510TIT.Assign(p510TIT);
-end;
-
-procedure TSubTituloDebitoDiretoAutorizado.Consistir;
+function TSubTituloDebitoDiretoAutorizado.Consistir(): string;
 var
   xHistorico: T095HFO;
+
+  procedure AddLog(const pLog: string);
+  begin
+    if not(IsNull(Result)) then
+    begin
+      if not(Length(Result + pLog) > 950) then
+        Result := Result + ' - ' + pLog;
+    end
+    else
+      Result := pLog;
+  end;
+
 begin
-  F510TIT.USU_LogTit := EmptyStr; //Limpa caso ja tenha sido consistido
+  Result := EmptyStr;
 
   if (BuscarString(Self.SitTit, ['AI','LQ','LP','LX','LI','LM','LS','PE','LC','LO','LV'])) then
-      Self.AddLog(Format('Alteração não permitida. Título com situação igual a %s não pode ser alterado.', [Self.SitTit]));
+      AddLog(Format('Alteração não permitida. Título com situação igual a %s não pode ser alterado.', [Self.SitTit]));
 
   if (Self.VlrOri <> Self.VlrAbe) then
-    Self.AddLog('Alteração não permitida. Título já possui baixas.');
+    AddLog('Alteração não permitida. Título já possui baixas.');
 
   xHistorico := FIteradorHistoricoFornecedor.BuscarHistoricoFornecedor(Self);
 
   if (Assigned(xHistorico) and (xHistorico.CodPor = EmptyStr)) then
-    Self.AddLog(Format('Alteração não permitida. Não foi possível localizar Histórico do Fornecedor %d para Filial %d.',
+    AddLog(Format('Alteração não permitida. Não foi possível localizar Histórico do Fornecedor %d para Filial %d.',
                        [Self.CodFor,Self.CodFil]));
 
   if (VerificarCodigoDeBarras) then
-    Self.AddLog(Format('Código de Barras "%s" já cadastrado para o título: Filial %d, Número %s, Tipo %s e Fornecedor %d',
+    AddLog(Format('Código de Barras "%s" já cadastrado para o título: Filial %d, Número %s, Tipo %s e Fornecedor %d',
       [Self.CodBar, Self.CodFil, Self.NumTit, Self.CodTpt, Self.CodFor]));
 
-  if (VerificarTituloArmazenado) then
-      Self.AddLog(Format('Alteração não permitida, título já foi cadastrado no arquivo: %s.', [FNomArq]));
-
   if (VerificarContabilizacao) then
-    Self.AddLog('Alteração não permitida. Movimento de Entrada do Título já está contabilizado.');
+    AddLog('Alteração não permitida. Movimento de Entrada do Título já está contabilizado.');
 
   if (AnsiSameText(Self.CodPor, xHistorico.CodPor) and AnsiSameText(Self.CodPor, FFilial.RecPor)) then
-    Self.AddLog('Alteração não permitida. Título não está em Portador Empresa ou Portador Fornecedor.');
+    AddLog('Alteração não permitida. Título não está em Portador Empresa ou Portador Fornecedor.');
 
-  if IsNull(F510TIT.USU_LogTit) then
-    Self.AddLog('Ok');
+  if IsNull(Result) then
+    AddLog('Ok');
 end;
 
 constructor TSubTituloDebitoDiretoAutorizado.Create;
@@ -465,12 +452,6 @@ begin
   FreeAndNil(FFilial);
 
   inherited;
-end;
-
-procedure TSubTituloDebitoDiretoAutorizado.GerarLog;
-begin
-  F510TIT.USU_SitArm := 'N';
-  F510TIT.Update();
 end;
 
 function TSubTituloDebitoDiretoAutorizado.GetFilial: T070FIL;
@@ -505,23 +486,13 @@ begin
 end;
 
 procedure TSubTituloDebitoDiretoAutorizado.Processar;
-begin
+begin            {
   if (AnsiSameText(F510TIT.USU_LogTit,'Ok')) then
   begin
-    Self.Init;
-    Self.USU_IDTIT := F510TIT.USU_ID;
-    Self.CodBar := F510TIT.USU_CodBar;
-    Self.Update();
 
-    F510TIT.USU_CodEmp := Self.CodEmp;
-    F510TIT.USU_CodFil := Self.CodFil;
-    F510TIT.USU_CodFor := Self.CodFor;
-    F510TIT.USU_SitTit := Self.SitTit;
-    F510TIT.USU_SitArm := 'S';
-    F510TIT.Update();
   end
   else
-    GerarLog();
+    GerarLog();             }
 end;
 
 procedure TSubTituloDebitoDiretoAutorizado.SetFilial(const pFilial: T070FIL);
@@ -593,34 +564,6 @@ begin
   finally
     FreeAndNil(x501MCP);
   end;
-end;
-
-function TSubTituloDebitoDiretoAutorizado.VerificarTituloArmazenado: Boolean;
-var
-  x510ARM: T510ARM;
-begin
-  F510TIT.USU_CodEmp := Self.CodEmp;
-  F510TIT.USU_CodFil := Self.CodFil;
-  F510TIT.USU_NumTit := Self.NumTit;
-  F510TIT.USU_CodFor := Self.CodFor;
-  F510TIT.USU_CodTpt := Self.CodTpt;
-  F510TIT.USU_SitArm := 'S';
-  F510TIT.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODFOR'], True);
-  F510TIT.AddToCommand(Format(' AND USU_ID <> %d ', [Self.USU_IDTIT]), False);
-  F510TIT.Open(False);
-  Result := not(F510TIT.IsEmpty);
-
-  if (Result) then
-  begin
-    x510ARM := T510ARM.Create();
-    x510ARM.USU_ID := F510TIT.USU_IdArm;
-    x510ARM.Open();
-    FNomArq := x510ARM.USU_NomArq;
-
-    x510ARM.Close;
-  end;
-
-  F510TIT.Close;
 end;
 
 { TIteradorHistoricoFornecedor }

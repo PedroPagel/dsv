@@ -1215,6 +1215,9 @@ begin
 
     FQuery.ExecSQL();
     Self.Clean;
+
+    FState := aoUpdate;
+    FCheckFields := True;
   finally
     xContext.Free;
     FreeAndNil(FQuery);

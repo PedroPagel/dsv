@@ -85,7 +85,7 @@ var
 begin
   FListaArm.Clear;
   FListaTit.Clear;
-  Self.OrdenationCommand('ORDER BY USU_DATGER');
+  Self.OrdenationCommand('ORDER BY USU_DATGER DESC');
   Self.Open(False);
 
   while Self.Next() do
