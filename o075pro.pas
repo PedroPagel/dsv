@@ -3,7 +3,7 @@ unit o075pro;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -1094,6 +1094,7 @@ type
     procedure SetUSU_IndPopOld(const pUSU_IndPop: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -1467,6 +1468,9 @@ implementation
 
 constructor T075PRO.Create();
 begin
+  AddForeignKeys(['CodEmp','CodFam','UniMed','CodOri'], ['CodEmp','CodFam','UniMed','CodOri']);
+  AddPrimaryKeys('CodEmp;CodPro');
+
   inherited Create('E075PRO');
 end;
 
@@ -1474,6 +1478,7 @@ destructor T075PRO.Destroy();
 begin
   inherited;
 end;
+
 function T075PRO.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -1482,6 +1487,8 @@ end;
 procedure T075PRO.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T075PRO.GetCodPro: string;
@@ -1492,6 +1499,8 @@ end;
 procedure T075PRO.SetCodPro(const pCodPro: string);
 begin
   FCodPro := pCodPro;
+
+  CheckField('CodPro');
 end;
 
 function T075PRO.GetDesPro: string;
@@ -1502,6 +1511,8 @@ end;
 procedure T075PRO.SetDesPro(const pDesPro: string);
 begin
   FDesPro := pDesPro;
+
+  CheckField('DesPro');
 end;
 
 function T075PRO.GetCplPro: string;
@@ -1512,6 +1523,8 @@ end;
 procedure T075PRO.SetCplPro(const pCplPro: string);
 begin
   FCplPro := pCplPro;
+
+  CheckField('CplPro');
 end;
 
 function T075PRO.GetDesNfv: string;
@@ -1522,6 +1535,8 @@ end;
 procedure T075PRO.SetDesNfv(const pDesNfv: string);
 begin
   FDesNfv := pDesNfv;
+
+  CheckField('DesNfv');
 end;
 
 function T075PRO.GetCodFam: string;
@@ -1532,6 +1547,8 @@ end;
 procedure T075PRO.SetCodFam(const pCodFam: string);
 begin
   FCodFam := pCodFam;
+
+  CheckField('CodFam');
 end;
 
 function T075PRO.GetUniMed: string;
@@ -1542,6 +1559,8 @@ end;
 procedure T075PRO.SetUniMed(const pUniMed: string);
 begin
   FUniMed := pUniMed;
+
+  CheckField('UniMed');
 end;
 
 function T075PRO.GetUniMe2: string;
@@ -1552,6 +1571,8 @@ end;
 procedure T075PRO.SetUniMe2(const pUniMe2: string);
 begin
   FUniMe2 := pUniMe2;
+
+  CheckField('UniMe2');
 end;
 
 function T075PRO.GetUniMe3: string;
@@ -1562,6 +1583,8 @@ end;
 procedure T075PRO.SetUniMe3(const pUniMe3: string);
 begin
   FUniMe3 := pUniMe3;
+
+  CheckField('UniMe3');
 end;
 
 function T075PRO.GetTipPro: Char;
@@ -1572,6 +1595,8 @@ end;
 procedure T075PRO.SetTipPro(const pTipPro: Char);
 begin
   FTipPro := pTipPro;
+
+  CheckField('TipPro');
 end;
 
 function T075PRO.GetCodOri: string;
@@ -1582,6 +1607,8 @@ end;
 procedure T075PRO.SetCodOri(const pCodOri: string);
 begin
   FCodOri := pCodOri;
+
+  CheckField('CodOri');
 end;
 
 function T075PRO.GetNumOri: Integer;
@@ -1592,6 +1619,8 @@ end;
 procedure T075PRO.SetNumOri(const pNumOri: Integer);
 begin
   FNumOri := pNumOri;
+
+  CheckField('NumOri');
 end;
 
 function T075PRO.GetCodMdp: string;
@@ -1602,6 +1631,8 @@ end;
 procedure T075PRO.SetCodMdp(const pCodMdp: string);
 begin
   FCodMdp := pCodMdp;
+
+  CheckField('CodMdp');
 end;
 
 function T075PRO.GetCodMod: string;
@@ -1612,6 +1643,8 @@ end;
 procedure T075PRO.SetCodMod(const pCodMod: string);
 begin
   FCodMod := pCodMod;
+
+  CheckField('CodMod');
 end;
 
 function T075PRO.GetCodRot: string;
@@ -1622,6 +1655,8 @@ end;
 procedure T075PRO.SetCodRot(const pCodRot: string);
 begin
   FCodRot := pCodRot;
+
+  CheckField('CodRot');
 end;
 
 function T075PRO.GetCodAge: string;
@@ -1632,6 +1667,8 @@ end;
 procedure T075PRO.SetCodAge(const pCodAge: string);
 begin
   FCodAge := pCodAge;
+
+  CheckField('CodAge');
 end;
 
 function T075PRO.GetCodAgp: string;
@@ -1642,6 +1679,8 @@ end;
 procedure T075PRO.SetCodAgp(const pCodAgp: string);
 begin
   FCodAgp := pCodAgp;
+
+  CheckField('CodAgp');
 end;
 
 function T075PRO.GetCodAgu: string;
@@ -1652,6 +1691,8 @@ end;
 procedure T075PRO.SetCodAgu(const pCodAgu: string);
 begin
   FCodAgu := pCodAgu;
+
+  CheckField('CodAgu');
 end;
 
 function T075PRO.GetCodAgc: string;
@@ -1662,6 +1703,8 @@ end;
 procedure T075PRO.SetCodAgc(const pCodAgc: string);
 begin
   FCodAgc := pCodAgc;
+
+  CheckField('CodAgc');
 end;
 
 function T075PRO.GetCodAgf: string;
@@ -1672,6 +1715,8 @@ end;
 procedure T075PRO.SetCodAgf(const pCodAgf: string);
 begin
   FCodAgf := pCodAgf;
+
+  CheckField('CodAgf');
 end;
 
 function T075PRO.GetCodClf: string;
@@ -1682,6 +1727,8 @@ end;
 procedure T075PRO.SetCodClf(const pCodClf: string);
 begin
   FCodClf := pCodClf;
+
+  CheckField('CodClf');
 end;
 
 function T075PRO.GetCodStr: string;
@@ -1692,6 +1739,8 @@ end;
 procedure T075PRO.SetCodStr(const pCodStr: string);
 begin
   FCodStr := pCodStr;
+
+  CheckField('CodStr');
 end;
 
 function T075PRO.GetPerIpi: Double;
@@ -1702,6 +1751,8 @@ end;
 procedure T075PRO.SetPerIpi(const pPerIpi: Double);
 begin
   FPerIpi := pPerIpi;
+
+  CheckField('PerIpi');
 end;
 
 function T075PRO.GetRecIpi: Char;
@@ -1712,6 +1763,8 @@ end;
 procedure T075PRO.SetRecIpi(const pRecIpi: Char);
 begin
   FRecIpi := pRecIpi;
+
+  CheckField('RecIpi');
 end;
 
 function T075PRO.GetTemIcm: Char;
@@ -1722,6 +1775,8 @@ end;
 procedure T075PRO.SetTemIcm(const pTemIcm: Char);
 begin
   FTemIcm := pTemIcm;
+
+  CheckField('TemIcm');
 end;
 
 function T075PRO.GetCodTic: string;
@@ -1732,6 +1787,8 @@ end;
 procedure T075PRO.SetCodTic(const pCodTic: string);
 begin
   FCodTic := pCodTic;
+
+  CheckField('CodTic');
 end;
 
 function T075PRO.GetCodTrd: string;
@@ -1742,6 +1799,8 @@ end;
 procedure T075PRO.SetCodTrd(const pCodTrd: string);
 begin
   FCodTrd := pCodTrd;
+
+  CheckField('CodTrd');
 end;
 
 function T075PRO.GetCodTst: string;
@@ -1752,6 +1811,8 @@ end;
 procedure T075PRO.SetCodTst(const pCodTst: string);
 begin
   FCodTst := pCodTst;
+
+  CheckField('CodTst');
 end;
 
 function T075PRO.GetCodStp: string;
@@ -1762,6 +1823,8 @@ end;
 procedure T075PRO.SetCodStp(const pCodStp: string);
 begin
   FCodStp := pCodStp;
+
+  CheckField('CodStp');
 end;
 
 function T075PRO.GetCodStc: string;
@@ -1772,6 +1835,8 @@ end;
 procedure T075PRO.SetCodStc(const pCodStc: string);
 begin
   FCodStc := pCodStc;
+
+  CheckField('CodStc');
 end;
 
 function T075PRO.GetRecIcm: Char;
@@ -1782,6 +1847,8 @@ end;
 procedure T075PRO.SetRecIcm(const pRecIcm: Char);
 begin
   FRecIcm := pRecIcm;
+
+  CheckField('RecIcm');
 end;
 
 function T075PRO.GetCodRoy: Integer;
@@ -1792,6 +1859,8 @@ end;
 procedure T075PRO.SetCodRoy(const pCodRoy: Integer);
 begin
   FCodRoy := pCodRoy;
+
+  CheckField('CodRoy');
 end;
 
 function T075PRO.GetQtdMlt: Double;
@@ -1802,6 +1871,8 @@ end;
 procedure T075PRO.SetQtdMlt(const pQtdMlt: Double);
 begin
   FQtdMlt := pQtdMlt;
+
+  CheckField('QtdMlt');
 end;
 
 function T075PRO.GetQtdMin: Double;
@@ -1812,6 +1883,8 @@ end;
 procedure T075PRO.SetQtdMin(const pQtdMin: Double);
 begin
   FQtdMin := pQtdMin;
+
+  CheckField('QtdMin');
 end;
 
 function T075PRO.GetQtdMax: Double;
@@ -1822,6 +1895,8 @@ end;
 procedure T075PRO.SetQtdMax(const pQtdMax: Double);
 begin
   FQtdMax := pQtdMax;
+
+  CheckField('QtdMax');
 end;
 
 function T075PRO.GetQtdGop: Double;
@@ -1832,6 +1907,8 @@ end;
 procedure T075PRO.SetQtdGop(const pQtdGop: Double);
 begin
   FQtdGop := pQtdGop;
+
+  CheckField('QtdGop');
 end;
 
 function T075PRO.GetBxaOrp: Char;
@@ -1842,6 +1919,8 @@ end;
 procedure T075PRO.SetBxaOrp(const pBxaOrp: Char);
 begin
   FBxaOrp := pBxaOrp;
+
+  CheckField('BxaOrp');
 end;
 
 function T075PRO.GetCodPr2: string;
@@ -1852,6 +1931,8 @@ end;
 procedure T075PRO.SetCodPr2(const pCodPr2: string);
 begin
   FCodPr2 := pCodPr2;
+
+  CheckField('CodPr2');
 end;
 
 function T075PRO.GetDerPr2: string;
@@ -1862,6 +1943,8 @@ end;
 procedure T075PRO.SetDerPr2(const pDerPr2: string);
 begin
   FDerPr2 := pDerPr2;
+
+  CheckField('DerPr2');
 end;
 
 function T075PRO.GetCodPr3: string;
@@ -1872,6 +1955,8 @@ end;
 procedure T075PRO.SetCodPr3(const pCodPr3: string);
 begin
   FCodPr3 := pCodPr3;
+
+  CheckField('CodPr3');
 end;
 
 function T075PRO.GetDerPr3: string;
@@ -1882,6 +1967,8 @@ end;
 procedure T075PRO.SetDerPr3(const pDerPr3: string);
 begin
   FDerPr3 := pDerPr3;
+
+  CheckField('DerPr3');
 end;
 
 function T075PRO.GetCodPr4: string;
@@ -1892,6 +1979,8 @@ end;
 procedure T075PRO.SetCodPr4(const pCodPr4: string);
 begin
   FCodPr4 := pCodPr4;
+
+  CheckField('CodPr4');
 end;
 
 function T075PRO.GetDerPr4: string;
@@ -1902,6 +1991,8 @@ end;
 procedure T075PRO.SetDerPr4(const pDerPr4: string);
 begin
   FDerPr4 := pDerPr4;
+
+  CheckField('DerPr4');
 end;
 
 function T075PRO.GetProStq: Char;
@@ -1912,6 +2003,8 @@ end;
 procedure T075PRO.SetProStq(const pProStq: Char);
 begin
   FProStq := pProStq;
+
+  CheckField('ProStq');
 end;
 
 function T075PRO.GetSitPro: Char;
@@ -1922,6 +2015,8 @@ end;
 procedure T075PRO.SetSitPro(const pSitPro: Char);
 begin
   FSitPro := pSitPro;
+
+  CheckField('SitPro');
 end;
 
 function T075PRO.GetRotPro: Char;
@@ -1932,6 +2027,8 @@ end;
 procedure T075PRO.SetRotPro(const pRotPro: Char);
 begin
   FRotPro := pRotPro;
+
+  CheckField('RotPro');
 end;
 
 function T075PRO.GetUsoCus: Char;
@@ -1942,6 +2039,8 @@ end;
 procedure T075PRO.SetUsoCus(const pUsoCus: Char);
 begin
   FUsoCus := pUsoCus;
+
+  CheckField('UsoCus');
 end;
 
 function T075PRO.GetIndMis: Char;
@@ -1952,6 +2051,8 @@ end;
 procedure T075PRO.SetIndMis(const pIndMis: Char);
 begin
   FIndMis := pIndMis;
+
+  CheckField('IndMis');
 end;
 
 function T075PRO.GetIndVen: Char;
@@ -1962,6 +2063,8 @@ end;
 procedure T075PRO.SetIndVen(const pIndVen: Char);
 begin
   FIndVen := pIndVen;
+
+  CheckField('IndVen');
 end;
 
 function T075PRO.GetIndCpr: Char;
@@ -1972,6 +2075,8 @@ end;
 procedure T075PRO.SetIndCpr(const pIndCpr: Char);
 begin
   FIndCpr := pIndCpr;
+
+  CheckField('IndCpr');
 end;
 
 function T075PRO.GetIndReq: Char;
@@ -1982,6 +2087,8 @@ end;
 procedure T075PRO.SetIndReq(const pIndReq: Char);
 begin
   FIndReq := pIndReq;
+
+  CheckField('IndReq');
 end;
 
 function T075PRO.GetIndKit: Char;
@@ -1992,6 +2099,8 @@ end;
 procedure T075PRO.SetIndKit(const pIndKit: Char);
 begin
   FIndKit := pIndKit;
+
+  CheckField('IndKit');
 end;
 
 function T075PRO.GetMatDir: Char;
@@ -2002,6 +2111,8 @@ end;
 procedure T075PRO.SetMatDir(const pMatDir: Char);
 begin
   FMatDir := pMatDir;
+
+  CheckField('MatDir');
 end;
 
 function T075PRO.GetClaPro: Integer;
@@ -2012,6 +2123,8 @@ end;
 procedure T075PRO.SetClaPro(const pClaPro: Integer);
 begin
   FClaPro := pClaPro;
+
+  CheckField('ClaPro');
 end;
 
 function T075PRO.GetIndPpc: Char;
@@ -2022,6 +2135,8 @@ end;
 procedure T075PRO.SetIndPpc(const pIndPpc: Char);
 begin
   FIndPpc := pIndPpc;
+
+  CheckField('IndPpc');
 end;
 
 function T075PRO.GetIndFpr: Char;
@@ -2032,6 +2147,8 @@ end;
 procedure T075PRO.SetIndFpr(const pIndFpr: Char);
 begin
   FIndFpr := pIndFpr;
+
+  CheckField('IndFpr');
 end;
 
 function T075PRO.GetCodNtg: Integer;
@@ -2042,6 +2159,8 @@ end;
 procedure T075PRO.SetCodNtg(const pCodNtg: Integer);
 begin
   FCodNtg := pCodNtg;
+
+  CheckField('CodNtg');
 end;
 
 function T075PRO.GetCriRat: Integer;
@@ -2052,6 +2171,8 @@ end;
 procedure T075PRO.SetCriRat(const pCriRat: Integer);
 begin
   FCriRat := pCriRat;
+
+  CheckField('CriRat');
 end;
 
 function T075PRO.GetCtaRed: Integer;
@@ -2062,6 +2183,8 @@ end;
 procedure T075PRO.SetCtaRed(const pCtaRed: Integer);
 begin
   FCtaRed := pCtaRed;
+
+  CheckField('CtaRed');
 end;
 
 function T075PRO.GetCtaRcr: Integer;
@@ -2072,6 +2195,8 @@ end;
 procedure T075PRO.SetCtaRcr(const pCtaRcr: Integer);
 begin
   FCtaRcr := pCtaRcr;
+
+  CheckField('CtaRcr');
 end;
 
 function T075PRO.GetCtaFdv: Integer;
@@ -2082,6 +2207,8 @@ end;
 procedure T075PRO.SetCtaFdv(const pCtaFdv: Integer);
 begin
   FCtaFdv := pCtaFdv;
+
+  CheckField('CtaFdv');
 end;
 
 function T075PRO.GetCtaFcr: Integer;
@@ -2092,6 +2219,8 @@ end;
 procedure T075PRO.SetCtaFcr(const pCtaFcr: Integer);
 begin
   FCtaFcr := pCtaFcr;
+
+  CheckField('CtaFcr');
 end;
 
 function T075PRO.GetUsuGer: Integer;
@@ -2102,6 +2231,8 @@ end;
 procedure T075PRO.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T075PRO.GetHorGer: Integer;
@@ -2112,6 +2243,8 @@ end;
 procedure T075PRO.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T075PRO.GetDatGer: TDate;
@@ -2122,6 +2255,8 @@ end;
 procedure T075PRO.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T075PRO.GetDepPad: string;
@@ -2132,6 +2267,8 @@ end;
 procedure T075PRO.SetDepPad(const pDepPad: string);
 begin
   FDepPad := pDepPad;
+
+  CheckField('DepPad');
 end;
 
 function T075PRO.GetCtrVld: Char;
@@ -2142,6 +2279,8 @@ end;
 procedure T075PRO.SetCtrVld(const pCtrVld: Char);
 begin
   FCtrVld := pCtrVld;
+
+  CheckField('CtrVld');
 end;
 
 function T075PRO.GetCtrLot: Char;
@@ -2152,6 +2291,8 @@ end;
 procedure T075PRO.SetCtrLot(const pCtrLot: Char);
 begin
   FCtrLot := pCtrLot;
+
+  CheckField('CtrLot');
 end;
 
 function T075PRO.GetLotBas: Char;
@@ -2162,6 +2303,8 @@ end;
 procedure T075PRO.SetLotBas(const pLotBas: Char);
 begin
   FLotBas := pLotBas;
+
+  CheckField('LotBas');
 end;
 
 function T075PRO.GetCtrSep: Char;
@@ -2172,6 +2315,8 @@ end;
 procedure T075PRO.SetCtrSep(const pCtrSep: Char);
 begin
   FCtrSep := pCtrSep;
+
+  CheckField('CtrSep');
 end;
 
 function T075PRO.GetQtdMve: Double;
@@ -2182,6 +2327,8 @@ end;
 procedure T075PRO.SetQtdMve(const pQtdMve: Double);
 begin
   FQtdMve := pQtdMve;
+
+  CheckField('QtdMve');
 end;
 
 function T075PRO.GetCodRef: string;
@@ -2192,6 +2339,8 @@ end;
 procedure T075PRO.SetCodRef(const pCodRef: string);
 begin
   FCodRef := pCodRef;
+
+  CheckField('CodRef');
 end;
 
 function T075PRO.GetCodPin: string;
@@ -2202,6 +2351,8 @@ end;
 procedure T075PRO.SetCodPin(const pCodPin: string);
 begin
   FCodPin := pCodPin;
+
+  CheckField('CodPin');
 end;
 
 function T075PRO.GetNotFor: Double;
@@ -2212,6 +2363,8 @@ end;
 procedure T075PRO.SetNotFor(const pNotFor: Double);
 begin
   FNotFor := pNotFor;
+
+  CheckField('NotFor');
 end;
 
 function T075PRO.GetExgCcl: Char;
@@ -2222,6 +2375,8 @@ end;
 procedure T075PRO.SetExgCcl(const pExgCcl: Char);
 begin
   FExgCcl := pExgCcl;
+
+  CheckField('ExgCcl');
 end;
 
 function T075PRO.GetEmiGtr: Char;
@@ -2232,6 +2387,8 @@ end;
 procedure T075PRO.SetEmiGtr(const pEmiGtr: Char);
 begin
   FEmiGtr := pEmiGtr;
+
+  CheckField('EmiGtr');
 end;
 
 function T075PRO.GetUsuAlt: Integer;
@@ -2242,6 +2399,8 @@ end;
 procedure T075PRO.SetUsuAlt(const pUsuAlt: Integer);
 begin
   FUsuAlt := pUsuAlt;
+
+  CheckField('UsuAlt');
 end;
 
 function T075PRO.GetHorAlt: Integer;
@@ -2252,6 +2411,8 @@ end;
 procedure T075PRO.SetHorAlt(const pHorAlt: Integer);
 begin
   FHorAlt := pHorAlt;
+
+  CheckField('HorAlt');
 end;
 
 function T075PRO.GetDatAlt: TDate;
@@ -2262,6 +2423,8 @@ end;
 procedure T075PRO.SetDatAlt(const pDatAlt: TDate);
 begin
   FDatAlt := pDatAlt;
+
+  CheckField('DatAlt');
 end;
 
 function T075PRO.GetSomIim: Char;
@@ -2272,6 +2435,8 @@ end;
 procedure T075PRO.SetSomIim(const pSomIim: Char);
 begin
   FSomIim := pSomIim;
+
+  CheckField('SomIim');
 end;
 
 function T075PRO.GetRecPis: Char;
@@ -2282,6 +2447,8 @@ end;
 procedure T075PRO.SetRecPis(const pRecPis: Char);
 begin
   FRecPis := pRecPis;
+
+  CheckField('RecPis');
 end;
 
 function T075PRO.GetTriPis: Char;
@@ -2292,6 +2459,8 @@ end;
 procedure T075PRO.SetTriPis(const pTriPis: Char);
 begin
   FTriPis := pTriPis;
+
+  CheckField('TriPis');
 end;
 
 function T075PRO.GetTriCof: Char;
@@ -2302,6 +2471,8 @@ end;
 procedure T075PRO.SetTriCof(const pTriCof: Char);
 begin
   FTriCof := pTriCof;
+
+  CheckField('TriCof');
 end;
 
 function T075PRO.GetIndExp: Integer;
@@ -2312,6 +2483,8 @@ end;
 procedure T075PRO.SetIndExp(const pIndExp: Integer);
 begin
   FIndExp := pIndExp;
+
+  CheckField('IndExp');
 end;
 
 function T075PRO.GetDatPal: TDate;
@@ -2322,6 +2495,8 @@ end;
 procedure T075PRO.SetDatPal(const pDatPal: TDate);
 begin
   FDatPal := pDatPal;
+
+  CheckField('DatPal');
 end;
 
 function T075PRO.GetHorPal: Integer;
@@ -2332,6 +2507,8 @@ end;
 procedure T075PRO.SetHorPal(const pHorPal: Integer);
 begin
   FHorPal := pHorPal;
+
+  CheckField('HorPal');
 end;
 
 function T075PRO.GetExpWms: Integer;
@@ -2342,6 +2519,8 @@ end;
 procedure T075PRO.SetExpWms(const pExpWms: Integer);
 begin
   FExpWms := pExpWms;
+
+  CheckField('ExpWms');
 end;
 
 function T075PRO.GetTipInt: Integer;
@@ -2352,6 +2531,8 @@ end;
 procedure T075PRO.SetTipInt(const pTipInt: Integer);
 begin
   FTipInt := pTipInt;
+
+  CheckField('TipInt');
 end;
 
 function T075PRO.GetCodFif: string;
@@ -2362,6 +2543,8 @@ end;
 procedure T075PRO.SetCodFif(const pCodFif: string);
 begin
   FCodFif := pCodFif;
+
+  CheckField('CodFif');
 end;
 
 function T075PRO.GetCodFie: string;
@@ -2372,6 +2555,8 @@ end;
 procedure T075PRO.SetCodFie(const pCodFie: string);
 begin
   FCodFie := pCodFie;
+
+  CheckField('CodFie');
 end;
 
 function T075PRO.GetCodFim: string;
@@ -2382,6 +2567,8 @@ end;
 procedure T075PRO.SetCodFim(const pCodFim: string);
 begin
   FCodFim := pCodFim;
+
+  CheckField('CodFim');
 end;
 
 function T075PRO.GetRecCof: Char;
@@ -2392,6 +2579,8 @@ end;
 procedure T075PRO.SetRecCof(const pRecCof: Char);
 begin
   FRecCof := pRecCof;
+
+  CheckField('RecCof');
 end;
 
 function T075PRO.GetSomIil: Char;
@@ -2402,6 +2591,8 @@ end;
 procedure T075PRO.SetSomIil(const pSomIil: Char);
 begin
   FSomIil := pSomIil;
+
+  CheckField('SomIil');
 end;
 
 function T075PRO.GetCalDzf: Char;
@@ -2412,6 +2603,8 @@ end;
 procedure T075PRO.SetCalDzf(const pCalDzf: Char);
 begin
   FCalDzf := pCalDzf;
+
+  CheckField('CalDzf');
 end;
 
 function T075PRO.GetUniPad: string;
@@ -2422,6 +2615,8 @@ end;
 procedure T075PRO.SetUniPad(const pUniPad: string);
 begin
   FUniPad := pUniPad;
+
+  CheckField('UniPad');
 end;
 
 function T075PRO.GetCodMar: string;
@@ -2432,6 +2627,8 @@ end;
 procedure T075PRO.SetCodMar(const pCodMar: string);
 begin
   FCodMar := pCodMar;
+
+  CheckField('CodMar');
 end;
 
 function T075PRO.GetCodClc: string;
@@ -2442,6 +2639,8 @@ end;
 procedure T075PRO.SetCodClc(const pCodClc: string);
 begin
   FCodClc := pCodClc;
+
+  CheckField('CodClc');
 end;
 
 function T075PRO.GetCodAgm: string;
@@ -2452,6 +2651,8 @@ end;
 procedure T075PRO.SetCodAgm(const pCodAgm: string);
 begin
   FCodAgm := pCodAgm;
+
+  CheckField('CodAgm');
 end;
 
 function T075PRO.GetFilPrd: Integer;
@@ -2462,6 +2663,8 @@ end;
 procedure T075PRO.SetFilPrd(const pFilPrd: Integer);
 begin
   FFilPrd := pFilPrd;
+
+  CheckField('FilPrd');
 end;
 
 function T075PRO.GetTolQmx: Double;
@@ -2472,6 +2675,8 @@ end;
 procedure T075PRO.SetTolQmx(const pTolQmx: Double);
 begin
   FTolQmx := pTolQmx;
+
+  CheckField('TolQmx');
 end;
 
 function T075PRO.GetGerOrp: Char;
@@ -2482,6 +2687,8 @@ end;
 procedure T075PRO.SetGerOrp(const pGerOrp: Char);
 begin
   FGerOrp := pGerOrp;
+
+  CheckField('GerOrp');
 end;
 
 function T075PRO.GetCodPdv: Integer;
@@ -2492,6 +2699,8 @@ end;
 procedure T075PRO.SetCodPdv(const pCodPdv: Integer);
 begin
   FCodPdv := pCodPdv;
+
+  CheckField('CodPdv');
 end;
 
 function T075PRO.GetPerIrf: Double;
@@ -2502,6 +2711,8 @@ end;
 procedure T075PRO.SetPerIrf(const pPerIrf: Double);
 begin
   FPerIrf := pPerIrf;
+
+  CheckField('PerIrf');
 end;
 
 function T075PRO.GetPerPis: Double;
@@ -2512,6 +2723,8 @@ end;
 procedure T075PRO.SetPerPis(const pPerPis: Double);
 begin
   FPerPis := pPerPis;
+
+  CheckField('PerPis');
 end;
 
 function T075PRO.GetPerCof: Double;
@@ -2522,6 +2735,8 @@ end;
 procedure T075PRO.SetPerCof(const pPerCof: Double);
 begin
   FPerCof := pPerCof;
+
+  CheckField('PerCof');
 end;
 
 function T075PRO.GetPerCsl: Double;
@@ -2532,6 +2747,8 @@ end;
 procedure T075PRO.SetPerCsl(const pPerCsl: Double);
 begin
   FPerCsl := pPerCsl;
+
+  CheckField('PerCsl');
 end;
 
 function T075PRO.GetPerOur: Double;
@@ -2542,6 +2759,8 @@ end;
 procedure T075PRO.SetPerOur(const pPerOur: Double);
 begin
   FPerOur := pPerOur;
+
+  CheckField('PerOur');
 end;
 
 function T075PRO.GetConMon: Char;
@@ -2552,6 +2771,8 @@ end;
 procedure T075PRO.SetConMon(const pConMon: Char);
 begin
   FConMon := pConMon;
+
+  CheckField('ConMon');
 end;
 
 function T075PRO.GetPerFun: Double;
@@ -2562,6 +2783,8 @@ end;
 procedure T075PRO.SetPerFun(const pPerFun: Double);
 begin
   FPerFun := pPerFun;
+
+  CheckField('PerFun');
 end;
 
 function T075PRO.GetCodAga: string;
@@ -2572,6 +2795,8 @@ end;
 procedure T075PRO.SetCodAga(const pCodAga: string);
 begin
   FCodAga := pCodAga;
+
+  CheckField('CodAga');
 end;
 
 function T075PRO.GetSomIps: Char;
@@ -2582,6 +2807,8 @@ end;
 procedure T075PRO.SetSomIps(const pSomIps: Char);
 begin
   FSomIps := pSomIps;
+
+  CheckField('SomIps');
 end;
 
 function T075PRO.GetSomIco: Char;
@@ -2592,6 +2819,8 @@ end;
 procedure T075PRO.SetSomIco(const pSomIco: Char);
 begin
   FSomIco := pSomIco;
+
+  CheckField('SomIco');
 end;
 
 function T075PRO.GetSomIpl: Char;
@@ -2602,6 +2831,8 @@ end;
 procedure T075PRO.SetSomIpl(const pSomIpl: Char);
 begin
   FSomIpl := pSomIpl;
+
+  CheckField('SomIpl');
 end;
 
 function T075PRO.GetSomIcl: Char;
@@ -2612,6 +2843,8 @@ end;
 procedure T075PRO.SetSomIcl(const pSomIcl: Char);
 begin
   FSomIcl := pSomIcl;
+
+  CheckField('SomIcl');
 end;
 
 function T075PRO.GetIndOct: Char;
@@ -2622,6 +2855,8 @@ end;
 procedure T075PRO.SetIndOct(const pIndOct: Char);
 begin
   FIndOct := pIndOct;
+
+  CheckField('IndOct');
 end;
 
 function T075PRO.GetIndSpr: Char;
@@ -2632,6 +2867,8 @@ end;
 procedure T075PRO.SetIndSpr(const pIndSpr: Char);
 begin
   FIndSpr := pIndSpr;
+
+  CheckField('IndSpr');
 end;
 
 function T075PRO.GetCodEnd: string;
@@ -2642,6 +2879,8 @@ end;
 procedure T075PRO.SetCodEnd(const pCodEnd: string);
 begin
   FCodEnd := pCodEnd;
+
+  CheckField('CodEnd');
 end;
 
 function T075PRO.GetPesBru: Double;
@@ -2652,6 +2891,8 @@ end;
 procedure T075PRO.SetPesBru(const pPesBru: Double);
 begin
   FPesBru := pPesBru;
+
+  CheckField('PesBru');
 end;
 
 function T075PRO.GetPesLiq: Double;
@@ -2662,6 +2903,8 @@ end;
 procedure T075PRO.SetPesLiq(const pPesLiq: Double);
 begin
   FPesLiq := pPesLiq;
+
+  CheckField('PesLiq');
 end;
 
 function T075PRO.GetTolPes: Double;
@@ -2672,6 +2915,8 @@ end;
 procedure T075PRO.SetTolPes(const pTolPes: Double);
 begin
   FTolPes := pTolPes;
+
+  CheckField('TolPes');
 end;
 
 function T075PRO.GetVolPro: Double;
@@ -2682,6 +2927,8 @@ end;
 procedure T075PRO.SetVolPro(const pVolPro: Double);
 begin
   FVolPro := pVolPro;
+
+  CheckField('VolPro');
 end;
 
 function T075PRO.GetRotAnx: Integer;
@@ -2692,6 +2939,8 @@ end;
 procedure T075PRO.SetRotAnx(const pRotAnx: Integer);
 begin
   FRotAnx := pRotAnx;
+
+  CheckField('RotAnx');
 end;
 
 function T075PRO.GetNumAnx: Integer;
@@ -2702,6 +2951,8 @@ end;
 procedure T075PRO.SetNumAnx(const pNumAnx: Integer);
 begin
   FNumAnx := pNumAnx;
+
+  CheckField('NumAnx');
 end;
 
 function T075PRO.GetProImp: Integer;
@@ -2712,6 +2963,8 @@ end;
 procedure T075PRO.SetProImp(const pProImp: Integer);
 begin
   FProImp := pProImp;
+
+  CheckField('ProImp');
 end;
 
 function T075PRO.GetBasRec: Char;
@@ -2722,6 +2975,8 @@ end;
 procedure T075PRO.SetBasRec(const pBasRec: Char);
 begin
   FBasRec := pBasRec;
+
+  CheckField('BasRec');
 end;
 
 function T075PRO.GetCodAnp: Integer;
@@ -2732,6 +2987,8 @@ end;
 procedure T075PRO.SetCodAnp(const pCodAnp: Integer);
 begin
   FCodAnp := pCodAnp;
+
+  CheckField('CodAnp');
 end;
 
 function T075PRO.GetProEpe: Integer;
@@ -2742,6 +2999,8 @@ end;
 procedure T075PRO.SetProEpe(const pProEpe: Integer);
 begin
   FProEpe := pProEpe;
+
+  CheckField('ProEpe');
 end;
 
 function T075PRO.GetCtrVis: Char;
@@ -2752,6 +3011,8 @@ end;
 procedure T075PRO.SetCtrVis(const pCtrVis: Char);
 begin
   FCtrVis := pCtrVis;
+
+  CheckField('CtrVis');
 end;
 
 function T075PRO.GetDatVis: TDate;
@@ -2762,6 +3023,8 @@ end;
 procedure T075PRO.SetDatVis(const pDatVis: TDate);
 begin
   FDatVis := pDatVis;
+
+  CheckField('DatVis');
 end;
 
 function T075PRO.GetHorVis: Integer;
@@ -2772,6 +3035,8 @@ end;
 procedure T075PRO.SetHorVis(const pHorVis: Integer);
 begin
   FHorVis := pHorVis;
+
+  CheckField('HorVis');
 end;
 
 function T075PRO.GetIndFrt: Char;
@@ -2782,6 +3047,8 @@ end;
 procedure T075PRO.SetIndFrt(const pIndFrt: Char);
 begin
   FIndFrt := pIndFrt;
+
+  CheckField('IndFrt');
 end;
 
 function T075PRO.GetFrtEqp: Char;
@@ -2792,6 +3059,8 @@ end;
 procedure T075PRO.SetFrtEqp(const pFrtEqp: Char);
 begin
   FFrtEqp := pFrtEqp;
+
+  CheckField('FrtEqp');
 end;
 
 function T075PRO.GetGrpFrt: string;
@@ -2802,6 +3071,8 @@ end;
 procedure T075PRO.SetGrpFrt(const pGrpFrt: string);
 begin
   FGrpFrt := pGrpFrt;
+
+  CheckField('GrpFrt');
 end;
 
 function T075PRO.GetConEne: Integer;
@@ -2812,6 +3083,8 @@ end;
 procedure T075PRO.SetConEne(const pConEne: Integer);
 begin
   FConEne := pConEne;
+
+  CheckField('ConEne');
 end;
 
 function T075PRO.GetConAgu: Integer;
@@ -2822,6 +3095,8 @@ end;
 procedure T075PRO.SetConAgu(const pConAgu: Integer);
 begin
   FConAgu := pConAgu;
+
+  CheckField('ConAgu');
 end;
 
 function T075PRO.GetTipLig: Integer;
@@ -2832,6 +3107,8 @@ end;
 procedure T075PRO.SetTipLig(const pTipLig: Integer);
 begin
   FTipLig := pTipLig;
+
+  CheckField('TipLig');
 end;
 
 function T075PRO.GetGruTen: Integer;
@@ -2842,6 +3119,8 @@ end;
 procedure T075PRO.SetGruTen(const pGruTen: Integer);
 begin
   FGruTen := pGruTen;
+
+  CheckField('GruTen');
 end;
 
 function T075PRO.GetTipMfr: Char;
@@ -2852,6 +3131,8 @@ end;
 procedure T075PRO.SetTipMfr(const pTipMfr: Char);
 begin
   FTipMfr := pTipMfr;
+
+  CheckField('TipMfr');
 end;
 
 function T075PRO.GetUniFrt: Char;
@@ -2862,6 +3143,8 @@ end;
 procedure T075PRO.SetUniFrt(const pUniFrt: Char);
 begin
   FUniFrt := pUniFrt;
+
+  CheckField('UniFrt');
 end;
 
 function T075PRO.GetCstIpi: string;
@@ -2872,6 +3155,8 @@ end;
 procedure T075PRO.SetCstIpi(const pCstIpi: string);
 begin
   FCstIpi := pCstIpi;
+
+  CheckField('CstIpi');
 end;
 
 function T075PRO.GetCstPis: string;
@@ -2882,6 +3167,8 @@ end;
 procedure T075PRO.SetCstPis(const pCstPis: string);
 begin
   FCstPis := pCstPis;
+
+  CheckField('CstPis');
 end;
 
 function T075PRO.GetCstCof: string;
@@ -2892,6 +3179,8 @@ end;
 procedure T075PRO.SetCstCof(const pCstCof: string);
 begin
   FCstCof := pCstCof;
+
+  CheckField('CstCof');
 end;
 
 function T075PRO.GetTprPis: string;
@@ -2902,6 +3191,8 @@ end;
 procedure T075PRO.SetTprPis(const pTprPis: string);
 begin
   FTprPis := pTprPis;
+
+  CheckField('TprPis');
 end;
 
 function T075PRO.GetTprCof: string;
@@ -2912,6 +3203,8 @@ end;
 procedure T075PRO.SetTprCof(const pTprCof: string);
 begin
   FTprCof := pTprCof;
+
+  CheckField('TprCof');
 end;
 
 function T075PRO.GetTprIpi: string;
@@ -2922,6 +3215,8 @@ end;
 procedure T075PRO.SetTprIpi(const pTprIpi: string);
 begin
   FTprIpi := pTprIpi;
+
+  CheckField('TprIpi');
 end;
 
 function T075PRO.GetRegTri: Char;
@@ -2932,6 +3227,8 @@ end;
 procedure T075PRO.SetRegTri(const pRegTri: Char);
 begin
   FRegTri := pRegTri;
+
+  CheckField('RegTri');
 end;
 
 function T075PRO.GetIdePro: string;
@@ -2942,6 +3239,8 @@ end;
 procedure T075PRO.SetIdePro(const pIdePro: string);
 begin
   FIdePro := pIdePro;
+
+  CheckField('IdePro');
 end;
 
 function T075PRO.GetQtdAfe: Integer;
@@ -2952,6 +3251,8 @@ end;
 procedure T075PRO.SetQtdAfe(const pQtdAfe: Integer);
 begin
   FQtdAfe := pQtdAfe;
+
+  CheckField('QtdAfe');
 end;
 
 function T075PRO.GetIndAfe: Char;
@@ -2962,6 +3263,8 @@ end;
 procedure T075PRO.SetIndAfe(const pIndAfe: Char);
 begin
   FIndAfe := pIndAfe;
+
+  CheckField('IndAfe');
 end;
 
 function T075PRO.GetCstIpc: string;
@@ -2972,6 +3275,8 @@ end;
 procedure T075PRO.SetCstIpc(const pCstIpc: string);
 begin
   FCstIpc := pCstIpc;
+
+  CheckField('CstIpc');
 end;
 
 function T075PRO.GetCstPic: string;
@@ -2982,6 +3287,8 @@ end;
 procedure T075PRO.SetCstPic(const pCstPic: string);
 begin
   FCstPic := pCstPic;
+
+  CheckField('CstPic');
 end;
 
 function T075PRO.GetCstCoc: string;
@@ -2992,6 +3299,8 @@ end;
 procedure T075PRO.SetCstCoc(const pCstCoc: string);
 begin
   FCstCoc := pCstCoc;
+
+  CheckField('CstCoc');
 end;
 
 function T075PRO.GetOriMer: Char;
@@ -3002,6 +3311,8 @@ end;
 procedure T075PRO.SetOriMer(const pOriMer: Char);
 begin
   FOriMer := pOriMer;
+
+  CheckField('OriMer');
 end;
 
 function T075PRO.GetNatPis: Integer;
@@ -3012,6 +3323,8 @@ end;
 procedure T075PRO.SetNatPis(const pNatPis: Integer);
 begin
   FNatPis := pNatPis;
+
+  CheckField('NatPis');
 end;
 
 function T075PRO.GetNatCof: Integer;
@@ -3022,6 +3335,8 @@ end;
 procedure T075PRO.SetNatCof(const pNatCof: Integer);
 begin
   FNatCof := pNatCof;
+
+  CheckField('NatCof');
 end;
 
 function T075PRO.GetLarPro: Double;
@@ -3032,6 +3347,8 @@ end;
 procedure T075PRO.SetLarPro(const pLarPro: Double);
 begin
   FLarPro := pLarPro;
+
+  CheckField('LarPro');
 end;
 
 function T075PRO.GetAltPro: Double;
@@ -3042,6 +3359,8 @@ end;
 procedure T075PRO.SetAltPro(const pAltPro: Double);
 begin
   FAltPro := pAltPro;
+
+  CheckField('AltPro');
 end;
 
 function T075PRO.GetComPro: Double;
@@ -3052,6 +3371,8 @@ end;
 procedure T075PRO.SetComPro(const pComPro: Double);
 begin
   FComPro := pComPro;
+
+  CheckField('ComPro');
 end;
 
 function T075PRO.GetBasCre: Integer;
@@ -3062,6 +3383,8 @@ end;
 procedure T075PRO.SetBasCre(const pBasCre: Integer);
 begin
   FBasCre := pBasCre;
+
+  CheckField('BasCre');
 end;
 
 function T075PRO.GetProMon: Char;
@@ -3072,6 +3395,8 @@ end;
 procedure T075PRO.SetProMon(const pProMon: Char);
 begin
   FProMon := pProMon;
+
+  CheckField('ProMon');
 end;
 
 function T075PRO.GetProEnt: Char;
@@ -3082,6 +3407,8 @@ end;
 procedure T075PRO.SetProEnt(const pProEnt: Char);
 begin
   FProEnt := pProEnt;
+
+  CheckField('ProEnt');
 end;
 
 function T075PRO.GetVarPro: Char;
@@ -3092,6 +3419,8 @@ end;
 procedure T075PRO.SetVarPro(const pVarPro: Char);
 begin
   FVarPro := pVarPro;
+
+  CheckField('VarPro');
 end;
 
 function T075PRO.GetProFol: Char;
@@ -3102,6 +3431,8 @@ end;
 procedure T075PRO.SetProFol(const pProFol: Char);
 begin
   FProFol := pProFol;
+
+  CheckField('ProFol');
 end;
 
 function T075PRO.GetProVes: Char;
@@ -3112,6 +3443,8 @@ end;
 procedure T075PRO.SetProVes(const pProVes: Char);
 begin
   FProVes := pProVes;
+
+  CheckField('ProVes');
 end;
 
 function T075PRO.GetQtdVol: Integer;
@@ -3122,6 +3455,8 @@ end;
 procedure T075PRO.SetQtdVol(const pQtdVol: Integer);
 begin
   FQtdVol := pQtdVol;
+
+  CheckField('QtdVol');
 end;
 
 function T075PRO.GetExiNfe: Char;
@@ -3132,6 +3467,8 @@ end;
 procedure T075PRO.SetExiNfe(const pExiNfe: Char);
 begin
   FExiNfe := pExiNfe;
+
+  CheckField('ExiNfe');
 end;
 
 function T075PRO.GetPrzRec: Integer;
@@ -3142,6 +3479,8 @@ end;
 procedure T075PRO.SetPrzRec(const pPrzRec: Integer);
 begin
   FPrzRec := pPrzRec;
+
+  CheckField('PrzRec');
 end;
 
 function T075PRO.GetUniWms: string;
@@ -3152,6 +3491,8 @@ end;
 procedure T075PRO.SetUniWms(const pUniWms: string);
 begin
   FUniWms := pUniWms;
+
+  CheckField('UniWms');
 end;
 
 function T075PRO.GetFinCrp: Integer;
@@ -3162,6 +3503,8 @@ end;
 procedure T075PRO.SetFinCrp(const pFinCrp: Integer);
 begin
   FFinCrp := pFinCrp;
+
+  CheckField('FinCrp');
 end;
 
 function T075PRO.GetFinCdp: Integer;
@@ -3172,6 +3515,8 @@ end;
 procedure T075PRO.SetFinCdp(const pFinCdp: Integer);
 begin
   FFinCdp := pFinCdp;
+
+  CheckField('FinCdp');
 end;
 
 function T075PRO.GetPerPim: Double;
@@ -3182,6 +3527,8 @@ end;
 procedure T075PRO.SetPerPim(const pPerPim: Double);
 begin
   FPerPim := pPerPim;
+
+  CheckField('PerPim');
 end;
 
 function T075PRO.GetPerCim: Double;
@@ -3192,6 +3539,8 @@ end;
 procedure T075PRO.SetPerCim(const pPerCim: Double);
 begin
   FPerCim := pPerCim;
+
+  CheckField('PerCim');
 end;
 
 function T075PRO.GetIteFis: string;
@@ -3202,6 +3551,8 @@ end;
 procedure T075PRO.SetIteFis(const pIteFis: string);
 begin
   FIteFis := pIteFis;
+
+  CheckField('IteFis');
 end;
 
 function T075PRO.GetDesFis: string;
@@ -3212,6 +3563,8 @@ end;
 procedure T075PRO.SetDesFis(const pDesFis: string);
 begin
   FDesFis := pDesFis;
+
+  CheckField('DesFis');
 end;
 
 function T075PRO.GetCodAgg: string;
@@ -3222,6 +3575,8 @@ end;
 procedure T075PRO.SetCodAgg(const pCodAgg: string);
 begin
   FCodAgg := pCodAgg;
+
+  CheckField('CodAgg');
 end;
 
 function T075PRO.GetParCom: Char;
@@ -3232,6 +3587,8 @@ end;
 procedure T075PRO.SetParCom(const pParCom: Char);
 begin
   FParCom := pParCom;
+
+  CheckField('ParCom');
 end;
 
 function T075PRO.GetUSU_CodMsg1: Integer;
@@ -3242,6 +3599,8 @@ end;
 procedure T075PRO.SetUSU_CodMsg1(const pUSU_CodMsg1: Integer);
 begin
   FUSU_CodMsg1 := pUSU_CodMsg1;
+
+  CheckField('USU_CodMsg1');
 end;
 
 function T075PRO.GetUSU_IndB2B: Char;
@@ -3252,6 +3611,8 @@ end;
 procedure T075PRO.SetUSU_IndB2B(const pUSU_IndB2B: Char);
 begin
   FUSU_IndB2B := pUSU_IndB2B;
+
+  CheckField('USU_IndB2B');
 end;
 
 function T075PRO.GetUSU_IndEco: Char;
@@ -3262,6 +3623,8 @@ end;
 procedure T075PRO.SetUSU_IndEco(const pUSU_IndEco: Char);
 begin
   FUSU_IndEco := pUSU_IndEco;
+
+  CheckField('USU_IndEco');
 end;
 
 function T075PRO.GetUSU_IndPop: Char;
@@ -3272,6 +3635,8 @@ end;
 procedure T075PRO.SetUSU_IndPop(const pUSU_IndPop: Char);
 begin
   FUSU_IndPop := pUSU_IndPop;
+
+  CheckField('USU_IndPop');
 end;
 
 function T075PRO.GetCodEmpOLD: Integer;
@@ -5256,6 +5621,192 @@ begin
   FUSU_IndB2BOLD := FUSU_IndB2B;
   FUSU_IndEcoOLD := FUSU_IndEco;
   FUSU_IndPopOLD := FUSU_IndPop;
+
+  inherited;
+end;
+
+procedure T075PRO.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodPro := FCodProOLD;
+  FDesPro := FDesProOLD;
+  FCplPro := FCplProOLD;
+  FDesNfv := FDesNfvOLD;
+  FCodFam := FCodFamOLD;
+  FUniMed := FUniMedOLD;
+  FUniMe2 := FUniMe2OLD;
+  FUniMe3 := FUniMe3OLD;
+  FTipPro := FTipProOLD;
+  FCodOri := FCodOriOLD;
+  FNumOri := FNumOriOLD;
+  FCodMdp := FCodMdpOLD;
+  FCodMod := FCodModOLD;
+  FCodRot := FCodRotOLD;
+  FCodAge := FCodAgeOLD;
+  FCodAgp := FCodAgpOLD;
+  FCodAgu := FCodAguOLD;
+  FCodAgc := FCodAgcOLD;
+  FCodAgf := FCodAgfOLD;
+  FCodClf := FCodClfOLD;
+  FCodStr := FCodStrOLD;
+  FPerIpi := FPerIpiOLD;
+  FRecIpi := FRecIpiOLD;
+  FTemIcm := FTemIcmOLD;
+  FCodTic := FCodTicOLD;
+  FCodTrd := FCodTrdOLD;
+  FCodTst := FCodTstOLD;
+  FCodStp := FCodStpOLD;
+  FCodStc := FCodStcOLD;
+  FRecIcm := FRecIcmOLD;
+  FCodRoy := FCodRoyOLD;
+  FQtdMlt := FQtdMltOLD;
+  FQtdMin := FQtdMinOLD;
+  FQtdMax := FQtdMaxOLD;
+  FQtdGop := FQtdGopOLD;
+  FBxaOrp := FBxaOrpOLD;
+  FCodPr2 := FCodPr2OLD;
+  FDerPr2 := FDerPr2OLD;
+  FCodPr3 := FCodPr3OLD;
+  FDerPr3 := FDerPr3OLD;
+  FCodPr4 := FCodPr4OLD;
+  FDerPr4 := FDerPr4OLD;
+  FProStq := FProStqOLD;
+  FSitPro := FSitProOLD;
+  FRotPro := FRotProOLD;
+  FUsoCus := FUsoCusOLD;
+  FIndMis := FIndMisOLD;
+  FIndVen := FIndVenOLD;
+  FIndCpr := FIndCprOLD;
+  FIndReq := FIndReqOLD;
+  FIndKit := FIndKitOLD;
+  FMatDir := FMatDirOLD;
+  FClaPro := FClaProOLD;
+  FIndPpc := FIndPpcOLD;
+  FIndFpr := FIndFprOLD;
+  FCodNtg := FCodNtgOLD;
+  FCriRat := FCriRatOLD;
+  FCtaRed := FCtaRedOLD;
+  FCtaRcr := FCtaRcrOLD;
+  FCtaFdv := FCtaFdvOLD;
+  FCtaFcr := FCtaFcrOLD;
+  FUsuGer := FUsuGerOLD;
+  FHorGer := FHorGerOLD;
+  FDatGer := FDatGerOLD;
+  FDepPad := FDepPadOLD;
+  FCtrVld := FCtrVldOLD;
+  FCtrLot := FCtrLotOLD;
+  FLotBas := FLotBasOLD;
+  FCtrSep := FCtrSepOLD;
+  FQtdMve := FQtdMveOLD;
+  FCodRef := FCodRefOLD;
+  FCodPin := FCodPinOLD;
+  FNotFor := FNotForOLD;
+  FExgCcl := FExgCclOLD;
+  FEmiGtr := FEmiGtrOLD;
+  FUsuAlt := FUsuAltOLD;
+  FHorAlt := FHorAltOLD;
+  FDatAlt := FDatAltOLD;
+  FSomIim := FSomIimOLD;
+  FRecPis := FRecPisOLD;
+  FTriPis := FTriPisOLD;
+  FTriCof := FTriCofOLD;
+  FIndExp := FIndExpOLD;
+  FDatPal := FDatPalOLD;
+  FHorPal := FHorPalOLD;
+  FExpWms := FExpWmsOLD;
+  FTipInt := FTipIntOLD;
+  FCodFif := FCodFifOLD;
+  FCodFie := FCodFieOLD;
+  FCodFim := FCodFimOLD;
+  FRecCof := FRecCofOLD;
+  FSomIil := FSomIilOLD;
+  FCalDzf := FCalDzfOLD;
+  FUniPad := FUniPadOLD;
+  FCodMar := FCodMarOLD;
+  FCodClc := FCodClcOLD;
+  FCodAgm := FCodAgmOLD;
+  FFilPrd := FFilPrdOLD;
+  FTolQmx := FTolQmxOLD;
+  FGerOrp := FGerOrpOLD;
+  FCodPdv := FCodPdvOLD;
+  FPerIrf := FPerIrfOLD;
+  FPerPis := FPerPisOLD;
+  FPerCof := FPerCofOLD;
+  FPerCsl := FPerCslOLD;
+  FPerOur := FPerOurOLD;
+  FConMon := FConMonOLD;
+  FPerFun := FPerFunOLD;
+  FCodAga := FCodAgaOLD;
+  FSomIps := FSomIpsOLD;
+  FSomIco := FSomIcoOLD;
+  FSomIpl := FSomIplOLD;
+  FSomIcl := FSomIclOLD;
+  FIndOct := FIndOctOLD;
+  FIndSpr := FIndSprOLD;
+  FCodEnd := FCodEndOLD;
+  FPesBru := FPesBruOLD;
+  FPesLiq := FPesLiqOLD;
+  FTolPes := FTolPesOLD;
+  FVolPro := FVolProOLD;
+  FRotAnx := FRotAnxOLD;
+  FNumAnx := FNumAnxOLD;
+  FProImp := FProImpOLD;
+  FBasRec := FBasRecOLD;
+  FCodAnp := FCodAnpOLD;
+  FProEpe := FProEpeOLD;
+  FCtrVis := FCtrVisOLD;
+  FDatVis := FDatVisOLD;
+  FHorVis := FHorVisOLD;
+  FIndFrt := FIndFrtOLD;
+  FFrtEqp := FFrtEqpOLD;
+  FGrpFrt := FGrpFrtOLD;
+  FConEne := FConEneOLD;
+  FConAgu := FConAguOLD;
+  FTipLig := FTipLigOLD;
+  FGruTen := FGruTenOLD;
+  FTipMfr := FTipMfrOLD;
+  FUniFrt := FUniFrtOLD;
+  FCstIpi := FCstIpiOLD;
+  FCstPis := FCstPisOLD;
+  FCstCof := FCstCofOLD;
+  FTprPis := FTprPisOLD;
+  FTprCof := FTprCofOLD;
+  FTprIpi := FTprIpiOLD;
+  FRegTri := FRegTriOLD;
+  FIdePro := FIdeProOLD;
+  FQtdAfe := FQtdAfeOLD;
+  FIndAfe := FIndAfeOLD;
+  FCstIpc := FCstIpcOLD;
+  FCstPic := FCstPicOLD;
+  FCstCoc := FCstCocOLD;
+  FOriMer := FOriMerOLD;
+  FNatPis := FNatPisOLD;
+  FNatCof := FNatCofOLD;
+  FLarPro := FLarProOLD;
+  FAltPro := FAltProOLD;
+  FComPro := FComProOLD;
+  FBasCre := FBasCreOLD;
+  FProMon := FProMonOLD;
+  FProEnt := FProEntOLD;
+  FVarPro := FVarProOLD;
+  FProFol := FProFolOLD;
+  FProVes := FProVesOLD;
+  FQtdVol := FQtdVolOLD;
+  FExiNfe := FExiNfeOLD;
+  FPrzRec := FPrzRecOLD;
+  FUniWms := FUniWmsOLD;
+  FFinCrp := FFinCrpOLD;
+  FFinCdp := FFinCdpOLD;
+  FPerPim := FPerPimOLD;
+  FPerCim := FPerCimOLD;
+  FIteFis := FIteFisOLD;
+  FDesFis := FDesFisOLD;
+  FCodAgg := FCodAggOLD;
+  FParCom := FParComOLD;
+  FUSU_CodMsg1 := FUSU_CodMsg1OLD;
+  FUSU_IndB2B := FUSU_IndB2BOLD;
+  FUSU_IndEco := FUSU_IndEcoOLD;
+  FUSU_IndPop := FUSU_IndPopOLD;
 end;
 
 end.

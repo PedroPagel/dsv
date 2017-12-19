@@ -4,7 +4,7 @@ unit o073vet;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -328,6 +328,8 @@ begin
   FUSU_ConVetOLD := FUSU_ConVet;
   FUSU_DatAltOLD := FUSU_DatAlt;
   FUSU_DiaSemOLD := FUSU_DiaSem;
+
+  inherited;
 end;
 
 end.

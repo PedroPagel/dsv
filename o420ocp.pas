@@ -3,10 +3,9 @@ unit o420ocp;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
-  {$HINTS OFF}
 
   T420OCP = class(TTabelaPadrao)
   private
@@ -969,6 +968,7 @@ type
     procedure SetUSU_OrdConOld(const pUSU_OrdCon: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -1130,8 +1130,8 @@ type
     property USU_PrazEnt: TDate read GetUSU_PrazEnt write SetUSU_PrazEnt;
     property USU_DatEmb: TDate read GetUSU_DatEmb write SetUSU_DatEmb;
     property USU_DatEnt: TDate read GetUSU_DatEnt write SetUSU_DatEnt;
-    property USU_ObsOa: string read GetUSU_ObsOa write SetUSU_ObsOa;
     property USU_OrdCon: string read GetUSU_OrdCon write SetUSU_OrdCon;
+    property USU_ObsOa: string read GetUSU_ObsOa write SetUSU_ObsOa;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -1300,6 +1300,9 @@ implementation
 
 constructor T420OCP.Create();
 begin
+  AddForeignKeys(['CodEmp','CodFil','CodFor','CodCpg'], ['CodEmp','CodFil','CodFor','CodCpg']);
+  AddPrimaryKeys('CodEmp;CodFil;NumOcp');
+
   inherited Create('E420OCP');
 end;
 
@@ -1307,6 +1310,7 @@ destructor T420OCP.Destroy();
 begin
   inherited;
 end;
+
 function T420OCP.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -1315,6 +1319,8 @@ end;
 procedure T420OCP.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T420OCP.GetCodFil: Integer;
@@ -1325,6 +1331,8 @@ end;
 procedure T420OCP.SetCodFil(const pCodFil: Integer);
 begin
   FCodFil := pCodFil;
+
+  CheckField('CodFil');
 end;
 
 function T420OCP.GetNumOcp: Integer;
@@ -1335,6 +1343,8 @@ end;
 procedure T420OCP.SetNumOcp(const pNumOcp: Integer);
 begin
   FNumOcp := pNumOcp;
+
+  CheckField('NumOcp');
 end;
 
 function T420OCP.GetTnsPro: string;
@@ -1345,6 +1355,8 @@ end;
 procedure T420OCP.SetTnsPro(const pTnsPro: string);
 begin
   FTnsPro := pTnsPro;
+
+  CheckField('TnsPro');
 end;
 
 function T420OCP.GetTnsSer: string;
@@ -1355,6 +1367,8 @@ end;
 procedure T420OCP.SetTnsSer(const pTnsSer: string);
 begin
   FTnsSer := pTnsSer;
+
+  CheckField('TnsSer');
 end;
 
 function T420OCP.GetDatEmi: TDate;
@@ -1365,6 +1379,8 @@ end;
 procedure T420OCP.SetDatEmi(const pDatEmi: TDate);
 begin
   FDatEmi := pDatEmi;
+
+  CheckField('DatEmi');
 end;
 
 function T420OCP.GetCodUsu: Integer;
@@ -1375,6 +1391,8 @@ end;
 procedure T420OCP.SetCodUsu(const pCodUsu: Integer);
 begin
   FCodUsu := pCodUsu;
+
+  CheckField('CodUsu');
 end;
 
 function T420OCP.GetCodFor: Integer;
@@ -1385,6 +1403,8 @@ end;
 procedure T420OCP.SetCodFor(const pCodFor: Integer);
 begin
   FCodFor := pCodFor;
+
+  CheckField('CodFor');
 end;
 
 function T420OCP.GetSeqCto: Integer;
@@ -1395,6 +1415,8 @@ end;
 procedure T420OCP.SetSeqCto(const pSeqCto: Integer);
 begin
   FSeqCto := pSeqCto;
+
+  CheckField('SeqCto');
 end;
 
 function T420OCP.GetPedFor: string;
@@ -1405,6 +1427,8 @@ end;
 procedure T420OCP.SetPedFor(const pPedFor: string);
 begin
   FPedFor := pPedFor;
+
+  CheckField('PedFor');
 end;
 
 function T420OCP.GetObsOcp: string;
@@ -1415,6 +1439,8 @@ end;
 procedure T420OCP.SetObsOcp(const pObsOcp: string);
 begin
   FObsOcp := pObsOcp;
+
+  CheckField('ObsOcp');
 end;
 
 function T420OCP.GetCodCpg: string;
@@ -1425,6 +1451,8 @@ end;
 procedure T420OCP.SetCodCpg(const pCodCpg: string);
 begin
   FCodCpg := pCodCpg;
+
+  CheckField('CodCpg');
 end;
 
 function T420OCP.GetCodFpg: Integer;
@@ -1435,6 +1463,8 @@ end;
 procedure T420OCP.SetCodFpg(const pCodFpg: Integer);
 begin
   FCodFpg := pCodFpg;
+
+  CheckField('CodFpg');
 end;
 
 function T420OCP.GetCodMoe: string;
@@ -1445,6 +1475,8 @@ end;
 procedure T420OCP.SetCodMoe(const pCodMoe: string);
 begin
   FCodMoe := pCodMoe;
+
+  CheckField('CodMoe');
 end;
 
 function T420OCP.GetDatMoe: TDate;
@@ -1455,6 +1487,8 @@ end;
 procedure T420OCP.SetDatMoe(const pDatMoe: TDate);
 begin
   FDatMoe := pDatMoe;
+
+  CheckField('DatMoe');
 end;
 
 function T420OCP.GetCotMoe: Double;
@@ -1465,6 +1499,8 @@ end;
 procedure T420OCP.SetCotMoe(const pCotMoe: Double);
 begin
   FCotMoe := pCotMoe;
+
+  CheckField('CotMoe');
 end;
 
 function T420OCP.GetFecMoe: string;
@@ -1475,6 +1511,8 @@ end;
 procedure T420OCP.SetFecMoe(const pFecMoe: string);
 begin
   FFecMoe := pFecMoe;
+
+  CheckField('FecMoe');
 end;
 
 function T420OCP.GetCodFcr: string;
@@ -1485,6 +1523,8 @@ end;
 procedure T420OCP.SetCodFcr(const pCodFcr: string);
 begin
   FCodFcr := pCodFcr;
+
+  CheckField('CodFcr');
 end;
 
 function T420OCP.GetDatFcr: TDate;
@@ -1495,6 +1535,8 @@ end;
 procedure T420OCP.SetDatFcr(const pDatFcr: TDate);
 begin
   FDatFcr := pDatFcr;
+
+  CheckField('DatFcr');
 end;
 
 function T420OCP.GetQtdAbe: Double;
@@ -1505,6 +1547,8 @@ end;
 procedure T420OCP.SetQtdAbe(const pQtdAbe: Double);
 begin
   FQtdAbe := pQtdAbe;
+
+  CheckField('QtdAbe');
 end;
 
 function T420OCP.GetCodTra: Integer;
@@ -1515,6 +1559,8 @@ end;
 procedure T420OCP.SetCodTra(const pCodTra: Integer);
 begin
   FCodTra := pCodTra;
+
+  CheckField('CodTra');
 end;
 
 function T420OCP.GetCodRed: Integer;
@@ -1525,6 +1571,8 @@ end;
 procedure T420OCP.SetCodRed(const pCodRed: Integer);
 begin
   FCodRed := pCodRed;
+
+  CheckField('CodRed');
 end;
 
 function T420OCP.GetVlrFum: Double;
@@ -1535,6 +1583,8 @@ end;
 procedure T420OCP.SetVlrFum(const pVlrFum: Double);
 begin
   FVlrFum := pVlrFum;
+
+  CheckField('VlrFum');
 end;
 
 function T420OCP.GetQtdFre: Double;
@@ -1545,6 +1595,8 @@ end;
 procedure T420OCP.SetQtdFre(const pQtdFre: Double);
 begin
   FQtdFre := pQtdFre;
+
+  CheckField('QtdFre');
 end;
 
 function T420OCP.GetForFre: Integer;
@@ -1555,6 +1607,8 @@ end;
 procedure T420OCP.SetForFre(const pForFre: Integer);
 begin
   FForFre := pForFre;
+
+  CheckField('ForFre');
 end;
 
 function T420OCP.GetPerDs1: Double;
@@ -1565,6 +1619,8 @@ end;
 procedure T420OCP.SetPerDs1(const pPerDs1: Double);
 begin
   FPerDs1 := pPerDs1;
+
+  CheckField('PerDs1');
 end;
 
 function T420OCP.GetPerDs2: Double;
@@ -1575,6 +1631,8 @@ end;
 procedure T420OCP.SetPerDs2(const pPerDs2: Double);
 begin
   FPerDs2 := pPerDs2;
+
+  CheckField('PerDs2');
 end;
 
 function T420OCP.GetPerFin: Double;
@@ -1585,6 +1643,8 @@ end;
 procedure T420OCP.SetPerFin(const pPerFin: Double);
 begin
   FPerFin := pPerFin;
+
+  CheckField('PerFin');
 end;
 
 function T420OCP.GetVlrFre: Double;
@@ -1595,6 +1655,8 @@ end;
 procedure T420OCP.SetVlrFre(const pVlrFre: Double);
 begin
   FVlrFre := pVlrFre;
+
+  CheckField('VlrFre');
 end;
 
 function T420OCP.GetCifFob: string;
@@ -1605,6 +1667,8 @@ end;
 procedure T420OCP.SetCifFob(const pCifFob: string);
 begin
   FCifFob := pCifFob;
+
+  CheckField('CifFob');
 end;
 
 function T420OCP.GetVlrSeg: Double;
@@ -1615,6 +1679,8 @@ end;
 procedure T420OCP.SetVlrSeg(const pVlrSeg: Double);
 begin
   FVlrSeg := pVlrSeg;
+
+  CheckField('VlrSeg');
 end;
 
 function T420OCP.GetVlrEmb: Double;
@@ -1625,6 +1691,8 @@ end;
 procedure T420OCP.SetVlrEmb(const pVlrEmb: Double);
 begin
   FVlrEmb := pVlrEmb;
+
+  CheckField('VlrEmb');
 end;
 
 function T420OCP.GetVlrEnc: Double;
@@ -1635,6 +1703,8 @@ end;
 procedure T420OCP.SetVlrEnc(const pVlrEnc: Double);
 begin
   FVlrEnc := pVlrEnc;
+
+  CheckField('VlrEnc');
 end;
 
 function T420OCP.GetVlrOut: Double;
@@ -1645,6 +1715,8 @@ end;
 procedure T420OCP.SetVlrOut(const pVlrOut: Double);
 begin
   FVlrOut := pVlrOut;
+
+  CheckField('VlrOut');
 end;
 
 function T420OCP.GetVlrDar: Double;
@@ -1655,6 +1727,8 @@ end;
 procedure T420OCP.SetVlrDar(const pVlrDar: Double);
 begin
   FVlrDar := pVlrDar;
+
+  CheckField('VlrDar');
 end;
 
 function T420OCP.GetVlrFrd: Double;
@@ -1665,6 +1739,8 @@ end;
 procedure T420OCP.SetVlrFrd(const pVlrFrd: Double);
 begin
   FVlrFrd := pVlrFrd;
+
+  CheckField('VlrFrd');
 end;
 
 function T420OCP.GetVlrOud: Double;
@@ -1675,6 +1751,8 @@ end;
 procedure T420OCP.SetVlrOud(const pVlrOud: Double);
 begin
   FVlrOud := pVlrOud;
+
+  CheckField('VlrOud');
 end;
 
 function T420OCP.GetVlrBpr: Double;
@@ -1685,6 +1763,8 @@ end;
 procedure T420OCP.SetVlrBpr(const pVlrBpr: Double);
 begin
   FVlrBpr := pVlrBpr;
+
+  CheckField('VlrBpr');
 end;
 
 function T420OCP.GetVlrDpr: Double;
@@ -1695,6 +1775,8 @@ end;
 procedure T420OCP.SetVlrDpr(const pVlrDpr: Double);
 begin
   FVlrDpr := pVlrDpr;
+
+  CheckField('VlrDpr');
 end;
 
 function T420OCP.GetVlrBse: Double;
@@ -1705,6 +1787,8 @@ end;
 procedure T420OCP.SetVlrBse(const pVlrBse: Double);
 begin
   FVlrBse := pVlrBse;
+
+  CheckField('VlrBse');
 end;
 
 function T420OCP.GetVlrDse: Double;
@@ -1715,6 +1799,8 @@ end;
 procedure T420OCP.SetVlrDse(const pVlrDse: Double);
 begin
   FVlrDse := pVlrDse;
+
+  CheckField('VlrDse');
 end;
 
 function T420OCP.GetVlrDs1: Double;
@@ -1725,6 +1811,8 @@ end;
 procedure T420OCP.SetVlrDs1(const pVlrDs1: Double);
 begin
   FVlrDs1 := pVlrDs1;
+
+  CheckField('VlrDs1');
 end;
 
 function T420OCP.GetVlrDs2: Double;
@@ -1735,6 +1823,8 @@ end;
 procedure T420OCP.SetVlrDs2(const pVlrDs2: Double);
 begin
   FVlrDs2 := pVlrDs2;
+
+  CheckField('VlrDs2');
 end;
 
 function T420OCP.GetVlrDzf: Double;
@@ -1745,6 +1835,8 @@ end;
 procedure T420OCP.SetVlrDzf(const pVlrDzf: Double);
 begin
   FVlrDzf := pVlrDzf;
+
+  CheckField('VlrDzf');
 end;
 
 function T420OCP.GetVlrBfu: Double;
@@ -1755,6 +1847,8 @@ end;
 procedure T420OCP.SetVlrBfu(const pVlrBfu: Double);
 begin
   FVlrBfu := pVlrBfu;
+
+  CheckField('VlrBfu');
 end;
 
 function T420OCP.GetVlrFun: Double;
@@ -1765,6 +1859,8 @@ end;
 procedure T420OCP.SetVlrFun(const pVlrFun: Double);
 begin
   FVlrFun := pVlrFun;
+
+  CheckField('VlrFun');
 end;
 
 function T420OCP.GetVlrBip: Double;
@@ -1775,6 +1871,8 @@ end;
 procedure T420OCP.SetVlrBip(const pVlrBip: Double);
 begin
   FVlrBip := pVlrBip;
+
+  CheckField('VlrBip');
 end;
 
 function T420OCP.GetVlrIpi: Double;
@@ -1785,6 +1883,8 @@ end;
 procedure T420OCP.SetVlrIpi(const pVlrIpi: Double);
 begin
   FVlrIpi := pVlrIpi;
+
+  CheckField('VlrIpi');
 end;
 
 function T420OCP.GetVlrBic: Double;
@@ -1795,6 +1895,8 @@ end;
 procedure T420OCP.SetVlrBic(const pVlrBic: Double);
 begin
   FVlrBic := pVlrBic;
+
+  CheckField('VlrBic');
 end;
 
 function T420OCP.GetVlrIcm: Double;
@@ -1805,6 +1907,8 @@ end;
 procedure T420OCP.SetVlrIcm(const pVlrIcm: Double);
 begin
   FVlrIcm := pVlrIcm;
+
+  CheckField('VlrIcm');
 end;
 
 function T420OCP.GetVlrBsi: Double;
@@ -1815,6 +1919,8 @@ end;
 procedure T420OCP.SetVlrBsi(const pVlrBsi: Double);
 begin
   FVlrBsi := pVlrBsi;
+
+  CheckField('VlrBsi');
 end;
 
 function T420OCP.GetVlrSic: Double;
@@ -1825,6 +1931,8 @@ end;
 procedure T420OCP.SetVlrSic(const pVlrSic: Double);
 begin
   FVlrSic := pVlrSic;
+
+  CheckField('VlrSic');
 end;
 
 function T420OCP.GetVlrBsp: Double;
@@ -1835,6 +1943,8 @@ end;
 procedure T420OCP.SetVlrBsp(const pVlrBsp: Double);
 begin
   FVlrBsp := pVlrBsp;
+
+  CheckField('VlrBsp');
 end;
 
 function T420OCP.GetVlrStp: Double;
@@ -1845,6 +1955,8 @@ end;
 procedure T420OCP.SetVlrStp(const pVlrStp: Double);
 begin
   FVlrStp := pVlrStp;
+
+  CheckField('VlrStp');
 end;
 
 function T420OCP.GetVlrBsc: Double;
@@ -1855,6 +1967,8 @@ end;
 procedure T420OCP.SetVlrBsc(const pVlrBsc: Double);
 begin
   FVlrBsc := pVlrBsc;
+
+  CheckField('VlrBsc');
 end;
 
 function T420OCP.GetVlrStc: Double;
@@ -1865,6 +1979,8 @@ end;
 procedure T420OCP.SetVlrStc(const pVlrStc: Double);
 begin
   FVlrStc := pVlrStc;
+
+  CheckField('VlrStc');
 end;
 
 function T420OCP.GetVlrBis: Double;
@@ -1875,6 +1991,8 @@ end;
 procedure T420OCP.SetVlrBis(const pVlrBis: Double);
 begin
   FVlrBis := pVlrBis;
+
+  CheckField('VlrBis');
 end;
 
 function T420OCP.GetVlrIss: Double;
@@ -1885,6 +2003,8 @@ end;
 procedure T420OCP.SetVlrIss(const pVlrIss: Double);
 begin
   FVlrIss := pVlrIss;
+
+  CheckField('VlrIss');
 end;
 
 function T420OCP.GetVlrBir: Double;
@@ -1895,6 +2015,8 @@ end;
 procedure T420OCP.SetVlrBir(const pVlrBir: Double);
 begin
   FVlrBir := pVlrBir;
+
+  CheckField('VlrBir');
 end;
 
 function T420OCP.GetVlrIrf: Double;
@@ -1905,6 +2027,8 @@ end;
 procedure T420OCP.SetVlrIrf(const pVlrIrf: Double);
 begin
   FVlrIrf := pVlrIrf;
+
+  CheckField('VlrIrf');
 end;
 
 function T420OCP.GetVlrBin: Double;
@@ -1915,6 +2039,8 @@ end;
 procedure T420OCP.SetVlrBin(const pVlrBin: Double);
 begin
   FVlrBin := pVlrBin;
+
+  CheckField('VlrBin');
 end;
 
 function T420OCP.GetVlrIns: Double;
@@ -1925,6 +2051,8 @@ end;
 procedure T420OCP.SetVlrIns(const pVlrIns: Double);
 begin
   FVlrIns := pVlrIns;
+
+  CheckField('VlrIns');
 end;
 
 function T420OCP.GetVlrLpr: Double;
@@ -1935,6 +2063,8 @@ end;
 procedure T420OCP.SetVlrLpr(const pVlrLpr: Double);
 begin
   FVlrLpr := pVlrLpr;
+
+  CheckField('VlrLpr');
 end;
 
 function T420OCP.GetVlrLse: Double;
@@ -1945,6 +2075,8 @@ end;
 procedure T420OCP.SetVlrLse(const pVlrLse: Double);
 begin
   FVlrLse := pVlrLse;
+
+  CheckField('VlrLse');
 end;
 
 function T420OCP.GetVlrLou: Double;
@@ -1955,6 +2087,8 @@ end;
 procedure T420OCP.SetVlrLou(const pVlrLou: Double);
 begin
   FVlrLou := pVlrLou;
+
+  CheckField('VlrLou');
 end;
 
 function T420OCP.GetVlrLiq: Double;
@@ -1965,6 +2099,8 @@ end;
 procedure T420OCP.SetVlrLiq(const pVlrLiq: Double);
 begin
   FVlrLiq := pVlrLiq;
+
+  CheckField('VlrLiq');
 end;
 
 function T420OCP.GetVlrFin: Double;
@@ -1975,6 +2111,8 @@ end;
 procedure T420OCP.SetVlrFin(const pVlrFin: Double);
 begin
   FVlrFin := pVlrFin;
+
+  CheckField('VlrFin');
 end;
 
 function T420OCP.GetTemPar: string;
@@ -1985,6 +2123,8 @@ end;
 procedure T420OCP.SetTemPar(const pTemPar: string);
 begin
   FTemPar := pTemPar;
+
+  CheckField('TemPar');
 end;
 
 function T420OCP.GetCodPor: string;
@@ -1995,6 +2135,8 @@ end;
 procedure T420OCP.SetCodPor(const pCodPor: string);
 begin
   FCodPor := pCodPor;
+
+  CheckField('CodPor');
 end;
 
 function T420OCP.GetCodCrt: string;
@@ -2005,6 +2147,8 @@ end;
 procedure T420OCP.SetCodCrt(const pCodCrt: string);
 begin
   FCodCrt := pCodCrt;
+
+  CheckField('CodCrt');
 end;
 
 function T420OCP.GetRotNap: Integer;
@@ -2015,6 +2159,8 @@ end;
 procedure T420OCP.SetRotNap(const pRotNap: Integer);
 begin
   FRotNap := pRotNap;
+
+  CheckField('RotNap');
 end;
 
 function T420OCP.GetFilApr: Integer;
@@ -2025,6 +2171,8 @@ end;
 procedure T420OCP.SetFilApr(const pFilApr: Integer);
 begin
   FFilApr := pFilApr;
+
+  CheckField('FilApr');
 end;
 
 function T420OCP.GetNumApr: Integer;
@@ -2035,6 +2183,8 @@ end;
 procedure T420OCP.SetNumApr(const pNumApr: Integer);
 begin
   FNumApr := pNumApr;
+
+  CheckField('NumApr');
 end;
 
 function T420OCP.GetSitApr: string;
@@ -2045,6 +2195,8 @@ end;
 procedure T420OCP.SetSitApr(const pSitApr: string);
 begin
   FSitApr := pSitApr;
+
+  CheckField('SitApr');
 end;
 
 function T420OCP.GetSitOcp: Integer;
@@ -2055,6 +2207,8 @@ end;
 procedure T420OCP.SetSitOcp(const pSitOcp: Integer);
 begin
   FSitOcp := pSitOcp;
+
+  CheckField('SitOcp');
 end;
 
 function T420OCP.GetCodMot: Integer;
@@ -2065,6 +2219,8 @@ end;
 procedure T420OCP.SetCodMot(const pCodMot: Integer);
 begin
   FCodMot := pCodMot;
+
+  CheckField('CodMot');
 end;
 
 function T420OCP.GetObsMot: string;
@@ -2075,6 +2231,8 @@ end;
 procedure T420OCP.SetObsMot(const pObsMot: string);
 begin
   FObsMot := pObsMot;
+
+  CheckField('ObsMot');
 end;
 
 function T420OCP.GetFilPed: Integer;
@@ -2085,6 +2243,8 @@ end;
 procedure T420OCP.SetFilPed(const pFilPed: Integer);
 begin
   FFilPed := pFilPed;
+
+  CheckField('FilPed');
 end;
 
 function T420OCP.GetNumPed: Integer;
@@ -2095,6 +2255,8 @@ end;
 procedure T420OCP.SetNumPed(const pNumPed: Integer);
 begin
   FNumPed := pNumPed;
+
+  CheckField('NumPed');
 end;
 
 function T420OCP.GetVerCal: Integer;
@@ -2105,6 +2267,8 @@ end;
 procedure T420OCP.SetVerCal(const pVerCal: Integer);
 begin
   FVerCal := pVerCal;
+
+  CheckField('VerCal');
 end;
 
 function T420OCP.GetUsuGer: Integer;
@@ -2115,6 +2279,8 @@ end;
 procedure T420OCP.SetUsuGer(const pUsuGer: Integer);
 begin
   FUsuGer := pUsuGer;
+
+  CheckField('UsuGer');
 end;
 
 function T420OCP.GetDatGer: TDate;
@@ -2125,6 +2291,8 @@ end;
 procedure T420OCP.SetDatGer(const pDatGer: TDate);
 begin
   FDatGer := pDatGer;
+
+  CheckField('DatGer');
 end;
 
 function T420OCP.GetHorGer: Integer;
@@ -2135,6 +2303,8 @@ end;
 procedure T420OCP.SetHorGer(const pHorGer: Integer);
 begin
   FHorGer := pHorGer;
+
+  CheckField('HorGer');
 end;
 
 function T420OCP.GetPrcOcp: Integer;
@@ -2145,6 +2315,8 @@ end;
 procedure T420OCP.SetPrcOcp(const pPrcOcp: Integer);
 begin
   FPrcOcp := pPrcOcp;
+
+  CheckField('PrcOcp');
 end;
 
 function T420OCP.GetPerPrg: Integer;
@@ -2155,6 +2327,8 @@ end;
 procedure T420OCP.SetPerPrg(const pPerPrg: Integer);
 begin
   FPerPrg := pPerPrg;
+
+  CheckField('PerPrg');
 end;
 
 function T420OCP.GetPerFre: Double;
@@ -2165,6 +2339,8 @@ end;
 procedure T420OCP.SetPerFre(const pPerFre: Double);
 begin
   FPerFre := pPerFre;
+
+  CheckField('PerFre');
 end;
 
 function T420OCP.GetPerSeg: Double;
@@ -2175,6 +2351,8 @@ end;
 procedure T420OCP.SetPerSeg(const pPerSeg: Double);
 begin
   FPerSeg := pPerSeg;
+
+  CheckField('PerSeg');
 end;
 
 function T420OCP.GetPerEmb: Double;
@@ -2185,6 +2363,8 @@ end;
 procedure T420OCP.SetPerEmb(const pPerEmb: Double);
 begin
   FPerEmb := pPerEmb;
+
+  CheckField('PerEmb');
 end;
 
 function T420OCP.GetPerEnc: Double;
@@ -2195,6 +2375,8 @@ end;
 procedure T420OCP.SetPerEnc(const pPerEnc: Double);
 begin
   FPerEnc := pPerEnc;
+
+  CheckField('PerEnc');
 end;
 
 function T420OCP.GetPerOut: Double;
@@ -2205,6 +2387,8 @@ end;
 procedure T420OCP.SetPerOut(const pPerOut: Double);
 begin
   FPerOut := pPerOut;
+
+  CheckField('PerOut');
 end;
 
 function T420OCP.GetSeqOrm: Integer;
@@ -2215,6 +2399,8 @@ end;
 procedure T420OCP.SetSeqOrm(const pSeqOrm: Integer);
 begin
   FSeqOrm := pSeqOrm;
+
+  CheckField('SeqOrm');
 end;
 
 function T420OCP.GetUsuFec: Integer;
@@ -2225,6 +2411,8 @@ end;
 procedure T420OCP.SetUsuFec(const pUsuFec: Integer);
 begin
   FUsuFec := pUsuFec;
+
+  CheckField('UsuFec');
 end;
 
 function T420OCP.GetDatFec: TDate;
@@ -2235,6 +2423,8 @@ end;
 procedure T420OCP.SetDatFec(const pDatFec: TDate);
 begin
   FDatFec := pDatFec;
+
+  CheckField('DatFec');
 end;
 
 function T420OCP.GetHorFec: Integer;
@@ -2245,6 +2435,8 @@ end;
 procedure T420OCP.SetHorFec(const pHorFec: Integer);
 begin
   FHorFec := pHorFec;
+
+  CheckField('HorFec');
 end;
 
 function T420OCP.GetTipInt: Integer;
@@ -2255,6 +2447,8 @@ end;
 procedure T420OCP.SetTipInt(const pTipInt: Integer);
 begin
   FTipInt := pTipInt;
+
+  CheckField('TipInt');
 end;
 
 function T420OCP.GetVlrBcl: Double;
@@ -2265,6 +2459,8 @@ end;
 procedure T420OCP.SetVlrBcl(const pVlrBcl: Double);
 begin
   FVlrBcl := pVlrBcl;
+
+  CheckField('VlrBcl');
 end;
 
 function T420OCP.GetVlrCsl: Double;
@@ -2275,6 +2471,8 @@ end;
 procedure T420OCP.SetVlrCsl(const pVlrCsl: Double);
 begin
   FVlrCsl := pVlrCsl;
+
+  CheckField('VlrCsl');
 end;
 
 function T420OCP.GetVlrBpt: Double;
@@ -2285,6 +2483,8 @@ end;
 procedure T420OCP.SetVlrBpt(const pVlrBpt: Double);
 begin
   FVlrBpt := pVlrBpt;
+
+  CheckField('VlrBpt');
 end;
 
 function T420OCP.GetVlrPit: Double;
@@ -2295,6 +2495,8 @@ end;
 procedure T420OCP.SetVlrPit(const pVlrPit: Double);
 begin
   FVlrPit := pVlrPit;
+
+  CheckField('VlrPit');
 end;
 
 function T420OCP.GetVlrBct: Double;
@@ -2305,6 +2507,8 @@ end;
 procedure T420OCP.SetVlrBct(const pVlrBct: Double);
 begin
   FVlrBct := pVlrBct;
+
+  CheckField('VlrBct');
 end;
 
 function T420OCP.GetVlrCrt: Double;
@@ -2315,6 +2519,8 @@ end;
 procedure T420OCP.SetVlrCrt(const pVlrCrt: Double);
 begin
   FVlrCrt := pVlrCrt;
+
+  CheckField('VlrCrt');
 end;
 
 function T420OCP.GetVlrBor: Double;
@@ -2325,6 +2531,8 @@ end;
 procedure T420OCP.SetVlrBor(const pVlrBor: Double);
 begin
   FVlrBor := pVlrBor;
+
+  CheckField('VlrBor');
 end;
 
 function T420OCP.GetVlrOur: Double;
@@ -2335,6 +2543,8 @@ end;
 procedure T420OCP.SetVlrOur(const pVlrOur: Double);
 begin
   FVlrOur := pVlrOur;
+
+  CheckField('VlrOur');
 end;
 
 function T420OCP.GetCodMfr: string;
@@ -2345,6 +2555,8 @@ end;
 procedure T420OCP.SetCodMfr(const pCodMfr: string);
 begin
   FCodMfr := pCodMfr;
+
+  CheckField('CodMfr');
 end;
 
 function T420OCP.GetDatMfr: TDate;
@@ -2355,6 +2567,8 @@ end;
 procedure T420OCP.SetDatMfr(const pDatMfr: TDate);
 begin
   FDatMfr := pDatMfr;
+
+  CheckField('DatMfr');
 end;
 
 function T420OCP.GetCotMfr: Double;
@@ -2365,6 +2579,8 @@ end;
 procedure T420OCP.SetCotMfr(const pCotMfr: Double);
 begin
   FCotMfr := pCotMfr;
+
+  CheckField('CotMfr');
 end;
 
 function T420OCP.GetVlrBii: Double;
@@ -2375,6 +2591,8 @@ end;
 procedure T420OCP.SetVlrBii(const pVlrBii: Double);
 begin
   FVlrBii := pVlrBii;
+
+  CheckField('VlrBii');
 end;
 
 function T420OCP.GetVlrIim: Double;
@@ -2385,6 +2603,8 @@ end;
 procedure T420OCP.SetVlrIim(const pVlrIim: Double);
 begin
   FVlrIim := pVlrIim;
+
+  CheckField('VlrIim');
 end;
 
 function T420OCP.GetVlrRis: Double;
@@ -2395,6 +2615,8 @@ end;
 procedure T420OCP.SetVlrRis(const pVlrRis: Double);
 begin
   FVlrRis := pVlrRis;
+
+  CheckField('VlrRis');
 end;
 
 function T420OCP.GetVlrBpi: Double;
@@ -2405,6 +2627,8 @@ end;
 procedure T420OCP.SetVlrBpi(const pVlrBpi: Double);
 begin
   FVlrBpi := pVlrBpi;
+
+  CheckField('VlrBpi');
 end;
 
 function T420OCP.GetVlrPis: Double;
@@ -2415,6 +2639,8 @@ end;
 procedure T420OCP.SetVlrPis(const pVlrPis: Double);
 begin
   FVlrPis := pVlrPis;
+
+  CheckField('VlrPis');
 end;
 
 function T420OCP.GetVlrBcr: Double;
@@ -2425,6 +2651,8 @@ end;
 procedure T420OCP.SetVlrBcr(const pVlrBcr: Double);
 begin
   FVlrBcr := pVlrBcr;
+
+  CheckField('VlrBcr');
 end;
 
 function T420OCP.GetVlrCor: Double;
@@ -2435,6 +2663,8 @@ end;
 procedure T420OCP.SetVlrCor(const pVlrCor: Double);
 begin
   FVlrCor := pVlrCor;
+
+  CheckField('VlrCor');
 end;
 
 function T420OCP.GetPerDs3: Double;
@@ -2445,6 +2675,8 @@ end;
 procedure T420OCP.SetPerDs3(const pPerDs3: Double);
 begin
   FPerDs3 := pPerDs3;
+
+  CheckField('PerDs3');
 end;
 
 function T420OCP.GetPerDs4: Double;
@@ -2455,6 +2687,8 @@ end;
 procedure T420OCP.SetPerDs4(const pPerDs4: Double);
 begin
   FPerDs4 := pPerDs4;
+
+  CheckField('PerDs4');
 end;
 
 function T420OCP.GetPerDs5: Double;
@@ -2465,6 +2699,8 @@ end;
 procedure T420OCP.SetPerDs5(const pPerDs5: Double);
 begin
   FPerDs5 := pPerDs5;
+
+  CheckField('PerDs5');
 end;
 
 function T420OCP.GetVlrDs3: Double;
@@ -2475,6 +2711,8 @@ end;
 procedure T420OCP.SetVlrDs3(const pVlrDs3: Double);
 begin
   FVlrDs3 := pVlrDs3;
+
+  CheckField('VlrDs3');
 end;
 
 function T420OCP.GetVlrDs4: Double;
@@ -2485,6 +2723,8 @@ end;
 procedure T420OCP.SetVlrDs4(const pVlrDs4: Double);
 begin
   FVlrDs4 := pVlrDs4;
+
+  CheckField('VlrDs4');
 end;
 
 function T420OCP.GetVlrDs5: Double;
@@ -2495,6 +2735,8 @@ end;
 procedure T420OCP.SetVlrDs5(const pVlrDs5: Double);
 begin
   FVlrDs5 := pVlrDs5;
+
+  CheckField('VlrDs5');
 end;
 
 function T420OCP.GetVlrOri: Double;
@@ -2505,6 +2747,8 @@ end;
 procedure T420OCP.SetVlrOri(const pVlrOri: Double);
 begin
   FVlrOri := pVlrOri;
+
+  CheckField('VlrOri');
 end;
 
 function T420OCP.GetQtdOri: Double;
@@ -2515,6 +2759,8 @@ end;
 procedure T420OCP.SetQtdOri(const pQtdOri: Double);
 begin
   FQtdOri := pQtdOri;
+
+  CheckField('QtdOri');
 end;
 
 function T420OCP.GetVlrFei: Double;
@@ -2525,6 +2771,8 @@ end;
 procedure T420OCP.SetVlrFei(const pVlrFei: Double);
 begin
   FVlrFei := pVlrFei;
+
+  CheckField('VlrFei');
 end;
 
 function T420OCP.GetMoeFei: string;
@@ -2535,6 +2783,8 @@ end;
 procedure T420OCP.SetMoeFei(const pMoeFei: string);
 begin
   FMoeFei := pMoeFei;
+
+  CheckField('MoeFei');
 end;
 
 function T420OCP.GetDatFei: TDate;
@@ -2545,6 +2795,8 @@ end;
 procedure T420OCP.SetDatFei(const pDatFei: TDate);
 begin
   FDatFei := pDatFei;
+
+  CheckField('DatFei');
 end;
 
 function T420OCP.GetCotFei: Double;
@@ -2555,6 +2807,8 @@ end;
 procedure T420OCP.SetCotFei(const pCotFei: Double);
 begin
   FCotFei := pCotFei;
+
+  CheckField('CotFei');
 end;
 
 function T420OCP.GetVlrSei: Double;
@@ -2565,6 +2819,8 @@ end;
 procedure T420OCP.SetVlrSei(const pVlrSei: Double);
 begin
   FVlrSei := pVlrSei;
+
+  CheckField('VlrSei');
 end;
 
 function T420OCP.GetMoeSei: string;
@@ -2575,6 +2831,8 @@ end;
 procedure T420OCP.SetMoeSei(const pMoeSei: string);
 begin
   FMoeSei := pMoeSei;
+
+  CheckField('MoeSei');
 end;
 
 function T420OCP.GetDatSei: TDate;
@@ -2585,6 +2843,8 @@ end;
 procedure T420OCP.SetDatSei(const pDatSei: TDate);
 begin
   FDatSei := pDatSei;
+
+  CheckField('DatSei');
 end;
 
 function T420OCP.GetCotSei: Double;
@@ -2595,6 +2855,8 @@ end;
 procedure T420OCP.SetCotSei(const pCotSei: Double);
 begin
   FCotSei := pCotSei;
+
+  CheckField('CotSei');
 end;
 
 function T420OCP.GetVlrOui: Double;
@@ -2605,6 +2867,8 @@ end;
 procedure T420OCP.SetVlrOui(const pVlrOui: Double);
 begin
   FVlrOui := pVlrOui;
+
+  CheckField('VlrOui');
 end;
 
 function T420OCP.GetMoeOui: string;
@@ -2615,6 +2879,8 @@ end;
 procedure T420OCP.SetMoeOui(const pMoeOui: string);
 begin
   FMoeOui := pMoeOui;
+
+  CheckField('MoeOui');
 end;
 
 function T420OCP.GetDatOui: TDate;
@@ -2625,6 +2891,8 @@ end;
 procedure T420OCP.SetDatOui(const pDatOui: TDate);
 begin
   FDatOui := pDatOui;
+
+  CheckField('DatOui');
 end;
 
 function T420OCP.GetCotOui: Double;
@@ -2635,6 +2903,8 @@ end;
 procedure T420OCP.SetCotOui(const pCotOui: Double);
 begin
   FCotOui := pCotOui;
+
+  CheckField('CotOui');
 end;
 
 function T420OCP.GetBcoImp: Double;
@@ -2645,6 +2915,8 @@ end;
 procedure T420OCP.SetBcoImp(const pBcoImp: Double);
 begin
   FBcoImp := pBcoImp;
+
+  CheckField('BcoImp');
 end;
 
 function T420OCP.GetCofImp: Double;
@@ -2655,6 +2927,8 @@ end;
 procedure T420OCP.SetCofImp(const pCofImp: Double);
 begin
   FCofImp := pCofImp;
+
+  CheckField('CofImp');
 end;
 
 function T420OCP.GetBpiImp: Double;
@@ -2665,6 +2939,8 @@ end;
 procedure T420OCP.SetBpiImp(const pBpiImp: Double);
 begin
   FBpiImp := pBpiImp;
+
+  CheckField('BpiImp');
 end;
 
 function T420OCP.GetPisImp: Double;
@@ -2675,6 +2951,8 @@ end;
 procedure T420OCP.SetPisImp(const pPisImp: Double);
 begin
   FPisImp := pPisImp;
+
+  CheckField('PisImp');
 end;
 
 function T420OCP.GetSomFre: string;
@@ -2685,6 +2963,8 @@ end;
 procedure T420OCP.SetSomFre(const pSomFre: string);
 begin
   FSomFre := pSomFre;
+
+  CheckField('SomFre');
 end;
 
 function T420OCP.GetCodSaf: string;
@@ -2695,6 +2975,8 @@ end;
 procedure T420OCP.SetCodSaf(const pCodSaf: string);
 begin
   FCodSaf := pCodSaf;
+
+  CheckField('CodSaf');
 end;
 
 function T420OCP.GetSalCan: string;
@@ -2705,6 +2987,8 @@ end;
 procedure T420OCP.SetSalCan(const pSalCan: string);
 begin
   FSalCan := pSalCan;
+
+  CheckField('SalCan');
 end;
 
 function T420OCP.GetObrCtr: string;
@@ -2715,6 +2999,8 @@ end;
 procedure T420OCP.SetObrCtr(const pObrCtr: string);
 begin
   FObrCtr := pObrCtr;
+
+  CheckField('ObrCtr');
 end;
 
 function T420OCP.GetQtdBpi: Double;
@@ -2725,6 +3011,8 @@ end;
 procedure T420OCP.SetQtdBpi(const pQtdBpi: Double);
 begin
   FQtdBpi := pQtdBpi;
+
+  CheckField('QtdBpi');
 end;
 
 function T420OCP.GetQtdBco: Double;
@@ -2735,6 +3023,8 @@ end;
 procedure T420OCP.SetQtdBco(const pQtdBco: Double);
 begin
   FQtdBco := pQtdBco;
+
+  CheckField('QtdBco');
 end;
 
 function T420OCP.GetQtdBip: Double;
@@ -2745,6 +3035,8 @@ end;
 procedure T420OCP.SetQtdBip(const pQtdBip: Double);
 begin
   FQtdBip := pQtdBip;
+
+  CheckField('QtdBip');
 end;
 
 function T420OCP.GetUSU_UsuMod: Integer;
@@ -2755,6 +3047,8 @@ end;
 procedure T420OCP.SetUSU_UsuMod(const pUSU_UsuMod: Integer);
 begin
   FUSU_UsuMod := pUSU_UsuMod;
+
+  CheckField('USU_UsuMod');
 end;
 
 function T420OCP.GetUSU_DatMod: TDate;
@@ -2765,6 +3059,8 @@ end;
 procedure T420OCP.SetUSU_DatMod(const pUSU_DatMod: TDate);
 begin
   FUSU_DatMod := pUSU_DatMod;
+
+  CheckField('USU_DatMod');
 end;
 
 function T420OCP.GetUSU_HorMod: Integer;
@@ -2775,6 +3071,8 @@ end;
 procedure T420OCP.SetUSU_HorMod(const pUSU_HorMod: Integer);
 begin
   FUSU_HorMod := pUSU_HorMod;
+
+  CheckField('USU_HorMod');
 end;
 
 function T420OCP.GetUSU_TipTrf: string;
@@ -2795,6 +3093,8 @@ end;
 procedure T420OCP.SetUSU_OCFab(const pUSU_OCFab: string);
 begin
   FUSU_OCFab := pUSU_OCFab;
+
+  CheckField('USU_OCFab');
 end;
 
 function T420OCP.GetUSU_PPAP: Integer;
@@ -2805,6 +3105,8 @@ end;
 procedure T420OCP.SetUSU_PPAP(const pUSU_PPAP: Integer);
 begin
   FUSU_PPAP := pUSU_PPAP;
+
+  CheckField('USU_PPAP');
 end;
 
 function T420OCP.GetUSU_CrtOcp: Integer;
@@ -2815,6 +3117,8 @@ end;
 procedure T420OCP.SetUSU_CrtOcp(const pUSU_CrtOcp: Integer);
 begin
   FUSU_CrtOcp := pUSU_CrtOcp;
+
+  CheckField('USU_CrtOcp');
 end;
 
 function T420OCP.GetUSU_EmaEnv: string;
@@ -2825,6 +3129,8 @@ end;
 procedure T420OCP.SetUSU_EmaEnv(const pUSU_EmaEnv: string);
 begin
   FUSU_EmaEnv := pUSU_EmaEnv;
+
+  CheckField('USU_EmaEnv');
 end;
 
 function T420OCP.GetUSU_NumSdg: Integer;
@@ -2835,6 +3141,8 @@ end;
 procedure T420OCP.SetUSU_NumSdg(const pUSU_NumSdg: Integer);
 begin
   FUSU_NumSdg := pUSU_NumSdg;
+
+  CheckField('USU_NumSdg');
 end;
 
 function T420OCP.GetUSU_IndBTB: string;
@@ -2845,6 +3153,8 @@ end;
 procedure T420OCP.SetUSU_IndBTB(const pUSU_IndBTB: string);
 begin
   FUSU_IndBTB := pUSU_IndBTB;
+
+  CheckField('USU_IndBTB');
 end;
 
 function T420OCP.GetUSU_PrazEnt: TDate;
@@ -2855,6 +3165,8 @@ end;
 procedure T420OCP.SetUSU_PrazEnt(const pUSU_PrazEnt: TDate);
 begin
   FUSU_PrazEnt := pUSU_PrazEnt;
+
+  CheckField('USU_PrazEnt');
 end;
 
 function T420OCP.GetUSU_DatEmb: TDate;
@@ -2865,6 +3177,8 @@ end;
 procedure T420OCP.SetUSU_DatEmb(const pUSU_DatEmb: TDate);
 begin
   FUSU_DatEmb := pUSU_DatEmb;
+
+  CheckField('USU_DatEmb');
 end;
 
 function T420OCP.GetUSU_DatEnt: TDate;
@@ -2875,16 +3189,8 @@ end;
 procedure T420OCP.SetUSU_DatEnt(const pUSU_DatEnt: TDate);
 begin
   FUSU_DatEnt := pUSU_DatEnt;
-end;
 
-function T420OCP.GetUSU_ObsOa: string;
-begin
-  Result := FUSU_ObsOa;
-end;
-
-procedure T420OCP.SetUSU_ObsOa(const pUSU_ObsOa: string);
-begin
-  FUSU_ObsOa := pUSU_ObsOa;
+  CheckField('USU_DatEnt');
 end;
 
 function T420OCP.GetUSU_OrdCon: string;
@@ -2895,6 +3201,20 @@ end;
 procedure T420OCP.SetUSU_OrdCon(const pUSU_OrdCon: string);
 begin
   FUSU_OrdCon := pUSU_OrdCon;
+
+  CheckField('USU_OrdCon');
+end;
+
+function T420OCP.GetUSU_ObsOa: string;
+begin
+  Result := FUSU_ObsOa;
+end;
+
+procedure T420OCP.SetUSU_ObsOa(const pUSU_ObsOa: string);
+begin
+  FUSU_ObsOa := pUSU_ObsOa;
+
+  CheckField('USU_ObsOa');
 end;
 
 function T420OCP.GetCodEmpOLD: Integer;
@@ -4467,16 +4787,6 @@ begin
   FUSU_DatEntOLD := pUSU_DatEnt;
 end;
 
-function T420OCP.GetUSU_ObsOaOLD: string;
-begin
-  Result := FUSU_ObsOaOLD;
-end;
-
-procedure T420OCP.SetUSU_ObsOaOLD(const pUSU_ObsOa: string);
-begin
-  FUSU_ObsOaOLD := pUSU_ObsOa;
-end;
-
 function T420OCP.GetUSU_OrdConOLD: string;
 begin
   Result := FUSU_OrdConOLD;
@@ -4485,6 +4795,16 @@ end;
 procedure T420OCP.SetUSU_OrdConOLD(const pUSU_OrdCon: string);
 begin
   FUSU_OrdConOLD := pUSU_OrdCon;
+end;
+
+function T420OCP.GetUSU_ObsOaOLD: string;
+begin
+  Result := FUSU_ObsOaOLD;
+end;
+
+procedure T420OCP.SetUSU_ObsOaOLD(const pUSU_ObsOa: string);
+begin
+  FUSU_ObsOaOLD := pUSU_ObsOa;
 end;
 
 procedure T420OCP.Registros_OLD();
@@ -4646,9 +4966,173 @@ begin
   FUSU_PrazEntOLD := FUSU_PrazEnt;
   FUSU_DatEmbOLD := FUSU_DatEmb;
   FUSU_DatEntOLD := FUSU_DatEnt;
-  FUSU_ObsOaOLD := FUSU_ObsOa;
   FUSU_OrdConOLD := FUSU_OrdCon;
+  FUSU_ObsOaOLD := FUSU_ObsOa;
+
+  inherited;
 end;
 
-  {$HINTS ON}
+procedure T420OCP.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodFil := FCodFilOLD;
+  FNumOcp := FNumOcpOLD;
+  FTnsPro := FTnsProOLD;
+  FTnsSer := FTnsSerOLD;
+  FDatEmi := FDatEmiOLD;
+  FCodUsu := FCodUsuOLD;
+  FCodFor := FCodForOLD;
+  FSeqCto := FSeqCtoOLD;
+  FPedFor := FPedForOLD;
+  FObsOcp := FObsOcpOLD;
+  FCodCpg := FCodCpgOLD;
+  FCodFpg := FCodFpgOLD;
+  FCodMoe := FCodMoeOLD;
+  FDatMoe := FDatMoeOLD;
+  FCotMoe := FCotMoeOLD;
+  FFecMoe := FFecMoeOLD;
+  FCodFcr := FCodFcrOLD;
+  FDatFcr := FDatFcrOLD;
+  FQtdAbe := FQtdAbeOLD;
+  FCodTra := FCodTraOLD;
+  FCodRed := FCodRedOLD;
+  FVlrFum := FVlrFumOLD;
+  FQtdFre := FQtdFreOLD;
+  FForFre := FForFreOLD;
+  FPerDs1 := FPerDs1OLD;
+  FPerDs2 := FPerDs2OLD;
+  FPerFin := FPerFinOLD;
+  FVlrFre := FVlrFreOLD;
+  FCifFob := FCifFobOLD;
+  FVlrSeg := FVlrSegOLD;
+  FVlrEmb := FVlrEmbOLD;
+  FVlrEnc := FVlrEncOLD;
+  FVlrOut := FVlrOutOLD;
+  FVlrDar := FVlrDarOLD;
+  FVlrFrd := FVlrFrdOLD;
+  FVlrOud := FVlrOudOLD;
+  FVlrBpr := FVlrBprOLD;
+  FVlrDpr := FVlrDprOLD;
+  FVlrBse := FVlrBseOLD;
+  FVlrDse := FVlrDseOLD;
+  FVlrDs1 := FVlrDs1OLD;
+  FVlrDs2 := FVlrDs2OLD;
+  FVlrDzf := FVlrDzfOLD;
+  FVlrBfu := FVlrBfuOLD;
+  FVlrFun := FVlrFunOLD;
+  FVlrBip := FVlrBipOLD;
+  FVlrIpi := FVlrIpiOLD;
+  FVlrBic := FVlrBicOLD;
+  FVlrIcm := FVlrIcmOLD;
+  FVlrBsi := FVlrBsiOLD;
+  FVlrSic := FVlrSicOLD;
+  FVlrBsp := FVlrBspOLD;
+  FVlrStp := FVlrStpOLD;
+  FVlrBsc := FVlrBscOLD;
+  FVlrStc := FVlrStcOLD;
+  FVlrBis := FVlrBisOLD;
+  FVlrIss := FVlrIssOLD;
+  FVlrBir := FVlrBirOLD;
+  FVlrIrf := FVlrIrfOLD;
+  FVlrBin := FVlrBinOLD;
+  FVlrIns := FVlrInsOLD;
+  FVlrLpr := FVlrLprOLD;
+  FVlrLse := FVlrLseOLD;
+  FVlrLou := FVlrLouOLD;
+  FVlrLiq := FVlrLiqOLD;
+  FVlrFin := FVlrFinOLD;
+  FTemPar := FTemParOLD;
+  FCodPor := FCodPorOLD;
+  FCodCrt := FCodCrtOLD;
+  FRotNap := FRotNapOLD;
+  FFilApr := FFilAprOLD;
+  FNumApr := FNumAprOLD;
+  FSitApr := FSitAprOLD;
+  FSitOcp := FSitOcpOLD;
+  FCodMot := FCodMotOLD;
+  FObsMot := FObsMotOLD;
+  FFilPed := FFilPedOLD;
+  FNumPed := FNumPedOLD;
+  FVerCal := FVerCalOLD;
+  FUsuGer := FUsuGerOLD;
+  FDatGer := FDatGerOLD;
+  FHorGer := FHorGerOLD;
+  FPrcOcp := FPrcOcpOLD;
+  FPerPrg := FPerPrgOLD;
+  FPerFre := FPerFreOLD;
+  FPerSeg := FPerSegOLD;
+  FPerEmb := FPerEmbOLD;
+  FPerEnc := FPerEncOLD;
+  FPerOut := FPerOutOLD;
+  FSeqOrm := FSeqOrmOLD;
+  FUsuFec := FUsuFecOLD;
+  FDatFec := FDatFecOLD;
+  FHorFec := FHorFecOLD;
+  FTipInt := FTipIntOLD;
+  FVlrBcl := FVlrBclOLD;
+  FVlrCsl := FVlrCslOLD;
+  FVlrBpt := FVlrBptOLD;
+  FVlrPit := FVlrPitOLD;
+  FVlrBct := FVlrBctOLD;
+  FVlrCrt := FVlrCrtOLD;
+  FVlrBor := FVlrBorOLD;
+  FVlrOur := FVlrOurOLD;
+  FCodMfr := FCodMfrOLD;
+  FDatMfr := FDatMfrOLD;
+  FCotMfr := FCotMfrOLD;
+  FVlrBii := FVlrBiiOLD;
+  FVlrIim := FVlrIimOLD;
+  FVlrRis := FVlrRisOLD;
+  FVlrBpi := FVlrBpiOLD;
+  FVlrPis := FVlrPisOLD;
+  FVlrBcr := FVlrBcrOLD;
+  FVlrCor := FVlrCorOLD;
+  FPerDs3 := FPerDs3OLD;
+  FPerDs4 := FPerDs4OLD;
+  FPerDs5 := FPerDs5OLD;
+  FVlrDs3 := FVlrDs3OLD;
+  FVlrDs4 := FVlrDs4OLD;
+  FVlrDs5 := FVlrDs5OLD;
+  FVlrOri := FVlrOriOLD;
+  FQtdOri := FQtdOriOLD;
+  FVlrFei := FVlrFeiOLD;
+  FMoeFei := FMoeFeiOLD;
+  FDatFei := FDatFeiOLD;
+  FCotFei := FCotFeiOLD;
+  FVlrSei := FVlrSeiOLD;
+  FMoeSei := FMoeSeiOLD;
+  FDatSei := FDatSeiOLD;
+  FCotSei := FCotSeiOLD;
+  FVlrOui := FVlrOuiOLD;
+  FMoeOui := FMoeOuiOLD;
+  FDatOui := FDatOuiOLD;
+  FCotOui := FCotOuiOLD;
+  FBcoImp := FBcoImpOLD;
+  FCofImp := FCofImpOLD;
+  FBpiImp := FBpiImpOLD;
+  FPisImp := FPisImpOLD;
+  FSomFre := FSomFreOLD;
+  FCodSaf := FCodSafOLD;
+  FSalCan := FSalCanOLD;
+  FObrCtr := FObrCtrOLD;
+  FQtdBpi := FQtdBpiOLD;
+  FQtdBco := FQtdBcoOLD;
+  FQtdBip := FQtdBipOLD;
+  FUSU_UsuMod := FUSU_UsuModOLD;
+  FUSU_DatMod := FUSU_DatModOLD;
+  FUSU_HorMod := FUSU_HorModOLD;
+  FUSU_TipTrf := FUSU_TipTrfOLD;
+  FUSU_OCFab := FUSU_OCFabOLD;
+  FUSU_PPAP := FUSU_PPAPOLD;
+  FUSU_CrtOcp := FUSU_CrtOcpOLD;
+  FUSU_EmaEnv := FUSU_EmaEnvOLD;
+  FUSU_NumSdg := FUSU_NumSdgOLD;
+  FUSU_IndBTB := FUSU_IndBTBOLD;
+  FUSU_PrazEnt := FUSU_PrazEntOLD;
+  FUSU_DatEmb := FUSU_DatEmbOLD;
+  FUSU_DatEnt := FUSU_DatEntOLD;
+  FUSU_OrdCon := FUSU_OrdConOLD;
+  FUSU_ObsOa := FUSU_ObsOaOLD;
+end;
+
 end.

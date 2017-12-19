@@ -1,7 +1,7 @@
 object F000CAD: TF000CAD
   Left = 0
   Top = 0
-  Caption = ' Cadastro(s) - Controle de Loca'#231#227'o'
+  Caption = ' Cadastro(s)'
   ClientHeight = 694
   ClientWidth = 618
   Color = clBtnFace
@@ -10,9 +10,11 @@ object F000CAD: TF000CAD
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   Position = poDesktopCenter
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   OnMouseActivate = FormMouseActivate
   PixelsPerInch = 96
   TextHeight = 13
@@ -44,6 +46,7 @@ object F000CAD: TF000CAD
         Font.Style = []
         ParentFont = False
         TabOrder = 2
+        TabStop = False
         OnClick = ExcluirClick
       end
       object Alterar: TButton
@@ -59,6 +62,7 @@ object F000CAD: TF000CAD
         Font.Style = []
         ParentFont = False
         TabOrder = 1
+        TabStop = False
         OnClick = AlterarClick
       end
       object Inserir: TButton
@@ -74,6 +78,7 @@ object F000CAD: TF000CAD
         Font.Style = []
         ParentFont = False
         TabOrder = 0
+        TabStop = False
         OnClick = InserirClick
       end
       object Cancelar: TButton
@@ -89,6 +94,7 @@ object F000CAD: TF000CAD
         Font.Style = []
         ParentFont = False
         TabOrder = 3
+        TabStop = False
         OnClick = CancelarClick
         OnMouseActivate = CancelarMouseActivate
         OnMouseEnter = CancelarMouseEnter
@@ -107,6 +113,7 @@ object F000CAD: TF000CAD
         Font.Style = []
         ParentFont = False
         TabOrder = 4
+        TabStop = False
         OnClick = SairClick
         OnMouseEnter = SairMouseEnter
         OnMouseLeave = SairMouseLeave

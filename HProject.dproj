@@ -58,7 +58,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_UsePackage>bindcompfmx;DBXSqliteDriver;vcldbx;fmx;rtl;dbrtl;DbxClientDriver;IndySystem;TeeDB;bindcomp;inetdb;inetdbbde;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DBXOdbcDriver;DataSnapServer;Tee;HennCustom;DataSnapProviderClient;xmlrtl;svnui;DBXSybaseASEDriver;DbxCommonDriver;vclimg;IndyProtocols;dbxcds;DBXMySQLDriver;DatasnapConnectorsFreePascal;MetropolisUILiveTile;vclactnband;bindengine;vcldb;soaprtl;bindcompdbx;vcldsnap;bindcompvcl;FMXTee;TeeUI;vclie;vcltouch;DBXDb2Driver;DBXOracleDriver;CustomIPTransport;vclribbon;VclSmp;dsnap;IndyIPServer;DBXInformixDriver;Intraweb;fmxase;vcl;IndyCore;DataSnapConnectors;IndyIPCommon;CloudService;DBXMSSQLDriver;dsnapcon;DBXFirebirdDriver;FmxTeeUI;inet;fmxobj;vclx;inetdbxpress;webdsnap;svn;DBXSybaseASADriver;fmxdae;bdertl;dbexpress;adortl;DataSnapIndy10ServerTransport;IndyIPClient;HBase;HBaseComponente;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>bindcompfmx;DBXSqliteDriver;vcldbx;fmx;rtl;dbrtl;DbxClientDriver;IndySystem;TeeDB;bindcomp;inetdb;inetdbbde;DBXInterBaseDriver;DataSnapClient;DataSnapCommon;DBXOdbcDriver;DataSnapServer;Tee;HennCustom;DataSnapProviderClient;xmlrtl;svnui;DBXSybaseASEDriver;DbxCommonDriver;vclimg;IndyProtocols;dbxcds;DBXMySQLDriver;DatasnapConnectorsFreePascal;MetropolisUILiveTile;vclactnband;bindengine;vcldb;soaprtl;bindcompdbx;vcldsnap;bindcompvcl;FMXTee;TeeUI;vclie;vcltouch;DBXDb2Driver;DBXOracleDriver;CustomIPTransport;vclribbon;VclSmp;dsnap;IndyIPServer;DBXInformixDriver;Intraweb;fmxase;vcl;IndyCore;DataSnapConnectors;IndyIPCommon;CloudService;DBXMSSQLDriver;dsnapcon;DBXFirebirdDriver;FmxTeeUI;inet;fmxobj;vclx;inetdbxpress;webdsnap;svn;DBXSybaseASADriver;fmxdae;bdertl;dbexpress;adortl;DataSnapIndy10ServerTransport;IndyIPClient;HBase;HComponente;HGeral;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -89,6 +89,12 @@
         <DCC_DebugInformation>false</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_MajorVer>3</VerInfo_MajorVer>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
+        <BRCC_OutputDir>C:\Users\user\Documents\RAD Studio\Projects\Win32\Release\</BRCC_OutputDir>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=3.1.1.1;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Release>1</VerInfo_Release>
         <Icon_MainIcon>HProject_Icon.ico</Icon_MainIcon>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -100,33 +106,28 @@
         <DCCReference Include="u310CLP.pas">
             <Form>F310CLP</Form>
         </DCCReference>
-        <DCCReference Include="o310clp.pas"/>
         <DCCReference Include="u000crm.pas">
             <Form>F000CRM</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="oFacadeControladoraCRM.pas"/>
-        <DCCReference Include="oFacadeWebServicesCRM.pas"/>
-        <DCCReference Include="oFacedeCarregamentoCRM.pas"/>
-        <DCCReference Include="oFacadeOperadora.pas"/>
-        <DCCReference Include="WConnect_WSDL.pas"/>
-        <DCCReference Include="oFacadeBaseCRM.pas"/>
         <DCCReference Include="u510ARM.pas">
             <Form>F510ARM</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="oArmazenamento.pas"/>
         <DCCReference Include="u510CON.pas">
             <Form>F510CON</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="oConsulta.pas"/>
         <DCCReference Include="u510lay.pas">
             <Form>F510LAY</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="u510lte.pas">
             <Form>F510LTE</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u000isc.pas">
+            <Form>F000ISC</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <None Include="ModelSupport_HProject\default.txaPackage"/>

@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{C180EFC5-228B-41A0-9854-48DCF8B97807}</ProjectGuid>
-        <MainSource>HBaseComponente.dpk</MainSource>
+        <MainSource>HComponente.dpk</MainSource>
         <ProjectVersion>14.6</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
@@ -129,8 +129,6 @@
         <DCCReference Include="adortl.dcp"/>
         <DCCReference Include="vclimg.dcp"/>
         <DCCReference Include="HBase.dcp"/>
-        <DCCReference Include="oMensagem.pas"/>
-        <DCCReference Include="oHButton.pas"/>
         <DCCReference Include="oDataSetGrid.pas"/>
         <DCCReference Include="oButtonedEdit.pas"/>
         <DCCReference Include="oDateTimePicker.pas"/>
@@ -145,6 +143,8 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="oValueListEditor.pas"/>
+        <DCCReference Include="oHButton.pas"/>
+        <DCCReference Include="oMensagem.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -163,7 +163,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">HBaseComponente.dpk</Source>
+                    <Source Name="MainSource">HComponente.dpk</Source>
                 </Source>
                 <VersionInfo>
                     <VersionInfo Name="IncludeVerInfo">True</VersionInfo>

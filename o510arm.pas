@@ -44,6 +44,7 @@ type
     procedure SetUSU_SitArmOld(const pUSU_SitArm: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -66,12 +67,14 @@ type
 implementation
 
 uses
- o510age, Winapi.Windows;
+   o510age, Winapi.Windows;
 
 { T510ARM }
 
 constructor T510ARM.Create();
 begin
+  AddPrimaryKeys('USU_ID');
+
   inherited Create('USU_T510ARM');
 end;
 
@@ -88,6 +91,8 @@ end;
 procedure T510ARM.SetUSU_CodPor(const pUSU_CodPor: string);
 begin
   FUSU_CodPor := pUSU_CodPor;
+
+  CheckField('USU_CodPor');
 end;
 
 function T510ARM.GetUSU_DatGer: TDate;
@@ -98,6 +103,8 @@ end;
 procedure T510ARM.SetUSU_DatGer(const pUSU_DatGer: TDate);
 begin
   FUSU_DatGer := pUSU_DatGer;
+
+  CheckField('USU_DatGer');
 end;
 
 function T510ARM.GetUSU_DatFin: TDate;
@@ -108,6 +115,8 @@ end;
 procedure T510ARM.SetUSU_DatFin(const pUSU_DatFin: TDate);
 begin
   FUSU_DatFin := pUSU_DatFin;
+
+  CheckField('USU_DatFin');
 end;
 
 function T510ARM.GetUSU_NomArq: string;
@@ -118,6 +127,8 @@ end;
 procedure T510ARM.SetUSU_NomArq(const pUSU_NomArq: string);
 begin
   FUSU_NomArq := pUSU_NomArq;
+
+  CheckField('USU_NomArq');
 end;
 
 function T510ARM.GetUSU_SitArm: Char;
@@ -128,6 +139,8 @@ end;
 procedure T510ARM.SetUSU_SitArm(const pUSU_SitArm: Char);
 begin
   FUSU_SitArm := pUSU_SitArm;
+
+  CheckField('USU_SitArm');
 end;
 
 function T510ARM.GetUSU_CodPorOLD: string;
@@ -187,6 +200,17 @@ begin
   FUSU_DatFinOLD := FUSU_DatFin;
   FUSU_NomArqOLD := FUSU_NomArq;
   FUSU_SitArmOLD := FUSU_SitArm;
+
+  inherited;
+end;
+
+procedure T510ARM.RetornarValores();
+begin
+  FUSU_CodPor := FUSU_CodPorOLD;
+  FUSU_DatGer := FUSU_DatGerOLD;
+  FUSU_DatFin := FUSU_DatFinOLD;
+  FUSU_NomArq := FUSU_NomArqOLD;
+  FUSU_SitArm := FUSU_SitArmOLD;
 end;
 
 procedure T510ARM.RemoverArquivo(const pAtualizar: Boolean);
@@ -197,17 +221,17 @@ begin
   begin
     Self.USU_SitArm := 'S';
     Self.USU_DatFin := Date;
-    Self.FieldsForUpdate(['USU_SitArm','USU_DatFin']);
     Self.PropertyForSelect(['USU_ID']);
-    Self.Execute(estUpdate);
+    Self.Update();
   end;
 
   x510age := T510AGE.Create;
   try
     x510age.USU_CodPor := Self.USU_CodPor;
     x510age.PropertyForSelect(['USU_CODPOR']);
+    x510age.Open();
 
-    if x510age.Execute(etSelect) then
+    if not(x510age.IsEmpty) then
     begin
       if not(DirectoryExists(x510age.USU_DirArq + 'DDA_BKP\')) then
         CreateDir(x510age.USU_DirArq + 'DDA_BKP\');

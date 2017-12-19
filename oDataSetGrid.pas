@@ -9,8 +9,11 @@ uses
   oValueListEditor, Datasnap.Provider;
 
 type
+  TDataSetGrid = class; //foward
+
   TEnterLine = procedure(Sender: TObject) of Object;
   TProcedure = procedure() of Object;
+  TLineChange = procedure(DataSet: TDataSet) of Object;
   TProcedureSender = procedure(Sender: TObject; var Key: Word; Shift: TShiftState) of Object;
   TColumnInfo = procedure(Column: TColumn) of Object;
   TCheckMethod = (cmNone, cmExitCol, cmChange,
@@ -18,10 +21,9 @@ type
                   cmAfterInsert, cmBeforeInsert, cmCancelLine,
                   cmExitLine, cmKeyDown, cmBeforeDelete);
 
+  TProcedureCheck = procedure(const pCheck: TCheckMethod; const pGrid: TDataSetGrid; const pField: string) of object;
   TLineState = (lsNewLine, lsEvents, lsStop);
-  TGridState = (gsBrowse, gsInsert, gsEdit,
-                gsNone, gsOnEnter, gsOnExit,
-                gsNewValue, gsCallCheck);
+  TGridState = (gsBrowse, gsOnEnter, gsNewValue, gsDisconnect);
 
   TFieldPosition = record
     Name: string;
@@ -52,7 +54,6 @@ type
     FShiftTabPress: Boolean;
     FAllowNewLine: Boolean;
     FDisableEnter: Boolean;
-    FisAutomatic: Boolean;
     FOrderTitles: Boolean;
     FChangeLine: Boolean;
     FCancelLine: Boolean;
@@ -62,10 +63,12 @@ type
     FLike: Boolean;
     FTAB: Boolean;
     FESC: Boolean;
+    FINIT: Boolean;
 
     FTable: string;
     FFilter: string;
     FFieldList: string;
+    FClassTable: string;
     FIndexFields: string;
 
     FCount: Integer;
@@ -75,8 +78,6 @@ type
     FOrdenado: Integer;
     FRowHeight: Integer;
     FOldColumn: Integer;
-    FLastExitLine: Integer;
-    FOldEnterLine: Integer;
 
     FOldValue: Variant;
 
@@ -115,12 +116,15 @@ type
     procedure ButtonClick(Sender: TObject);
     procedure CheckClick(Column: TColumn);
     procedure EnterGrid(Sender: TObject);
-    procedure EnterLine(Sender: TObject);
     procedure ExitGrid(Sender: TObject);
     procedure EnterCol(Sender: TObject);
     procedure ExitCol(Sender: TObject);
+    procedure ExitLine(DataSet: TDataSet);
     procedure ChangePosition();
     procedure CallCheck();
+
+    procedure EnterLineDataSet(DataSet: TDataSet);
+    procedure EnterLine(Sender: TObject);
 
     //Bloco de eventos da Grid
     procedure OnCancelLine(DataSet: TDataSet);
@@ -135,7 +139,6 @@ type
     Procedure SetRowHeight(Value:Integer);
     procedure CreateImage();
   public
-    procedure Add();
     procedure Clear();
     procedure Edit();
     procedure Post();
@@ -143,7 +146,8 @@ type
     procedure Next();
     procedure Finalize();
     procedure CreateDataSet();
-    procedure AddFields(const pObj: TObject);
+    procedure Add(const pObj: TObject);
+    procedure PerformUpdateGrid();
     procedure Visible(const pField: string; pValue: Boolean);
     procedure ReadOnly(const pField: string; pValue: Boolean);
     procedure NumericField(const pField: string; const pMask: string);
@@ -159,6 +163,7 @@ type
     function Count: Integer;
     function Line: Integer;
     function ShowSearch(): Boolean;
+    function Table: string;
     function FindField(const pFieldName: string): TField;
     function Selected(const pField: string): Variant;
     function GridTitleClick(): Boolean;
@@ -175,7 +180,7 @@ type
     property DisableEnter: Boolean read FDisableEnter write FDisableEnter;
   published
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
-    property isAutomatic: Boolean read FisAutomatic write FisAutomatic;
+    property ClassTable: string read FClassTable write FClassTable;
   end;
 
 procedure Register;
@@ -204,18 +209,17 @@ begin
 
   FTable := pTable;
   FForm := pForm;
+  FINIT := False;
 
   FFieldList := EmptyStr;
   FFilter := pFilter;
   FColumn := 0;
   FCount := 0;
   FOrdenado := 0;
-  FLastExitLine := 0;
   FChangeLine := False;
   FOrderTitles := False;
   FRowAdd := False;
   FLineState := lsNewLine;
-
   FProvider.Name := 'Provider' + Self.Name + FTable;
   FProvider.DataSet := FQueryField;
 
@@ -225,6 +229,8 @@ begin
   FClientDataSet.AfterInsert := OnAfterInsert;
   FClientDataSet.BeforeInsert := OnBeforeInsert;
   FClientDataSet.BeforeDelete := BeforeDelete;
+  FClientDataSet.AfterScroll := EnterLineDataSet;
+  FClientDataSet.BeforeScroll := ExitLine;
   FClientDataSet.ProviderName := FProvider.Name;
 
   Self.OnDrawColumnCell := Draw;
@@ -274,7 +280,9 @@ end;
 
 procedure TDataSetGrid.Next;
 begin
+  FINIT := False;
   FClientDataSet.Next;
+  FINIT := True;
 end;
 
 procedure TDataSetGrid.NumericField(const pField: string; const pMask: string);
@@ -378,7 +386,6 @@ begin
   FFieldState := gsOnEnter;
   FOldLine := 0;
   FOldColumn := 1;
-  FOldEnterLine := FClientDataSet.RecNo;
 
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
@@ -418,6 +425,8 @@ begin
 
   SelectedIndex := 0;
   FOldColumn := 1;
+
+  EnterCol(Sender);
 end;
 
 procedure TDataSetGrid.EnterLine(Sender: TObject);
@@ -467,11 +476,10 @@ begin
   if (FOldColumn < 1) then
     FOldColumn := 1;
 
-  FFieldState := gsBrowse;
   if (FOldValue <> Self.Columns[(FOldColumn)].Field.Value) then
   begin
     FOldValue := Self.Columns[(FOldColumn)].Field.Value;
-    CheckMethod(Self.Columns[(FOldColumn)].FieldName, cmChange);
+    //-CheckMethod(Self.Columns[(FOldColumn)].FieldName, cmChange);
   end;
 
   if (FChangeLine) then
@@ -480,6 +488,11 @@ begin
       FChangeLine := False;
       Self.DataSource.DataSet.RecNo := FNewLine;
     end;
+end;
+
+procedure TDataSetGrid.PerformUpdateGrid();
+begin
+  Perform(WM_KEYDOWN, 39, 0)
 end;
 
 function TDataSetGrid.CellRect(ACol, Arow: Integer): TRect;
@@ -491,38 +504,26 @@ procedure TDataSetGrid.ChangeData(Sender: TObject; Field: TField);
 begin
   if (FGridState = gsBrowse) then
   begin
-    if (FLastExitLine >= 1) and (FLastExitLine <> Self.DataSource.DataSet.RecNo) and (Self.DataSource.DataSet.RecNo >= 0) then
-    begin
-      CheckMethod(EmptyStr, cmExitLine);
-      FLastExitLine := Self.DataSource.DataSet.RecNo;
-    end;
-
-    if Assigned(FEnterLine) then
-      if (FOldEnterLine <> Self.DataSource.DataSet.RecNo) and (Self.DataSource.DataSet.RecNo >= 0) then
-      begin
-        FEnterLine(Self);
-        FOldEnterLine := Self.DataSource.DataSet.RecNo;
-      end;
-
-    if (FLastExitLine = 0) and (FOldEnterLine <> Self.DataSource.DataSet.RecNo) and (Self.DataSource.DataSet.RecNo >= 0) then
-      FLastExitLine := Self.DataSource.DataSet.RecNo;
-
     if ((FOldLine <> Self.DataSource.DataSet.RecNo) and (FFieldState = gsNewValue)) then
     begin
       FChangeLine := True;
       FNewLine := Self.DataSource.DataSet.RecNo;
-      FFieldState := gsCallCheck;
 
       //Passado outro FS, pois o RecNo ira chamar o ChangeData
       if (FOldLine > 0) and not(FAllowNewLine) then
         Self.DataSource.DataSet.RecNo := FOldLine;
-    end;
 
-    if (FFieldState = gsCallCheck) then
       CallCheck();
+    end;
   end;
 
   FGridState := gsBrowse;
+end;
+
+procedure TDataSetGrid.EnterLineDataSet(DataSet: TDataSet);
+begin
+  if ((FINIT) and (Self.Count > 0) and not(FGridState = gsDisconnect)) then
+    FEnterLine(Self);
 end;
 
 procedure TDataSetGrid.ChangePosition;
@@ -612,22 +613,33 @@ begin
   if (FFieldState = gsNewValue) then
     CallCheck();
 
-  FFieldState := gsOnExit;
+  ExitCol(Sender);
 end;
 
-procedure TDataSetGrid.AddFields(const pObj: TObject);
+procedure TDataSetGrid.ExitLine(DataSet: TDataSet);
+begin
+  if ((FINIT) and (Self.Count > 0) and not(FGridState = gsDisconnect)) then
+  begin
+    ExitCol(Self);
+    CheckMethod(EmptyStr, cmExitLine);
+  end;
+end;
+
+procedure TDataSetGrid.Add(const pObj: TObject);
 var
   xType: TRttiType;
   xProperty: TRttiProperty;
 begin
+  FINIT := False;
+  FRowAdd := False;
+  FClientDataSet.Append;
+
   xType := FContext.GetType(pObj.ClassType);
 
   for xProperty in xType.GetProperties do
     if (xProperty.PropertyType.TypeKind in [tkInteger, tkFloat, tkString, tkUString, tkWChar, tkWString]) then
       if not(BuscarString('ID', [DesmontaID(xProperty.Name)])) and not(AnsiSameText(UpperCase(Copy(xProperty.Name, 0, 4)), 'OLD_')) then
       begin
-        FGridState := gsInsert;
-
         if (Assigned(FClientDataSet.FindField(xProperty.Name))) then
         begin
           if (FClientDataSet.FindField(xProperty.Name).DataType in [ftDateTime, ftDate]) then
@@ -645,9 +657,10 @@ begin
         end;
       end;
 
-  FGridState := gsInsert;
   FClientDataSet.Post;
   Inc(FCount);
+
+  FINIT := True;
 end;
 
 procedure TDataSetGrid.AddLeftTableForm(const pForm: TForm);
@@ -751,7 +764,9 @@ end;
 
 procedure TDataSetGrid.First;
 begin
+  FINIT := False;
   FClientDataSet.First;
+  FINIT := True;
 end;
 
 function TDataSetGrid.GetAllowNewLine: Boolean;
@@ -904,6 +919,7 @@ end;
 procedure TDataSetGrid.Disconnect;
 begin
   Self.DataSource.DataSet := nil;
+  FGridState := gsDisconnect;
 end;
 
 procedure TDataSetGrid.Draw(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
@@ -951,13 +967,14 @@ end;
 procedure TDataSetGrid.CheckFields(const pField: string; const pValue: Integer);
 begin
   Disconnect;
-  FClientDataSet.First();
+  FClientDataSet.First;
   while not(Self.Eof) do
   begin
     FClientDataSet.FindField(pField).AsInteger := pValue;
     FClientDataSet.Post();
-    FClientDataSet.Next
+    FClientDataSet.Next;
   end;
+  FClientDataSet.First;
   Connect;
 end;
 
@@ -966,6 +983,7 @@ var
   xType: TRttiType;
   xMethod: TMethod;
   xProcedure: TProcedure;
+  xProcedureCheck: TProcedureCheck;
   xRttiMethod: TRttiMethod;
   xCheck: string;
 begin
@@ -1014,6 +1032,24 @@ begin
       xProcedure := TProcedure(xMethod);
       xProcedure;
     end;
+  end
+  else
+  begin
+    //Deixa a u000cad analisar o metodo
+    xRttiMethod :=  xType.GetMethod('AutomaticMethod');
+
+    if Assigned(xRttiMethod) then
+    begin
+      xMethod.Data := Pointer(FForm);
+      xMethod.Code := FForm.MethodAddress(xRttiMethod.Name);
+
+
+      if Assigned(xMethod.Code) then
+      begin
+        xProcedureCheck := TProcedureCheck(xMethod);
+        xProcedureCheck(pCheckMethod, Self, pField);
+      end;
+    end;
   end;
 end;
 
@@ -1049,8 +1085,9 @@ end;
 
 procedure TDataSetGrid.Clear;
 begin
-  FGridState := gsNone;
+  FGridState := gsBrowse;
   FClientDataSet.EmptyDataSet;
+  FINIT := False;
   FCount := 0;
   FOrdenado := 0;
 end;
@@ -1058,11 +1095,12 @@ end;
 procedure TDataSetGrid.Connect;
 begin
   Self.DataSource.DataSet := FClientDataSet;
+  FGridState := gsBrowse;
 end;
 
 function TDataSetGrid.Count: Integer;
 begin
-  Result := FCount;
+  Result := FClientDataSet.RecordCount;
 end;
 
 procedure TDataSetGrid.CreateDataSet();
@@ -1219,8 +1257,7 @@ begin
     pList.ValueList.Name := 'LookupEnum'+ pList.Name;
 
     x998lsf.LSTNAM := pList.Enum;
-    x998lsf.PropertyForSelect(['LSTNAM']);
-    x998lsf.Execute(etSelect, esLoop);
+    x998lsf.Open();
 
     while (x998lsf.Next) do
       pList.ValueList.AddRow(x998lsf.KEYNAM, x998lsf.ValKey);
@@ -1308,6 +1345,11 @@ begin
   FClientDataSet.Delete;
 end;
 
+function TDataSetGrid.Table: string;
+begin
+  Result := FTable;
+end;
+
 procedure TDataSetGrid.TitleClickOrder(Column: TColumn);
 var
   xType: TRttiType;
@@ -1384,13 +1426,6 @@ end;
 procedure TDataSetGrid.ActionChange(Sender: TObject; CheckDefaults: Boolean);
 begin
   inherited;
-end;
-
-procedure TDataSetGrid.Add;
-begin
-  FRowAdd := False;
-  FGridState := gsInsert;
-  FClientDataSet.Append;
 end;
 
 procedure TDataSetGrid.AddColumn(const pName, pDesc: string; const pType: TFieldType; const pStringSize: Integer = 0; const pCheck: Boolean = False);

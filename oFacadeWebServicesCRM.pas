@@ -4,13 +4,12 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  WConnect_WSDL, Xml.XMLDoc, Vcl.Forms, oMensagem;
+  Xml.XMLDoc, oMensagem, WConnect_WSDL, oFacadeBaseCRM, oFacadeListaServicos;
 
 type
-  TFacadeWebServicesCRM = class
+  TFacadeWebServicesCRM = class(TIterador)
   private
     FServico: WConnect_CRM_SeniorPortType;
-
     FProdutos: Array_Of_produtosRecebe;
     FID: Integer;
 
@@ -19,8 +18,9 @@ type
     FAgedamento: compromisso;
     FFechamentoCompromisso: concluiCompromisso;
 
+    procedure SetCodEmp(Value: Integer);
     function GetRegistros: produtosRecebe;
-    procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
+    //procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -31,6 +31,7 @@ type
     function ConsumirFechamentoCompromisso(const pId: Integer): concluiCompromissoRetornoDados;
     procedure Add();
 
+    property CodEmp: Integer write SetCodEmp;
     property Dados: oportunidade read FDados write FDados;
     property Produtos: produtosRecebe read GetRegistros;
     property Agedamento: compromisso read FAgedamento write FAgedamento;
@@ -39,7 +40,7 @@ type
 implementation
 
 uses
-  Soap.OpConvertOptions, SOAPHTTPClient;
+  Soap.OpConvertOptions, SOAPHTTPClient, o000isc;
 
 { TFacadeWebServicesCRM }
 
@@ -54,6 +55,7 @@ begin
 end;
 
 //Carrega o xml para consulta
+{
 procedure TFacadeWebServicesCRM.BeforeExecute(const MethodName: string;
   SOAPRequest: TStream);
 var
@@ -82,7 +84,7 @@ begin
 
   //gambi para remover hint
   //BeforeExecute('', nil);
-end;
+end;  }
 
 function TFacadeWebServicesCRM.ConsumirCompromisso: compromissoRetornoDados;
 begin
@@ -109,43 +111,28 @@ end;
 
 constructor TFacadeWebServicesCRM.Create;
 var
-  xRIO: THTTPRIO;
+  x000isc: T000ISC;
+  xFacadeListaServico: TFacadeListaServico;
 begin
-  inherited;
+  inherited Create();
 
   FID := 0;
+  Self.indexed := True;
+  Self.IndexFields(['CodEmp']);
 
-  if AnsiSameText(ParamStr(6), 'Compromisso') then
-    xRIO := nil
-  else
-  begin
-    xRIO := THTTPRIO.Create(nil);
-    xRIO.HTTPWebNode.Proxy := 'proxy.henningsbnu.local:3128';
-    xRIO.HTTPWebNode.UserName := 'workcrm';
-    xRIO.HTTPWebNode.Password := '3is3NbahN';
-    xRIO.HTTPWebNode.UseUTF8InHeader := False;
-    xRIO.Converter.Encoding := 'ISO-8859-1';
-    xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
-    xRIO.OnBeforeExecute := BeforeExecute;
+  x000isc := T000ISC.Create;
+  try
+    x000isc.Init;
+    x000isc.Open();
+    while (x000isc.Next) do
+    begin
+      xFacadeListaServico := TFacadeListaServico.Create(x000isc);
+      xFacadeListaServico.CodEmp := x000isc.USU_CodEmp;
+      inherited Add(xFacadeListaServico);
+    end;
+  finally
+    FreeAndNil(x000isc);
   end;
-
-  FServico := GetWConnect_CRM_SeniorPortType(False, '', xRIO);
-
-  FDados := oportunidade.Create;
-  FDados.UsuarioLogin := 'integracao';
-  FDados.UsuarioSenha := 'integracao';
-
-  FRegistros := produtosRecebeArray.Create;
-  FRegistros.UsuarioLogin := 'integracao';
-  FRegistros.UsuarioSenha := 'integracao';
-
-  FAgedamento := compromisso.Create;
-  FAgedamento.UsuarioLogin := 'integracao';
-  FAgedamento.UsuarioSenha := 'integracao';
-
-  FFechamentoCompromisso := concluiCompromisso.Create;
-  FFechamentoCompromisso.UsuarioLogin := 'integracao';
-  FFechamentoCompromisso.UsuarioSenha := 'integracao';
 end;
 
 destructor TFacadeWebServicesCRM.Destroy;
@@ -156,6 +143,22 @@ end;
 function TFacadeWebServicesCRM.GetRegistros: produtosRecebe;
 begin
   Result := FProdutos[FID];
+end;
+
+procedure TFacadeWebServicesCRM.SetCodEmp(Value: Integer);
+var
+  i: Integer;
+begin
+  i := Self.IndexOf(IntToStr(Value));
+
+  if (i > -1) then
+  begin
+    FRegistros := TFacadeListaServico(Self[i]).Registros;
+    FDados := TFacadeListaServico(Self[i]).Dados;
+    FAgedamento := TFacadeListaServico(Self[i]).Agedamento;
+    FFechamentoCompromisso := TFacadeListaServico(Self[i]).FechamentoCompromisso;
+    FServico := TFacadeListaServico(Self[i]).Servico;
+  end;
 end;
 
 end.

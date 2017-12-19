@@ -107,7 +107,7 @@ var
 implementation
 
 uses
-  oTabelas, Data.DB, oBase, CommCtrl, o510arm, o510tit;
+  Data.DB, oBase, CommCtrl, o510arm, o510tit, oGeral;
 
 {$R *.dfm}
 
@@ -163,7 +163,14 @@ begin
   BECodPor.Text := EmptyStr;
   BECodFor.Text := EmptyStr;
   BENomArq.Text := EmptyStr;
-  BECodPor.Text := EmptyStr;
+  BENumTit.Text := EmptyStr;
+
+  DDatIni.Init;
+  DDatFim.Init;
+  DVenIni.Init;
+  DVenFim.Init;
+  DFinIni.Init;
+  DFinFim.Init;
 
   BEVlrIni.Text := '0,00';
   BEVlrFim.Text := '0,00';
@@ -306,8 +313,7 @@ begin
       begin
         x510ARM := T510CON(FControle.ListaArm[i]);
 
-        FGridArm.Add;
-        FGridArm.AddFields(x510ARM);
+        FGridArm.Add(x510ARM);
       end;
       FGridArm.Connect;
       FGridArmEnterLine();
@@ -398,9 +404,9 @@ var
         [DateTimeFormatDB(DFinFim.DateTime)]);
 
     if (cbSituacaoArm.ItemIndex = 0) then
-      Result := Result + ' USU_SITARM = ''S'' '
+      Result := Result + ' USU_SITARM = ''S'' AND '
     else if (cbSituacaoArm.ItemIndex = 1) then
-      Result := Result + ' USU_SITARM = ''N'' ';
+      Result := Result + ' USU_SITARM = ''N'' AND ';
 
     if not(IsNull(BENomArq.Text)) then
       Result := Result + Format(' USU_NOMARQ IN (%s) AND ', [BENomArq.Text]);
@@ -417,7 +423,7 @@ begin
   FGridTit.Enabled := True;
   FGridAss.Enabled := True;
 
-  FControle.Start;
+  FControle.Init;
   FControle.AddToCommand(FiltroPortadorArmazenamento, False);
   FControle.Consultar(MontaCondicaoTitulos);
 
@@ -426,8 +432,7 @@ begin
   begin
     x510ARM := T510CON(FControle.ListaArm[i]);
 
-    FGridArm.Add;
-    FGridArm.AddFields(x510ARM);
+    FGridArm.Add(x510ARM);
   end;
   FGridArm.Connect;
 
@@ -467,7 +472,6 @@ procedure TF510CON.FGridArmEnterLine();
 var
   i: Integer;
   x510ARM: T510CON;
-  x510TIT: T510TIT;
 begin
   FGridTit.Clear;
   FGridTit.Disconnect;
@@ -475,11 +479,8 @@ begin
   begin
     x510ARM := T510CON(FControle.ListaArm[pred(FGridArm.Line)]);
     for i := 0 to pred(x510ARM.ListaTit.Count) do
-    begin
-      x510TIT := T510TIT(x510ARM.ListaTit[i]);
-      FGridTit.Add;
-      FGridTit.AddFields(x510TIT);
-    end;
+      FGridTit.Add(T510TIT(x510ARM.ListaTit[i]));
+
     FGridTit.Connect;
     FGridTit.First;
     FGridTitEnterLine();
@@ -491,9 +492,9 @@ end;
 
 procedure TF510CON.FGridAssCodBarChange;
 var
-  x510TIT: T510TIT;
+  x510TIT: TTituloDebitoDiretoAutorizado;
 begin
-  x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
+  x510TIT := TTituloDebitoDiretoAutorizado(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   if (x510TIT.Titulo <> nil) then
     if not(AnsiSameText(x510TIT.Titulo.CodBar, FGridAss.FindField('CodBar').AsString)) then
       if (CMessage('Deseja realmente alterar o código de barra?', mtConfirmationYesNo)) then
@@ -508,7 +509,7 @@ end;
 procedure TF510CON.FGridTitCheckClick;
 var
   i,j: Integer;
-  x510TIT: T510TIT;
+  x510TIT: TTituloDebitoDiretoAutorizado;
   x510CON: T510CON;
 
   function QuantidadeSelecionada(): Boolean;
@@ -535,7 +536,7 @@ var
 begin
   if (FGridTit.Count > 0) then
   begin
-    x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
+    x510TIT := TTituloDebitoDiretoAutorizado(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
     x510TIT.Check := iff(x510TIT.Check = 1, 0, 1);
 
     j := 0;
@@ -558,19 +559,19 @@ end;
 
 procedure TF510CON.FGridTitEnterLine;
 var
-  x510TIT: T510TIT;
+  x510TIT: TTituloDebitoDiretoAutorizado;
 begin
   FGridAss.Clear;
-  FGridAss.Disconnect;
-  x510TIT := T510TIT(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
+
+  x510TIT := TTituloDebitoDiretoAutorizado(T510CON(FControle.ListaArm[pred(FGridArm.Line)]).ListaTit[pred(FGridTit.Line)]);
   if AnsiSameText(x510TIT.USU_SitArm, 'S') then
   begin
-    FGridAss.Add;
+    FGridAss.Disconnect;
+
     x510TIT.ConsultarTitulo;
-    FGridAss.AddFields(x510TIT.Titulo);
+    FGridAss.Add(x510TIT.Titulo);
+    FGridAss.Connect;
   end;
-  FGridAss.Connect;
-  FGridAss.First;
 end;
 
 procedure TF510CON.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -591,12 +592,12 @@ begin
     FLogUsu := StrToInt(ParamStr(4));
   end;
 
-  DDatIni.Start;
-  DDatFim.Start;
-  DVenIni.Start;
-  DVenFim.Start;
-  DFinIni.Start;
-  DFinFim.Start;
+  DDatIni.Init;
+  DDatFim.Init;
+  DVenIni.Init;
+  DVenFim.Init;
+  DFinIni.Init;
+  DFinFim.Init;
 
   BECodEmp.CreateLookup();
   BECodFil.CreateLookup();
@@ -629,6 +630,7 @@ begin
   FGridTit.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridTit.FieldPosition('USU_LogTit', 8);
   FGridTit.CreateDataSet;
+  //FGridTit.NumericField('USU_CgcCpf', '99.999.999/9999-99');
 
   FGridAss.Init('E501TCP', Self, 'CodBar');
   FGridAss.CreateDataSet;

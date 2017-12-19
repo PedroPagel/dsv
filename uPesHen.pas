@@ -123,8 +123,7 @@ begin
   x998FLD := T998FLD.Create;
   try
     x998FLD.TblNam := FTable;
-    x998FLD.PropertyForSelect(['TBLNAM']);
-    x998FLD.Execute(etSelect, esLoop);
+    x998FLD.Open();
 
     while (x998FLD.Next) do
     begin
@@ -186,6 +185,7 @@ begin
   FGridPes.Init(xForm.NomeClasse, xForm, '', '');
   FGridPes.OrderTitles := True;
   FGridPes.CreateDataSet;
+  FTable := xForm.NomeClasse;
 
   CBFiltros.ItemIndex := 0;
   FLeftClick := True;

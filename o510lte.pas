@@ -3,7 +3,7 @@ unit o510lte;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -50,6 +50,7 @@ type
     procedure SetUSU_UsuAltOld(const pUSU_UsuAlt: Integer);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -75,6 +76,9 @@ implementation
 
 constructor T510LTE.Create();
 begin
+  AddForeignKeys(['USU_CodBan'], ['CodBan']);
+  AddPrimaryKeys('USU_Id');
+
   inherited Create('USU_T510LTE');
 end;
 
@@ -91,6 +95,8 @@ end;
 procedure T510LTE.SetUSU_CodBan(const pUSU_CodBan: string);
 begin
   FUSU_CodBan := pUSU_CodBan;
+
+  CheckField('USU_CodBan');
 end;
 
 function T510LTE.GetUSU_DesLig: string;
@@ -101,6 +107,8 @@ end;
 procedure T510LTE.SetUSU_DesLig(const pUSU_DesLig: string);
 begin
   FUSU_DesLig := pUSU_DesLig;
+
+  CheckField('USU_DesLig');
 end;
 
 function T510LTE.GetUSU_DatGer: TDate;
@@ -111,6 +119,8 @@ end;
 procedure T510LTE.SetUSU_DatGer(const pUSU_DatGer: TDate);
 begin
   FUSU_DatGer := pUSU_DatGer;
+
+  CheckField('USU_DatGer');
 end;
 
 function T510LTE.GetUSU_UsuGer: Integer;
@@ -121,6 +131,8 @@ end;
 procedure T510LTE.SetUSU_UsuGer(const pUSU_UsuGer: Integer);
 begin
   FUSU_UsuGer := pUSU_UsuGer;
+
+  CheckField('USU_UsuGer');
 end;
 
 function T510LTE.GetUSU_DatAlt: TDate;
@@ -131,6 +143,8 @@ end;
 procedure T510LTE.SetUSU_DatAlt(const pUSU_DatAlt: TDate);
 begin
   FUSU_DatAlt := pUSU_DatAlt;
+
+  CheckField('USU_DatAlt');
 end;
 
 function T510LTE.GetUSU_UsuAlt: Integer;
@@ -141,6 +155,8 @@ end;
 procedure T510LTE.SetUSU_UsuAlt(const pUSU_UsuAlt: Integer);
 begin
   FUSU_UsuAlt := pUSU_UsuAlt;
+
+  CheckField('USU_UsuAlt');
 end;
 
 function T510LTE.GetUSU_CodBanOLD: string;
@@ -211,6 +227,20 @@ begin
   FUSU_UsuGerOLD := FUSU_UsuGer;
   FUSU_DatAltOLD := FUSU_DatAlt;
   FUSU_UsuAltOLD := FUSU_UsuAlt;
+
+  inherited;
+end;
+
+procedure T510LTE.RetornarValores();
+begin
+  FUSU_CodBan := FUSU_CodBanOLD;
+  FUSU_DesLig := FUSU_DesLigOLD;
+  FUSU_DatGer := FUSU_DatGerOLD;
+  FUSU_UsuGer := FUSU_UsuGerOLD;
+  FUSU_DatAlt := FUSU_DatAltOLD;
+  FUSU_UsuAlt := FUSU_UsuAltOLD;
+
+  inherited;
 end;
 
 end.

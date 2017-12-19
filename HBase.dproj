@@ -129,7 +129,6 @@
         <DCCReference Include="oQuery.pas"/>
         <DCCReference Include="oReader.pas"/>
         <DCCReference Include="wsCRAlterar.pas"/>
-        <DCCReference Include="oTabelas.pas"/>
         <DCCReference Include="o133mau.pas"/>
         <DCCReference Include="o133vem.pas"/>
         <DCCReference Include="o420ocp.pas"/>
@@ -149,10 +148,24 @@
         <DCCReference Include="o501mcp.pas"/>
         <DCCReference Include="o301tcr.pas"/>
         <DCCReference Include="oGeral.pas"/>
-        <DCCReference Include="o510lay.pas"/>
         <DCCReference Include="o510mle.pas"/>
         <DCCReference Include="o510lte.pas"/>
         <DCCReference Include="o120pen.pas"/>
+        <DCCReference Include="o000log.pas"/>
+        <DCCReference Include="o998tbl.pas"/>
+        <DCCReference Include="o160ctr.pas"/>
+        <DCCReference Include="o160mov.pas"/>
+        <DCCReference Include="o670lib.pas"/>
+        <DCCReference Include="o670bem.pas"/>
+        <DCCReference Include="o510cad.pas"/>
+        <DCCReference Include="o090ind.pas"/>
+        <DCCReference Include="o160clp.pas"/>
+        <DCCReference Include="o095for.pas"/>
+        <DCCReference Include="o095hfo.pas"/>
+        <DCCReference Include="o030etc.pas"/>
+        <DCCReference Include="o000dbc.pas"/>
+        <DCCReference Include="o510lay.pas"/>
+        <DCCReference Include="o000isc.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -3,7 +3,7 @@ unit o998fld;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -140,6 +140,7 @@ type
     procedure SetObjSisOld(const pObjSis: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -195,6 +196,8 @@ implementation
 
 constructor T998FLD.Create();
 begin
+  AddPrimaryKeys('TblNam;FldNam');
+
   inherited Create('R998FLD');
 end;
 
@@ -202,6 +205,7 @@ destructor T998FLD.Destroy();
 begin
   inherited;
 end;
+
 function T998FLD.GetTblNam: string;
 begin
   Result := FTblNam;
@@ -210,6 +214,8 @@ end;
 procedure T998FLD.SetTblNam(const pTblNam: string);
 begin
   FTblNam := pTblNam;
+
+  CheckField('TblNam');
 end;
 
 function T998FLD.GetFldNam: string;
@@ -220,6 +226,8 @@ end;
 procedure T998FLD.SetFldNam(const pFldNam: string);
 begin
   FFldNam := pFldNam;
+
+  CheckField('FldNam');
 end;
 
 function T998FLD.GetFldOrd: Integer;
@@ -230,6 +238,8 @@ end;
 procedure T998FLD.SetFldOrd(const pFldOrd: Integer);
 begin
   FFldOrd := pFldOrd;
+
+  CheckField('FldOrd');
 end;
 
 function T998FLD.GetMskFld: string;
@@ -240,6 +250,8 @@ end;
 procedure T998FLD.SetMskFld(const pMskFld: string);
 begin
   FMskFld := pMskFld;
+
+  CheckField('MskFld');
 end;
 
 function T998FLD.GetDatTyp: Integer;
@@ -250,6 +262,8 @@ end;
 procedure T998FLD.SetDatTyp(const pDatTyp: Integer);
 begin
   FDatTyp := pDatTyp;
+
+  CheckField('DatTyp');
 end;
 
 function T998FLD.GetEnuNam: string;
@@ -260,6 +274,8 @@ end;
 procedure T998FLD.SetEnuNam(const pEnuNam: string);
 begin
   FEnuNam := pEnuNam;
+
+  CheckField('EnuNam');
 end;
 
 function T998FLD.GetLenFld: Integer;
@@ -270,6 +286,8 @@ end;
 procedure T998FLD.SetLenFld(const pLenFld: Integer);
 begin
   FLenFld := pLenFld;
+
+  CheckField('LenFld');
 end;
 
 function T998FLD.GetPreFld: Integer;
@@ -280,6 +298,8 @@ end;
 procedure T998FLD.SetPreFld(const pPreFld: Integer);
 begin
   FPreFld := pPreFld;
+
+  CheckField('PreFld');
 end;
 
 function T998FLD.GetShrTit: string;
@@ -290,6 +310,8 @@ end;
 procedure T998FLD.SetShrTit(const pShrTit: string);
 begin
   FShrTit := pShrTit;
+
+  CheckField('ShrTit');
 end;
 
 function T998FLD.GetLgnTit: string;
@@ -300,6 +322,8 @@ end;
 procedure T998FLD.SetLgnTit(const pLgnTit: string);
 begin
   FLgnTit := pLgnTit;
+
+  CheckField('LgnTit');
 end;
 
 function T998FLD.GetDesFld: string;
@@ -310,6 +334,8 @@ end;
 procedure T998FLD.SetDesFld(const pDesFld: string);
 begin
   FDesFld := pDesFld;
+
+  CheckField('DesFld');
 end;
 
 function T998FLD.GetCanNul: Integer;
@@ -320,6 +346,8 @@ end;
 procedure T998FLD.SetCanNul(const pCanNul: Integer);
 begin
   FCanNul := pCanNul;
+
+  CheckField('CanNul');
 end;
 
 function T998FLD.GetCodHlp: Integer;
@@ -330,6 +358,8 @@ end;
 procedure T998FLD.SetCodHlp(const pCodHlp: Integer);
 begin
   FCodHlp := pCodHlp;
+
+  CheckField('CodHlp');
 end;
 
 function T998FLD.GetValDef: string;
@@ -340,6 +370,8 @@ end;
 procedure T998FLD.SetValDef(const pValDef: string);
 begin
   FValDef := pValDef;
+
+  CheckField('ValDef');
 end;
 
 function T998FLD.GetOwnMod: string;
@@ -350,6 +382,8 @@ end;
 procedure T998FLD.SetOwnMod(const pOwnMod: string);
 begin
   FOwnMod := pOwnMod;
+
+  CheckField('OwnMod');
 end;
 
 function T998FLD.GetFldDep: string;
@@ -360,6 +394,8 @@ end;
 procedure T998FLD.SetFldDep(const pFldDep: string);
 begin
   FFldDep := pFldDep;
+
+  CheckField('FldDep');
 end;
 
 function T998FLD.GetCodUsu: Integer;
@@ -370,6 +406,8 @@ end;
 procedure T998FLD.SetCodUsu(const pCodUsu: Integer);
 begin
   FCodUsu := pCodUsu;
+
+  CheckField('CodUsu');
 end;
 
 function T998FLD.GetOriNam: string;
@@ -380,6 +418,8 @@ end;
 procedure T998FLD.SetOriNam(const pOriNam: string);
 begin
   FOriNam := pOriNam;
+
+  CheckField('OriNam');
 end;
 
 function T998FLD.GetLasUpd: TDate;
@@ -390,6 +430,8 @@ end;
 procedure T998FLD.SetLasUpd(const pLasUpd: TDate);
 begin
   FLasUpd := pLasUpd;
+
+  CheckField('LasUpd');
 end;
 
 function T998FLD.GetReqFld: Char;
@@ -400,6 +442,8 @@ end;
 procedure T998FLD.SetReqFld(const pReqFld: Char);
 begin
   FReqFld := pReqFld;
+
+  CheckField('ReqFld');
 end;
 
 function T998FLD.GetObjSis: Char;
@@ -410,6 +454,8 @@ end;
 procedure T998FLD.SetObjSis(const pObjSis: Char);
 begin
   FObjSis := pObjSis;
+
+  CheckField('ObjSis');
 end;
 
 function T998FLD.GetTblNamOLD: string;
@@ -645,6 +691,33 @@ begin
   FLasUpdOLD := FLasUpd;
   FReqFldOLD := FReqFld;
   FObjSisOLD := FObjSis;
+
+  inherited;
+end;
+
+procedure T998FLD.RetornarValores();
+begin
+  FTblNam := FTblNamOLD;
+  FFldNam := FFldNamOLD;
+  FFldOrd := FFldOrdOLD;
+  FMskFld := FMskFldOLD;
+  FDatTyp := FDatTypOLD;
+  FEnuNam := FEnuNamOLD;
+  FLenFld := FLenFldOLD;
+  FPreFld := FPreFldOLD;
+  FShrTit := FShrTitOLD;
+  FLgnTit := FLgnTitOLD;
+  FDesFld := FDesFldOLD;
+  FCanNul := FCanNulOLD;
+  FCodHlp := FCodHlpOLD;
+  FValDef := FValDefOLD;
+  FOwnMod := FOwnModOLD;
+  FFldDep := FFldDepOLD;
+  FCodUsu := FCodUsuOLD;
+  FOriNam := FOriNamOLD;
+  FLasUpd := FLasUpdOLD;
+  FReqFld := FReqFldOLD;
+  FObjSis := FObjSisOLD;
 end;
 
 end.

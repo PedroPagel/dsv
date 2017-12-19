@@ -3,7 +3,7 @@ unit oFacadeOperadora;
 interface
 
 uses
-  oFacadeBaseCRM, oFacedeCarregamentoCRM, o120ped;
+  oFacadeBaseCRM, oFacadeCarregamentoCRM, o120ped;
 
 type
   TFacadeOperadora = class(TFacadeBaseCRM)

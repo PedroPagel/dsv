@@ -99,7 +99,6 @@
         <DCCReference Include="u000imp.pas">
             <Form>F000IMP</Form>
         </DCCReference>
-        <DCCReference Include="o000dbc.pas"/>
         <RcItem Include="..\..\Icones\flecha.bmp">
             <ResourceType>BITMAP</ResourceType>
             <ResourceId>flecha</ResourceId>

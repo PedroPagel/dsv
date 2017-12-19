@@ -3,7 +3,7 @@ unit oReader;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Contnrs, Winapi.Windows, oBase, oTabelas;
+  System.Classes, System.SysUtils, System.Contnrs, Winapi.Windows;
 
 type
   TFileReader = class
@@ -28,6 +28,9 @@ type
   end;
 
 implementation
+
+uses
+  oBase;
 
 { TFileReader }
 

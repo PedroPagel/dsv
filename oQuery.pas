@@ -30,7 +30,7 @@ type
 implementation
 
 uses
-  oBase, System.Rtti, System.TypInfo;
+  oBase, System.Rtti, System.TypInfo, Winapi.ADOInt;
 
 { THQuery }
 

@@ -31,14 +31,22 @@ var
   xArmazenamento: TArmazenamento;
 begin
   FLogEmp := StrToInt(ParamStr(3));
-  xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
+  StartTransaction;
   try
-    xArmazenamento.CarregarArquivos();
-    xArmazenamento.Processar();
+    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
+    try
+      xArmazenamento.CarregarArquivos();
+      xArmazenamento.Processar();
 
-    xArmazenamento.AtualizarArmazenamento();
-  finally
-    FreeAndNil(xArmazenamento);
+      xArmazenamento.AtualizarArmazenamento();
+    finally
+      FreeAndNil(xArmazenamento);
+    end;
+
+    Commit;
+  except
+    on e: Exception do
+      RollBack;
   end;
 end;
 

@@ -3,8 +3,8 @@ unit oConsulta;
 interface
 
 uses
-  System.Classes, Data.SqlExpr, oQuery, oBase, System.SysUtils,
-  Data.Db, System.Contnrs, oTabelas, oMensagem, o501tcp, o510arm, o510tit;
+  System.Classes, Data.SqlExpr, oQuery, oBase, oGeral, System.SysUtils, o510cad,
+  Data.Db, System.Contnrs, oMensagem, o501tcp, o510arm, o510tit;
 
 type
   T510CON = class(T510ARM)
@@ -41,14 +41,15 @@ procedure T510CON.Consistir(const p510CON: T510CON);
 var
   i: Integer;
 begin
-  F510CAD.Start;
+  F510CAD.Init;
   F510CAD.USU_CodPor := p510CON.USU_CodPor;
-  F510CAD.PropertyForSelect(['USU_CodEmp', 'USU_CodUsu','USU_CodPor'], True);
+  F510CAD.USU_CodUsu := FLogUsu;
+  F510CAD.Open();
 
   if (AnsiSameText(F510CAD.USU_PerExc, 'N') or IsNull(F510CAD.USU_PerExc)) then
     FLOG := Format('Usuário: %s, sem permissão para exclusão!', [IntToStr(FLogUsu)])
   else
-  if (F510CAD.Execute(etSelect)) then
+  if not(F510CAD.IsEmpty) then
   begin
     if (F510CAD.USU_IniVig <= p510CON.USU_DatGer) and (F510CAD.USU_FimVig >= p510CON.USU_DatGer) then
     begin
@@ -84,12 +85,13 @@ var
 begin
   FListaArm.Clear;
   FListaTit.Clear;
-  Self.Execute(etSelect, esLoop);
+  Self.OrdenationCommand('ORDER BY USU_DATGER DESC');
+  Self.Open(False);
 
   while Self.Next() do
   begin
     x510CON := T510CON.Create;
-    FListaArm.Iterar(Self, x510CON);
+    x510CON.Assign(Self);
 
     if (x510CON.BuscarArmazenados(pCondicao)) then
       FListaArm.Add(x510CON);
@@ -116,11 +118,10 @@ begin
   try
     x510TIT.USU_IdArm := Self.USU_ID;
     x510TIT.PropertyForSelect(['USU_IDARM']);
-    x510TIT.Execute(estDelete);
+    x510TIT.Delete;
 
-    Self.Start;
-    Self.PropertyForSelect(['USU_ID']);
-    Self.Execute(estDelete);
+    Self.Init;
+    Self.Delete;
 
     Self.RemoverArquivo(False);
   finally
@@ -139,7 +140,7 @@ end;
 
 procedure T510CON.Excluir(const pLine: Integer; const pOrigem: T510CON);
 var
-  x510TIT: T510TIT;
+  x510TIT: TTituloDebitoDiretoAutorizado;
   i: Integer;
 begin
   StartTransaction;
@@ -162,7 +163,7 @@ begin
 
     if (Self.ListaTit.Count > 1) then
     begin
-      x510TIT := T510TIT(Self.ListaTit[pLine]);
+      x510TIT := TTituloDebitoDiretoAutorizado(Self.ListaTit[pLine]);
       x510TIT.Excluir(Self.USU_ID);
       i := Self.ListaTit.IndexOf(x510TIT);
       Self.ListaTit.Delete(i);
@@ -288,11 +289,15 @@ begin
 
         if (x510CON.Check = 1) then
         begin
-          x501TCP.Start;
-          x501TCP.USU_IDTIT := 0;
+          x501TCP.Init;
           x501TCP.AddToCommand(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]), False);
-          x501TCP.FieldsForUpdate(['USU_IDTIT']);
-          x501TCP.Execute(estUpdate);
+          x501TCP.Open(False);
+
+          if not(x501TCP.IsEmpty) then
+          begin
+            x501TCP.USU_IDTIT := 0;
+            x501TCP.Update();
+          end;
         end;
       end;
     end;
@@ -301,22 +306,24 @@ end;
 
 function T510CON.BuscarArmazenados(const pCondicao: string): Boolean;
 var
-  x510TCP: T510TIT;
-  x510TIT: T510TIT;
+  x501TCP: T510TIT;
+  x510TIT: TTituloDebitoDiretoAutorizado;
 begin
-  x510TIT := T510TIT.CreateCarregado(True);
+  x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado(True);
   x510TIT.USU_IdArm := Self.USU_ID;
   x510TIT.PropertyForSelect(['USU_IDARM'], True);
   x510TIT.AddToCommand(pCondicao, False);
-  Result := x510TIT.Execute(etSelect, esLoop);
+  x510TIT.Open();
+
+  Result := not(x510TIT.IsEmpty);
 
   while (x510TIT.Next()) do
   begin
-    x510TCP := T510TIT.CreateCarregado(True);
-    FListaTit.Iterar(x510TIT, x510TCP);
+    x501TCP := TTituloDebitoDiretoAutorizado.CreateCarregado(True);
+    x501TCP.Assign(x510TIT);
 
     //x510TCP.ConsultarTitulo();
-    FListaTit.Add(x510TCP);
+    FListaTit.Add(x501TCP);
   end;
 end;
 

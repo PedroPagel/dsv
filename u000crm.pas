@@ -52,7 +52,7 @@ begin
             x000log.DesLog := E.Message;
             x000log.UsuGer := 257;
             x000log.DatGer := Date;
-            x000log.Execute(estInsert);
+            x000log.Insert();
 
             Commit;
           except

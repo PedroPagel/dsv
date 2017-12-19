@@ -3,7 +3,7 @@ unit o998lsf;
 interface
 
 uses
-  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, oTabelas, DateUtils;
+  System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs, DateUtils;
 
 type
 
@@ -44,6 +44,7 @@ type
     procedure SetObjSisOld(const pObjSis: Char);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -67,6 +68,8 @@ implementation
 
 constructor T998LSF.Create();
 begin
+  AddPrimaryKeys('LSTNAM;KEYNAM');
+
   inherited Create('R998LSF');
 end;
 
@@ -74,6 +77,7 @@ destructor T998LSF.Destroy();
 begin
   inherited;
 end;
+
 function T998LSF.GetLSTNAM: string;
 begin
   Result := FLSTNAM;
@@ -82,6 +86,8 @@ end;
 procedure T998LSF.SetLSTNAM(const pLSTNAM: string);
 begin
   FLSTNAM := pLSTNAM;
+
+  CheckField('LSTNAM');
 end;
 
 function T998LSF.GetKEYNAM: string;
@@ -92,6 +98,8 @@ end;
 procedure T998LSF.SetKEYNAM(const pKEYNAM: string);
 begin
   FKEYNAM := pKEYNAM;
+
+  CheckField('KEYNAM');
 end;
 
 function T998LSF.GetValKey: string;
@@ -102,6 +110,8 @@ end;
 procedure T998LSF.SetValKey(const pValKey: string);
 begin
   FValKey := pValKey;
+
+  CheckField('ValKey');
 end;
 
 function T998LSF.GetKEYORD: Integer;
@@ -112,6 +122,8 @@ end;
 procedure T998LSF.SetKEYORD(const pKEYORD: Integer);
 begin
   FKEYORD := pKEYORD;
+
+  CheckField('KEYORD');
 end;
 
 function T998LSF.GetObjSis: Char;
@@ -122,6 +134,8 @@ end;
 procedure T998LSF.SetObjSis(const pObjSis: Char);
 begin
   FObjSis := pObjSis;
+
+  CheckField('ObjSis');
 end;
 
 function T998LSF.GetLSTNAMOLD: string;
@@ -181,6 +195,17 @@ begin
   FValKeyOLD := FValKey;
   FKEYORDOLD := FKEYORD;
   FObjSisOLD := FObjSis;
+
+  inherited;
+end;
+
+procedure T998LSF.RetornarValores();
+begin
+  FLSTNAM := FLSTNAMOLD;
+  FKEYNAM := FKEYNAMOLD;
+  FValKey := FValKeyOLD;
+  FKEYORD := FKEYORDOLD;
+  FObjSis := FObjSisOLD;
 end;
 
 end.

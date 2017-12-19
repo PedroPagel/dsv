@@ -134,7 +134,7 @@ var
   end;
 
 begin
-  Result := True;
+  Result := False;
   xMensagem := pMessage;
 
   FixMessage();
@@ -162,8 +162,11 @@ begin
     begin
       if (xForm.Components[i] is TCButton) then
       begin
-        if (TCButton(xForm.Components[i]).CheckClick = btn_No) then
-          Result := False;
+        if (TCButton(xForm.Components[i]).CheckClick in [btn_OK, btn_Yes]) then
+        begin
+          Result := True;
+          Break;
+        end;
       end;
     end;
   finally

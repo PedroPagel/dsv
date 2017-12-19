@@ -67,11 +67,14 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
 
-    procedure CreateLookup();
+    function TesteForm: TForm;
+
     procedure CheckEnum();
+    procedure CreateLookup();
     procedure ExitButton(Sender: TObject);
-    procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
+    procedure SetFormForEdit(const pForm: TForm);
     procedure AddLeftTableForm(const pForm: TForm);
+    procedure AddFilterLookup(const pFilterLookup: THButtonedEdit);
 
     property GetDirectory: Boolean read FGetDirectory write FGetDirectory;
     property DataBaseRegisters: Boolean read FDataBaseRegisters write FDataBaseRegisters;
@@ -101,7 +104,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs, oMensagem,
-  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, Grids, oQuery, Data.DB;
+  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, oQuery, Data.DB;
 
 procedure Register;
 begin
@@ -164,9 +167,11 @@ var
   xText: string;
   x998lsf: T998LSF;
   xFim: Boolean;
+  xNewText: string;
 begin
   Result := False;
   xFim := False;
+  xNewText := EmptyStr;
 
   if (FLookup) and IsNull(FENumerator) and (not(IsNull(Text)) or (Self.Required)) then
   begin
@@ -225,6 +230,21 @@ begin
             end;
           end;
 
+          if not(IsNull(xNewText)) then
+          begin
+            if (FAlfa) then
+              xNewText := xNewText + ',''' + xValue + ''''
+            else
+              xNewText := xNewText + ',' + xValue;
+          end
+          else
+          begin
+            if (FAlfa) then
+              xNewText := '''' + xValue + ''''
+            else
+              xNewText := xValue;
+          end;
+
           xQuery.Reset;
           xQuery.Command := xComando;
           xQuery.Open;
@@ -236,6 +256,8 @@ begin
           if Result then
             Break;
         end;
+
+        Self.Text := xNewText;
       end;
     finally
       FreeAndNil(xQuery);
@@ -250,8 +272,9 @@ begin
       x998lsf := T998LSF.Create;
       x998lsf.LSTNAM := FENumerator;
       x998lsf.KEYNAM := Text;
-      x998lsf.PropertyForSelect(['LSTNAM', 'KEYNAM'], True);
-      Result := not(x998lsf.Execute(etSelect));
+      x998lsf.Open();
+
+      Result := x998lsf.IsEmpty;
     finally
       FreeAndNil(x998lsf);
     end;
@@ -369,7 +392,7 @@ begin
 
     x998lsf.LSTNAM := FENumerator;
     x998lsf.PropertyForSelect(['LSTNAM']);
-    x998lsf.Execute(etSelect, esLoop);
+    x998lsf.Open(False);
 
     while (x998lsf.Next) do
       FValueList.AddRow(x998lsf.KEYNAM, x998lsf.ValKey);
@@ -393,11 +416,11 @@ var
   xValue: string;
 begin
   FButtonClicked := True;
+  UltimoCaracter(FString, ',', True);
 
   if not(FAlfa) and not(FIsFloat) then
   begin
     FString := Self.Text;
-    UltimoCaracter(FString, ',', True);
     Self.Text := FString;
   end;
 
@@ -545,6 +568,12 @@ begin
   FFilter := Value;
 end;
 
+procedure THButtonedEdit.SetFormForEdit(const pForm: TForm);
+begin
+  if not(Assigned(FForm)) then
+    FForm := pForm;
+end;
+
 procedure THButtonedEdit.SetIndexFields(const Value: string);
 begin
   FIndexFields := Value;
@@ -558,6 +587,11 @@ end;
 procedure THButtonedEdit.SetTable(const Value: string);
 begin
   FTable := Value;
+end;
+
+function THButtonedEdit.TesteForm: TForm;
+begin
+  Result := FForm;
 end;
 
 end.

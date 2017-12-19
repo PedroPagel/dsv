@@ -7,8 +7,7 @@ uses
   oBase,
   midaslib,
   System.SysUtils,
-  u000imp in 'u000imp.pas' {F000IMP},
-  o000dbc in 'o000dbc.pas';
+  u000imp in 'u000imp.pas' {F000IMP};
 
 {$R *.res}
 

@@ -1017,10 +1017,20 @@ type
     procedure SetUSU_DatPolDsc(const pUSU_DatPolDsc: TDate);
     function GetUSU_TxaInd: Double;
     procedure SetUSU_TxaInd(const pUSU_TxaInd: Double);
+    function GetUSU_DivMdi: Integer;
+    procedure SetUSU_DivMdi(const pUSU_DivMdi: Integer);
     function GetUSU_IniAdt: TDate;
     procedure SetUSU_IniAdt(const pUSU_IniAdt: TDate);
     function GetUSU_FinAdt: TDate;
     procedure SetUSU_FinAdt(const pUSU_FinAdt: TDate);
+    function GetUSU_LocIDW: string;
+    procedure SetUSU_LocIDW(const pUSU_LocIDW: string);
+    function GetUSU_LocIPT: string;
+    procedure SetUSU_LocIPT(const pUSU_LocIPT: string);
+    function GetUSU_LocIAM: string;
+    procedure SetUSU_LocIAM(const pUSU_LocIAM: string);
+    function GetUSU_LocSTP: string;
+    procedure SetUSU_LocSTP(const pUSU_LocSTP: string);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -1518,12 +1528,23 @@ type
     procedure SetUSU_DatPolDscOld(const pUSU_DatPolDsc: TDate);
     function GetUSU_TxaIndOld: Double;
     procedure SetUSU_TxaIndOld(const pUSU_TxaInd: Double);
+    function GetUSU_DivMdiOld: Integer;
+    procedure SetUSU_DivMdiOld(const pUSU_DivMdi: Integer);
     function GetUSU_IniAdtOld: TDate;
     procedure SetUSU_IniAdtOld(const pUSU_IniAdt: TDate);
     function GetUSU_FinAdtOld: TDate;
     procedure SetUSU_FinAdtOld(const pUSU_FinAdt: TDate);
+    function GetUSU_LocIDWOld: string;
+    procedure SetUSU_LocIDWOld(const pUSU_LocIDW: string);
+    function GetUSU_LocIPTOld: string;
+    procedure SetUSU_LocIPTOld(const pUSU_LocIPT: string);
+    function GetUSU_LocIAMOld: string;
+    procedure SetUSU_LocIAMOld(const pUSU_LocIAM: string);
+    function GetUSU_LocSTPOld: string;
+    procedure SetUSU_LocSTPOld(const pUSU_LocSTP: string);
   protected
     procedure Registros_OLD(); override;
+    procedure RetornarValores(); override;
   public
     constructor Create();
     destructor Destroy(); override;
@@ -1776,8 +1797,13 @@ type
     property USU_CodTpr: string read GetUSU_CodTpr write SetUSU_CodTpr;
     property USU_DatPolDsc: TDate read GetUSU_DatPolDsc write SetUSU_DatPolDsc;
     property USU_TxaInd: Double read GetUSU_TxaInd write SetUSU_TxaInd;
+    property USU_DivMdi: Integer read GetUSU_DivMdi write SetUSU_DivMdi;
     property USU_IniAdt: TDate read GetUSU_IniAdt write SetUSU_IniAdt;
     property USU_FinAdt: TDate read GetUSU_FinAdt write SetUSU_FinAdt;
+    property USU_LocIDW: string read GetUSU_LocIDW write SetUSU_LocIDW;
+    property USU_LocIPT: string read GetUSU_LocIPT write SetUSU_LocIPT;
+    property USU_LocIAM: string read GetUSU_LocIAM write SetUSU_LocIAM;
+    property USU_LocSTP: string read GetUSU_LocSTP write SetUSU_LocSTP;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -2027,8 +2053,13 @@ type
     property OLD_USU_CodTpr: string read GetUSU_CodTprOLD write SetUSU_CodTprOLD;
     property OLD_USU_DatPolDsc: TDate read GetUSU_DatPolDscOLD write SetUSU_DatPolDscOLD;
     property OLD_USU_TxaInd: Double read GetUSU_TxaIndOLD write SetUSU_TxaIndOLD;
+    property OLD_USU_DivMdi: Integer read GetUSU_DivMdiOLD write SetUSU_DivMdiOLD;
     property OLD_USU_IniAdt: TDate read GetUSU_IniAdtOLD write SetUSU_IniAdtOLD;
     property OLD_USU_FinAdt: TDate read GetUSU_FinAdtOLD write SetUSU_FinAdtOLD;
+    property OLD_USU_LocIDW: string read GetUSU_LocIDWOLD write SetUSU_LocIDWOLD;
+    property OLD_USU_LocIPT: string read GetUSU_LocIPTOLD write SetUSU_LocIPTOLD;
+    property OLD_USU_LocIAM: string read GetUSU_LocIAMOLD write SetUSU_LocIAMOLD;
+    property OLD_USU_LocSTP: string read GetUSU_LocSTPOLD write SetUSU_LocSTPOLD;
   end;
 
 implementation
@@ -2037,6 +2068,9 @@ implementation
 
 constructor T070FIL.Create();
 begin
+  AddForeignKeys(['CodEmp'], ['CodEmp']);
+  AddPrimaryKeys('CodEmp;CodFil');
+
   inherited Create('E070FIL');
 end;
 
@@ -2044,6 +2078,7 @@ destructor T070FIL.Destroy();
 begin
   inherited;
 end;
+
 function T070FIL.GetCodEmp: Integer;
 begin
   Result := FCodEmp;
@@ -2052,6 +2087,8 @@ end;
 procedure T070FIL.SetCodEmp(const pCodEmp: Integer);
 begin
   FCodEmp := pCodEmp;
+
+  CheckField('CodEmp');
 end;
 
 function T070FIL.GetCodFil: Integer;
@@ -2062,6 +2099,8 @@ end;
 procedure T070FIL.SetCodFil(const pCodFil: Integer);
 begin
   FCodFil := pCodFil;
+
+  CheckField('CodFil');
 end;
 
 function T070FIL.GetNomFil: string;
@@ -2072,6 +2111,8 @@ end;
 procedure T070FIL.SetNomFil(const pNomFil: string);
 begin
   FNomFil := pNomFil;
+
+  CheckField('NomFil');
 end;
 
 function T070FIL.GetSigFil: string;
@@ -2082,6 +2123,8 @@ end;
 procedure T070FIL.SetSigFil(const pSigFil: string);
 begin
   FSigFil := pSigFil;
+
+  CheckField('SigFil');
 end;
 
 function T070FIL.GetInsEst: string;
@@ -2092,6 +2135,8 @@ end;
 procedure T070FIL.SetInsEst(const pInsEst: string);
 begin
   FInsEst := pInsEst;
+
+  CheckField('InsEst');
 end;
 
 function T070FIL.GetInsMun: string;
@@ -2102,6 +2147,8 @@ end;
 procedure T070FIL.SetInsMun(const pInsMun: string);
 begin
   FInsMun := pInsMun;
+
+  CheckField('InsMun');
 end;
 
 function T070FIL.GetNumCgc: Double;
@@ -2112,6 +2159,8 @@ end;
 procedure T070FIL.SetNumCgc(const pNumCgc: Double);
 begin
   FNumCgc := pNumCgc;
+
+  CheckField('NumCgc');
 end;
 
 function T070FIL.GetEndFil: string;
@@ -2122,6 +2171,8 @@ end;
 procedure T070FIL.SetEndFil(const pEndFil: string);
 begin
   FEndFil := pEndFil;
+
+  CheckField('EndFil');
 end;
 
 function T070FIL.GetCplEnd: string;
@@ -2132,6 +2183,8 @@ end;
 procedure T070FIL.SetCplEnd(const pCplEnd: string);
 begin
   FCplEnd := pCplEnd;
+
+  CheckField('CplEnd');
 end;
 
 function T070FIL.GetCepFil: Integer;
@@ -2142,6 +2195,8 @@ end;
 procedure T070FIL.SetCepFil(const pCepFil: Integer);
 begin
   FCepFil := pCepFil;
+
+  CheckField('CepFil');
 end;
 
 function T070FIL.GetCepIni: Integer;
@@ -2152,6 +2207,8 @@ end;
 procedure T070FIL.SetCepIni(const pCepIni: Integer);
 begin
   FCepIni := pCepIni;
+
+  CheckField('CepIni');
 end;
 
 function T070FIL.GetCodRai: Integer;
@@ -2162,6 +2219,8 @@ end;
 procedure T070FIL.SetCodRai(const pCodRai: Integer);
 begin
   FCodRai := pCodRai;
+
+  CheckField('CodRai');
 end;
 
 function T070FIL.GetBaiFil: string;
@@ -2172,6 +2231,8 @@ end;
 procedure T070FIL.SetBaiFil(const pBaiFil: string);
 begin
   FBaiFil := pBaiFil;
+
+  CheckField('BaiFil');
 end;
 
 function T070FIL.GetCidFil: string;
@@ -2182,6 +2243,8 @@ end;
 procedure T070FIL.SetCidFil(const pCidFil: string);
 begin
   FCidFil := pCidFil;
+
+  CheckField('CidFil');
 end;
 
 function T070FIL.GetSigUfs: string;
@@ -2192,6 +2255,8 @@ end;
 procedure T070FIL.SetSigUfs(const pSigUfs: string);
 begin
   FSigUfs := pSigUfs;
+
+  CheckField('SigUfs');
 end;
 
 function T070FIL.GetEndEnt: string;
@@ -2202,6 +2267,8 @@ end;
 procedure T070FIL.SetEndEnt(const pEndEnt: string);
 begin
   FEndEnt := pEndEnt;
+
+  CheckField('EndEnt');
 end;
 
 function T070FIL.GetCplEnt: string;
@@ -2212,6 +2279,8 @@ end;
 procedure T070FIL.SetCplEnt(const pCplEnt: string);
 begin
   FCplEnt := pCplEnt;
+
+  CheckField('CplEnt');
 end;
 
 function T070FIL.GetCepEnt: Integer;
@@ -2222,6 +2291,8 @@ end;
 procedure T070FIL.SetCepEnt(const pCepEnt: Integer);
 begin
   FCepEnt := pCepEnt;
+
+  CheckField('CepEnt');
 end;
 
 function T070FIL.GetCidEnt: string;
@@ -2232,6 +2303,8 @@ end;
 procedure T070FIL.SetCidEnt(const pCidEnt: string);
 begin
   FCidEnt := pCidEnt;
+
+  CheckField('CidEnt');
 end;
 
 function T070FIL.GetEstEnt: string;
@@ -2242,6 +2315,8 @@ end;
 procedure T070FIL.SetEstEnt(const pEstEnt: string);
 begin
   FEstEnt := pEstEnt;
+
+  CheckField('EstEnt');
 end;
 
 function T070FIL.GetEndCob: string;
@@ -2252,6 +2327,8 @@ end;
 procedure T070FIL.SetEndCob(const pEndCob: string);
 begin
   FEndCob := pEndCob;
+
+  CheckField('EndCob');
 end;
 
 function T070FIL.GetCplCob: string;
@@ -2262,6 +2339,8 @@ end;
 procedure T070FIL.SetCplCob(const pCplCob: string);
 begin
   FCplCob := pCplCob;
+
+  CheckField('CplCob');
 end;
 
 function T070FIL.GetCepCob: Integer;
@@ -2272,6 +2351,8 @@ end;
 procedure T070FIL.SetCepCob(const pCepCob: Integer);
 begin
   FCepCob := pCepCob;
+
+  CheckField('CepCob');
 end;
 
 function T070FIL.GetCidCob: string;
@@ -2282,6 +2363,8 @@ end;
 procedure T070FIL.SetCidCob(const pCidCob: string);
 begin
   FCidCob := pCidCob;
+
+  CheckField('CidCob');
 end;
 
 function T070FIL.GetEstCob: string;
@@ -2292,6 +2375,8 @@ end;
 procedure T070FIL.SetEstCob(const pEstCob: string);
 begin
   FEstCob := pEstCob;
+
+  CheckField('EstCob');
 end;
 
 function T070FIL.GetNumFon: string;
@@ -2302,6 +2387,8 @@ end;
 procedure T070FIL.SetNumFon(const pNumFon: string);
 begin
   FNumFon := pNumFon;
+
+  CheckField('NumFon');
 end;
 
 function T070FIL.GetNumFax: string;
@@ -2312,6 +2399,8 @@ end;
 procedure T070FIL.SetNumFax(const pNumFax: string);
 begin
   FNumFax := pNumFax;
+
+  CheckField('NumFax');
 end;
 
 function T070FIL.GetCxaPst: Integer;
@@ -2322,6 +2411,8 @@ end;
 procedure T070FIL.SetCxaPst(const pCxaPst: Integer);
 begin
   FCxaPst := pCxaPst;
+
+  CheckField('CxaPst');
 end;
 
 function T070FIL.GetIntNet: string;
@@ -2332,6 +2423,8 @@ end;
 procedure T070FIL.SetIntNet(const pIntNet: string);
 begin
   FIntNet := pIntNet;
+
+  CheckField('IntNet');
 end;
 
 function T070FIL.GetTipEmp: Integer;
@@ -2342,6 +2435,8 @@ end;
 procedure T070FIL.SetTipEmp(const pTipEmp: Integer);
 begin
   FTipEmp := pTipEmp;
+
+  CheckField('TipEmp');
 end;
 
 function T070FIL.GetFilCli: Integer;
@@ -2352,6 +2447,8 @@ end;
 procedure T070FIL.SetFilCli(const pFilCli: Integer);
 begin
   FFilCli := pFilCli;
+
+  CheckField('FilCli');
 end;
 
 function T070FIL.GetFilFor: Integer;
@@ -2362,6 +2459,8 @@ end;
 procedure T070FIL.SetFilFor(const pFilFor: Integer);
 begin
   FFilFor := pFilFor;
+
+  CheckField('FilFor');
 end;
 
 function T070FIL.GetPedIni: Integer;
@@ -2372,6 +2471,8 @@ end;
 procedure T070FIL.SetPedIni(const pPedIni: Integer);
 begin
   FPedIni := pPedIni;
+
+  CheckField('PedIni');
 end;
 
 function T070FIL.GetZonFra: Integer;
@@ -2382,6 +2483,8 @@ end;
 procedure T070FIL.SetZonFra(const pZonFra: Integer);
 begin
   FZonFra := pZonFra;
+
+  CheckField('ZonFra');
 end;
 
 function T070FIL.GetCodSuf: string;
@@ -2392,6 +2495,8 @@ end;
 procedure T070FIL.SetCodSuf(const pCodSuf: string);
 begin
   FCodSuf := pCodSuf;
+
+  CheckField('CodSuf');
 end;
 
 function T070FIL.GetDifAli: Char;
@@ -2402,6 +2507,8 @@ end;
 procedure T070FIL.SetDifAli(const pDifAli: Char);
 begin
   FDifAli := pDifAli;
+
+  CheckField('DifAli');
 end;
 
 function T070FIL.GetCriFed: Integer;
@@ -2412,6 +2519,8 @@ end;
 procedure T070FIL.SetCriFed(const pCriFed: Integer);
 begin
   FCriFed := pCriFed;
+
+  CheckField('CriFed');
 end;
 
 function T070FIL.GetQtdDlb: Integer;
@@ -2422,6 +2531,8 @@ end;
 procedure T070FIL.SetQtdDlb(const pQtdDlb: Integer);
 begin
   FQtdDlb := pQtdDlb;
+
+  CheckField('QtdDlb');
 end;
 
 function T070FIL.GetVenPdi: TDate;
@@ -2432,6 +2543,8 @@ end;
 procedure T070FIL.SetVenPdi(const pVenPdi: TDate);
 begin
   FVenPdi := pVenPdi;
+
+  CheckField('VenPdi');
 end;
 
 function T070FIL.GetVenPdf: TDate;
@@ -2442,6 +2555,8 @@ end;
 procedure T070FIL.SetVenPdf(const pVenPdf: TDate);
 begin
   FVenPdf := pVenPdf;
+
+  CheckField('VenPdf');
 end;
 
 function T070FIL.GetVenCae: Integer;
@@ -2452,6 +2567,8 @@ end;
 procedure T070FIL.SetVenCae(const pVenCae: Integer);
 begin
   FVenCae := pVenCae;
+
+  CheckField('VenCae');
 end;
 
 function T070FIL.GetVenQdf: Integer;
@@ -2462,6 +2579,8 @@ end;
 procedure T070FIL.SetVenQdf(const pVenQdf: Integer);
 begin
   FVenQdf := pVenQdf;
+
+  CheckField('VenQdf');
 end;
 
 function T070FIL.GetVenTcc: string;
@@ -2472,6 +2591,8 @@ end;
 procedure T070FIL.SetVenTcc(const pVenTcc: string);
 begin
   FVenTcc := pVenTcc;
+
+  CheckField('VenTcc');
 end;
 
 function T070FIL.GetVenTpp: string;
@@ -2482,6 +2603,8 @@ end;
 procedure T070FIL.SetVenTpp(const pVenTpp: string);
 begin
   FVenTpp := pVenTpp;
+
+  CheckField('VenTpp');
 end;
 
 function T070FIL.GetVenTps: string;
@@ -2492,6 +2615,8 @@ end;
 procedure T070FIL.SetVenTps(const pVenTps: string);
 begin
   FVenTps := pVenTps;
+
+  CheckField('VenTps');
 end;
 
 function T070FIL.GetVenDsu: Double;
@@ -2502,6 +2627,8 @@ end;
 procedure T070FIL.SetVenDsu(const pVenDsu: Double);
 begin
   FVenDsu := pVenDsu;
+
+  CheckField('VenDsu');
 end;
 
 function T070FIL.GetVenVmp: Double;
@@ -2512,6 +2639,8 @@ end;
 procedure T070FIL.SetVenVmp(const pVenVmp: Double);
 begin
   FVenVmp := pVenVmp;
+
+  CheckField('VenVmp');
 end;
 
 function T070FIL.GetVenLep: Integer;
@@ -2522,6 +2651,8 @@ end;
 procedure T070FIL.SetVenLep(const pVenLep: Integer);
 begin
   FVenLep := pVenLep;
+
+  CheckField('VenLep');
 end;
 
 function T070FIL.GetVenTcv: string;
@@ -2532,6 +2663,8 @@ end;
 procedure T070FIL.SetVenTcv(const pVenTcv: string);
 begin
   FVenTcv := pVenTcv;
+
+  CheckField('VenTcv');
 end;
 
 function T070FIL.GetVenCep: Char;
@@ -2542,6 +2675,8 @@ end;
 procedure T070FIL.SetVenCep(const pVenCep: Char);
 begin
   FVenCep := pVenCep;
+
+  CheckField('VenCep');
 end;
 
 function T070FIL.GetVenPvp: Char;
@@ -2552,6 +2687,8 @@ end;
 procedure T070FIL.SetVenPvp(const pVenPvp: Char);
 begin
   FVenPvp := pVenPvp;
+
+  CheckField('VenPvp');
 end;
 
 function T070FIL.GetVenNpa: Char;
@@ -2562,6 +2699,8 @@ end;
 procedure T070FIL.SetVenNpa(const pVenNpa: Char);
 begin
   FVenNpa := pVenNpa;
+
+  CheckField('VenNpa');
 end;
 
 function T070FIL.GetVenCfi: Char;
@@ -2572,6 +2711,8 @@ end;
 procedure T070FIL.SetVenCfi(const pVenCfi: Char);
 begin
   FVenCfi := pVenCfi;
+
+  CheckField('VenCfi');
 end;
 
 function T070FIL.GetVenNtr: Char;
@@ -2582,6 +2723,8 @@ end;
 procedure T070FIL.SetVenNtr(const pVenNtr: Char);
 begin
   FVenNtr := pVenNtr;
+
+  CheckField('VenNtr');
 end;
 
 function T070FIL.GetVenSnr: string;
@@ -2592,6 +2735,8 @@ end;
 procedure T070FIL.SetVenSnr(const pVenSnr: string);
 begin
   FVenSnr := pVenSnr;
+
+  CheckField('VenSnr');
 end;
 
 function T070FIL.GetVenQip: Integer;
@@ -2602,6 +2747,8 @@ end;
 procedure T070FIL.SetVenQip(const pVenQip: Integer);
 begin
   FVenQip := pVenQip;
+
+  CheckField('VenQip');
 end;
 
 function T070FIL.GetVenSnp: string;
@@ -2612,6 +2759,8 @@ end;
 procedure T070FIL.SetVenSnp(const pVenSnp: string);
 begin
   FVenSnp := pVenSnp;
+
+  CheckField('VenSnp');
 end;
 
 function T070FIL.GetVenQdp: Integer;
@@ -2622,6 +2771,8 @@ end;
 procedure T070FIL.SetVenQdp(const pVenQdp: Integer);
 begin
   FVenQdp := pVenQdp;
+
+  CheckField('VenQdp');
 end;
 
 function T070FIL.GetVenRpd: Integer;
@@ -2632,6 +2783,8 @@ end;
 procedure T070FIL.SetVenRpd(const pVenRpd: Integer);
 begin
   FVenRpd := pVenRpd;
+
+  CheckField('VenRpd');
 end;
 
 function T070FIL.GetVenCcc: Char;
@@ -2642,6 +2795,8 @@ end;
 procedure T070FIL.SetVenCcc(const pVenCcc: Char);
 begin
   FVenCcc := pVenCcc;
+
+  CheckField('VenCcc');
 end;
 
 function T070FIL.GetVenCcr: Char;
@@ -2652,6 +2807,8 @@ end;
 procedure T070FIL.SetVenCcr(const pVenCcr: Char);
 begin
   FVenCcr := pVenCcr;
+
+  CheckField('VenCcr');
 end;
 
 function T070FIL.GetVenCrr: Char;
@@ -2662,6 +2819,8 @@ end;
 procedure T070FIL.SetVenCrr(const pVenCrr: Char);
 begin
   FVenCrr := pVenCrr;
+
+  CheckField('VenCrr');
 end;
 
 function T070FIL.GetVenPse: Char;
@@ -2672,6 +2831,8 @@ end;
 procedure T070FIL.SetVenPse(const pVenPse: Char);
 begin
   FVenPse := pVenPse;
+
+  CheckField('VenPse');
 end;
 
 function T070FIL.GetVenPam: Integer;
@@ -2682,6 +2843,8 @@ end;
 procedure T070FIL.SetVenPam(const pVenPam: Integer);
 begin
   FVenPam := pVenPam;
+
+  CheckField('VenPam');
 end;
 
 function T070FIL.GetVenPma: Integer;
@@ -2692,6 +2855,8 @@ end;
 procedure T070FIL.SetVenPma(const pVenPma: Integer);
 begin
   FVenPma := pVenPma;
+
+  CheckField('VenPma');
 end;
 
 function T070FIL.GetVenPpc: Integer;
@@ -2702,6 +2867,8 @@ end;
 procedure T070FIL.SetVenPpc(const pVenPpc: Integer);
 begin
   FVenPpc := pVenPpc;
+
+  CheckField('VenPpc');
 end;
 
 function T070FIL.GetVenPta: Integer;
@@ -2712,6 +2879,8 @@ end;
 procedure T070FIL.SetVenPta(const pVenPta: Integer);
 begin
   FVenPta := pVenPta;
+
+  CheckField('VenPta');
 end;
 
 function T070FIL.GetVenPdt: Integer;
@@ -2722,6 +2891,8 @@ end;
 procedure T070FIL.SetVenPdt(const pVenPdt: Integer);
 begin
   FVenPdt := pVenPdt;
+
+  CheckField('VenPdt');
 end;
 
 function T070FIL.GetVenPcs: Integer;
@@ -2732,6 +2903,8 @@ end;
 procedure T070FIL.SetVenPcs(const pVenPcs: Integer);
 begin
   FVenPcs := pVenPcs;
+
+  CheckField('VenPcs');
 end;
 
 function T070FIL.GetVenPlc: Char;
@@ -2742,6 +2915,8 @@ end;
 procedure T070FIL.SetVenPlc(const pVenPlc: Char);
 begin
   FVenPlc := pVenPlc;
+
+  CheckField('VenPlc');
 end;
 
 function T070FIL.GetVenFam: Integer;
@@ -2752,6 +2927,8 @@ end;
 procedure T070FIL.SetVenFam(const pVenFam: Integer);
 begin
   FVenFam := pVenFam;
+
+  CheckField('VenFam');
 end;
 
 function T070FIL.GetVenFma: Integer;
@@ -2762,6 +2939,8 @@ end;
 procedure T070FIL.SetVenFma(const pVenFma: Integer);
 begin
   FVenFma := pVenFma;
+
+  CheckField('VenFma');
 end;
 
 function T070FIL.GetVenFpc: Integer;
@@ -2772,6 +2951,8 @@ end;
 procedure T070FIL.SetVenFpc(const pVenFpc: Integer);
 begin
   FVenFpc := pVenFpc;
+
+  CheckField('VenFpc');
 end;
 
 function T070FIL.GetVenFta: Integer;
@@ -2782,6 +2963,8 @@ end;
 procedure T070FIL.SetVenFta(const pVenFta: Integer);
 begin
   FVenFta := pVenFta;
+
+  CheckField('VenFta');
 end;
 
 function T070FIL.GetVenFdt: Integer;
@@ -2792,6 +2975,8 @@ end;
 procedure T070FIL.SetVenFdt(const pVenFdt: Integer);
 begin
   FVenFdt := pVenFdt;
+
+  CheckField('VenFdt');
 end;
 
 function T070FIL.GetVenFcs: Integer;
@@ -2802,6 +2987,8 @@ end;
 procedure T070FIL.SetVenFcs(const pVenFcs: Integer);
 begin
   FVenFcs := pVenFcs;
+
+  CheckField('VenFcs');
 end;
 
 function T070FIL.GetVenFlc: Char;
@@ -2812,6 +2999,8 @@ end;
 procedure T070FIL.SetVenFlc(const pVenFlc: Char);
 begin
   FVenFlc := pVenFlc;
+
+  CheckField('VenFlc');
 end;
 
 function T070FIL.GetVenIss: Double;
@@ -2822,6 +3011,8 @@ end;
 procedure T070FIL.SetVenIss(const pVenIss: Double);
 begin
   FVenIss := pVenIss;
+
+  CheckField('VenIss');
 end;
 
 function T070FIL.GetVenIpd: Integer;
@@ -2832,6 +3023,8 @@ end;
 procedure T070FIL.SetVenIpd(const pVenIpd: Integer);
 begin
   FVenIpd := pVenIpd;
+
+  CheckField('VenIpd');
 end;
 
 function T070FIL.GetVenApc: Integer;
@@ -2842,6 +3035,8 @@ end;
 procedure T070FIL.SetVenApc(const pVenApc: Integer);
 begin
   FVenApc := pVenApc;
+
+  CheckField('VenApc');
 end;
 
 function T070FIL.GetVenLvp: Double;
@@ -2852,6 +3047,8 @@ end;
 procedure T070FIL.SetVenLvp(const pVenLvp: Double);
 begin
   FVenLvp := pVenLvp;
+
+  CheckField('VenLvp');
 end;
 
 function T070FIL.GetEstPdi: TDate;
@@ -2862,6 +3059,8 @@ end;
 procedure T070FIL.SetEstPdi(const pEstPdi: TDate);
 begin
   FEstPdi := pEstPdi;
+
+  CheckField('EstPdi');
 end;
 
 function T070FIL.GetEstPdf: TDate;
@@ -2872,6 +3071,8 @@ end;
 procedure T070FIL.SetEstPdf(const pEstPdf: TDate);
 begin
   FEstPdf := pEstPdf;
+
+  CheckField('EstPdf');
 end;
 
 function T070FIL.GetEstPai: TDate;
@@ -2882,6 +3083,8 @@ end;
 procedure T070FIL.SetEstPai(const pEstPai: TDate);
 begin
   FEstPai := pEstPai;
+
+  CheckField('EstPai');
 end;
 
 function T070FIL.GetEstPaf: TDate;
@@ -2892,6 +3095,8 @@ end;
 procedure T070FIL.SetEstPaf(const pEstPaf: TDate);
 begin
   FEstPaf := pEstPaf;
+
+  CheckField('EstPaf');
 end;
 
 function T070FIL.GetEstTei: string;
@@ -2902,6 +3107,8 @@ end;
 procedure T070FIL.SetEstTei(const pEstTei: string);
 begin
   FEstTei := pEstTei;
+
+  CheckField('EstTei');
 end;
 
 function T070FIL.GetEstTsi: string;
@@ -2912,6 +3119,8 @@ end;
 procedure T070FIL.SetEstTsi(const pEstTsi: string);
 begin
   FEstTsi := pEstTsi;
+
+  CheckField('EstTsi');
 end;
 
 function T070FIL.GetEstTpr: string;
@@ -2922,6 +3131,8 @@ end;
 procedure T070FIL.SetEstTpr(const pEstTpr: string);
 begin
   FEstTpr := pEstTpr;
+
+  CheckField('EstTpr');
 end;
 
 function T070FIL.GetEstUnm: Char;
@@ -2932,6 +3143,8 @@ end;
 procedure T070FIL.SetEstUnm(const pEstUnm: Char);
 begin
   FEstUnm := pEstUnm;
+
+  CheckField('EstUnm');
 end;
 
 function T070FIL.GetEstDpf: Char;
@@ -2942,6 +3155,8 @@ end;
 procedure T070FIL.SetEstDpf(const pEstDpf: Char);
 begin
   FEstDpf := pEstDpf;
+
+  CheckField('EstDpf');
 end;
 
 function T070FIL.GetRecPdi: TDate;
@@ -2952,6 +3167,8 @@ end;
 procedure T070FIL.SetRecPdi(const pRecPdi: TDate);
 begin
   FRecPdi := pRecPdi;
+
+  CheckField('RecPdi');
 end;
 
 function T070FIL.GetRecPdf: TDate;
@@ -2962,6 +3179,8 @@ end;
 procedure T070FIL.SetRecPdf(const pRecPdf: TDate);
 begin
   FRecPdf := pRecPdf;
+
+  CheckField('RecPdf');
 end;
 
 function T070FIL.GetRecPor: string;
@@ -2972,6 +3191,8 @@ end;
 procedure T070FIL.SetRecPor(const pRecPor: string);
 begin
   FRecPor := pRecPor;
+
+  CheckField('RecPor');
 end;
 
 function T070FIL.GetRecCrt: string;
@@ -2982,6 +3203,8 @@ end;
 procedure T070FIL.SetRecCrt(const pRecCrt: string);
 begin
   FRecCrt := pRecCrt;
+
+  CheckField('RecCrt');
 end;
 
 function T070FIL.GetRecOcr: string;
@@ -2992,6 +3215,8 @@ end;
 procedure T070FIL.SetRecOcr(const pRecOcr: string);
 begin
   FRecOcr := pRecOcr;
+
+  CheckField('RecOcr');
 end;
 
 function T070FIL.GetRecIns: string;
@@ -3002,6 +3227,8 @@ end;
 procedure T070FIL.SetRecIns(const pRecIns: string);
 begin
   FRecIns := pRecIns;
+
+  CheckField('RecIns');
 end;
 
 function T070FIL.GetRecVmt: Double;
@@ -3012,6 +3239,8 @@ end;
 procedure T070FIL.SetRecVmt(const pRecVmt: Double);
 begin
   FRecVmt := pRecVmt;
+
+  CheckField('RecVmt');
 end;
 
 function T070FIL.GetRecDpr: Integer;
@@ -3022,6 +3251,8 @@ end;
 procedure T070FIL.SetRecDpr(const pRecDpr: Integer);
 begin
   FRecDpr := pRecDpr;
+
+  CheckField('RecDpr');
 end;
 
 function T070FIL.GetRecMoe: string;
@@ -3032,6 +3263,8 @@ end;
 procedure T070FIL.SetRecMoe(const pRecMoe: string);
 begin
   FRecMoe := pRecMoe;
+
+  CheckField('RecMoe');
 end;
 
 function T070FIL.GetRecJmm: Double;
@@ -3042,6 +3275,8 @@ end;
 procedure T070FIL.SetRecJmm(const pRecJmm: Double);
 begin
   FRecJmm := pRecJmm;
+
+  CheckField('RecJmm');
 end;
 
 function T070FIL.GetRecTjr: Char;
@@ -3052,6 +3287,8 @@ end;
 procedure T070FIL.SetRecTjr(const pRecTjr: Char);
 begin
   FRecTjr := pRecTjr;
+
+  CheckField('RecTjr');
 end;
 
 function T070FIL.GetRecDtj: Integer;
@@ -3062,6 +3299,8 @@ end;
 procedure T070FIL.SetRecDtj(const pRecDtj: Integer);
 begin
   FRecDtj := pRecDtj;
+
+  CheckField('RecDtj');
 end;
 
 function T070FIL.GetRecMul: Double;
@@ -3072,6 +3311,8 @@ end;
 procedure T070FIL.SetRecMul(const pRecMul: Double);
 begin
   FRecMul := pRecMul;
+
+  CheckField('RecMul');
 end;
 
 function T070FIL.GetRecDtm: Integer;
@@ -3082,6 +3323,8 @@ end;
 procedure T070FIL.SetRecDtm(const pRecDtm: Integer);
 begin
   FRecDtm := pRecDtm;
+
+  CheckField('RecDtm');
 end;
 
 function T070FIL.GetRecVjm: Double;
@@ -3092,6 +3335,8 @@ end;
 procedure T070FIL.SetRecVjm(const pRecVjm: Double);
 begin
   FRecVjm := pRecVjm;
+
+  CheckField('RecVjm');
 end;
 
 function T070FIL.GetRecVdm: Double;
@@ -3102,6 +3347,8 @@ end;
 procedure T070FIL.SetRecVdm(const pRecVdm: Double);
 begin
   FRecVdm := pRecVdm;
+
+  CheckField('RecVdm');
 end;
 
 function T070FIL.GetRecVmm: Double;
@@ -3112,6 +3359,8 @@ end;
 procedure T070FIL.SetRecVmm(const pRecVmm: Double);
 begin
   FRecVmm := pRecVmm;
+
+  CheckField('RecVmm');
 end;
 
 function T070FIL.GetRecAvs: Char;
@@ -3122,6 +3371,8 @@ end;
 procedure T070FIL.SetRecAvs(const pRecAvs: Char);
 begin
   FRecAvs := pRecAvs;
+
+  CheckField('RecAvs');
 end;
 
 function T070FIL.GetRecAdc: Char;
@@ -3132,6 +3383,8 @@ end;
 procedure T070FIL.SetRecAdc(const pRecAdc: Char);
 begin
   FRecAdc := pRecAdc;
+
+  CheckField('RecAdc');
 end;
 
 function T070FIL.GetRecAoc: Char;
@@ -3142,6 +3395,8 @@ end;
 procedure T070FIL.SetRecAoc(const pRecAoc: Char);
 begin
   FRecAoc := pRecAoc;
+
+  CheckField('RecAoc');
 end;
 
 function T070FIL.GetRecPcj: Char;
@@ -3152,6 +3407,8 @@ end;
 procedure T070FIL.SetRecPcj(const pRecPcj: Char);
 begin
   FRecPcj := pRecPcj;
+
+  CheckField('RecPcj');
 end;
 
 function T070FIL.GetRecPcm: Char;
@@ -3162,6 +3419,8 @@ end;
 procedure T070FIL.SetRecPcm(const pRecPcm: Char);
 begin
   FRecPcm := pRecPcm;
+
+  CheckField('RecPcm');
 end;
 
 function T070FIL.GetRecPce: Char;
@@ -3172,6 +3431,8 @@ end;
 procedure T070FIL.SetRecPce(const pRecPce: Char);
 begin
   FRecPce := pRecPce;
+
+  CheckField('RecPce');
 end;
 
 function T070FIL.GetRecPcc: Char;
@@ -3182,6 +3443,8 @@ end;
 procedure T070FIL.SetRecPcc(const pRecPcc: Char);
 begin
   FRecPcc := pRecPcc;
+
+  CheckField('RecPcc');
 end;
 
 function T070FIL.GetRecPco: Char;
@@ -3192,6 +3455,8 @@ end;
 procedure T070FIL.SetRecPco(const pRecPco: Char);
 begin
   FRecPco := pRecPco;
+
+  CheckField('RecPco');
 end;
 
 function T070FIL.GetRecTpm: string;
@@ -3202,6 +3467,8 @@ end;
 procedure T070FIL.SetRecTpm(const pRecTpm: string);
 begin
   FRecTpm := pRecTpm;
+
+  CheckField('RecTpm');
 end;
 
 function T070FIL.GetRecTac: string;
@@ -3212,6 +3479,8 @@ end;
 procedure T070FIL.SetRecTac(const pRecTac: string);
 begin
   FRecTac := pRecTac;
+
+  CheckField('RecTac');
 end;
 
 function T070FIL.GetRecTes: string;
@@ -3222,6 +3491,8 @@ end;
 procedure T070FIL.SetRecTes(const pRecTes: string);
 begin
   FRecTes := pRecTes;
+
+  CheckField('RecTes');
 end;
 
 function T070FIL.GetRecTbp: string;
@@ -3232,6 +3503,8 @@ end;
 procedure T070FIL.SetRecTbp(const pRecTbp: string);
 begin
   FRecTbp := pRecTbp;
+
+  CheckField('RecTbp');
 end;
 
 function T070FIL.GetRecTba: string;
@@ -3242,6 +3515,8 @@ end;
 procedure T070FIL.SetRecTba(const pRecTba: string);
 begin
   FRecTba := pRecTba;
+
+  CheckField('RecTba');
 end;
 
 function T070FIL.GetRecTbs: string;
@@ -3252,6 +3527,8 @@ end;
 procedure T070FIL.SetRecTbs(const pRecTbs: string);
 begin
   FRecTbs := pRecTbs;
+
+  CheckField('RecTbs');
 end;
 
 function T070FIL.GetRecTbc: string;
@@ -3262,6 +3539,8 @@ end;
 procedure T070FIL.SetRecTbc(const pRecTbc: string);
 begin
   FRecTbc := pRecTbc;
+
+  CheckField('RecTbc');
 end;
 
 function T070FIL.GetRecTpc: string;
@@ -3272,6 +3551,8 @@ end;
 procedure T070FIL.SetRecTpc(const pRecTpc: string);
 begin
   FRecTpc := pRecTpc;
+
+  CheckField('RecTpc');
 end;
 
 function T070FIL.GetRecTcc: string;
@@ -3282,6 +3563,8 @@ end;
 procedure T070FIL.SetRecTcc(const pRecTcc: string);
 begin
   FRecTcc := pRecTcc;
+
+  CheckField('RecTcc');
 end;
 
 function T070FIL.GetCprPdi: TDate;
@@ -3292,6 +3575,8 @@ end;
 procedure T070FIL.SetCprPdi(const pCprPdi: TDate);
 begin
   FCprPdi := pCprPdi;
+
+  CheckField('CprPdi');
 end;
 
 function T070FIL.GetCprPdf: TDate;
@@ -3302,6 +3587,8 @@ end;
 procedure T070FIL.SetCprPdf(const pCprPdf: TDate);
 begin
   FCprPdf := pCprPdf;
+
+  CheckField('CprPdf');
 end;
 
 function T070FIL.GetCprQmc: Integer;
@@ -3312,6 +3599,8 @@ end;
 procedure T070FIL.SetCprQmc(const pCprQmc: Integer);
 begin
   FCprQmc := pCprQmc;
+
+  CheckField('CprQmc');
 end;
 
 function T070FIL.GetCprAvo: Char;
@@ -3322,6 +3611,8 @@ end;
 procedure T070FIL.SetCprAvo(const pCprAvo: Char);
 begin
   FCprAvo := pCprAvo;
+
+  CheckField('CprAvo');
 end;
 
 function T070FIL.GetCprDnf: Double;
@@ -3332,6 +3623,8 @@ end;
 procedure T070FIL.SetCprDnf(const pCprDnf: Double);
 begin
   FCprDnf := pCprDnf;
+
+  CheckField('CprDnf');
 end;
 
 function T070FIL.GetCprTop: string;
@@ -3342,6 +3635,8 @@ end;
 procedure T070FIL.SetCprTop(const pCprTop: string);
 begin
   FCprTop := pCprTop;
+
+  CheckField('CprTop');
 end;
 
 function T070FIL.GetCprTom: string;
@@ -3352,6 +3647,8 @@ end;
 procedure T070FIL.SetCprTom(const pCprTom: string);
 begin
   FCprTom := pCprTom;
+
+  CheckField('CprTom');
 end;
 
 function T070FIL.GetCprTos: string;
@@ -3362,6 +3659,8 @@ end;
 procedure T070FIL.SetCprTos(const pCprTos: string);
 begin
   FCprTos := pCprTos;
+
+  CheckField('CprTos');
 end;
 
 function T070FIL.GetCprTfp: string;
@@ -3372,6 +3671,8 @@ end;
 procedure T070FIL.SetCprTfp(const pCprTfp: string);
 begin
   FCprTfp := pCprTfp;
+
+  CheckField('CprTfp');
 end;
 
 function T070FIL.GetCprTfs: string;
@@ -3382,6 +3683,8 @@ end;
 procedure T070FIL.SetCprTfs(const pCprTfs: string);
 begin
   FCprTfs := pCprTfs;
+
+  CheckField('CprTfs');
 end;
 
 function T070FIL.GetCprTea: string;
@@ -3392,6 +3695,8 @@ end;
 procedure T070FIL.SetCprTea(const pCprTea: string);
 begin
   FCprTea := pCprTea;
+
+  CheckField('CprTea');
 end;
 
 function T070FIL.GetCprTsa: string;
@@ -3402,6 +3707,8 @@ end;
 procedure T070FIL.SetCprTsa(const pCprTsa: string);
 begin
   FCprTsa := pCprTsa;
+
+  CheckField('CprTsa');
 end;
 
 function T070FIL.GetCprSnp: string;
@@ -3412,6 +3719,8 @@ end;
 procedure T070FIL.SetCprSnp(const pCprSnp: string);
 begin
   FCprSnp := pCprSnp;
+
+  CheckField('CprSnp');
 end;
 
 function T070FIL.GetCprCcf: Char;
@@ -3422,6 +3731,8 @@ end;
 procedure T070FIL.SetCprCcf(const pCprCcf: Char);
 begin
   FCprCcf := pCprCcf;
+
+  CheckField('CprCcf');
 end;
 
 function T070FIL.GetCprCfr: Char;
@@ -3432,6 +3743,8 @@ end;
 procedure T070FIL.SetCprCfr(const pCprCfr: Char);
 begin
   FCprCfr := pCprCfr;
+
+  CheckField('CprCfr');
 end;
 
 function T070FIL.GetCprFss: Integer;
@@ -3442,6 +3755,8 @@ end;
 procedure T070FIL.SetCprFss(const pCprFss: Integer);
 begin
   FCprFss := pCprFss;
+
+  CheckField('CprFss');
 end;
 
 function T070FIL.GetPagPdi: TDate;
@@ -3452,6 +3767,8 @@ end;
 procedure T070FIL.SetPagPdi(const pPagPdi: TDate);
 begin
   FPagPdi := pPagPdi;
+
+  CheckField('PagPdi');
 end;
 
 function T070FIL.GetPagPdf: TDate;
@@ -3462,6 +3779,8 @@ end;
 procedure T070FIL.SetPagPdf(const pPagPdf: TDate);
 begin
   FPagPdf := pPagPdf;
+
+  CheckField('PagPdf');
 end;
 
 function T070FIL.GetPagApr: Char;
@@ -3472,6 +3791,8 @@ end;
 procedure T070FIL.SetPagApr(const pPagApr: Char);
 begin
   FPagApr := pPagApr;
+
+  CheckField('PagApr');
 end;
 
 function T070FIL.GetPagDpr: Integer;
@@ -3482,6 +3803,8 @@ end;
 procedure T070FIL.SetPagDpr(const pPagDpr: Integer);
 begin
   FPagDpr := pPagDpr;
+
+  CheckField('PagDpr');
 end;
 
 function T070FIL.GetPagMoe: string;
@@ -3492,6 +3815,8 @@ end;
 procedure T070FIL.SetPagMoe(const pPagMoe: string);
 begin
   FPagMoe := pPagMoe;
+
+  CheckField('PagMoe');
 end;
 
 function T070FIL.GetPagJmm: Double;
@@ -3502,6 +3827,8 @@ end;
 procedure T070FIL.SetPagJmm(const pPagJmm: Double);
 begin
   FPagJmm := pPagJmm;
+
+  CheckField('PagJmm');
 end;
 
 function T070FIL.GetPagTjr: Char;
@@ -3512,6 +3839,8 @@ end;
 procedure T070FIL.SetPagTjr(const pPagTjr: Char);
 begin
   FPagTjr := pPagTjr;
+
+  CheckField('PagTjr');
 end;
 
 function T070FIL.GetPagDtj: Integer;
@@ -3522,6 +3851,8 @@ end;
 procedure T070FIL.SetPagDtj(const pPagDtj: Integer);
 begin
   FPagDtj := pPagDtj;
+
+  CheckField('PagDtj');
 end;
 
 function T070FIL.GetPagMul: Double;
@@ -3532,6 +3863,8 @@ end;
 procedure T070FIL.SetPagMul(const pPagMul: Double);
 begin
   FPagMul := pPagMul;
+
+  CheckField('PagMul');
 end;
 
 function T070FIL.GetPagDtm: Integer;
@@ -3542,6 +3875,8 @@ end;
 procedure T070FIL.SetPagDtm(const pPagDtm: Integer);
 begin
   FPagDtm := pPagDtm;
+
+  CheckField('PagDtm');
 end;
 
 function T070FIL.GetPagTpm: string;
@@ -3552,6 +3887,8 @@ end;
 procedure T070FIL.SetPagTpm(const pPagTpm: string);
 begin
   FPagTpm := pPagTpm;
+
+  CheckField('PagTpm');
 end;
 
 function T070FIL.GetPagTpf: string;
@@ -3562,6 +3899,8 @@ end;
 procedure T070FIL.SetPagTpf(const pPagTpf: string);
 begin
   FPagTpf := pPagTpf;
+
+  CheckField('PagTpf');
 end;
 
 function T070FIL.GetPagTaf: string;
@@ -3572,6 +3911,8 @@ end;
 procedure T070FIL.SetPagTaf(const pPagTaf: string);
 begin
   FPagTaf := pPagTaf;
+
+  CheckField('PagTaf');
 end;
 
 function T070FIL.GetPagTbp: string;
@@ -3582,6 +3923,8 @@ end;
 procedure T070FIL.SetPagTbp(const pPagTbp: string);
 begin
   FPagTbp := pPagTbp;
+
+  CheckField('PagTbp');
 end;
 
 function T070FIL.GetPagTbc: string;
@@ -3592,6 +3935,8 @@ end;
 procedure T070FIL.SetPagTbc(const pPagTbc: string);
 begin
   FPagTbc := pPagTbc;
+
+  CheckField('PagTbc');
 end;
 
 function T070FIL.GetPagTbs: string;
@@ -3602,6 +3947,8 @@ end;
 procedure T070FIL.SetPagTbs(const pPagTbs: string);
 begin
   FPagTbs := pPagTbs;
+
+  CheckField('PagTbs');
 end;
 
 function T070FIL.GetPagTpc: string;
@@ -3612,6 +3959,8 @@ end;
 procedure T070FIL.SetPagTpc(const pPagTpc: string);
 begin
   FPagTpc := pPagTpc;
+
+  CheckField('PagTpc');
 end;
 
 function T070FIL.GetPagTcc: string;
@@ -3622,6 +3971,8 @@ end;
 procedure T070FIL.SetPagTcc(const pPagTcc: string);
 begin
   FPagTcc := pPagTcc;
+
+  CheckField('PagTcc');
 end;
 
 function T070FIL.GetPagVjm: Double;
@@ -3632,6 +3983,8 @@ end;
 procedure T070FIL.SetPagVjm(const pPagVjm: Double);
 begin
   FPagVjm := pPagVjm;
+
+  CheckField('PagVjm');
 end;
 
 function T070FIL.GetPagVdm: Double;
@@ -3642,6 +3995,8 @@ end;
 procedure T070FIL.SetPagVdm(const pPagVdm: Double);
 begin
   FPagVdm := pPagVdm;
+
+  CheckField('PagVdm');
 end;
 
 function T070FIL.GetPagVmm: Double;
@@ -3652,6 +4007,8 @@ end;
 procedure T070FIL.SetPagVmm(const pPagVmm: Double);
 begin
   FPagVmm := pPagVmm;
+
+  CheckField('PagVmm');
 end;
 
 function T070FIL.GetPagTcm: string;
@@ -3662,6 +4019,8 @@ end;
 procedure T070FIL.SetPagTcm(const pPagTcm: string);
 begin
   FPagTcm := pPagTcm;
+
+  CheckField('PagTcm');
 end;
 
 function T070FIL.GetPagTdc: string;
@@ -3672,6 +4031,8 @@ end;
 procedure T070FIL.SetPagTdc(const pPagTdc: string);
 begin
   FPagTdc := pPagTdc;
+
+  CheckField('PagTdc');
 end;
 
 function T070FIL.GetPagTdi: string;
@@ -3682,6 +4043,8 @@ end;
 procedure T070FIL.SetPagTdi(const pPagTdi: string);
 begin
   FPagTdi := pPagTdi;
+
+  CheckField('PagTdi');
 end;
 
 function T070FIL.GetPagLir: Double;
@@ -3692,6 +4055,8 @@ end;
 procedure T070FIL.SetPagLir(const pPagLir: Double);
 begin
   FPagLir := pPagLir;
+
+  CheckField('PagLir');
 end;
 
 function T070FIL.GetPagEev: Integer;
@@ -3702,6 +4067,8 @@ end;
 procedure T070FIL.SetPagEev(const pPagEev: Integer);
 begin
   FPagEev := pPagEev;
+
+  CheckField('PagEev');
 end;
 
 function T070FIL.GetCxbPdi: TDate;
@@ -3712,6 +4079,8 @@ end;
 procedure T070FIL.SetCxbPdi(const pCxbPdi: TDate);
 begin
   FCxbPdi := pCxbPdi;
+
+  CheckField('CxbPdi');
 end;
 
 function T070FIL.GetCxbPdf: TDate;
@@ -3722,6 +4091,8 @@ end;
 procedure T070FIL.SetCxbPdf(const pCxbPdf: TDate);
 begin
   FCxbPdf := pCxbPdf;
+
+  CheckField('CxbPdf');
 end;
 
 function T070FIL.GetCxbTca: string;
@@ -3732,6 +4103,8 @@ end;
 procedure T070FIL.SetCxbTca(const pCxbTca: string);
 begin
   FCxbTca := pCxbTca;
+
+  CheckField('CxbTca');
 end;
 
 function T070FIL.GetCxbTdc: string;
@@ -3742,6 +4115,8 @@ end;
 procedure T070FIL.SetCxbTdc(const pCxbTdc: string);
 begin
   FCxbTdc := pCxbTdc;
+
+  CheckField('CxbTdc');
 end;
 
 function T070FIL.GetCxbTde: string;
@@ -3752,6 +4127,8 @@ end;
 procedure T070FIL.SetCxbTde(const pCxbTde: string);
 begin
   FCxbTde := pCxbTde;
+
+  CheckField('CxbTde');
 end;
 
 function T070FIL.GetCxbTdt: string;
@@ -3762,6 +4139,8 @@ end;
 procedure T070FIL.SetCxbTdt(const pCxbTdt: string);
 begin
   FCxbTdt := pCxbTdt;
+
+  CheckField('CxbTdt');
 end;
 
 function T070FIL.GetCxbDec: Integer;
@@ -3772,6 +4151,8 @@ end;
 procedure T070FIL.SetCxbDec(const pCxbDec: Integer);
 begin
   FCxbDec := pCxbDec;
+
+  CheckField('CxbDec');
 end;
 
 function T070FIL.GetCtbExi: TDate;
@@ -3782,6 +4163,8 @@ end;
 procedure T070FIL.SetCtbExi(const pCtbExi: TDate);
 begin
   FCtbExi := pCtbExi;
+
+  CheckField('CtbExi');
 end;
 
 function T070FIL.GetCtbExf: TDate;
@@ -3792,6 +4175,8 @@ end;
 procedure T070FIL.SetCtbExf(const pCtbExf: TDate);
 begin
   FCtbExf := pCtbExf;
+
+  CheckField('CtbExf');
 end;
 
 function T070FIL.GetCtbPei: TDate;
@@ -3802,6 +4187,8 @@ end;
 procedure T070FIL.SetCtbPei(const pCtbPei: TDate);
 begin
   FCtbPei := pCtbPei;
+
+  CheckField('CtbPei');
 end;
 
 function T070FIL.GetCtbPef: TDate;
@@ -3812,6 +4199,8 @@ end;
 procedure T070FIL.SetCtbPef(const pCtbPef: TDate);
 begin
   FCtbPef := pCtbPef;
+
+  CheckField('CtbPef');
 end;
 
 function T070FIL.GetCtbQdl: Integer;
@@ -3822,6 +4211,8 @@ end;
 procedure T070FIL.SetCtbQdl(const pCtbQdl: Integer);
 begin
   FCtbQdl := pCtbQdl;
+
+  CheckField('CtbQdl');
 end;
 
 function T070FIL.GetCtbMoe: string;
@@ -3832,6 +4223,8 @@ end;
 procedure T070FIL.SetCtbMoe(const pCtbMoe: string);
 begin
   FCtbMoe := pCtbMoe;
+
+  CheckField('CtbMoe');
 end;
 
 function T070FIL.GetCtbLog: Char;
@@ -3842,6 +4235,8 @@ end;
 procedure T070FIL.SetCtbLog(const pCtbLog: Char);
 begin
   FCtbLog := pCtbLog;
+
+  CheckField('CtbLog');
 end;
 
 function T070FIL.GetCtbAli: Char;
@@ -3852,6 +4247,8 @@ end;
 procedure T070FIL.SetCtbAli(const pCtbAli: Char);
 begin
   FCtbAli := pCtbAli;
+
+  CheckField('CtbAli');
 end;
 
 function T070FIL.GetCtbDia: TDate;
@@ -3862,6 +4259,8 @@ end;
 procedure T070FIL.SetCtbDia(const pCtbDia: TDate);
 begin
   FCtbDia := pCtbDia;
+
+  CheckField('CtbDia');
 end;
 
 function T070FIL.GetCtbObs: string;
@@ -3872,6 +4271,8 @@ end;
 procedure T070FIL.SetCtbObs(const pCtbObs: string);
 begin
   FCtbObs := pCtbObs;
+
+  CheckField('CtbObs');
 end;
 
 function T070FIL.GetCtbNrj: string;
@@ -3882,6 +4283,8 @@ end;
 procedure T070FIL.SetCtbNrj(const pCtbNrj: string);
 begin
   FCtbNrj := pCtbNrj;
+
+  CheckField('CtbNrj');
 end;
 
 function T070FIL.GetCtbDrj: TDate;
@@ -3892,6 +4295,8 @@ end;
 procedure T070FIL.SetCtbDrj(const pCtbDrj: TDate);
 begin
   FCtbDrj := pCtbDrj;
+
+  CheckField('CtbDrj');
 end;
 
 function T070FIL.GetCtbNsr: string;
@@ -3902,6 +4307,8 @@ end;
 procedure T070FIL.SetCtbNsr(const pCtbNsr: string);
 begin
   FCtbNsr := pCtbNsr;
+
+  CheckField('CtbNsr');
 end;
 
 function T070FIL.GetCtbFsr: string;
@@ -3912,6 +4319,8 @@ end;
 procedure T070FIL.SetCtbFsr(const pCtbFsr: string);
 begin
   FCtbFsr := pCtbFsr;
+
+  CheckField('CtbFsr');
 end;
 
 function T070FIL.GetCtbCsr: Double;
@@ -3922,6 +4331,8 @@ end;
 procedure T070FIL.SetCtbCsr(const pCtbCsr: Double);
 begin
   FCtbCsr := pCtbCsr;
+
+  CheckField('CtbCsr');
 end;
 
 function T070FIL.GetCtbNcr: string;
@@ -3932,6 +4343,8 @@ end;
 procedure T070FIL.SetCtbNcr(const pCtbNcr: string);
 begin
   FCtbNcr := pCtbNcr;
+
+  CheckField('CtbNcr');
 end;
 
 function T070FIL.GetCtbFcr: Char;
@@ -3942,6 +4355,8 @@ end;
 procedure T070FIL.SetCtbFcr(const pCtbFcr: Char);
 begin
   FCtbFcr := pCtbFcr;
+
+  CheckField('CtbFcr');
 end;
 
 function T070FIL.GetCtbCrc: string;
@@ -3952,6 +4367,8 @@ end;
 procedure T070FIL.SetCtbCrc(const pCtbCrc: string);
 begin
   FCtbCrc := pCtbCrc;
+
+  CheckField('CtbCrc');
 end;
 
 function T070FIL.GetCtbCcr: Double;
@@ -3962,6 +4379,8 @@ end;
 procedure T070FIL.SetCtbCcr(const pCtbCcr: Double);
 begin
   FCtbCcr := pCtbCcr;
+
+  CheckField('CtbCcr');
 end;
 
 function T070FIL.GetCtbCfm: Integer;
@@ -3972,6 +4391,8 @@ end;
 procedure T070FIL.SetCtbCfm(const pCtbCfm: Integer);
 begin
   FCtbCfm := pCtbCfm;
+
+  CheckField('CtbCfm');
 end;
 
 function T070FIL.GetCtbCae: string;
@@ -3982,6 +4403,8 @@ end;
 procedure T070FIL.SetCtbCae(const pCtbCae: string);
 begin
   FCtbCae := pCtbCae;
+
+  CheckField('CtbCae');
 end;
 
 function T070FIL.GetCtbCaf: Integer;
@@ -3992,6 +4415,8 @@ end;
 procedure T070FIL.SetCtbCaf(const pCtbCaf: Integer);
 begin
   FCtbCaf := pCtbCaf;
+
+  CheckField('CtbCaf');
 end;
 
 function T070FIL.GetCtbFec: Char;
@@ -4002,6 +4427,8 @@ end;
 procedure T070FIL.SetCtbFec(const pCtbFec: Char);
 begin
   FCtbFec := pCtbFec;
+
+  CheckField('CtbFec');
 end;
 
 function T070FIL.GetCtbSdt: Char;
@@ -4012,6 +4439,8 @@ end;
 procedure T070FIL.SetCtbSdt(const pCtbSdt: Char);
 begin
   FCtbSdt := pCtbSdt;
+
+  CheckField('CtbSdt');
 end;
 
 function T070FIL.GetCtbSde: Char;
@@ -4022,6 +4451,8 @@ end;
 procedure T070FIL.SetCtbSde(const pCtbSde: Char);
 begin
   FCtbSde := pCtbSde;
+
+  CheckField('CtbSde');
 end;
 
 function T070FIL.GetCtbScr: Char;
@@ -4032,6 +4463,8 @@ end;
 procedure T070FIL.SetCtbScr(const pCtbScr: Char);
 begin
   FCtbScr := pCtbScr;
+
+  CheckField('CtbScr');
 end;
 
 function T070FIL.GetCtbSvl: Char;
@@ -4042,6 +4475,8 @@ end;
 procedure T070FIL.SetCtbSvl(const pCtbSvl: Char);
 begin
   FCtbSvl := pCtbSvl;
+
+  CheckField('CtbSvl');
 end;
 
 function T070FIL.GetCtbShp: Char;
@@ -4052,6 +4487,8 @@ end;
 procedure T070FIL.SetCtbShp(const pCtbShp: Char);
 begin
   FCtbShp := pCtbShp;
+
+  CheckField('CtbShp');
 end;
 
 function T070FIL.GetCtbHab: Char;
@@ -4062,6 +4499,8 @@ end;
 procedure T070FIL.SetCtbHab(const pCtbHab: Char);
 begin
   FCtbHab := pCtbHab;
+
+  CheckField('CtbHab');
 end;
 
 function T070FIL.GetEfiPdi: TDate;
@@ -4072,6 +4511,8 @@ end;
 procedure T070FIL.SetEfiPdi(const pEfiPdi: TDate);
 begin
   FEfiPdi := pEfiPdi;
+
+  CheckField('EfiPdi');
 end;
 
 function T070FIL.GetEfiPdf: TDate;
@@ -4082,6 +4523,8 @@ end;
 procedure T070FIL.SetEfiPdf(const pEfiPdf: TDate);
 begin
   FEfiPdf := pEfiPdf;
+
+  CheckField('EfiPdf');
 end;
 
 function T070FIL.GetEfiFtr: Char;
@@ -4092,6 +4535,8 @@ end;
 procedure T070FIL.SetEfiFtr(const pEfiFtr: Char);
 begin
   FEfiFtr := pEfiFtr;
+
+  CheckField('EfiFtr');
 end;
 
 function T070FIL.GetEfiApi: Double;
@@ -4102,6 +4547,8 @@ end;
 procedure T070FIL.SetEfiApi(const pEfiApi: Double);
 begin
   FEfiApi := pEfiApi;
+
+  CheckField('EfiApi');
 end;
 
 function T070FIL.GetEfiStr: Char;
@@ -4112,6 +4559,8 @@ end;
 procedure T070FIL.SetEfiStr(const pEfiStr: Char);
 begin
   FEfiStr := pEfiStr;
+
+  CheckField('EfiStr');
 end;
 
 function T070FIL.GetEfiReg: Integer;
@@ -4122,6 +4571,8 @@ end;
 procedure T070FIL.SetEfiReg(const pEfiReg: Integer);
 begin
   FEfiReg := pEfiReg;
+
+  CheckField('EfiReg');
 end;
 
 function T070FIL.GetEfiQci: Integer;
@@ -4132,6 +4583,8 @@ end;
 procedure T070FIL.SetEfiQci(const pEfiQci: Integer);
 begin
   FEfiQci := pEfiQci;
+
+  CheckField('EfiQci');
 end;
 
 function T070FIL.GetPrdTep: string;
@@ -4142,6 +4595,8 @@ end;
 procedure T070FIL.SetPrdTep(const pPrdTep: string);
 begin
   FPrdTep := pPrdTep;
+
+  CheckField('PrdTep');
 end;
 
 function T070FIL.GetPrdTsp: string;
@@ -4152,6 +4607,8 @@ end;
 procedure T070FIL.SetPrdTsp(const pPrdTsp: string);
 begin
   FPrdTsp := pPrdTsp;
+
+  CheckField('PrdTsp');
 end;
 
 function T070FIL.GetPrdQdd: Integer;
@@ -4162,6 +4619,8 @@ end;
 procedure T070FIL.SetPrdQdd(const pPrdQdd: Integer);
 begin
   FPrdQdd := pPrdQdd;
+
+  CheckField('PrdQdd');
 end;
 
 function T070FIL.GetPrdTpp: string;
@@ -4172,6 +4631,8 @@ end;
 procedure T070FIL.SetPrdTpp(const pPrdTpp: string);
 begin
   FPrdTpp := pPrdTpp;
+
+  CheckField('PrdTpp');
 end;
 
 function T070FIL.GetPrdCpp: Integer;
@@ -4182,6 +4643,8 @@ end;
 procedure T070FIL.SetPrdCpp(const pPrdCpp: Integer);
 begin
   FPrdCpp := pPrdCpp;
+
+  CheckField('PrdCpp');
 end;
 
 function T070FIL.GetPrdRpp: Integer;
@@ -4192,6 +4655,8 @@ end;
 procedure T070FIL.SetPrdRpp(const pPrdRpp: Integer);
 begin
   FPrdRpp := pPrdRpp;
+
+  CheckField('PrdRpp');
 end;
 
 function T070FIL.GetPrdPpp: string;
@@ -4202,6 +4667,8 @@ end;
 procedure T070FIL.SetPrdPpp(const pPrdPpp: string);
 begin
   FPrdPpp := pPrdPpp;
+
+  CheckField('PrdPpp');
 end;
 
 function T070FIL.GetPrdTee: string;
@@ -4212,6 +4679,8 @@ end;
 procedure T070FIL.SetPrdTee(const pPrdTee: string);
 begin
   FPrdTee := pPrdTee;
+
+  CheckField('PrdTee');
 end;
 
 function T070FIL.GetPrdTnr: string;
@@ -4222,6 +4691,8 @@ end;
 procedure T070FIL.SetPrdTnr(const pPrdTnr: string);
 begin
   FPrdTnr := pPrdTnr;
+
+  CheckField('PrdTnr');
 end;
 
 function T070FIL.GetPrdEfi: Double;
@@ -4232,6 +4703,8 @@ end;
 procedure T070FIL.SetPrdEfi(const pPrdEfi: Double);
 begin
   FPrdEfi := pPrdEfi;
+
+  CheckField('PrdEfi');
 end;
 
 function T070FIL.GetPedBlo: Char;
@@ -4242,6 +4715,8 @@ end;
 procedure T070FIL.SetPedBlo(const pPedBlo: Char);
 begin
   FPedBlo := pPedBlo;
+
+  CheckField('PedBlo');
 end;
 
 function T070FIL.GetComPrz: Char;
@@ -4252,6 +4727,8 @@ end;
 procedure T070FIL.SetComPrz(const pComPrz: Char);
 begin
   FComPrz := pComPrz;
+
+  CheckField('ComPrz');
 end;
 
 function T070FIL.GetPerCom: Double;
@@ -4262,6 +4739,8 @@ end;
 procedure T070FIL.SetPerCom(const pPerCom: Double);
 begin
   FPerCom := pPerCom;
+
+  CheckField('PerCom');
 end;
 
 function T070FIL.GetTipSep: string;
@@ -4272,6 +4751,8 @@ end;
 procedure T070FIL.SetTipSep(const pTipSep: string);
 begin
   FTipSep := pTipSep;
+
+  CheckField('TipSep');
 end;
 
 function T070FIL.GetIndRoe: Char;
@@ -4282,6 +4763,8 @@ end;
 procedure T070FIL.SetIndRoe(const pIndRoe: Char);
 begin
   FIndRoe := pIndRoe;
+
+  CheckField('IndRoe');
 end;
 
 function T070FIL.GetCprIef: Char;
@@ -4292,6 +4775,8 @@ end;
 procedure T070FIL.SetCprIef(const pCprIef: Char);
 begin
   FCprIef := pCprIef;
+
+  CheckField('CprIef');
 end;
 
 function T070FIL.GetVenIec: Char;
@@ -4302,6 +4787,8 @@ end;
 procedure T070FIL.SetVenIec(const pVenIec: Char);
 begin
   FVenIec := pVenIec;
+
+  CheckField('VenIec');
 end;
 
 function T070FIL.GetRecTia: Char;
@@ -4312,6 +4799,8 @@ end;
 procedure T070FIL.SetRecTia(const pRecTia: Char);
 begin
   FRecTia := pRecTia;
+
+  CheckField('RecTia');
 end;
 
 function T070FIL.GetEstFpr: string;
@@ -4322,6 +4811,8 @@ end;
 procedure T070FIL.SetEstFpr(const pEstFpr: string);
 begin
   FEstFpr := pEstFpr;
+
+  CheckField('EstFpr');
 end;
 
 function T070FIL.GetIndExp: Integer;
@@ -4332,6 +4823,8 @@ end;
 procedure T070FIL.SetIndExp(const pIndExp: Integer);
 begin
   FIndExp := pIndExp;
+
+  CheckField('IndExp');
 end;
 
 function T070FIL.GetDatPal: TDate;
@@ -4342,6 +4835,8 @@ end;
 procedure T070FIL.SetDatPal(const pDatPal: TDate);
 begin
   FDatPal := pDatPal;
+
+  CheckField('DatPal');
 end;
 
 function T070FIL.GetHorPal: Integer;
@@ -4352,6 +4847,8 @@ end;
 procedure T070FIL.SetHorPal(const pHorPal: Integer);
 begin
   FHorPal := pHorPal;
+
+  CheckField('HorPal');
 end;
 
 function T070FIL.GetCodAfi: Integer;
@@ -4362,6 +4859,8 @@ end;
 procedure T070FIL.SetCodAfi(const pCodAfi: Integer);
 begin
   FCodAfi := pCodAfi;
+
+  CheckField('CodAfi');
 end;
 
 function T070FIL.GetEenFil: string;
@@ -4372,6 +4871,8 @@ end;
 procedure T070FIL.SetEenFil(const pEenFil: string);
 begin
   FEenFil := pEenFil;
+
+  CheckField('EenFil');
 end;
 
 function T070FIL.GetEenEnt: string;
@@ -4382,6 +4883,8 @@ end;
 procedure T070FIL.SetEenEnt(const pEenEnt: string);
 begin
   FEenEnt := pEenEnt;
+
+  CheckField('EenEnt');
 end;
 
 function T070FIL.GetEenCob: string;
@@ -4392,6 +4895,8 @@ end;
 procedure T070FIL.SetEenCob(const pEenCob: string);
 begin
   FEenCob := pEenCob;
+
+  CheckField('EenCob');
 end;
 
 function T070FIL.GetBaiEnt: string;
@@ -4402,6 +4907,8 @@ end;
 procedure T070FIL.SetBaiEnt(const pBaiEnt: string);
 begin
   FBaiEnt := pBaiEnt;
+
+  CheckField('BaiEnt');
 end;
 
 function T070FIL.GetBaiCob: string;
@@ -4412,6 +4919,8 @@ end;
 procedure T070FIL.SetBaiCob(const pBaiCob: string);
 begin
   FBaiCob := pBaiCob;
+
+  CheckField('BaiCob');
 end;
 
 function T070FIL.GetNenFil: string;
@@ -4422,6 +4931,8 @@ end;
 procedure T070FIL.SetNenFil(const pNenFil: string);
 begin
   FNenFil := pNenFil;
+
+  CheckField('NenFil');
 end;
 
 function T070FIL.GetFilMat: Char;
@@ -4432,6 +4943,8 @@ end;
 procedure T070FIL.SetFilMat(const pFilMat: Char);
 begin
   FFilMat := pFilMat;
+
+  CheckField('FilMat');
 end;
 
 function T070FIL.GetAgeAnp: Integer;
@@ -4442,6 +4955,8 @@ end;
 procedure T070FIL.SetAgeAnp(const pAgeAnp: Integer);
 begin
   FAgeAnp := pAgeAnp;
+
+  CheckField('AgeAnp');
 end;
 
 function T070FIL.GetInsAnp: Integer;
@@ -4452,6 +4967,8 @@ end;
 procedure T070FIL.SetInsAnp(const pInsAnp: Integer);
 begin
   FInsAnp := pInsAnp;
+
+  CheckField('InsAnp');
 end;
 
 function T070FIL.GetUSU_GerOPA: Char;
@@ -4462,6 +4979,8 @@ end;
 procedure T070FIL.SetUSU_GerOPA(const pUSU_GerOPA: Char);
 begin
   FUSU_GerOPA := pUSU_GerOPA;
+
+  CheckField('USU_GerOPA');
 end;
 
 function T070FIL.GetUSU_MaiPcp: string;
@@ -4472,6 +4991,8 @@ end;
 procedure T070FIL.SetUSU_MaiPcp(const pUSU_MaiPcp: string);
 begin
   FUSU_MaiPcp := pUSU_MaiPcp;
+
+  CheckField('USU_MaiPcp');
 end;
 
 function T070FIL.GetUSU_MailNfe: string;
@@ -4482,6 +5003,8 @@ end;
 procedure T070FIL.SetUSU_MailNfe(const pUSU_MailNfe: string);
 begin
   FUSU_MailNfe := pUSU_MailNfe;
+
+  CheckField('USU_MailNfe');
 end;
 
 function T070FIL.GetUSU_EmaAnl: string;
@@ -4492,6 +5015,8 @@ end;
 procedure T070FIL.SetUSU_EmaAnl(const pUSU_EmaAnl: string);
 begin
   FUSU_EmaAnl := pUSU_EmaAnl;
+
+  CheckField('USU_EmaAnl');
 end;
 
 function T070FIL.GetUSU_CodTpr: string;
@@ -4502,6 +5027,8 @@ end;
 procedure T070FIL.SetUSU_CodTpr(const pUSU_CodTpr: string);
 begin
   FUSU_CodTpr := pUSU_CodTpr;
+
+  CheckField('USU_CodTpr');
 end;
 
 function T070FIL.GetUSU_DatPolDsc: TDate;
@@ -4512,6 +5039,8 @@ end;
 procedure T070FIL.SetUSU_DatPolDsc(const pUSU_DatPolDsc: TDate);
 begin
   FUSU_DatPolDsc := pUSU_DatPolDsc;
+
+  CheckField('USU_DatPolDsc');
 end;
 
 function T070FIL.GetUSU_TxaInd: Double;
@@ -4522,6 +5051,20 @@ end;
 procedure T070FIL.SetUSU_TxaInd(const pUSU_TxaInd: Double);
 begin
   FUSU_TxaInd := pUSU_TxaInd;
+
+  CheckField('USU_TxaInd');
+end;
+
+function T070FIL.GetUSU_DivMdi: Integer;
+begin
+  Result := FUSU_DivMdi;
+end;
+
+procedure T070FIL.SetUSU_DivMdi(const pUSU_DivMdi: Integer);
+begin
+  FUSU_DivMdi := pUSU_DivMdi;
+
+  CheckField('USU_DivMdi');
 end;
 
 function T070FIL.GetUSU_IniAdt: TDate;
@@ -4532,6 +5075,8 @@ end;
 procedure T070FIL.SetUSU_IniAdt(const pUSU_IniAdt: TDate);
 begin
   FUSU_IniAdt := pUSU_IniAdt;
+
+  CheckField('USU_IniAdt');
 end;
 
 function T070FIL.GetUSU_FinAdt: TDate;
@@ -4542,6 +5087,56 @@ end;
 procedure T070FIL.SetUSU_FinAdt(const pUSU_FinAdt: TDate);
 begin
   FUSU_FinAdt := pUSU_FinAdt;
+
+  CheckField('USU_FinAdt');
+end;
+
+function T070FIL.GetUSU_LocIDW: string;
+begin
+  Result := FUSU_LocIDW;
+end;
+
+procedure T070FIL.SetUSU_LocIDW(const pUSU_LocIDW: string);
+begin
+  FUSU_LocIDW := pUSU_LocIDW;
+
+  CheckField('USU_LocIDW');
+end;
+
+function T070FIL.GetUSU_LocIPT: string;
+begin
+  Result := FUSU_LocIPT;
+end;
+
+procedure T070FIL.SetUSU_LocIPT(const pUSU_LocIPT: string);
+begin
+  FUSU_LocIPT := pUSU_LocIPT;
+
+  CheckField('USU_LocIPT');
+end;
+
+function T070FIL.GetUSU_LocIAM: string;
+begin
+  Result := FUSU_LocIAM;
+end;
+
+procedure T070FIL.SetUSU_LocIAM(const pUSU_LocIAM: string);
+begin
+  FUSU_LocIAM := pUSU_LocIAM;
+
+  CheckField('USU_LocIAM');
+end;
+
+function T070FIL.GetUSU_LocSTP: string;
+begin
+  Result := FUSU_LocSTP;
+end;
+
+procedure T070FIL.SetUSU_LocSTP(const pUSU_LocSTP: string);
+begin
+  FUSU_LocSTP := pUSU_LocSTP;
+
+  CheckField('USU_LocSTP');
 end;
 
 function T070FIL.GetCodEmpOLD: Integer;
@@ -7024,6 +7619,16 @@ begin
   FUSU_TxaIndOLD := pUSU_TxaInd;
 end;
 
+function T070FIL.GetUSU_DivMdiOLD: Integer;
+begin
+  Result := FUSU_DivMdiOLD;
+end;
+
+procedure T070FIL.SetUSU_DivMdiOLD(const pUSU_DivMdi: Integer);
+begin
+  FUSU_DivMdiOLD := pUSU_DivMdi;
+end;
+
 function T070FIL.GetUSU_IniAdtOLD: TDate;
 begin
   Result := FUSU_IniAdtOLD;
@@ -7042,6 +7647,46 @@ end;
 procedure T070FIL.SetUSU_FinAdtOLD(const pUSU_FinAdt: TDate);
 begin
   FUSU_FinAdtOLD := pUSU_FinAdt;
+end;
+
+function T070FIL.GetUSU_LocIDWOLD: string;
+begin
+  Result := FUSU_LocIDWOLD;
+end;
+
+procedure T070FIL.SetUSU_LocIDWOLD(const pUSU_LocIDW: string);
+begin
+  FUSU_LocIDWOLD := pUSU_LocIDW;
+end;
+
+function T070FIL.GetUSU_LocIPTOLD: string;
+begin
+  Result := FUSU_LocIPTOLD;
+end;
+
+procedure T070FIL.SetUSU_LocIPTOLD(const pUSU_LocIPT: string);
+begin
+  FUSU_LocIPTOLD := pUSU_LocIPT;
+end;
+
+function T070FIL.GetUSU_LocIAMOLD: string;
+begin
+  Result := FUSU_LocIAMOLD;
+end;
+
+procedure T070FIL.SetUSU_LocIAMOLD(const pUSU_LocIAM: string);
+begin
+  FUSU_LocIAMOLD := pUSU_LocIAM;
+end;
+
+function T070FIL.GetUSU_LocSTPOLD: string;
+begin
+  Result := FUSU_LocSTPOLD;
+end;
+
+procedure T070FIL.SetUSU_LocSTPOLD(const pUSU_LocSTP: string);
+begin
+  FUSU_LocSTPOLD := pUSU_LocSTP;
 end;
 
 procedure T070FIL.Registros_OLD();
@@ -7301,6 +7946,267 @@ begin
   FUSU_LocIPTOLD := FUSU_LocIPT;
   FUSU_LocIAMOLD := FUSU_LocIAM;
   FUSU_LocSTPOLD := FUSU_LocSTP;
+
+  inherited;
+end;
+
+procedure T070FIL.RetornarValores();
+begin
+  FCodEmp := FCodEmpOLD;
+  FCodFil := FCodFilOLD;
+  FNomFil := FNomFilOLD;
+  FSigFil := FSigFilOLD;
+  FInsEst := FInsEstOLD;
+  FInsMun := FInsMunOLD;
+  FNumCgc := FNumCgcOLD;
+  FEndFil := FEndFilOLD;
+  FCplEnd := FCplEndOLD;
+  FCepFil := FCepFilOLD;
+  FCepIni := FCepIniOLD;
+  FCodRai := FCodRaiOLD;
+  FBaiFil := FBaiFilOLD;
+  FCidFil := FCidFilOLD;
+  FSigUfs := FSigUfsOLD;
+  FEndEnt := FEndEntOLD;
+  FCplEnt := FCplEntOLD;
+  FCepEnt := FCepEntOLD;
+  FCidEnt := FCidEntOLD;
+  FEstEnt := FEstEntOLD;
+  FEndCob := FEndCobOLD;
+  FCplCob := FCplCobOLD;
+  FCepCob := FCepCobOLD;
+  FCidCob := FCidCobOLD;
+  FEstCob := FEstCobOLD;
+  FNumFon := FNumFonOLD;
+  FNumFax := FNumFaxOLD;
+  FCxaPst := FCxaPstOLD;
+  FIntNet := FIntNetOLD;
+  FTipEmp := FTipEmpOLD;
+  FFilCli := FFilCliOLD;
+  FFilFor := FFilForOLD;
+  FPedIni := FPedIniOLD;
+  FZonFra := FZonFraOLD;
+  FCodSuf := FCodSufOLD;
+  FDifAli := FDifAliOLD;
+  FCriFed := FCriFedOLD;
+  FQtdDlb := FQtdDlbOLD;
+  FVenPdi := FVenPdiOLD;
+  FVenPdf := FVenPdfOLD;
+  FVenCae := FVenCaeOLD;
+  FVenQdf := FVenQdfOLD;
+  FVenTcc := FVenTccOLD;
+  FVenTpp := FVenTppOLD;
+  FVenTps := FVenTpsOLD;
+  FVenDsu := FVenDsuOLD;
+  FVenVmp := FVenVmpOLD;
+  FVenLep := FVenLepOLD;
+  FVenTcv := FVenTcvOLD;
+  FVenCep := FVenCepOLD;
+  FVenPvp := FVenPvpOLD;
+  FVenNpa := FVenNpaOLD;
+  FVenCfi := FVenCfiOLD;
+  FVenNtr := FVenNtrOLD;
+  FVenSnr := FVenSnrOLD;
+  FVenQip := FVenQipOLD;
+  FVenSnp := FVenSnpOLD;
+  FVenQdp := FVenQdpOLD;
+  FVenRpd := FVenRpdOLD;
+  FVenCcc := FVenCccOLD;
+  FVenCcr := FVenCcrOLD;
+  FVenCrr := FVenCrrOLD;
+  FVenPse := FVenPseOLD;
+  FVenPam := FVenPamOLD;
+  FVenPma := FVenPmaOLD;
+  FVenPpc := FVenPpcOLD;
+  FVenPta := FVenPtaOLD;
+  FVenPdt := FVenPdtOLD;
+  FVenPcs := FVenPcsOLD;
+  FVenPlc := FVenPlcOLD;
+  FVenFam := FVenFamOLD;
+  FVenFma := FVenFmaOLD;
+  FVenFpc := FVenFpcOLD;
+  FVenFta := FVenFtaOLD;
+  FVenFdt := FVenFdtOLD;
+  FVenFcs := FVenFcsOLD;
+  FVenFlc := FVenFlcOLD;
+  FVenIss := FVenIssOLD;
+  FVenIpd := FVenIpdOLD;
+  FVenApc := FVenApcOLD;
+  FVenLvp := FVenLvpOLD;
+  FEstPdi := FEstPdiOLD;
+  FEstPdf := FEstPdfOLD;
+  FEstPai := FEstPaiOLD;
+  FEstPaf := FEstPafOLD;
+  FEstTei := FEstTeiOLD;
+  FEstTsi := FEstTsiOLD;
+  FEstTpr := FEstTprOLD;
+  FEstUnm := FEstUnmOLD;
+  FEstDpf := FEstDpfOLD;
+  FRecPdi := FRecPdiOLD;
+  FRecPdf := FRecPdfOLD;
+  FRecPor := FRecPorOLD;
+  FRecCrt := FRecCrtOLD;
+  FRecOcr := FRecOcrOLD;
+  FRecIns := FRecInsOLD;
+  FRecVmt := FRecVmtOLD;
+  FRecDpr := FRecDprOLD;
+  FRecMoe := FRecMoeOLD;
+  FRecJmm := FRecJmmOLD;
+  FRecTjr := FRecTjrOLD;
+  FRecDtj := FRecDtjOLD;
+  FRecMul := FRecMulOLD;
+  FRecDtm := FRecDtmOLD;
+  FRecVjm := FRecVjmOLD;
+  FRecVdm := FRecVdmOLD;
+  FRecVmm := FRecVmmOLD;
+  FRecAvs := FRecAvsOLD;
+  FRecAdc := FRecAdcOLD;
+  FRecAoc := FRecAocOLD;
+  FRecPcj := FRecPcjOLD;
+  FRecPcm := FRecPcmOLD;
+  FRecPce := FRecPceOLD;
+  FRecPcc := FRecPccOLD;
+  FRecPco := FRecPcoOLD;
+  FRecTpm := FRecTpmOLD;
+  FRecTac := FRecTacOLD;
+  FRecTes := FRecTesOLD;
+  FRecTbp := FRecTbpOLD;
+  FRecTba := FRecTbaOLD;
+  FRecTbs := FRecTbsOLD;
+  FRecTbc := FRecTbcOLD;
+  FRecTpc := FRecTpcOLD;
+  FRecTcc := FRecTccOLD;
+  FCprPdi := FCprPdiOLD;
+  FCprPdf := FCprPdfOLD;
+  FCprQmc := FCprQmcOLD;
+  FCprAvo := FCprAvoOLD;
+  FCprDnf := FCprDnfOLD;
+  FCprTop := FCprTopOLD;
+  FCprTom := FCprTomOLD;
+  FCprTos := FCprTosOLD;
+  FCprTfp := FCprTfpOLD;
+  FCprTfs := FCprTfsOLD;
+  FCprTea := FCprTeaOLD;
+  FCprTsa := FCprTsaOLD;
+  FCprSnp := FCprSnpOLD;
+  FCprCcf := FCprCcfOLD;
+  FCprCfr := FCprCfrOLD;
+  FCprFss := FCprFssOLD;
+  FPagPdi := FPagPdiOLD;
+  FPagPdf := FPagPdfOLD;
+  FPagApr := FPagAprOLD;
+  FPagDpr := FPagDprOLD;
+  FPagMoe := FPagMoeOLD;
+  FPagJmm := FPagJmmOLD;
+  FPagTjr := FPagTjrOLD;
+  FPagDtj := FPagDtjOLD;
+  FPagMul := FPagMulOLD;
+  FPagDtm := FPagDtmOLD;
+  FPagTpm := FPagTpmOLD;
+  FPagTpf := FPagTpfOLD;
+  FPagTaf := FPagTafOLD;
+  FPagTbp := FPagTbpOLD;
+  FPagTbc := FPagTbcOLD;
+  FPagTbs := FPagTbsOLD;
+  FPagTpc := FPagTpcOLD;
+  FPagTcc := FPagTccOLD;
+  FPagVjm := FPagVjmOLD;
+  FPagVdm := FPagVdmOLD;
+  FPagVmm := FPagVmmOLD;
+  FPagTcm := FPagTcmOLD;
+  FPagTdc := FPagTdcOLD;
+  FPagTdi := FPagTdiOLD;
+  FPagLir := FPagLirOLD;
+  FPagEev := FPagEevOLD;
+  FCxbPdi := FCxbPdiOLD;
+  FCxbPdf := FCxbPdfOLD;
+  FCxbTca := FCxbTcaOLD;
+  FCxbTdc := FCxbTdcOLD;
+  FCxbTde := FCxbTdeOLD;
+  FCxbTdt := FCxbTdtOLD;
+  FCxbDec := FCxbDecOLD;
+  FCtbExi := FCtbExiOLD;
+  FCtbExf := FCtbExfOLD;
+  FCtbPei := FCtbPeiOLD;
+  FCtbPef := FCtbPefOLD;
+  FCtbQdl := FCtbQdlOLD;
+  FCtbMoe := FCtbMoeOLD;
+  FCtbLog := FCtbLogOLD;
+  FCtbAli := FCtbAliOLD;
+  FCtbDia := FCtbDiaOLD;
+  FCtbObs := FCtbObsOLD;
+  FCtbNrj := FCtbNrjOLD;
+  FCtbDrj := FCtbDrjOLD;
+  FCtbNsr := FCtbNsrOLD;
+  FCtbFsr := FCtbFsrOLD;
+  FCtbCsr := FCtbCsrOLD;
+  FCtbNcr := FCtbNcrOLD;
+  FCtbFcr := FCtbFcrOLD;
+  FCtbCrc := FCtbCrcOLD;
+  FCtbCcr := FCtbCcrOLD;
+  FCtbCfm := FCtbCfmOLD;
+  FCtbCae := FCtbCaeOLD;
+  FCtbCaf := FCtbCafOLD;
+  FCtbFec := FCtbFecOLD;
+  FCtbSdt := FCtbSdtOLD;
+  FCtbSde := FCtbSdeOLD;
+  FCtbScr := FCtbScrOLD;
+  FCtbSvl := FCtbSvlOLD;
+  FCtbShp := FCtbShpOLD;
+  FCtbHab := FCtbHabOLD;
+  FEfiPdi := FEfiPdiOLD;
+  FEfiPdf := FEfiPdfOLD;
+  FEfiFtr := FEfiFtrOLD;
+  FEfiApi := FEfiApiOLD;
+  FEfiStr := FEfiStrOLD;
+  FEfiReg := FEfiRegOLD;
+  FEfiQci := FEfiQciOLD;
+  FPrdTep := FPrdTepOLD;
+  FPrdTsp := FPrdTspOLD;
+  FPrdQdd := FPrdQddOLD;
+  FPrdTpp := FPrdTppOLD;
+  FPrdCpp := FPrdCppOLD;
+  FPrdRpp := FPrdRppOLD;
+  FPrdPpp := FPrdPppOLD;
+  FPrdTee := FPrdTeeOLD;
+  FPrdTnr := FPrdTnrOLD;
+  FPrdEfi := FPrdEfiOLD;
+  FPedBlo := FPedBloOLD;
+  FComPrz := FComPrzOLD;
+  FPerCom := FPerComOLD;
+  FTipSep := FTipSepOLD;
+  FIndRoe := FIndRoeOLD;
+  FCprIef := FCprIefOLD;
+  FVenIec := FVenIecOLD;
+  FRecTia := FRecTiaOLD;
+  FEstFpr := FEstFprOLD;
+  FIndExp := FIndExpOLD;
+  FDatPal := FDatPalOLD;
+  FHorPal := FHorPalOLD;
+  FCodAfi := FCodAfiOLD;
+  FEenFil := FEenFilOLD;
+  FEenEnt := FEenEntOLD;
+  FEenCob := FEenCobOLD;
+  FBaiEnt := FBaiEntOLD;
+  FBaiCob := FBaiCobOLD;
+  FNenFil := FNenFilOLD;
+  FFilMat := FFilMatOLD;
+  FAgeAnp := FAgeAnpOLD;
+  FInsAnp := FInsAnpOLD;
+  FUSU_GerOPA := FUSU_GerOPAOLD;
+  FUSU_MaiPcp := FUSU_MaiPcpOLD;
+  FUSU_MailNfe := FUSU_MailNfeOLD;
+  FUSU_EmaAnl := FUSU_EmaAnlOLD;
+  FUSU_CodTpr := FUSU_CodTprOLD;
+  FUSU_DatPolDsc := FUSU_DatPolDscOLD;
+  FUSU_TxaInd := FUSU_TxaIndOLD;
+  FUSU_DivMdi := FUSU_DivMdiOLD;
+  FUSU_IniAdt := FUSU_IniAdtOLD;
+  FUSU_FinAdt := FUSU_FinAdtOLD;
+  FUSU_LocIDW := FUSU_LocIDWOLD;
+  FUSU_LocIPT := FUSU_LocIPTOLD;
+  FUSU_LocIAM := FUSU_LocIAMOLD;
+  FUSU_LocSTP := FUSU_LocSTPOLD;
 end;
 
 end.

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, oBase, System.SysUtils, Data.Db, System.Contnrs,
-  oTabelas, wsRelatorioImp, DateUtils;
+  wsRelatorioImp, DateUtils;
 
 type
   TSubFacadeImport = class
