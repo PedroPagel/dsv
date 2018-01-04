@@ -1040,12 +1040,12 @@ begin
   BECodFil.CreateLookup();
   BENumCtr.CreateLookup();
 
-  FGridCon.Init('USU_T160CLP', F310CLP);
+  FGridCon.Init('USU_T160CLP', Self);
   FGridCon.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridCon.CreateDataSet;
   FGridCon.NumericField('USU_VlrCtr', '###,###,##0.00');
 
-  FGridRea.Init('E301TCR', F310CLP, 'VlrOri;VlrAbe');
+  FGridRea.Init('E301TCR', Self, 'VlrOri;VlrAbe');
   FGridRea.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridRea.AddColumn('IndFin', 'Índice', ftString, 15);
   FGridRea.AddColumn('IndRea', '% Índice Cadastro', ftFloat);
@@ -1062,7 +1062,7 @@ begin
   FGridRea.ReadOnly('VlrBon', False);
   FGridRea.ReadOnly('IndNov', False);
 
-  FGridTit.Init('USU_T160MOV', F310CLP);
+  FGridTit.Init('USU_T160MOV', Self);
   FGridTit.CreateDataSet;
   FGridTit.NumericField('USU_VlrOri', '###,###,##0.00');
   FGridTit.NumericField('USU_VlrRea', '###,###,##0.00');
@@ -1081,12 +1081,12 @@ begin
   BETitFil.AddFilterLookup(BECodEmp);
   BECodFor.Filter := 'E095FOR.CODFOR IN (SELECT E501TCP.CODFOR FROM E501TCP WHERE CODTPT IN (''39'',''64''))';
 
-  FGridClp.Init('USU_T160CLP', F310CLP);
+  FGridClp.Init('USU_T160CLP', Self);
   FGridClp.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridClp.CreateDataSet;
   FGridClp.NumericField('USU_VlrCtr', '###,###,##0.00');
 
-  FGridLig.Init('E501TCP', F310CLP);
+  FGridLig.Init('E501TCP', Self);
   FGridLig.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridLig.AddColumn('PosClp', 'POSCLP.', ftInteger);
   FGridLig.CreateDataSet;
@@ -1094,7 +1094,7 @@ begin
   FGridLig.NumericField('VlrAbe', '###,###,##0.00');
   FGridLig.Visible('PosClp', False);
 
-  FGridDes.Init('E501TCP', F310CLP);
+  FGridDes.Init('E501TCP', Self);
   FGridDes.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridDes.CreateDataSet;
   FGridDes.NumericField('VlrOri', '###,###,##0.00');
@@ -1111,15 +1111,15 @@ begin
   BECodBem.CreateLookup();
   BECodBem.Filter := 'USU_BEMCLP = ''S''';
 
-  FGridBem.Init('E670BEM', F310CLP);
+  FGridBem.Init('E670BEM', Self);
   FGridBem.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridBem.CreateDataSet;
 
-  FGridBlg.Init('E670BEM', F310CLP);
+  FGridBlg.Init('E670BEM', Self);
   FGridBlg.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridBlg.CreateDataSet;
 
-  FGridBnl.Init('E670BEM', F310CLP);
+  FGridBnl.Init('E670BEM', Self);
   FGridBnl.AddColumn('Check', 'Sel.', ftInteger, 0, True);
   FGridBnl.CreateDataSet;
 
@@ -1424,5 +1424,11 @@ begin
   if (TextToFloat(BEVlrFim.Text) > 0) then
     Result := Result + ' E501TCP.VLRORI <= '+ ValueToDB(BEVlrFim.Text) + ' AND ';
 end;
+
+initialization
+  RegisterClasses([TF310CLP]);
+
+finalization
+  UnRegisterClasses([TF310CLP]);
 
 end.

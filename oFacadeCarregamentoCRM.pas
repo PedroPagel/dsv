@@ -193,7 +193,7 @@ begin
     x085cli := nil;
     try
       xData := TData.Create(x120pen.USU_DatPrv);
-      xData.DiaDaSemana := True;
+      xData.DiaUtil := True;
       xData.IncDays(5);
 
       x085cli := T085CLI.Create;

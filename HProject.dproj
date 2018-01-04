@@ -103,33 +103,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="u310CLP.pas">
-            <Form>F310CLP</Form>
-        </DCCReference>
-        <DCCReference Include="u000crm.pas">
-            <Form>F000CRM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510ARM.pas">
-            <Form>F510ARM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510CON.pas">
-            <Form>F510CON</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510lay.pas">
-            <Form>F510LAY</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510lte.pas">
-            <Form>F510LTE</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u000isc.pas">
-            <Form>F000ISC</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <None Include="ModelSupport_HProject\default.txaPackage"/>
         <RcItem Include="..\..\Icones\flecha.bmp">
             <ResourceType>BITMAP</ResourceType>

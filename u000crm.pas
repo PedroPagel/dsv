@@ -69,4 +69,10 @@ begin
   end;
 end;
 
+initialization
+  RegisterClasses([TF000CRM]);
+
+finalization
+  UnRegisterClasses([TF000CRM]);
+
 end.

@@ -63,7 +63,7 @@ begin
   while (FTimer < 600) do
   begin
     Inc(FTimer);
-    if (F420OCP.AssignedQueryExecute(etSelect, esNormal)) then
+    if (F420OCP.AssignedQueryExecute()) then
     begin
       FExecutarWS := True;
       Exit;

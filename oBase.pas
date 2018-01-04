@@ -9,15 +9,21 @@ uses
   Vcl.ExtCtrls, System.AnsiStrings;
 
 type
+  TProcedure = procedure() of Object;
+
   TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists, etWrite);
   TState = (aoInsert, aoUpdate, aoDelete, aoSelect, aoExists);
   TStateSelect = (ssSelect, ssMax, ssMin, ssCount, ssSum);
+  TStateSelectProp = Set of TStateSelect;
 
-  tEstadoSelect = (esNormal, esLoop, esMAX, esMIN, esCOUNT, esSUM);
-  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
+  TCheckMethod = (cmNone, cmExitCol, cmChange, cmExit,cmEnter, cmClick, cmLine,
+                  cmAfterInsert, cmBeforeInsert, cmCancelLine, cmExitLine,
+                  cmKeyDown, cmBeforeDelete, cmLookupGridPress, cmInsert,
+                  cmUpdate, cmDelete);
+
   tTitulo = (tTContasPagar, tTContasReceber);
   tTableType = (ttUsuario, ttPadrao);
-  tDayOfWeek = (dwNenhum, dwDomingo, dwSegundaFeira, dwTercaFeira, dwQuartaFeira,
+  tDayOfWeek = (dwNone, dwDomingo, dwSegundaFeira, dwTercaFeira, dwQuartaFeira,
                 dwQuintaFeira, dwSextaFeira, dwSabado);
 
   TBetweenRegister = record
@@ -75,18 +81,25 @@ type
     FAutoSelect: Boolean;
     FAutoSelectPKS: Boolean;
     FAutoSelectFKS: Boolean;
-    FTableSelect: TStateSelect;
+    FStateSelect: TStateSelectProp;
     FSequenceField: string;
     FCheckFields: Boolean;
     FEmpty: Boolean;
     FStringArrayList: TStringArrayList;
     FOrdenation: string;
 
+    //selects
+    FMaxField: string;
+    FSumField: string;
+    FCountField: string;
+    FCountResultField: Integer;
+
     //PK'S e FK'S
     FPrimaryKeys: array of string;
     FForeignKeys: array of string;
     FRelationalForeign: array of string;
     FPrimaryAndForeignKeys: Boolean;
+    FForeignKey: Boolean;
 
     procedure Clean();
     procedure MontarChaves();
@@ -97,19 +110,18 @@ type
     procedure MontarEstadoSelect();
 
     function GetCheck: Byte;
-    function MAXSelect(): string;
-    function SUMSelect(): string;
-    function COUNTSelect(): string;
     function SetUpdate(): string;
     function MontarComandoSelect(): string;
     function NegarCampo(const pNome: string): Boolean;
+    function GetBetween(const pName: string): TDate;
 
     procedure SetCheck(const Value: Byte);
     procedure ExecutarMesesEntre();
-    function GetBetween(const pName: string): TDate;
     procedure SetBetween(const pName: string; const Value: TDate);
-    function GetSelect: TStateSelect;
-    procedure SetSelect(const Value: TStateSelect);
+    procedure SetSelect(const Value: TStateSelectProp);
+
+    //monta selects
+    procedure SetSelection();
   protected
     procedure CheckField(const pField: string);
     procedure Registros_OLD(); virtual; abstract;
@@ -151,19 +163,24 @@ type
     function Count: Integer;
     function Prior(): Boolean;
     function IsEmpty: Boolean;
+    function CountField: Integer;
     function TableType: tTableType; virtual; abstract;
     function SetTableToRecord(const pTabela: string): THQuery;
     function GenerateID(const pField: string): Integer;
     function MonthsBetween(const pInicial, pFinal: string): Word; overload;
     function MonthsBetween(const pInicial: string; const pFinal: TDate): Word; overload;
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
-    function AssignedQueryExecute(const pEstadoTabela: TTableState; const pEstadoSelect: tEstadoSelect = esNormal): Boolean;
+    function AssignedQueryExecute(): Boolean;
 
     property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
+    property FieldForMax: string read FMaxField write FMaxField;
+    property FieldForCount: string read FCountField write FCountField;
+    property FieldForSum: string read FSumField write FSumField;
     property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
-    property Select: TStateSelect read GetSelect write SetSelect;
+    property Select: TStateSelectProp read FStateSelect write SetSelect default [ssSelect];
+    property doForeignKey: Boolean read FForeignKey write FForeignKey;
   end;
 
   TTabelaPadrao = class(TTable)
@@ -227,6 +244,7 @@ type
     function IndexOfFields(const pObj: TObject): Integer;
     function IndexOf(const Value: string): Integer; overload;
 
+    procedure CheckFields(const value: Byte);
     procedure IndexFields(const pFields: array of string);
     procedure AddByClass(const Obj: TTable); overload;
     procedure AddByClass(const Old: TTable; const New: TTable); overload;
@@ -257,10 +275,9 @@ type
     FMes: Word;
     FAno: Word;
     FData: TDate;
-    FDiaDaSemana: Boolean;
+    FDiaUtil: Boolean;
 
     function GetDayOfWeek: tDayOfWeek;
-
     procedure SetData(const Value: TDate);
     function GetData: TDate;
   public
@@ -268,12 +285,17 @@ type
     destructor Destroy; override;
 
     procedure IncDays(const pValue: Integer);
+    procedure DecDays(const pValue: Integer);
+    function PrimeiroDiaMes(): TDate;
+    function PrimeiroDiaSemana(): TDate;
+    function UltimoDiaMes(): TDate;
+    function UltimoDiaSemana(): TDate;
 
     property Data: TDate read GetData write SetData;
     property Dia: Word read FDia;
     property Mes: Word read FMes;
     property Ano: Word read FAno;
-    property DiaDaSemana: Boolean read FDiaDaSemana write FDiaDaSemana;
+    property DiaUtil: Boolean read FDiaUtil write FDiaUtil;
   end;
 
 procedure StartTransaction();
@@ -300,6 +322,7 @@ function SetOperator(const pField, pValue: array of string; const pAND: Boolean)
 function StrToChar(const pString: string): Char;
 function VarToChar(const pVar: Variant): Char;
 function CreateTableFromClass(const pClassType: TClass): TTable;
+function GetMethod(const pMethod: TCheckMethod): string;
 
 var
   FOracleConnection: TConnectionBase;
@@ -310,7 +333,8 @@ var
 implementation
 
 uses
-  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants;
+  Winapi.Windows, Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, System.Variants,
+  System.DateUtils;
 
 procedure StartTransaction();
 begin
@@ -547,6 +571,30 @@ begin
   end;
 end;
 
+function GetMethod(const pMethod: TCheckMethod): string;
+begin
+  Result := EmptyStr;
+
+  case (pMethod) of
+    cmExitCol: Result := 'Exit';
+    cmExit: Result := 'Exit';
+    cmChange: Result := 'Change';
+    cmEnter: Result := 'Enter';
+    cmClick: Result := 'Click';
+    cmLine: Result := 'EnterLine';
+    cmAfterInsert: Result := 'AfterInsert';
+    cmBeforeInsert: Result := 'BeforeInsert';
+    cmCancelLine: Result := 'CancelLine';
+    cmExitLine: Result := 'ExitLine';
+    cmKeyDown: Result := 'KeyDown';
+    cmBeforeDelete: Result := 'BeforeDelete';
+    cmLookupGridPress: Result := 'LookupGridPress';
+    cmInsert: Result := 'Insert';
+    cmUpdate: Result := 'Update';
+    cmDelete: Result := 'Delete';
+  end;
+end;
+
 { TConexao }
 
 class procedure TConexao.Execute();
@@ -641,8 +689,7 @@ begin
   FTables := EmptyStr;
 
   FState := aoInsert;
-  FTableSelect := ssSelect;
-
+  FStateSelect := [ssSelect];
   FCheckFields := False;
 
   FAutoSelectPKS := (Length(FPrimaryKeys) > 0);
@@ -655,8 +702,9 @@ begin
 
   FStringArrayList := TStringArrayList.Create;
 
-  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState', 'AutoSelect',
-    'CheckFieldsToAssign', 'StateToAssign', 'Select']);
+  BlockProperty(['USU_Check', 'Check', 'Field', 'SetFields', 'Between', 'LineState',
+    'CheckFieldsToAssign', 'StateToAssign', 'Select', 'doForeignKey', 'FieldForMax',
+    'FieldForCount','FieldForSum','AutoSelect']);
 end;
 
 procedure TTable.BlockProperty(const pField: array of string);
@@ -757,8 +805,7 @@ begin
 
       case xProperty.PropertyType.TypeKind of
         tkInteger:
-          FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self)
-            .AsInteger;
+          FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self).AsInteger;
 
         tkFloat:
           begin
@@ -766,8 +813,7 @@ begin
               FQuery.ParamByName(FFields[i]).Value :=
                 DataNull(FloatToDateTime(xProperty.GetValue(Self).AsExtended))
             else
-              FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self)
-                .AsExtended;
+              FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self).AsExtended;
           end;
       else
         FQuery.ParamByName(FFields[i]).Value := xProperty.GetValue(Self).ToString;
@@ -883,8 +929,7 @@ begin
   end;
 end;
 
-function TTable.AssignedQueryExecute(const pEstadoTabela: TTableState;
-  const pEstadoSelect: tEstadoSelect): Boolean;
+function TTable.AssignedQueryExecute(): Boolean;
 begin
   if not(Assigned(FQuery)) then
   begin
@@ -917,6 +962,10 @@ var
   xTable: TTable;
 begin
   FAutoSelect := True;
+
+  if (FForeignKey) then
+    FPrimaryAndForeignKeys := True;
+
   MontarChaves();
 
   if Assigned(FQuery) then
@@ -964,14 +1013,9 @@ begin
   Result := FQuery.Count;
 end;
 
-function TTable.COUNTSelect: string;
+function TTable.CountField: Integer;
 begin
-  Result := Format('SELECT COUNT(1) FROM %s', [FTabela]);
-
-  if not(IsNull(FCondicao)) then
-    Result := Format('%s WHERE %s', [Result, FCondicao]);
-
-  FQuery.LockType := ltReadOnly;
+  Result := FCountResultField;
 end;
 
 function TTable.GenerateID(const pField: string): Integer;
@@ -1023,14 +1067,10 @@ begin
   Result := FCheck;
 end;
 
-function TTable.GetSelect: TStateSelect;
-begin
-  Result := FTableSelect;
-end;
-
 procedure TTable.Init;
 begin
   FillChar(FFields, sizeOf(FFields), 0);
+  FillChar(FBetween, sizeOf(FBetween), 0);
   FillChar(FLimitField, sizeOf(FLimitField), 0);
 
   FOrdenation := EmptyStr;
@@ -1120,7 +1160,7 @@ begin
 
   FCondicao := EmptyStr;
   FOrdenation := EmptyStr;
-  FTableSelect := ssSelect;
+  FStateSelect := [ssSelect];
 
   if Assigned(FStringArrayList) then
     FStringArrayList.Clear;
@@ -1229,6 +1269,25 @@ var
   xProperty: TRttiProperty;
   xContext: TRttiContext;
   xType: TRttiType;
+
+  procedure AtribuirRetorno(const campo, alias: string);
+  begin
+    if not(IsNull(campo)) then
+    begin
+      if AnsiSameText(alias, 'GETCOUNT') then
+        FCountResultField := FQuery.FindField(alias).AsInteger
+      else
+      begin
+        xProperty := xType.GetProperty(campo);
+
+        if (xProperty.PropertyType.TypeKind = tkFloat) then
+          xProperty.SetValue(Self, FQuery.FindField(alias).AsFloat)
+        else
+          xProperty.SetValue(Self, FQuery.FindField(alias).AsInteger);
+      end;
+    end;
+  end;
+
 begin
   xContext := TRttiContext.Create;
   try
@@ -1248,69 +1307,20 @@ begin
 
     if not(FEmpty) then
     begin
-      if (FTableSelect = ssSelect) then
+      if (ssSelect in FStateSelect) then
           AtribuirValoresSelect()
       else
       begin
         if not(FSetFields) then
         begin
-          xProperty := xType.GetProperty(FField);
-
-          if (xProperty.PropertyType.TypeKind = tkFloat) then
-            xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsFloat)
-          else
-            xProperty.SetValue(Self, FQuery.FindField('RETORNO').AsInteger);
+          AtribuirRetorno(FMaxField, 'GETMAX');
+          AtribuirRetorno(FSumField, 'GETSUM');
+          AtribuirRetorno(FCountField, 'GETCOUNT');
         end
         else
           AtribuirValoresSelect();
       end;
     end;
-  finally
-    xContext.Free;
-  end;
-end;
-
-function TTable.MAXSelect: string;
-var
-  xProperty: TRttiProperty;
-  xContext: TRttiContext;
-  xType: TRttiType;
-  xCampos: string;
-  xMaior: string;
-begin
-  xCampos := EmptyStr;
-  xMaior := EmptyStr;
-
-  xContext := TRttiContext.Create;
-  try
-    xType := xContext.GetType(Self.ClassType);
-
-    if (FSetFields) then
-    begin
-      for xProperty in xType.GetProperties do
-        if NegarCampo(xProperty.Name) then
-          xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
-
-      UltimoCaracter(xCampos, ',');
-    end;
-
-    Result := Format('SELECT MAX(%s) RETORNO FROM %s', [FField, FTabela]);
-
-    if not(IsNull(FCondicao)) then
-      Result := Format('%s WHERE %s', [Result, FCondicao]);
-
-    if not(IsNull(xCampos)) then
-    begin
-      xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
-
-      if not(IsNull(FCondicao)) then
-        xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
-
-      xMaior := xMaior + ' AND ' + FField + ' = (' + Result + ')';
-      Result := xMaior;
-    end;
-
-    FQuery.LockType := ltReadOnly;
   finally
     xContext.Free;
   end;
@@ -1556,21 +1566,15 @@ begin
   if (State <> aoExists) then
     FState := aoSelect;
 
+  if (FForeignKey) then
+    FPrimaryAndForeignKeys := True;
+
   MontarChaves();
 
-  case (FTableSelect) of
-    ssSelect:
-      FQuery.Command := MontarComandoSelect();
-
-    ssMAX:
-      FQuery.Command := MAXSelect;
-
-    ssSUM:
-      FQuery.Command := SUMSelect;
-
-    ssCOUNT:
-      FQuery.Command := COUNTSelect;
-  end;
+  if (Select = [ssSelect]) then
+      FQuery.Command := MontarComandoSelect()
+  else
+    SetSelection();
 
   MontarComandoBetween;
   MontarEstadoSelect();
@@ -1688,14 +1692,101 @@ begin
   end;
 end;
 
+procedure TTable.SetSelect(const Value: TStateSelectProp);
+begin
+  FStateSelect := Value;
+end;
+
+procedure TTable.SetSelection;
+var
+  xSum: string;
+  xCount: string;
+  xMax: string;
+  xProperty: TRttiProperty;
+  xContext: TRttiContext;
+  xType: TRttiType;
+  xCampos: string;
+  xMaior: string;
+  xGetResult: string;
+begin
+  xGetResult := 'SELECT ';
+  FQuery.LockType := ltReadOnly;
+
+  xCampos := EmptyStr;
+  xMaior := EmptyStr;
+
+  if (ssSum in FStateSelect) then
+    xSum := Format('SUM(%s) AS GETSUM ', [FSumField]);
+
+  if (ssCount in FStateSelect) then
+    xCount := Format('COUNT(%s) AS GETCOUNT ', [FCountField]);
+
+  if (ssMax in FStateSelect) then
+  begin
+    xMax := Format('MAX(%s) AS GETMAX ', [FMaxField]);
+
+    if (FSetFields) then
+    begin
+      xContext := TRttiContext.Create;
+      try
+        xType := xContext.GetType(Self.ClassType);
+
+        for xProperty in xType.GetProperties do
+          if NegarCampo(xProperty.Name) then
+            xCampos := xCampos + FTabela + '.' + xProperty.Name + ',';
+
+        UltimoCaracter(xCampos, ',');
+
+        if not(IsNull(FCondicao)) then
+          xMax := Format('%s WHERE %s', [xMax, FCondicao]);
+
+        if not(IsNull(xCampos)) then
+        begin
+          xMaior := Format('SELECT %s FROM %s', [xCampos, FTabela]);
+
+          if not(IsNull(FCondicao)) then
+            xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
+
+          xMaior := xMaior + ' AND ' + FField + ' = (' + xMax + ')';
+          xMax := xMaior;
+        end;
+
+        FQuery.Command := xMax;
+      finally
+        xContext.Free;
+      end;
+    end;
+  end;
+
+  if not(FSetFields) then
+  begin
+    if not(IsNull(xMax)) then
+      xGetResult := xGetResult + xMax;
+
+    if not(IsNull(xSum)) then
+      if not(IsNull(xMax)) then
+        xGetResult := xGetResult + ',' + xSum
+      else
+        xGetResult := xGetResult + xSum;
+
+    if not(IsNull(xCount)) then
+      if not(IsNull(xSum)) or  not(IsNull(xMax)) then
+        xGetResult := xGetResult + ',' + xCount
+      else
+        xGetResult := xGetResult + xCount;
+
+    xGetResult := Format(xGetResult + ' FROM %s ', [FTabela]);
+
+    if not(IsNull(FCondicao)) then
+      xGetResult := Format('%s WHERE %s', [xGetResult, FCondicao]);
+
+    FQuery.Command := xGetResult;
+  end;
+end;
+
 procedure TTable.SetSequenceField(const pField: string);
 begin
   FSequenceField := pField;
-end;
-
-procedure TTable.SetSelect(const Value: TStateSelect);
-begin
-  FTableSelect := Value;
 end;
 
 function TTable.SetTableToRecord(const pTabela: string): THQuery;
@@ -1704,16 +1795,6 @@ begin
   FTabela := pTabela;
 
   Result := FQuery;
-end;
-
-function TTable.SUMSelect: string;
-begin
-  Result := Format('SELECT SUM(%s) AS RETORNO FROM %s ', [FField, FTabela]);
-
-  if not(IsNull(FCondicao)) then
-    Result := Format('%s WHERE %s', [Result, FCondicao]);
-
-  FQuery.LockType := ltReadOnly;
 end;
 
 procedure TTable.Update;
@@ -1811,6 +1892,14 @@ begin
 
   FIndex[i].index := Self.Count;
   FIndex[i].value := pValue;
+end;
+
+procedure TIterador.CheckFields(const value: Byte);
+var
+  i: Integer;
+begin
+  for i := 0 to pred(Self.Count) do
+    TTable(Self[i]).Check := value;
 end;
 
 constructor TIterador.Create(const pBaseClass: TClass = nil);
@@ -2110,7 +2199,40 @@ begin
   inherited Create;
 
   Data := iff(pData = 0, Date, pData);
-  FDiaDaSemana := False;
+  FDiaUtil := False;
+end;
+
+procedure TData.DecDays(const pValue: Integer);
+var
+  xLoop: Integer;
+begin
+  xLoop := pValue;
+
+  while (xLoop > 0) do
+  begin
+    if (FDia = 1) then
+    begin
+      if (FMes = 1) then
+      begin
+        Dec(FAno);
+        FMes := 12;
+      end
+      else
+        Dec(FMes);
+
+      FData := EncodeDate(FAno, FMes, 1);
+      UltimoDiaMes();
+      DecodeDate(FData, FAno, FMes, FDia);
+    end
+    else
+      Dec(FDia);
+
+    Dec(xLoop);
+
+    if ((xLoop = 0) and (FDiaUtil)) then
+      if (Self.GetDayOfWeek in [dwDomingo, dwSabado]) then
+        Inc(xLoop);
+  end;
 end;
 
 destructor TData.Destroy;
@@ -2139,7 +2261,7 @@ begin
     Inc(FDia);
     Dec(xLoop);
 
-    if ((xLoop = 0) and (FDiaDaSemana)) then
+    if ((xLoop = 0) and (FDiaUtil)) then
       if (Self.GetDayOfWeek in [dwDomingo, dwSabado]) then
         Inc(xLoop);
 
@@ -2157,11 +2279,56 @@ begin
   end;
 end;
 
+function TData.PrimeiroDiaMes: TDate;
+begin
+  FData := EncodeDate(FAno, FMes, 1);
+
+  Result := FData;
+end;
+
+function TData.PrimeiroDiaSemana: TDate;
+begin
+  case (GetDayOfWeek) of
+    dwDomingo: FData := FData; //mantem
+    dwSegundaFeira: DecDays(1);
+    dwTercaFeira: DecDays(2);
+    dwQuartaFeira: DecDays(3);
+    dwQuintaFeira: DecDays(4);
+    dwSextaFeira: DecDays(5);
+    dwSabado: DecDays(6);
+  end;
+
+  FData := EncodeDate(FAno, FMes, FDia);
+  Result := FData;
+end;
+
+function TData.UltimoDiaMes: TDate;
+begin
+  FData := EndOfTheMonth(FData);
+  Result := FData;
+end;
+
+function TData.UltimoDiaSemana: TDate;
+begin
+  case (GetDayOfWeek) of
+    dwDomingo: IncDays(6);
+    dwSegundaFeira: IncDays(5);
+    dwTercaFeira: IncDays(4);
+    dwQuartaFeira: IncDays(3);
+    dwQuintaFeira: IncDays(2);
+    dwSextaFeira: IncDays(1);
+    dwSabado: FData := FData; //mantem
+  end;
+
+  FData := EncodeDate(FAno, FMes, FDia);
+  Result := FData;
+end;
+
 procedure TData.SetData(const Value: TDate);
 begin
   FData := Value;
 
-  DecodeDate(VAlue, FAno, FMes, FDia);
+  DecodeDate(Value, FAno, FMes, FDia);
 end;
 
 function TData.GetDayOfWeek: tDayOfWeek;

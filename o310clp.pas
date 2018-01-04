@@ -204,7 +204,7 @@ type
 implementation
 
 uses
-  wsCRAlterar, oMensagem;
+  webserviceContasReceber, oMensagem;
 
 function SituacaoTitulo(const pSitTit: string): Boolean;
 begin
@@ -232,7 +232,7 @@ begin
     x160MOV.SetFields := True;
     x160MOV.Field := 'USU_SEQMOV';
     x160MOV.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    x160MOV.Select := ssMax;
+    x160MOV.Select := [ssMax];
     x160MOV.Open(False);
 
     xQueryMov.Field := 'USU_VLRBON';
@@ -241,7 +241,7 @@ begin
     xQueryMov.USU_NumTit := x160MOV.USU_NumTit;
     xQueryMov.USU_CodTpt := x160MOV.USU_CodTpt;
     xQueryMov.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    xQueryMov.Select := ssSum;
+    xQueryMov.Select := [ssSum];
     xQueryMov.Open(False);
 
     if not(xQueryMov.IsEmpty) then
@@ -345,7 +345,7 @@ begin
   x000dbc.Between['USU_DATIND'] := PeriodicidadeInicial(StartOfTheMonth(x160ctr.IniVig));
   x000dbc.Between['USU_DATIND'] := Date;
   x000dbc.PropertyForSelect(['USU_CODDBC']);
-  x000dbc.Select := ssSum;
+  x000dbc.Select := [ssSum];
   x000dbc.Open(False);
 
   Self.VlrInd := x000dbc.USU_VlrDbc;

@@ -3,24 +3,18 @@ unit oDataSetGrid;
 interface
 
 uses
-  Vcl.Controls, Vcl.Grids, Data.SqlExpr, System.SysUtils, oQuery,
+  Vcl.Grids, Data.SqlExpr, System.SysUtils, oQuery, Vcl.Controls,
   System.TypInfo, Data.DB, Datasnap.DBClient, Vcl.DBGrids, System.Rtti,
   System.Classes, Vcl.DBCtrls, Winapi.Windows, Vcl.Forms, Vcl.Buttons,
-  oValueListEditor, Datasnap.Provider;
+  oValueListEditor, Datasnap.Provider, oBase;
 
 type
   TDataSetGrid = class; //foward
 
   TEnterLine = procedure(Sender: TObject) of Object;
-  TProcedure = procedure() of Object;
   TLineChange = procedure(DataSet: TDataSet) of Object;
   TProcedureSender = procedure(Sender: TObject; var Key: Word; Shift: TShiftState) of Object;
   TColumnInfo = procedure(Column: TColumn) of Object;
-  TCheckMethod = (cmNone, cmExitCol, cmChange,
-                  cmEnter, cmClick, cmLine,
-                  cmAfterInsert, cmBeforeInsert, cmCancelLine,
-                  cmExitLine, cmKeyDown, cmBeforeDelete);
-
   TProcedureCheck = procedure(const pCheck: TCheckMethod; const pGrid: TDataSetGrid; const pField: string) of object;
   TLineState = (lsNewLine, lsEvents, lsStop);
   TGridState = (gsBrowse, gsOnEnter, gsNewValue, gsDisconnect);
@@ -51,6 +45,7 @@ type
   TDataSetGrid = class(TDBGrid)
   private
     FNewLineEdition: Boolean;
+    FAllowRegister: Boolean;
     FShiftTabPress: Boolean;
     FAllowNewLine: Boolean;
     FDisableEnter: Boolean;
@@ -70,6 +65,7 @@ type
     FFieldList: string;
     FClassTable: string;
     FIndexFields: string;
+    FPRessedField: string;
 
     FCount: Integer;
     FColumn: Integer;
@@ -78,8 +74,6 @@ type
     FOrdenado: Integer;
     FRowHeight: Integer;
     FOldColumn: Integer;
-
-    FOldValue: Variant;
 
     FListFieldPosition: TListFieldPosition;
     FListLookupFields: TListLookupFields;
@@ -126,6 +120,9 @@ type
     procedure EnterLineDataSet(DataSet: TDataSet);
     procedure EnterLine(Sender: TObject);
 
+    //Lookups
+    procedure EnumClick(Value: Variant);
+
     //Bloco de eventos da Grid
     procedure OnCancelLine(DataSet: TDataSet);
     procedure OnAfterInsert(DataSet: TDataSet);
@@ -134,6 +131,7 @@ type
     procedure OnUpdateValue(Sender: TField);
 
     property OnEnterLine: TEnterLine read FEnterLine write FEnterLine;
+
   protected
     procedure ActionChange(Sender: TObject; CheckDefaults: Boolean); override;
     Procedure SetRowHeight(Value:Integer);
@@ -145,6 +143,7 @@ type
     procedure First();
     procedure Next();
     procedure Finalize();
+    procedure CheckEnum(const pEnum: string);
     procedure CreateDataSet();
     procedure Add(const pObj: TObject);
     procedure PerformUpdateGrid();
@@ -164,6 +163,7 @@ type
     function Line: Integer;
     function ShowSearch(): Boolean;
     function Table: string;
+    function LookupGridClick(): string;
     function FindField(const pFieldName: string): TField;
     function Selected(const pField: string): Variant;
     function GridTitleClick(): Boolean;
@@ -178,6 +178,7 @@ type
     property OrderTitles: Boolean read FOrderTitles write FOrderTitles;
     property FieldList: string read FFieldList write FFieldList;
     property DisableEnter: Boolean read FDisableEnter write FDisableEnter;
+    property AllowRegister: Boolean read FAllowRegister write FAllowRegister;
   published
     property AllowNewLine: Boolean read GetAllowNewLine write SetAllowNewLine;
     property ClassTable: string read FClassTable write FClassTable;
@@ -188,7 +189,7 @@ procedure Register;
 implementation
 
 uses
-  oMensagem, System.Variants, Obase, Vcl.Graphics, Vcl.ExtCtrls, oButtonedEdit,
+  oMensagem, System.Variants, Vcl.Graphics, Vcl.ExtCtrls, oButtonedEdit,
   Winapi.Messages, uPesHen, o998lsf;
 
 procedure Register;
@@ -210,6 +211,7 @@ begin
   FTable := pTable;
   FForm := pForm;
   FINIT := False;
+  FAllowRegister := True;
 
   FFieldList := EmptyStr;
   FFilter := pFilter;
@@ -276,6 +278,11 @@ begin
     SetLength(FListLookupFields[pred(i)].LookupFilter, l);
     FListLookupFields[pred(i)].LookupFilter[pred(l)] := pLookUpFilter[j];
   end;
+end;
+
+function TDataSetGrid.LookupGridClick: string;
+begin
+  Result := FPRessedField;
 end;
 
 procedure TDataSetGrid.Next;
@@ -373,52 +380,58 @@ begin
   begin
     if AnsiSameText(Self.SelectedField.FieldName, FListEnumFields[i].Name) then
     begin
+      Self.SendToBack;
       FListEnumFields[i].ValueList.ShowGridEnum(Self.CellRect(Self.Col, FClientDataSet.RecNo));
+      FPRessedField := FListEnumFields[i].ValueList.Name;
+
       Break;
     end;
   end;
+
+  FFieldState := gsNewValue;
 end;
 
 procedure TDataSetGrid.EnterGrid(Sender: TObject);
 var
   i: Integer;
+  xEdit: Boolean;
 begin
   FFieldState := gsOnEnter;
   FOldLine := 0;
   FOldColumn := 1;
+  xEdit := False;
 
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
     begin
-      Self.Options := Self.Options + [dgEditing];
+      xEdit := True;
       Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+    end;
   end;
 
   for i := 0 to High(FListLookupFields) do
   begin
     if (Self.SelectedField.FieldName = FListLookupFields[i].Name) then
     begin
-      Self.Options := Self.Options + [dgEditing];
+      xEdit := True;
       Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+    end;
   end;
 
   for i := 0 to High(FListEnumFields) do
   begin
     if (Self.SelectedField.FieldName = FListEnumFields[i].Name) then
     begin
-      Self.Options := Self.Options + [dgEditing];
+      xEdit := True;
       Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+    end;
   end;
+
+  if (xEdit) then
+    Self.Options := Self.Options + [dgEditing]
+  else
+    Self.Options := Self.Options - [dgEditing];
 
   if (FAllowNewLine) then
     FRowAdd := True;
@@ -442,7 +455,18 @@ begin
     end;
   end;
 
+  for i := 0 to High(FListEnumFields) do
+  begin
+    if (Assigned(FListEnumFields[i].ValueList)) and
+      AnsiSameText(FListEnumFields[i].ValueList.Name, Self.SelectedField.FieldName) then
+    begin
+      Self.SelectedField.FocusControl;
+      break;
+    end;
+  end;
+
   CheckMethod(EmptyStr, cmLine);
+  EnterCol(Sender);
 end;
 
 procedure TDataSetGrid.Post;
@@ -476,12 +500,6 @@ begin
   if (FOldColumn < 1) then
     FOldColumn := 1;
 
-  if (FOldValue <> Self.Columns[(FOldColumn)].Field.Value) then
-  begin
-    FOldValue := Self.Columns[(FOldColumn)].Field.Value;
-    //-CheckMethod(Self.Columns[(FOldColumn)].FieldName, cmChange);
-  end;
-
   if (FChangeLine) then
     if (FOldLine <> FNewLine) and (FNewLine > -1) and (FClientDataSet.RecNo > -1) then
     begin
@@ -492,7 +510,7 @@ end;
 
 procedure TDataSetGrid.PerformUpdateGrid();
 begin
-  Perform(WM_KEYDOWN, 39, 0)
+  Perform(WM_KEYDOWN, 39, 0);
 end;
 
 function TDataSetGrid.CellRect(ACol, Arow: Integer): TRect;
@@ -524,6 +542,22 @@ procedure TDataSetGrid.EnterLineDataSet(DataSet: TDataSet);
 begin
   if ((FINIT) and (Self.Count > 0) and not(FGridState = gsDisconnect)) then
     FEnterLine(Self);
+end;
+
+procedure TDataSetGrid.EnumClick(Value: Variant);
+begin
+  if (FClientDataSet.State = dsInsert) then
+  begin
+    FClientDataSet.FindField(Self.SelectedField.FieldName).Value := Value;
+    FClientDataSet.FindField(Self.SelectedField.FieldName).FocusControl;
+  end
+  else
+  if (FClientDataSet.State = dsEdit) then
+  begin
+    FClientDataSet.Edit;
+    FClientDataSet.FindField(Self.SelectedField.FieldName).Value := Value;
+    FClientDataSet.Post;
+  end;
 end;
 
 procedure TDataSetGrid.ChangePosition;
@@ -561,29 +595,27 @@ end;
 procedure TDataSetGrid.EnterCol(Sender: TObject);
 var
   i: Integer;
+  xEdit: Boolean;
 begin
+  xEdit := False;
+
   if (FOldColumn <> Col) and (FFieldState = gsNewValue) then
     CallCheck();
-
-  if (FFieldState = gsOnEnter) or (FFieldState = gsNewValue) then
-    FOldValue := Self.Columns[pred(Col)].Field.Value;
 
   for i := 0 to pred(FReadOnlyList.Count) do
   begin
     if (Self.SelectedField.FieldName = FReadOnlyList[i]) then
     begin
-      Self.Options := Self.Options + [dgEditing];
+      xEdit := True;
       Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+    end;
   end;
 
   for i := 0 to High(FListLookupFields) do
   begin
     if (Self.SelectedField.FieldName = FListLookupFields[i].Name) then
     begin
-      Self.SelectedField.FocusControl;
+      xEdit := True;
       break;
     end;
   end;
@@ -592,12 +624,18 @@ begin
   begin
     if (Self.SelectedField.FieldName = FListEnumFields[i].Name) then
     begin
-      Self.Options := Self.Options + [dgEditing];
+      xEdit := True;
       Break;
-    end
-    else
-      Self.Options := Self.Options - [dgEditing];
+    end;
   end;
+
+  if (xEdit) then
+  begin
+    Self.Options := Self.Options + [dgEditing];
+    Self.SelectedField.FocusControl;
+  end
+  else
+    Self.Options := Self.Options - [dgEditing];
 
   FOldColumn := iff(Col > 1, pred(Col), 1);
 end;
@@ -816,8 +854,6 @@ begin
 end;
 
 procedure TDataSetGrid.GridKeyPress(Sender: TObject; var Key: Char);
-var
-  xEnter: Boolean;
 
   procedure NewValue();
   var
@@ -825,9 +861,6 @@ var
   begin
     Self.Refresh;
     xReadOnly := Self.Columns[pred(Col)].ReadOnly;
-
-    if not(xReadOnly) and not(xEnter) then
-      FOldValue := Self.Columns[pred(Col)].Field.Value;
 
     FOldLine := iff(Row = -1, RowCount, Row);
     FFieldState := iff(xReadOnly, gsBrowse, gsNewValue);
@@ -964,6 +997,17 @@ begin
     end;
 end;
 
+procedure TDataSetGrid.CheckEnum(const pEnum: string);
+var
+  i: Integer;
+begin
+  for i := 0 to High(FListEnumFields) do
+  begin
+    if AnsiSameText(FListEnumFields[i].ValueList.Name, pEnum) then
+      FListEnumFields[i].ValueList.Close;
+  end;
+end;
+
 procedure TDataSetGrid.CheckFields(const pField: string; const pValue: Integer);
 begin
   Disconnect;
@@ -985,42 +1029,9 @@ var
   xProcedure: TProcedure;
   xProcedureCheck: TProcedureCheck;
   xRttiMethod: TRttiMethod;
-  xCheck: string;
 begin
-  case (pCheckMethod) of
-    cmExitCol:
-      xCheck := 'Exit';
-
-    cmChange:
-      xCheck := 'Change';
-
-    cmEnter:
-      xCheck := 'Enter';
-
-    cmClick:
-      xCheck := 'Click';
-
-    cmLine:
-      xCheck := 'EnterLine';
-
-    cmAfterInsert:
-      xCheck := 'AfterInsert';
-
-    cmBeforeInsert:
-      xCheck := 'BeforeInsert';
-
-    cmCancelLine:
-      xCheck := 'CancelLine';
-
-    cmExitLine:
-      xCheck := 'ExitLine';
-
-    cmBeforeDelete:
-      xCheck := 'BeforeDelete';
-  end;
-
   xType := FContext.GetType(FForm.ClassType);
-  xRttiMethod :=  xType.GetMethod(Self.Name + pField + xCheck);
+  xRttiMethod :=  xType.GetMethod(Self.Name + pField + GetMethod(pCheckMethod));
 
   if Assigned(xRttiMethod) then
   begin
@@ -1135,79 +1146,86 @@ var
 
 begin
   xQuery := THQuery.CreatePersonalizado();
+  try
+    Self.DataSource := TDataSource.Create(nil);
+    Self.DataSource.DataSet := FQueryField;
 
-  Self.DataSource := TDataSource.Create(nil);
-  Self.DataSource.DataSet := FQueryField;
-
-  xQuery.Command := 'SELECT R998FLD.TBLNAM, R998FLD.FLDNAM, R998FLD.FLDORD,' +
-                           'R998FLD.MSKFLD, R998FLD.DATTYP, R998FLD.ENUNAM,' +
-                           'R998FLD.LENFLD, R998FLD.PREFLD, R998FLD.SHRTIT,' +
-                           'R998FLD.LGNTIT, R998FLD.DESFLD, R998FLD.CANNUL,' +
-                           'R998FLD.CODHLP, R998FLD.VALDEF, R998FLD.OWNMOD,' +
-                           'R998FLD.FLDDEP, R998FLD.CODUSU, R998FLD.ORINAM,' +
-                           'R998FLD.LASUPD, R998FLD.REQFLD, R998FLD.OBJSIS,' +
-                           'ALL_TAB_COLUMNS.DATA_TYPE AS TYPE FROM ' +
-                      'R998FLD, ALL_TAB_COLUMNS ' +
-                      'WHERE ' +
-                      'UPPER(TABLE_NAME)= :TABELA AND ' +
-                      'OWNER = :BASE AND ' +
-                      'R998FLD.TBLNAM = TABLE_NAME AND ' +
-                      'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME ' +
-                      ' ORDER BY '+ FIndexFields + ' FLDORD ';
-
-  if (AnsiSameText(FTable, 'E099USU')) then
-    Self.AddColumn('NomUsu', 'Nome', ftString, 15);
-
-  xQuery.ParamByName('TABELA').Value := FTable;
-  xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
-  xQuery.Open;
-  while not(xQuery.Eof) do
-  begin
-    xCampo := xQuery.FindField('FLDNAM').AsString;
-
-    if not(BuscarString('ID', [DesmontaID(xCampo)])) then
+    if not(IsNull(FTable)) then
     begin
-      Self.Columns.Add;
-      Self.Columns[FColumn].FieldName := xCampo;
-      Self.Columns[FColumn].Title.Caption := xQuery.FindField('LGNTIT').AsString;
-      Self.Columns[FColumn].ReadOnly := True;
-      Self.Columns[FColumn].Width := iff(xQuery.FindField('LENFLD').AsInteger > 20, 250, 100);
-      Self.Columns[FColumn].Alignment := iff(Alinhamento, taCenter, taLeftJustify);
+      xQuery.Command := 'SELECT R998FLD.TBLNAM, R998FLD.FLDNAM, R998FLD.FLDORD,' +
+                               'R998FLD.MSKFLD, R998FLD.DATTYP, R998FLD.ENUNAM,' +
+                               'R998FLD.LENFLD, R998FLD.PREFLD, R998FLD.SHRTIT,' +
+                               'R998FLD.LGNTIT, R998FLD.DESFLD, R998FLD.CANNUL,' +
+                               'R998FLD.CODHLP, R998FLD.VALDEF, R998FLD.OWNMOD,' +
+                               'R998FLD.FLDDEP, R998FLD.CODUSU, R998FLD.ORINAM,' +
+                               'R998FLD.LASUPD, R998FLD.REQFLD, R998FLD.OBJSIS,' +
+                               'ALL_TAB_COLUMNS.DATA_TYPE AS TYPE FROM ' +
+                          'R998FLD, ALL_TAB_COLUMNS ' +
+                          'WHERE ' +
+                          'UPPER(TABLE_NAME)= :TABELA AND ' +
+                          'OWNER = :BASE AND ' +
+                          'R998FLD.TBLNAM = TABLE_NAME AND ' +
+                          'UPPER(R998FLD.FLDNAM) = ALL_TAB_COLUMNS.COLUMN_NAME ' +
+                          ' ORDER BY '+ FIndexFields + ' FLDORD ';
 
-      for i := 0 to High(FListLookupFields) do
+      if (AnsiSameText(FTable, 'E099USU')) then
+        Self.AddColumn('NomUsu', 'Nome', ftString, 15);
+
+      xQuery.ParamByName('TABELA').Value := FTable;
+      xQuery.ParamByName('BASE').Value := FOracleConnection.BaseConexao;
+      xQuery.Open;
+      while not(xQuery.Eof) do
       begin
-        if (FListLookupFields[i].Name = xCampo) then
+        xCampo := xQuery.FindField('FLDNAM').AsString;
+
+        if not(BuscarString('ID', [DesmontaID(xCampo)])) then
         begin
-          Self.Columns[FColumn].ButtonStyle := cbsEllipsis;
-          Self.Columns[FColumn].ReadOnly := False;
-          break;
+          Self.Columns.Add;
+          Self.Columns[FColumn].FieldName := xCampo;
+          Self.Columns[FColumn].Title.Caption := xQuery.FindField('LGNTIT').AsString;
+          Self.Columns[FColumn].ReadOnly := True;
+          Self.Columns[FColumn].Width := iff(xQuery.FindField('LENFLD').AsInteger > 20, 250, 100);
+          Self.Columns[FColumn].Alignment := iff(Alinhamento, taCenter, taLeftJustify);
+
+          for i := 0 to High(FListLookupFields) do
+          begin
+            if (FListLookupFields[i].Name = xCampo) then
+            begin
+              Self.Columns[FColumn].ButtonStyle := cbsEllipsis;
+              Self.Columns[FColumn].ReadOnly := False;
+              break;
+            end;
+          end;
+
+          for i := 0 to High(FListEnumFields) do
+          begin
+            if (FListEnumFields[i].Name = xCampo) then
+            begin
+              Self.Columns[FColumn].ButtonStyle := cbsEllipsis;
+              Self.Columns[FColumn].ReadOnly := False;
+              break;
+            end;
+          end;
+
+          Inc(FColumn);
+
+          GetOldPosition(xCampo);
+
+          SetFields(xCampo, (FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
+            xQuery.FindField('LENFLD').AsInteger)), xQuery.FindField('LENFLD').AsInteger);
         end;
+
+        xQuery.Next;
       end;
 
-      for i := 0 to High(FListEnumFields) do
-      begin
-        if (FListEnumFields[i].Name = xCampo) then
-        begin
-          Self.Columns[FColumn].ButtonStyle := cbsEllipsis;
-          Self.Columns[FColumn].ReadOnly := False;
-          break;
-        end;
-      end;
-
-      Inc(FColumn);
-
-      GetOldPosition(xCampo);
-
-      SetFields(xCampo, (FieldType(xQuery.FindField('TYPE').AsString, xQuery.FindField('MSKFLD').AsString,
-        xQuery.FindField('LENFLD').AsInteger)), xQuery.FindField('LENFLD').AsInteger);
+      UltimoCaracter(FFieldList, ',');
+      ChangePosition();
     end;
 
-    xQuery.Next;
+    DataSetChanges();
+  finally
+    FreeAndNil(xQuery);
   end;
-
-  UltimoCaracter(FFieldList, ',');
-  ChangePosition();
-  DataSetChanges();
 end;
 
 procedure TDataSetGrid.CreateFieldOrder(const pIndexFields: string);
@@ -1292,7 +1310,15 @@ begin
   FListEnumFields[pred(i)].Name := pName;
   FListEnumFields[pred(i)].Enum := pEnumerator;
   FListEnumFields[pred(i)].ValueList := THValueListEditor.Create(Self);
+  FListEnumFields[pred(i)].ValueList.OnEnumPres := EnumClick;
+
   CreateValueList(FListEnumFields[pred(i)]);
+
+  for i := 0 to pred(Columns.Count) do
+  begin
+    if AnsiSameText(Self.Columns[i].FieldName, pName) then
+      Self.Columns[i].ButtonStyle := cbsEllipsis;
+  end;
 end;
 
 procedure TDataSetGrid.SetFields(const pField: string; const pType: TFieldType; const pLenFld: Integer = 0; const pCustom: Boolean = False);

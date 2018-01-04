@@ -47,7 +47,7 @@ contains
   oLayout in 'oLayout.pas',
   oQuery in 'oQuery.pas',
   oReader in 'oReader.pas',
-  wsCRAlterar in 'wsCRAlterar.pas',
+  webserviceContasReceber in 'webserviceContasReceber.pas',
   o133mau in 'o133mau.pas',
   o133vem in 'o133vem.pas',
   o420ocp in 'o420ocp.pas',
@@ -84,6 +84,17 @@ contains
   o030etc in 'o030etc.pas',
   o000dbc in 'o000dbc.pas',
   o510lay in 'o510lay.pas',
-  o000isc in 'o000isc.pas';
+  o000isc in 'o000isc.pas',
+  o096lfc in 'o096lfc.pas',
+  o096dei in 'o096dei.pas',
+  o095fim in 'o095fim.pas',
+  o050dic in 'o050dic.pas',
+  webserviceContasPagar in 'webserviceContasPagar.pas',
+  o420ipo in 'o420ipo.pas',
+  o097dem in 'o097dem.pas',
+  o096mdo in 'o096mdo.pas',
+  o078ult in 'o078ult.pas',
+  o031imo in 'o031imo.pas',
+  o097gfi in 'o097gfi.pas';
 
 end.

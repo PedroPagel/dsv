@@ -5,7 +5,7 @@ interface
 uses
   oBase, o070fil, System.SysUtils, System.Classes, System.Contnrs, o501tcp,
   oLayout, Data.SqlExpr, oQuery, Data.Db, o510age, o510arm, o095for, o510tit,
-  o095hfo, o000dbc, o160mov;
+  o095hfo, o000dbc, o160mov, o078ult;
 
 CONST
   FCODIGO = 'Código';
@@ -109,6 +109,22 @@ type
   TMovimentoContrato = class(T160MOV)
   public
     procedure GerarMovimento();
+  end;
+
+  TGeradorTitulo = class(T078ULT)
+  private
+    FCodFor: Integer;
+    FCodTpt: string;
+    FNumTit: string;
+  public
+    constructor Create();
+    destructor Destroy; override;
+
+    function Gerar(): string;
+
+    property CodFor: Integer read FCodFor write FCodFor;
+    property CodTpt: string  read FCodTpt write FCodTpt;
+    property NumTit: string read FNumTit write FNumTit;
   end;
 
 var
@@ -684,6 +700,73 @@ end;
 function TTituloDebitoDiretoAutorizado.Titulo: TSubTituloDebitoDiretoAutorizado;
 begin
   Result := FTituloDebitoDiretoAutorizado;
+end;
+
+{ TGeradorTitulo }
+
+constructor TGeradorTitulo.Create;
+begin
+  inherited Create;
+
+  BlockProperty(['CodFor', 'CodTpt', 'NumTit']);
+end;
+
+destructor TGeradorTitulo.Destroy;
+begin
+  inherited;
+end;
+
+function TGeradorTitulo.Gerar: string;
+var
+  i: Integer;
+
+  function BuscarTitulo(id: Integer): Integer;
+  var
+    x501tcp: T501TCP;
+  begin
+    FNumTit := 'TitPrv' + IntToStr(id) + IntToStr(FCodFor);
+
+    x501tcp := T501TCP.Create;
+    try
+      x501tcp.CodEmp := Self.CodEmp;
+      x501tcp.CodFil := Self.CodFil;
+      x501tcp.NumTit := FNumTit;
+      x501tcp.CodTpt := FCodTpt;
+      x501tcp.CodFor := FCodFor;
+      x501tcp.Open();
+
+      if not(x501tcp.IsEmpty) then
+      begin
+        Inc(id);
+        BuscarTitulo(id);
+      end;
+
+      Result := id;
+    finally
+      FreeAndNil(x501tcp);
+    end;
+  end;
+
+begin
+  Self.Init;
+  Self.CamBas := 'TITPRV';
+  Self.Open;
+
+  if not(Self.IsEmpty) then
+  begin
+    i := Self.UltNum;
+    Inc(i);
+
+    Self.UltNum := BuscarTitulo(i);
+    Self.Update;
+  end
+  else
+  begin
+    Self.UltNum := BuscarTitulo(1);
+    Self.Insert;
+  end;
+
+  Result := FNumTit;
 end;
 
 end.

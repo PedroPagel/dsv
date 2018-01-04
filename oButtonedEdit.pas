@@ -8,7 +8,6 @@ uses
   oValueListEditor;
 
 type
-  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
   TRightClick = procedure(Sender: TObject; const pObjectName: string) of Object;
   TProcedure = procedure() of Object;
 

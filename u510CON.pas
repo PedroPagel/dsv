@@ -644,4 +644,10 @@ begin
   CancelarClick(Self);
 end;
 
+initialization
+  RegisterClasses([TF510CON]);
+
+finalization
+  UnRegisterClasses([TF510CON]);
+
 end.

@@ -182,6 +182,9 @@ begin
   except
     if (pMessageType = mtExceptError) then
       raise;
+
+    if (pMessageType = mtErrorInform) then
+      Abort;
   end;
 end;
 

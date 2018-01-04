@@ -25,7 +25,7 @@ type
     FCodMoe: string;
     FDatMoe: TDate;
     FCotMoe: Double;
-    FFecMoe: string;
+    FFecMoe: Char;
     FCodFcr: string;
     FDatFcr: TDate;
     FQtdAbe: Double;
@@ -38,7 +38,7 @@ type
     FPerDs2: Double;
     FPerFin: Double;
     FVlrFre: Double;
-    FCifFob: string;
+    FCifFob: Char;
     FVlrSeg: Double;
     FVlrEmb: Double;
     FVlrEnc: Double;
@@ -76,7 +76,7 @@ type
     FVlrLou: Double;
     FVlrLiq: Double;
     FVlrFin: Double;
-    FTemPar: string;
+    FTemPar: Char;
     FCodPor: string;
     FCodCrt: string;
     FRotNap: Integer;
@@ -146,28 +146,29 @@ type
     FCofImp: Double;
     FBpiImp: Double;
     FPisImp: Double;
-    FSomFre: string;
+    FSomFre: Char;
     FCodSaf: string;
-    FSalCan: string;
-    FObrCtr: string;
+    FSalCan: Char;
+    FObrCtr: Char;
     FQtdBpi: Double;
     FQtdBco: Double;
     FQtdBip: Double;
     FUSU_UsuMod: Integer;
     FUSU_DatMod: TDate;
     FUSU_HorMod: Integer;
-    FUSU_TipTrf: string;
-    FUSU_OCFab: string;
+    FUSU_TipTrf: Char;
+    FUSU_OCFab: Char;
     FUSU_PPAP: Integer;
     FUSU_CrtOcp: Integer;
-    FUSU_EmaEnv: string;
+    FUSU_EmaEnv: Char;
     FUSU_NumSdg: Integer;
-    FUSU_IndBTB: string;
+    FUSU_IndBTB: Char;
     FUSU_PrazEnt: TDate;
     FUSU_DatEmb: TDate;
     FUSU_DatEnt: TDate;
     FUSU_ObsOa: string;
     FUSU_OrdCon: string;
+    FUSU_IdeMdo: Integer;
 
     FCodEmpOLD: Integer;
     FCodFilOLD: Integer;
@@ -185,7 +186,7 @@ type
     FCodMoeOLD: string;
     FDatMoeOLD: TDate;
     FCotMoeOLD: Double;
-    FFecMoeOLD: string;
+    FFecMoeOLD: Char;
     FCodFcrOLD: string;
     FDatFcrOLD: TDate;
     FQtdAbeOLD: Double;
@@ -198,7 +199,7 @@ type
     FPerDs2OLD: Double;
     FPerFinOLD: Double;
     FVlrFreOLD: Double;
-    FCifFobOLD: string;
+    FCifFobOLD: Char;
     FVlrSegOLD: Double;
     FVlrEmbOLD: Double;
     FVlrEncOLD: Double;
@@ -236,7 +237,7 @@ type
     FVlrLouOLD: Double;
     FVlrLiqOLD: Double;
     FVlrFinOLD: Double;
-    FTemParOLD: string;
+    FTemParOLD: Char;
     FCodPorOLD: string;
     FCodCrtOLD: string;
     FRotNapOLD: Integer;
@@ -306,28 +307,29 @@ type
     FCofImpOLD: Double;
     FBpiImpOLD: Double;
     FPisImpOLD: Double;
-    FSomFreOLD: string;
+    FSomFreOLD: Char;
     FCodSafOLD: string;
-    FSalCanOLD: string;
-    FObrCtrOLD: string;
+    FSalCanOLD: Char;
+    FObrCtrOLD: Char;
     FQtdBpiOLD: Double;
     FQtdBcoOLD: Double;
     FQtdBipOLD: Double;
     FUSU_UsuModOLD: Integer;
     FUSU_DatModOLD: TDate;
     FUSU_HorModOLD: Integer;
-    FUSU_TipTrfOLD: string;
-    FUSU_OCFabOLD: string;
+    FUSU_TipTrfOLD: Char;
+    FUSU_OCFabOLD: Char;
     FUSU_PPAPOLD: Integer;
     FUSU_CrtOcpOLD: Integer;
-    FUSU_EmaEnvOLD: string;
+    FUSU_EmaEnvOLD: Char;
     FUSU_NumSdgOLD: Integer;
-    FUSU_IndBTBOLD: string;
+    FUSU_IndBTBOLD: Char;
     FUSU_PrazEntOLD: TDate;
     FUSU_DatEmbOLD: TDate;
     FUSU_DatEntOLD: TDate;
     FUSU_ObsOaOLD: string;
     FUSU_OrdConOLD: string;
+    FUSU_IdeMdoOLD: Integer;
 
     function GetCodEmp: Integer;
     procedure SetCodEmp(const pCodEmp: Integer);
@@ -361,8 +363,8 @@ type
     procedure SetDatMoe(const pDatMoe: TDate);
     function GetCotMoe: Double;
     procedure SetCotMoe(const pCotMoe: Double);
-    function GetFecMoe: string;
-    procedure SetFecMoe(const pFecMoe: string);
+    function GetFecMoe: Char;
+    procedure SetFecMoe(const pFecMoe: Char);
     function GetCodFcr: string;
     procedure SetCodFcr(const pCodFcr: string);
     function GetDatFcr: TDate;
@@ -387,8 +389,8 @@ type
     procedure SetPerFin(const pPerFin: Double);
     function GetVlrFre: Double;
     procedure SetVlrFre(const pVlrFre: Double);
-    function GetCifFob: string;
-    procedure SetCifFob(const pCifFob: string);
+    function GetCifFob: Char;
+    procedure SetCifFob(const pCifFob: Char);
     function GetVlrSeg: Double;
     procedure SetVlrSeg(const pVlrSeg: Double);
     function GetVlrEmb: Double;
@@ -463,8 +465,8 @@ type
     procedure SetVlrLiq(const pVlrLiq: Double);
     function GetVlrFin: Double;
     procedure SetVlrFin(const pVlrFin: Double);
-    function GetTemPar: string;
-    procedure SetTemPar(const pTemPar: string);
+    function GetTemPar: Char;
+    procedure SetTemPar(const pTemPar: Char);
     function GetCodPor: string;
     procedure SetCodPor(const pCodPor: string);
     function GetCodCrt: string;
@@ -603,14 +605,14 @@ type
     procedure SetBpiImp(const pBpiImp: Double);
     function GetPisImp: Double;
     procedure SetPisImp(const pPisImp: Double);
-    function GetSomFre: string;
-    procedure SetSomFre(const pSomFre: string);
+    function GetSomFre: Char;
+    procedure SetSomFre(const pSomFre: Char);
     function GetCodSaf: string;
     procedure SetCodSaf(const pCodSaf: string);
-    function GetSalCan: string;
-    procedure SetSalCan(const pSalCan: string);
-    function GetObrCtr: string;
-    procedure SetObrCtr(const pObrCtr: string);
+    function GetSalCan: Char;
+    procedure SetSalCan(const pSalCan: Char);
+    function GetObrCtr: Char;
+    procedure SetObrCtr(const pObrCtr: Char);
     function GetQtdBpi: Double;
     procedure SetQtdBpi(const pQtdBpi: Double);
     function GetQtdBco: Double;
@@ -623,20 +625,20 @@ type
     procedure SetUSU_DatMod(const pUSU_DatMod: TDate);
     function GetUSU_HorMod: Integer;
     procedure SetUSU_HorMod(const pUSU_HorMod: Integer);
-    function GetUSU_TipTrf: string;
-    procedure SetUSU_TipTrf(const pUSU_TipTrf: string);
-    function GetUSU_OCFab: string;
-    procedure SetUSU_OCFab(const pUSU_OCFab: string);
+    function GetUSU_TipTrf: Char;
+    procedure SetUSU_TipTrf(const pUSU_TipTrf: Char);
+    function GetUSU_OCFab: Char;
+    procedure SetUSU_OCFab(const pUSU_OCFab: Char);
     function GetUSU_PPAP: Integer;
     procedure SetUSU_PPAP(const pUSU_PPAP: Integer);
     function GetUSU_CrtOcp: Integer;
     procedure SetUSU_CrtOcp(const pUSU_CrtOcp: Integer);
-    function GetUSU_EmaEnv: string;
-    procedure SetUSU_EmaEnv(const pUSU_EmaEnv: string);
+    function GetUSU_EmaEnv: Char;
+    procedure SetUSU_EmaEnv(const pUSU_EmaEnv: Char);
     function GetUSU_NumSdg: Integer;
     procedure SetUSU_NumSdg(const pUSU_NumSdg: Integer);
-    function GetUSU_IndBTB: string;
-    procedure SetUSU_IndBTB(const pUSU_IndBTB: string);
+    function GetUSU_IndBTB: Char;
+    procedure SetUSU_IndBTB(const pUSU_IndBTB: Char);
     function GetUSU_PrazEnt: TDate;
     procedure SetUSU_PrazEnt(const pUSU_PrazEnt: TDate);
     function GetUSU_DatEmb: TDate;
@@ -647,6 +649,8 @@ type
     procedure SetUSU_ObsOa(const pUSU_ObsOa: string);
     function GetUSU_OrdCon: string;
     procedure SetUSU_OrdCon(const pUSU_OrdCon: string);
+    function GetUSU_IdeMdo: Integer;
+    procedure SetUSU_IdeMdo(const pUSU_IdeMdo: Integer);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -680,8 +684,8 @@ type
     procedure SetDatMoeOld(const pDatMoe: TDate);
     function GetCotMoeOld: Double;
     procedure SetCotMoeOld(const pCotMoe: Double);
-    function GetFecMoeOld: string;
-    procedure SetFecMoeOld(const pFecMoe: string);
+    function GetFecMoeOld: Char;
+    procedure SetFecMoeOld(const pFecMoe: Char);
     function GetCodFcrOld: string;
     procedure SetCodFcrOld(const pCodFcr: string);
     function GetDatFcrOld: TDate;
@@ -706,8 +710,8 @@ type
     procedure SetPerFinOld(const pPerFin: Double);
     function GetVlrFreOld: Double;
     procedure SetVlrFreOld(const pVlrFre: Double);
-    function GetCifFobOld: string;
-    procedure SetCifFobOld(const pCifFob: string);
+    function GetCifFobOld: Char;
+    procedure SetCifFobOld(const pCifFob: Char);
     function GetVlrSegOld: Double;
     procedure SetVlrSegOld(const pVlrSeg: Double);
     function GetVlrEmbOld: Double;
@@ -782,8 +786,8 @@ type
     procedure SetVlrLiqOld(const pVlrLiq: Double);
     function GetVlrFinOld: Double;
     procedure SetVlrFinOld(const pVlrFin: Double);
-    function GetTemParOld: string;
-    procedure SetTemParOld(const pTemPar: string);
+    function GetTemParOld: Char;
+    procedure SetTemParOld(const pTemPar: Char);
     function GetCodPorOld: string;
     procedure SetCodPorOld(const pCodPor: string);
     function GetCodCrtOld: string;
@@ -922,14 +926,14 @@ type
     procedure SetBpiImpOld(const pBpiImp: Double);
     function GetPisImpOld: Double;
     procedure SetPisImpOld(const pPisImp: Double);
-    function GetSomFreOld: string;
-    procedure SetSomFreOld(const pSomFre: string);
+    function GetSomFreOld: Char;
+    procedure SetSomFreOld(const pSomFre: Char);
     function GetCodSafOld: string;
     procedure SetCodSafOld(const pCodSaf: string);
-    function GetSalCanOld: string;
-    procedure SetSalCanOld(const pSalCan: string);
-    function GetObrCtrOld: string;
-    procedure SetObrCtrOld(const pObrCtr: string);
+    function GetSalCanOld: Char;
+    procedure SetSalCanOld(const pSalCan: Char);
+    function GetObrCtrOld: Char;
+    procedure SetObrCtrOld(const pObrCtr: Char);
     function GetQtdBpiOld: Double;
     procedure SetQtdBpiOld(const pQtdBpi: Double);
     function GetQtdBcoOld: Double;
@@ -942,20 +946,20 @@ type
     procedure SetUSU_DatModOld(const pUSU_DatMod: TDate);
     function GetUSU_HorModOld: Integer;
     procedure SetUSU_HorModOld(const pUSU_HorMod: Integer);
-    function GetUSU_TipTrfOld: string;
-    procedure SetUSU_TipTrfOld(const pUSU_TipTrf: string);
-    function GetUSU_OCFabOld: string;
-    procedure SetUSU_OCFabOld(const pUSU_OCFab: string);
+    function GetUSU_TipTrfOld: Char;
+    procedure SetUSU_TipTrfOld(const pUSU_TipTrf: Char);
+    function GetUSU_OCFabOld: Char;
+    procedure SetUSU_OCFabOld(const pUSU_OCFab: Char);
     function GetUSU_PPAPOld: Integer;
     procedure SetUSU_PPAPOld(const pUSU_PPAP: Integer);
     function GetUSU_CrtOcpOld: Integer;
     procedure SetUSU_CrtOcpOld(const pUSU_CrtOcp: Integer);
-    function GetUSU_EmaEnvOld: string;
-    procedure SetUSU_EmaEnvOld(const pUSU_EmaEnv: string);
+    function GetUSU_EmaEnvOld: Char;
+    procedure SetUSU_EmaEnvOld(const pUSU_EmaEnv: Char);
     function GetUSU_NumSdgOld: Integer;
     procedure SetUSU_NumSdgOld(const pUSU_NumSdg: Integer);
-    function GetUSU_IndBTBOld: string;
-    procedure SetUSU_IndBTBOld(const pUSU_IndBTB: string);
+    function GetUSU_IndBTBOld: Char;
+    procedure SetUSU_IndBTBOld(const pUSU_IndBTB: Char);
     function GetUSU_PrazEntOld: TDate;
     procedure SetUSU_PrazEntOld(const pUSU_PrazEnt: TDate);
     function GetUSU_DatEmbOld: TDate;
@@ -966,6 +970,8 @@ type
     procedure SetUSU_ObsOaOld(const pUSU_ObsOa: string);
     function GetUSU_OrdConOld: string;
     procedure SetUSU_OrdConOld(const pUSU_OrdCon: string);
+    function GetUSU_IdeMdoOld: Integer;
+    procedure SetUSU_IdeMdoOld(const pUSU_IdeMdo: Integer);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -989,7 +995,7 @@ type
     property CodMoe: string read GetCodMoe write SetCodMoe;
     property DatMoe: TDate read GetDatMoe write SetDatMoe;
     property CotMoe: Double read GetCotMoe write SetCotMoe;
-    property FecMoe: string read GetFecMoe write SetFecMoe;
+    property FecMoe: Char read GetFecMoe write SetFecMoe;
     property CodFcr: string read GetCodFcr write SetCodFcr;
     property DatFcr: TDate read GetDatFcr write SetDatFcr;
     property QtdAbe: Double read GetQtdAbe write SetQtdAbe;
@@ -1002,7 +1008,7 @@ type
     property PerDs2: Double read GetPerDs2 write SetPerDs2;
     property PerFin: Double read GetPerFin write SetPerFin;
     property VlrFre: Double read GetVlrFre write SetVlrFre;
-    property CifFob: string read GetCifFob write SetCifFob;
+    property CifFob: Char read GetCifFob write SetCifFob;
     property VlrSeg: Double read GetVlrSeg write SetVlrSeg;
     property VlrEmb: Double read GetVlrEmb write SetVlrEmb;
     property VlrEnc: Double read GetVlrEnc write SetVlrEnc;
@@ -1040,7 +1046,7 @@ type
     property VlrLou: Double read GetVlrLou write SetVlrLou;
     property VlrLiq: Double read GetVlrLiq write SetVlrLiq;
     property VlrFin: Double read GetVlrFin write SetVlrFin;
-    property TemPar: string read GetTemPar write SetTemPar;
+    property TemPar: Char read GetTemPar write SetTemPar;
     property CodPor: string read GetCodPor write SetCodPor;
     property CodCrt: string read GetCodCrt write SetCodCrt;
     property RotNap: Integer read GetRotNap write SetRotNap;
@@ -1110,28 +1116,29 @@ type
     property CofImp: Double read GetCofImp write SetCofImp;
     property BpiImp: Double read GetBpiImp write SetBpiImp;
     property PisImp: Double read GetPisImp write SetPisImp;
-    property SomFre: string read GetSomFre write SetSomFre;
+    property SomFre: Char read GetSomFre write SetSomFre;
     property CodSaf: string read GetCodSaf write SetCodSaf;
-    property SalCan: string read GetSalCan write SetSalCan;
-    property ObrCtr: string read GetObrCtr write SetObrCtr;
+    property SalCan: Char read GetSalCan write SetSalCan;
+    property ObrCtr: Char read GetObrCtr write SetObrCtr;
     property QtdBpi: Double read GetQtdBpi write SetQtdBpi;
     property QtdBco: Double read GetQtdBco write SetQtdBco;
     property QtdBip: Double read GetQtdBip write SetQtdBip;
     property USU_UsuMod: Integer read GetUSU_UsuMod write SetUSU_UsuMod;
     property USU_DatMod: TDate read GetUSU_DatMod write SetUSU_DatMod;
     property USU_HorMod: Integer read GetUSU_HorMod write SetUSU_HorMod;
-    property USU_TipTrf: string read GetUSU_TipTrf write SetUSU_TipTrf;
-    property USU_OCFab: string read GetUSU_OCFab write SetUSU_OCFab;
+    property USU_TipTrf: Char read GetUSU_TipTrf write SetUSU_TipTrf;
+    property USU_OCFab: Char read GetUSU_OCFab write SetUSU_OCFab;
     property USU_PPAP: Integer read GetUSU_PPAP write SetUSU_PPAP;
     property USU_CrtOcp: Integer read GetUSU_CrtOcp write SetUSU_CrtOcp;
-    property USU_EmaEnv: string read GetUSU_EmaEnv write SetUSU_EmaEnv;
+    property USU_EmaEnv: Char read GetUSU_EmaEnv write SetUSU_EmaEnv;
     property USU_NumSdg: Integer read GetUSU_NumSdg write SetUSU_NumSdg;
-    property USU_IndBTB: string read GetUSU_IndBTB write SetUSU_IndBTB;
+    property USU_IndBTB: Char read GetUSU_IndBTB write SetUSU_IndBTB;
     property USU_PrazEnt: TDate read GetUSU_PrazEnt write SetUSU_PrazEnt;
     property USU_DatEmb: TDate read GetUSU_DatEmb write SetUSU_DatEmb;
     property USU_DatEnt: TDate read GetUSU_DatEnt write SetUSU_DatEnt;
-    property USU_OrdCon: string read GetUSU_OrdCon write SetUSU_OrdCon;
     property USU_ObsOa: string read GetUSU_ObsOa write SetUSU_ObsOa;
+    property USU_OrdCon: string read GetUSU_OrdCon write SetUSU_OrdCon;
+    property USU_IdeMdo: Integer read GetUSU_IdeMdo write SetUSU_IdeMdo;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -1149,7 +1156,7 @@ type
     property OLD_CodMoe: string read GetCodMoeOLD write SetCodMoeOLD;
     property OLD_DatMoe: TDate read GetDatMoeOLD write SetDatMoeOLD;
     property OLD_CotMoe: Double read GetCotMoeOLD write SetCotMoeOLD;
-    property OLD_FecMoe: string read GetFecMoeOLD write SetFecMoeOLD;
+    property OLD_FecMoe: Char read GetFecMoeOLD write SetFecMoeOLD;
     property OLD_CodFcr: string read GetCodFcrOLD write SetCodFcrOLD;
     property OLD_DatFcr: TDate read GetDatFcrOLD write SetDatFcrOLD;
     property OLD_QtdAbe: Double read GetQtdAbeOLD write SetQtdAbeOLD;
@@ -1162,7 +1169,7 @@ type
     property OLD_PerDs2: Double read GetPerDs2OLD write SetPerDs2OLD;
     property OLD_PerFin: Double read GetPerFinOLD write SetPerFinOLD;
     property OLD_VlrFre: Double read GetVlrFreOLD write SetVlrFreOLD;
-    property OLD_CifFob: string read GetCifFobOLD write SetCifFobOLD;
+    property OLD_CifFob: Char read GetCifFobOLD write SetCifFobOLD;
     property OLD_VlrSeg: Double read GetVlrSegOLD write SetVlrSegOLD;
     property OLD_VlrEmb: Double read GetVlrEmbOLD write SetVlrEmbOLD;
     property OLD_VlrEnc: Double read GetVlrEncOLD write SetVlrEncOLD;
@@ -1200,7 +1207,7 @@ type
     property OLD_VlrLou: Double read GetVlrLouOLD write SetVlrLouOLD;
     property OLD_VlrLiq: Double read GetVlrLiqOLD write SetVlrLiqOLD;
     property OLD_VlrFin: Double read GetVlrFinOLD write SetVlrFinOLD;
-    property OLD_TemPar: string read GetTemParOLD write SetTemParOLD;
+    property OLD_TemPar: Char read GetTemParOLD write SetTemParOLD;
     property OLD_CodPor: string read GetCodPorOLD write SetCodPorOLD;
     property OLD_CodCrt: string read GetCodCrtOLD write SetCodCrtOLD;
     property OLD_RotNap: Integer read GetRotNapOLD write SetRotNapOLD;
@@ -1270,28 +1277,29 @@ type
     property OLD_CofImp: Double read GetCofImpOLD write SetCofImpOLD;
     property OLD_BpiImp: Double read GetBpiImpOLD write SetBpiImpOLD;
     property OLD_PisImp: Double read GetPisImpOLD write SetPisImpOLD;
-    property OLD_SomFre: string read GetSomFreOLD write SetSomFreOLD;
+    property OLD_SomFre: Char read GetSomFreOLD write SetSomFreOLD;
     property OLD_CodSaf: string read GetCodSafOLD write SetCodSafOLD;
-    property OLD_SalCan: string read GetSalCanOLD write SetSalCanOLD;
-    property OLD_ObrCtr: string read GetObrCtrOLD write SetObrCtrOLD;
+    property OLD_SalCan: Char read GetSalCanOLD write SetSalCanOLD;
+    property OLD_ObrCtr: Char read GetObrCtrOLD write SetObrCtrOLD;
     property OLD_QtdBpi: Double read GetQtdBpiOLD write SetQtdBpiOLD;
     property OLD_QtdBco: Double read GetQtdBcoOLD write SetQtdBcoOLD;
     property OLD_QtdBip: Double read GetQtdBipOLD write SetQtdBipOLD;
     property OLD_USU_UsuMod: Integer read GetUSU_UsuModOLD write SetUSU_UsuModOLD;
     property OLD_USU_DatMod: TDate read GetUSU_DatModOLD write SetUSU_DatModOLD;
     property OLD_USU_HorMod: Integer read GetUSU_HorModOLD write SetUSU_HorModOLD;
-    property OLD_USU_TipTrf: string read GetUSU_TipTrfOLD write SetUSU_TipTrfOLD;
-    property OLD_USU_OCFab: string read GetUSU_OCFabOLD write SetUSU_OCFabOLD;
+    property OLD_USU_TipTrf: Char read GetUSU_TipTrfOLD write SetUSU_TipTrfOLD;
+    property OLD_USU_OCFab: Char read GetUSU_OCFabOLD write SetUSU_OCFabOLD;
     property OLD_USU_PPAP: Integer read GetUSU_PPAPOLD write SetUSU_PPAPOLD;
     property OLD_USU_CrtOcp: Integer read GetUSU_CrtOcpOLD write SetUSU_CrtOcpOLD;
-    property OLD_USU_EmaEnv: string read GetUSU_EmaEnvOLD write SetUSU_EmaEnvOLD;
+    property OLD_USU_EmaEnv: Char read GetUSU_EmaEnvOLD write SetUSU_EmaEnvOLD;
     property OLD_USU_NumSdg: Integer read GetUSU_NumSdgOLD write SetUSU_NumSdgOLD;
-    property OLD_USU_IndBTB: string read GetUSU_IndBTBOLD write SetUSU_IndBTBOLD;
+    property OLD_USU_IndBTB: Char read GetUSU_IndBTBOLD write SetUSU_IndBTBOLD;
     property OLD_USU_PrazEnt: TDate read GetUSU_PrazEntOLD write SetUSU_PrazEntOLD;
     property OLD_USU_DatEmb: TDate read GetUSU_DatEmbOLD write SetUSU_DatEmbOLD;
     property OLD_USU_DatEnt: TDate read GetUSU_DatEntOLD write SetUSU_DatEntOLD;
     property OLD_USU_ObsOa: string read GetUSU_ObsOaOLD write SetUSU_ObsOaOLD;
     property OLD_USU_OrdCon: string read GetUSU_OrdConOLD write SetUSU_OrdConOLD;
+    property OLD_USU_IdeMdo: Integer read GetUSU_IdeMdoOLD write SetUSU_IdeMdoOLD;
   end;
 
 implementation
@@ -1300,7 +1308,7 @@ implementation
 
 constructor T420OCP.Create();
 begin
-  AddForeignKeys(['CodEmp','CodFil','CodFor','CodCpg'], ['CodEmp','CodFil','CodFor','CodCpg']);
+  AddForeignKeys(['CodEmp','CodFil','CodFor','CodEmp','CodCpg'], ['CodEmp','CodFil','CodFor','CodEmp','CodCpg']);
   AddPrimaryKeys('CodEmp;CodFil;NumOcp');
 
   inherited Create('E420OCP');
@@ -1503,12 +1511,12 @@ begin
   CheckField('CotMoe');
 end;
 
-function T420OCP.GetFecMoe: string;
+function T420OCP.GetFecMoe: Char;
 begin
   Result := FFecMoe;
 end;
 
-procedure T420OCP.SetFecMoe(const pFecMoe: string);
+procedure T420OCP.SetFecMoe(const pFecMoe: Char);
 begin
   FFecMoe := pFecMoe;
 
@@ -1659,12 +1667,12 @@ begin
   CheckField('VlrFre');
 end;
 
-function T420OCP.GetCifFob: string;
+function T420OCP.GetCifFob: Char;
 begin
   Result := FCifFob;
 end;
 
-procedure T420OCP.SetCifFob(const pCifFob: string);
+procedure T420OCP.SetCifFob(const pCifFob: Char);
 begin
   FCifFob := pCifFob;
 
@@ -2115,12 +2123,12 @@ begin
   CheckField('VlrFin');
 end;
 
-function T420OCP.GetTemPar: string;
+function T420OCP.GetTemPar: Char;
 begin
   Result := FTemPar;
 end;
 
-procedure T420OCP.SetTemPar(const pTemPar: string);
+procedure T420OCP.SetTemPar(const pTemPar: Char);
 begin
   FTemPar := pTemPar;
 
@@ -2955,12 +2963,12 @@ begin
   CheckField('PisImp');
 end;
 
-function T420OCP.GetSomFre: string;
+function T420OCP.GetSomFre: Char;
 begin
   Result := FSomFre;
 end;
 
-procedure T420OCP.SetSomFre(const pSomFre: string);
+procedure T420OCP.SetSomFre(const pSomFre: Char);
 begin
   FSomFre := pSomFre;
 
@@ -2979,24 +2987,24 @@ begin
   CheckField('CodSaf');
 end;
 
-function T420OCP.GetSalCan: string;
+function T420OCP.GetSalCan: Char;
 begin
   Result := FSalCan;
 end;
 
-procedure T420OCP.SetSalCan(const pSalCan: string);
+procedure T420OCP.SetSalCan(const pSalCan: Char);
 begin
   FSalCan := pSalCan;
 
   CheckField('SalCan');
 end;
 
-function T420OCP.GetObrCtr: string;
+function T420OCP.GetObrCtr: Char;
 begin
   Result := FObrCtr;
 end;
 
-procedure T420OCP.SetObrCtr(const pObrCtr: string);
+procedure T420OCP.SetObrCtr(const pObrCtr: Char);
 begin
   FObrCtr := pObrCtr;
 
@@ -3075,22 +3083,24 @@ begin
   CheckField('USU_HorMod');
 end;
 
-function T420OCP.GetUSU_TipTrf: string;
+function T420OCP.GetUSU_TipTrf: Char;
 begin
   Result := FUSU_TipTrf;
 end;
 
-procedure T420OCP.SetUSU_TipTrf(const pUSU_TipTrf: string);
+procedure T420OCP.SetUSU_TipTrf(const pUSU_TipTrf: Char);
 begin
   FUSU_TipTrf := pUSU_TipTrf;
+
+  CheckField('USU_TipTrf');
 end;
 
-function T420OCP.GetUSU_OCFab: string;
+function T420OCP.GetUSU_OCFab: Char;
 begin
   Result := FUSU_OCFab;
 end;
 
-procedure T420OCP.SetUSU_OCFab(const pUSU_OCFab: string);
+procedure T420OCP.SetUSU_OCFab(const pUSU_OCFab: Char);
 begin
   FUSU_OCFab := pUSU_OCFab;
 
@@ -3121,12 +3131,12 @@ begin
   CheckField('USU_CrtOcp');
 end;
 
-function T420OCP.GetUSU_EmaEnv: string;
+function T420OCP.GetUSU_EmaEnv: Char;
 begin
   Result := FUSU_EmaEnv;
 end;
 
-procedure T420OCP.SetUSU_EmaEnv(const pUSU_EmaEnv: string);
+procedure T420OCP.SetUSU_EmaEnv(const pUSU_EmaEnv: Char);
 begin
   FUSU_EmaEnv := pUSU_EmaEnv;
 
@@ -3145,12 +3155,12 @@ begin
   CheckField('USU_NumSdg');
 end;
 
-function T420OCP.GetUSU_IndBTB: string;
+function T420OCP.GetUSU_IndBTB: Char;
 begin
   Result := FUSU_IndBTB;
 end;
 
-procedure T420OCP.SetUSU_IndBTB(const pUSU_IndBTB: string);
+procedure T420OCP.SetUSU_IndBTB(const pUSU_IndBTB: Char);
 begin
   FUSU_IndBTB := pUSU_IndBTB;
 
@@ -3193,6 +3203,18 @@ begin
   CheckField('USU_DatEnt');
 end;
 
+function T420OCP.GetUSU_ObsOa: string;
+begin
+  Result := FUSU_ObsOa;
+end;
+
+procedure T420OCP.SetUSU_ObsOa(const pUSU_ObsOa: string);
+begin
+  FUSU_ObsOa := pUSU_ObsOa;
+
+  CheckField('USU_ObsOa');
+end;
+
 function T420OCP.GetUSU_OrdCon: string;
 begin
   Result := FUSU_OrdCon;
@@ -3205,16 +3227,16 @@ begin
   CheckField('USU_OrdCon');
 end;
 
-function T420OCP.GetUSU_ObsOa: string;
+function T420OCP.GetUSU_IdeMdo: Integer;
 begin
-  Result := FUSU_ObsOa;
+  Result := FUSU_IdeMdo;
 end;
 
-procedure T420OCP.SetUSU_ObsOa(const pUSU_ObsOa: string);
+procedure T420OCP.SetUSU_IdeMdo(const pUSU_IdeMdo: Integer);
 begin
-  FUSU_ObsOa := pUSU_ObsOa;
+  FUSU_IdeMdo := pUSU_IdeMdo;
 
-  CheckField('USU_ObsOa');
+  CheckField('USU_IdeMdo');
 end;
 
 function T420OCP.GetCodEmpOLD: Integer;
@@ -3377,12 +3399,12 @@ begin
   FCotMoeOLD := pCotMoe;
 end;
 
-function T420OCP.GetFecMoeOLD: string;
+function T420OCP.GetFecMoeOLD: Char;
 begin
   Result := FFecMoeOLD;
 end;
 
-procedure T420OCP.SetFecMoeOLD(const pFecMoe: string);
+procedure T420OCP.SetFecMoeOLD(const pFecMoe: Char);
 begin
   FFecMoeOLD := pFecMoe;
 end;
@@ -3507,12 +3529,12 @@ begin
   FVlrFreOLD := pVlrFre;
 end;
 
-function T420OCP.GetCifFobOLD: string;
+function T420OCP.GetCifFobOLD: Char;
 begin
   Result := FCifFobOLD;
 end;
 
-procedure T420OCP.SetCifFobOLD(const pCifFob: string);
+procedure T420OCP.SetCifFobOLD(const pCifFob: Char);
 begin
   FCifFobOLD := pCifFob;
 end;
@@ -3887,12 +3909,12 @@ begin
   FVlrFinOLD := pVlrFin;
 end;
 
-function T420OCP.GetTemParOLD: string;
+function T420OCP.GetTemParOLD: Char;
 begin
   Result := FTemParOLD;
 end;
 
-procedure T420OCP.SetTemParOLD(const pTemPar: string);
+procedure T420OCP.SetTemParOLD(const pTemPar: Char);
 begin
   FTemParOLD := pTemPar;
 end;
@@ -4587,12 +4609,12 @@ begin
   FPisImpOLD := pPisImp;
 end;
 
-function T420OCP.GetSomFreOLD: string;
+function T420OCP.GetSomFreOLD: Char;
 begin
   Result := FSomFreOLD;
 end;
 
-procedure T420OCP.SetSomFreOLD(const pSomFre: string);
+procedure T420OCP.SetSomFreOLD(const pSomFre: Char);
 begin
   FSomFreOLD := pSomFre;
 end;
@@ -4607,22 +4629,22 @@ begin
   FCodSafOLD := pCodSaf;
 end;
 
-function T420OCP.GetSalCanOLD: string;
+function T420OCP.GetSalCanOLD: Char;
 begin
   Result := FSalCanOLD;
 end;
 
-procedure T420OCP.SetSalCanOLD(const pSalCan: string);
+procedure T420OCP.SetSalCanOLD(const pSalCan: Char);
 begin
   FSalCanOLD := pSalCan;
 end;
 
-function T420OCP.GetObrCtrOLD: string;
+function T420OCP.GetObrCtrOLD: Char;
 begin
   Result := FObrCtrOLD;
 end;
 
-procedure T420OCP.SetObrCtrOLD(const pObrCtr: string);
+procedure T420OCP.SetObrCtrOLD(const pObrCtr: Char);
 begin
   FObrCtrOLD := pObrCtr;
 end;
@@ -4687,22 +4709,22 @@ begin
   FUSU_HorModOLD := pUSU_HorMod;
 end;
 
-function T420OCP.GetUSU_TipTrfOLD: string;
+function T420OCP.GetUSU_TipTrfOLD: Char;
 begin
   Result := FUSU_TipTrfOLD;
 end;
 
-procedure T420OCP.SetUSU_TipTrfOLD(const pUSU_TipTrf: string);
+procedure T420OCP.SetUSU_TipTrfOLD(const pUSU_TipTrf: Char);
 begin
   FUSU_TipTrfOLD := pUSU_TipTrf;
 end;
 
-function T420OCP.GetUSU_OCFabOLD: string;
+function T420OCP.GetUSU_OCFabOLD: Char;
 begin
   Result := FUSU_OCFabOLD;
 end;
 
-procedure T420OCP.SetUSU_OCFabOLD(const pUSU_OCFab: string);
+procedure T420OCP.SetUSU_OCFabOLD(const pUSU_OCFab: Char);
 begin
   FUSU_OCFabOLD := pUSU_OCFab;
 end;
@@ -4727,12 +4749,12 @@ begin
   FUSU_CrtOcpOLD := pUSU_CrtOcp;
 end;
 
-function T420OCP.GetUSU_EmaEnvOLD: string;
+function T420OCP.GetUSU_EmaEnvOLD: Char;
 begin
   Result := FUSU_EmaEnvOLD;
 end;
 
-procedure T420OCP.SetUSU_EmaEnvOLD(const pUSU_EmaEnv: string);
+procedure T420OCP.SetUSU_EmaEnvOLD(const pUSU_EmaEnv: Char);
 begin
   FUSU_EmaEnvOLD := pUSU_EmaEnv;
 end;
@@ -4747,12 +4769,12 @@ begin
   FUSU_NumSdgOLD := pUSU_NumSdg;
 end;
 
-function T420OCP.GetUSU_IndBTBOLD: string;
+function T420OCP.GetUSU_IndBTBOLD: Char;
 begin
   Result := FUSU_IndBTBOLD;
 end;
 
-procedure T420OCP.SetUSU_IndBTBOLD(const pUSU_IndBTB: string);
+procedure T420OCP.SetUSU_IndBTBOLD(const pUSU_IndBTB: Char);
 begin
   FUSU_IndBTBOLD := pUSU_IndBTB;
 end;
@@ -4787,6 +4809,16 @@ begin
   FUSU_DatEntOLD := pUSU_DatEnt;
 end;
 
+function T420OCP.GetUSU_ObsOaOLD: string;
+begin
+  Result := FUSU_ObsOaOLD;
+end;
+
+procedure T420OCP.SetUSU_ObsOaOLD(const pUSU_ObsOa: string);
+begin
+  FUSU_ObsOaOLD := pUSU_ObsOa;
+end;
+
 function T420OCP.GetUSU_OrdConOLD: string;
 begin
   Result := FUSU_OrdConOLD;
@@ -4797,14 +4829,14 @@ begin
   FUSU_OrdConOLD := pUSU_OrdCon;
 end;
 
-function T420OCP.GetUSU_ObsOaOLD: string;
+function T420OCP.GetUSU_IdeMdoOLD: Integer;
 begin
-  Result := FUSU_ObsOaOLD;
+  Result := FUSU_IdeMdoOLD;
 end;
 
-procedure T420OCP.SetUSU_ObsOaOLD(const pUSU_ObsOa: string);
+procedure T420OCP.SetUSU_IdeMdoOLD(const pUSU_IdeMdo: Integer);
 begin
-  FUSU_ObsOaOLD := pUSU_ObsOa;
+  FUSU_IdeMdoOLD := pUSU_IdeMdo;
 end;
 
 procedure T420OCP.Registros_OLD();
@@ -4966,8 +4998,9 @@ begin
   FUSU_PrazEntOLD := FUSU_PrazEnt;
   FUSU_DatEmbOLD := FUSU_DatEmb;
   FUSU_DatEntOLD := FUSU_DatEnt;
-  FUSU_OrdConOLD := FUSU_OrdCon;
   FUSU_ObsOaOLD := FUSU_ObsOa;
+  FUSU_OrdConOLD := FUSU_OrdCon;
+  FUSU_IdeMdoOLD := FUSU_IdeMdo;
 
   inherited;
 end;
@@ -5131,8 +5164,11 @@ begin
   FUSU_PrazEnt := FUSU_PrazEntOLD;
   FUSU_DatEmb := FUSU_DatEmbOLD;
   FUSU_DatEnt := FUSU_DatEntOLD;
-  FUSU_OrdCon := FUSU_OrdConOLD;
   FUSU_ObsOa := FUSU_ObsOaOLD;
+  FUSU_OrdCon := FUSU_OrdConOLD;
+  FUSU_IdeMdo := FUSU_IdeMdoOLD;
+
+  inherited;
 end;
 
 end.

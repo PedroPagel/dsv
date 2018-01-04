@@ -193,7 +193,10 @@ begin
   if (FGridPes.ShowSearch) then
     ShowModal
   else
+  begin
+    FLeftClick := False;
     CMessage('Não houve informações a listar!', mtErrorInform);
+  end;
 end;
 
 end.

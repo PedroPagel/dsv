@@ -781,7 +781,7 @@ type
     property USU_CodMoe: string read GetUSU_CodMoe write SetUSU_CodMoe;
     property USU_RegExp: string read GetUSU_RegExp write SetUSU_RegExp;
     property USU_CodTip: string read GetUSU_CodTip write SetUSU_CodTip;
-    property USU_VenAva: TDate read GetUSU_VenAva write SetUSU_VenAva;
+    //property USU_VenAva: TDate read GetUSU_VenAva write SetUSU_VenAva;
 
     property OLD_CodFor: Integer read GetCodForOLD write SetCodForOLD;
     property OLD_NomFor: string read GetNomForOLD write SetNomForOLD;
@@ -891,7 +891,7 @@ type
     property OLD_USU_CodMoe: string read GetUSU_CodMoeOLD write SetUSU_CodMoeOLD;
     property OLD_USU_RegExp: string read GetUSU_RegExpOLD write SetUSU_RegExpOLD;
     property OLD_USU_CodTip: string read GetUSU_CodTipOLD write SetUSU_CodTipOLD;
-    property OLD_USU_VenAva: TDate read GetUSU_VenAvaOLD write SetUSU_VenAvaOLD;
+    //property OLD_USU_VenAva: TDate read GetUSU_VenAvaOLD write SetUSU_VenAvaOLD;
   end;
 
 implementation

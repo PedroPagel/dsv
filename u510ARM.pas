@@ -50,4 +50,10 @@ begin
   end;
 end;
 
+initialization
+  RegisterClasses([TF510ARM]);
+
+finalization
+  UnRegisterClasses([TF510ARM]);
+
 end.

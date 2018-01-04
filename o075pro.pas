@@ -1276,9 +1276,9 @@ type
     property CodAgg: string read GetCodAgg write SetCodAgg;
     property ParCom: Char read GetParCom write SetParCom;
     property USU_CodMsg1: Integer read GetUSU_CodMsg1 write SetUSU_CodMsg1;
-    property USU_IndB2B: Char read GetUSU_IndB2B write SetUSU_IndB2B;
-    property USU_IndEco: Char read GetUSU_IndEco write SetUSU_IndEco;
-    property USU_IndPop: Char read GetUSU_IndPop write SetUSU_IndPop;
+    //property USU_IndB2B: Char read GetUSU_IndB2B write SetUSU_IndB2B;
+    //property USU_IndEco: Char read GetUSU_IndEco write SetUSU_IndEco;
+    //property USU_IndPop: Char read GetUSU_IndPop write SetUSU_IndPop;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodPro: string read GetCodProOLD write SetCodProOLD;

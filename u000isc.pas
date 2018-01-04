@@ -51,9 +51,9 @@ end;
 
 initialization
   RegisterClasses([T000ISC]);
-  RegisterClasses([T000ISC]);
+  RegisterClasses([TF000ISC]);
 
 finalization
   UnRegisterClasses([T000ISC]);
-  UnRegisterClasses([T000ISC]);
+  UnRegisterClasses([TF000ISC]);
 end.

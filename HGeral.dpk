@@ -51,6 +51,7 @@ contains
   oFacadeWebServicesCRM in 'oFacadeWebServicesCRM.pas',
   oFacadeOperadora in 'oFacadeOperadora.pas',
   o310clp in 'o310clp.pas',
-  oFacadeListaServicos in 'oFacadeListaServicos.pas';
+  oFacadeListaServicos in 'oFacadeListaServicos.pas',
+  o096pto in 'o096pto.pas';
 
 end.
