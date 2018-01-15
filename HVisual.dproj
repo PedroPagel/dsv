@@ -116,37 +116,16 @@
         <DCCReference Include="HComponente.dcp"/>
         <DCCReference Include="HBase.dcp"/>
         <DCCReference Include="bdertl.dcp"/>
+        <DCCReference Include="uMenu.pas">
+            <Form>FMENU</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="u000bas.pas">
             <Form>FORMBASE</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="u096pto.pas">
-            <Form>F096PTO</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="o000for.pas"/>
         <DCCReference Include="u000crm.pas">
             <Form>F000CRM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u310CLP.pas">
-            <Form>F310CLP</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510ARM.pas">
-            <Form>F510ARM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510CON.pas">
-            <Form>F510CON</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510lte.pas">
-            <Form>F510LTE</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u510lay.pas">
-            <Form>F510LAY</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="u000isc.pas">
@@ -161,10 +140,35 @@
             <Form>F095FIM</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="uMenu.pas">
-            <Form>FMENU</Form>
+        <DCCReference Include="u096pto.pas">
+            <Form>F096PTO</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="u097gfi.pas">
+            <Form>F097GFI</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u310CLP.pas">
+            <Form>F310CLP</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u510ARM.pas">
+            <Form>F510ARM</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u510CON.pas">
+            <Form>F510CON</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u510lay.pas">
+            <Form>F510LAY</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="u510lte.pas">
+            <Form>F510LTE</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="o000for.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -9,11 +9,11 @@
         <Projects Include="HComponente.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="HVisual.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="HGeral.dproj">
             <Dependencies>HBase.dproj;HComponente.dproj</Dependencies>
-        </Projects>
-        <Projects Include="HVisual.dproj">
-            <Dependencies>HBase.dproj;HComponente.dproj;HGeral.dproj</Dependencies>
         </Projects>
         <Projects Include="HProject.dproj">
             <Dependencies>HBase.dproj;HComponente.dproj;HGeral.dproj</Dependencies>
@@ -53,6 +53,15 @@
     <Target Name="HComponente:Make">
         <MSBuild Projects="HComponente.dproj" Targets="Make"/>
     </Target>
+    <Target Name="HVisual">
+        <MSBuild Projects="HVisual.dproj"/>
+    </Target>
+    <Target Name="HVisual:Clean">
+        <MSBuild Projects="HVisual.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HVisual:Make">
+        <MSBuild Projects="HVisual.dproj" Targets="Make"/>
+    </Target>
     <Target Name="HGeral" DependsOnTargets="HBase;HComponente">
         <MSBuild Projects="HGeral.dproj"/>
     </Target>
@@ -61,15 +70,6 @@
     </Target>
     <Target Name="HGeral:Make" DependsOnTargets="HBase:Make;HComponente:Make">
         <MSBuild Projects="HGeral.dproj" Targets="Make"/>
-    </Target>
-    <Target Name="HVisual" DependsOnTargets="HBase;HComponente;HGeral">
-        <MSBuild Projects="HVisual.dproj"/>
-    </Target>
-    <Target Name="HVisual:Clean" DependsOnTargets="HBase:Clean;HComponente:Clean;HGeral:Clean">
-        <MSBuild Projects="HVisual.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="HVisual:Make" DependsOnTargets="HBase:Make;HComponente:Make;HGeral:Make">
-        <MSBuild Projects="HVisual.dproj" Targets="Make"/>
     </Target>
     <Target Name="HProject" DependsOnTargets="HBase;HComponente;HGeral">
         <MSBuild Projects="HProject.dproj"/>
@@ -108,13 +108,13 @@
         <MSBuild Projects="Executer.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="HBase;HComponente;HGeral;HVisual;HProject;Importador;CGerador;Executer"/>
+        <CallTarget Targets="HBase;HComponente;HVisual;HGeral;HProject;Importador;CGerador;Executer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="HBase:Clean;HComponente:Clean;HGeral:Clean;HVisual:Clean;HProject:Clean;Importador:Clean;CGerador:Clean;Executer:Clean"/>
+        <CallTarget Targets="HBase:Clean;HComponente:Clean;HVisual:Clean;HGeral:Clean;HProject:Clean;Importador:Clean;CGerador:Clean;Executer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="HBase:Make;HComponente:Make;HGeral:Make;HVisual:Make;HProject:Make;Importador:Make;CGerador:Make;Executer:Make"/>
+        <CallTarget Targets="HBase:Make;HComponente:Make;HVisual:Make;HGeral:Make;HProject:Make;Importador:Make;CGerador:Make;Executer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -1,4 +1,3 @@
-
 unit o096lfc;
 
 interface
@@ -15,12 +14,14 @@ type
     FUSU_LigCon: Char;
     FUSU_VlrFrt: Double;
     FUSU_CodFor: Integer;
+    FUSU_CodGfi: string;
 
     FUSU_IdeForOLD: Integer;
     FUSU_IdeConOLD: Integer;
     FUSU_LigConOLD: Char;
     FUSU_VlrFrtOLD: Double;
     FUSU_CodForOLD: Integer;
+    FUSU_CodGfiOLD: string;
 
     function GetUSU_IdeFor: Integer;
     procedure SetUSU_IdeFor(const pUSU_IdeFor: Integer);
@@ -32,6 +33,8 @@ type
     procedure SetUSU_VlrFrt(const pUSU_VlrFrt: Double);
     function GetUSU_CodFor: Integer;
     procedure SetUSU_CodFor(const pUSU_CodFor: Integer);
+    function GetUSU_CodGfi: string;
+    procedure SetUSU_CodGfi(const pUSU_CodGfi: string);
 
     function GetUSU_IdeForOld: Integer;
     procedure SetUSU_IdeForOld(const pUSU_IdeFor: Integer);
@@ -43,6 +46,8 @@ type
     procedure SetUSU_VlrFrtOld(const pUSU_VlrFrt: Double);
     function GetUSU_CodForOld: Integer;
     procedure SetUSU_CodForOld(const pUSU_CodFor: Integer);
+    function GetUSU_CodGfiOld: string;
+    procedure SetUSU_CodGfiOld(const pUSU_CodGfi: string);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -55,12 +60,14 @@ type
     property USU_LigCon: Char read GetUSU_LigCon write SetUSU_LigCon;
     property USU_VlrFrt: Double read GetUSU_VlrFrt write SetUSU_VlrFrt;
     property USU_CodFor: Integer read GetUSU_CodFor write SetUSU_CodFor;
+    property USU_CodGfi: string read GetUSU_CodGfi write SetUSU_CodGfi;
 
     property OLD_USU_IdeFor: Integer read GetUSU_IdeForOLD write SetUSU_IdeForOLD;
     property OLD_USU_IdeCon: Integer read GetUSU_IdeConOLD write SetUSU_IdeConOLD;
     property OLD_USU_LigCon: Char read GetUSU_LigConOLD write SetUSU_LigConOLD;
     property OLD_USU_VlrFrt: Double read GetUSU_VlrFrtOLD write SetUSU_VlrFrtOLD;
     property OLD_USU_CodFor: Integer read GetUSU_CodForOLD write SetUSU_CodForOLD;
+    property OLD_USU_CodGfi: string read GetUSU_CodGfiOLD write SetUSU_CodGfiOLD;
   end;
 
 implementation
@@ -140,6 +147,18 @@ begin
   CheckField('USU_CodFor');
 end;
 
+function T096LFC.GetUSU_CodGfi: string;
+begin
+  Result := FUSU_CodGfi;
+end;
+
+procedure T096LFC.SetUSU_CodGfi(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfi := pUSU_CodGfi;
+
+  CheckField('USU_CodGfi');
+end;
+
 function T096LFC.GetUSU_IdeForOLD: Integer;
 begin
   Result := FUSU_IdeForOLD;
@@ -190,6 +209,16 @@ begin
   FUSU_CodForOLD := pUSU_CodFor;
 end;
 
+function T096LFC.GetUSU_CodGfiOLD: string;
+begin
+  Result := FUSU_CodGfiOLD;
+end;
+
+procedure T096LFC.SetUSU_CodGfiOLD(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfiOLD := pUSU_CodGfi;
+end;
+
 procedure T096LFC.Registros_OLD();
 begin
   FUSU_IdeForOLD := FUSU_IdeFor;
@@ -197,6 +226,7 @@ begin
   FUSU_LigConOLD := FUSU_LigCon;
   FUSU_VlrFrtOLD := FUSU_VlrFrt;
   FUSU_CodForOLD := FUSU_CodFor;
+  FUSU_CodGfiOLD := FUSU_CodGfi;
 
   inherited;
 end;
@@ -208,6 +238,7 @@ begin
   FUSU_LigCon := FUSU_LigConOLD;
   FUSU_VlrFrt := FUSU_VlrFrtOLD;
   FUSU_CodFor := FUSU_CodForOLD;
+  FUSU_CodGfi := FUSU_CodGfiOLD;
 
   inherited;
 end;

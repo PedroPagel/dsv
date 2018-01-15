@@ -180,11 +180,10 @@ begin
   try
     raise THMessage.Create(pMessage, pMessageType, Result,pDetalhe, pMsgDetalhe);
   except
-    if (pMessageType = mtExceptError) then
-      raise;
-
     if (pMessageType = mtErrorInform) then
-      Abort;
+      Abort
+    else
+      Exit;
   end;
 end;
 

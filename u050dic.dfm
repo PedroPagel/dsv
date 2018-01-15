@@ -27,6 +27,7 @@ inherited F050DIC: TF050DIC
           Top = 18
           Width = 121
           Height = 21
+          Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11

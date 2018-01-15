@@ -609,7 +609,7 @@ begin
   FGridDes.Enabled := True;
   try
     FIteradorLigacao.Limpar();
-    FIteradorLigacao.Titulo := tTContasPagar;
+    FIteradorLigacao.Titulo := moContasPagar;
     FIteradorLigacao.FiltraContrato := FiltroContrato;
     FIteradorLigacao.FiltraTitulo := FiltroTitulos;
     FIteradorLigacao.Carregar();
@@ -1424,11 +1424,5 @@ begin
   if (TextToFloat(BEVlrFim.Text) > 0) then
     Result := Result + ' E501TCP.VLRORI <= '+ ValueToDB(BEVlrFim.Text) + ' AND ';
 end;
-
-initialization
-  RegisterClasses([TF310CLP]);
-
-finalization
-  UnRegisterClasses([TF310CLP]);
 
 end.

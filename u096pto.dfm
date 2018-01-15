@@ -13,27 +13,29 @@ inherited F096PTO: TF096PTO
     ExplicitHeight = 714
     object Splitter2: TSplitter [0]
       Left = 1
-      Top = 285
+      Top = 261
       Width = 975
       Height = 3
       Cursor = crVSplit
       Align = alTop
+      ExplicitTop = 285
       ExplicitWidth = 978
     end
     object Splitter1: TSplitter [1]
       Left = 1
-      Top = 532
+      Top = 508
       Width = 975
       Height = 3
       Cursor = crVSplit
       Align = alTop
+      ExplicitTop = 532
       ExplicitWidth = 978
     end
     inherited HPanel2: THPanel
       Width = 975
-      Height = 135
+      Height = 111
       ExplicitWidth = 975
-      ExplicitHeight = 135
+      ExplicitHeight = 111
       object Label2: TLabel [0]
         Left = 39
         Top = 60
@@ -87,8 +89,8 @@ inherited F096PTO: TF096PTO
         ParentFont = False
       end
       object Label3: TLabel [4]
-        Left = 75
-        Top = 114
+        Left = 312
+        Top = 35
         Width = 23
         Height = 13
         Caption = 'Pa'#237's:'
@@ -99,25 +101,26 @@ inherited F096PTO: TF096PTO
         Font.Style = []
         ParentFont = False
       end
-      object Label4: TLabel [5]
-        Left = 246
+      object Label5: TLabel [5]
+        Left = 229
         Top = 6
+        Width = 106
+        Height = 13
+        Caption = 'Grupo de Importa'#231#227'o:'
+      end
+      object Label4: TLabel [6]
+        Left = 620
+        Top = 16
         Width = 53
         Height = 13
         Caption = 'Data Base:'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
       end
       inherited HPanel3: THPanel
         Left = 805
-        Height = 133
-        TabOrder = 6
+        Height = 109
+        TabOrder = 12
         ExplicitLeft = 805
-        ExplicitHeight = 133
+        ExplicitHeight = 109
         inherited Mostrar: TButton
           OnClick = MostrarClick
         end
@@ -141,24 +144,11 @@ inherited F096PTO: TF096PTO
           OnClick = DesmarcarClick
         end
         inherited Excluir: TButton
+          Top = 109
+          Enabled = False
           TabOrder = 3
+          ExplicitTop = 109
         end
-      end
-      object DDatBas: THDateTimePicker
-        Left = 305
-        Top = 3
-        Width = 112
-        Height = 21
-        Date = 42936.423708888890000000
-        Format = '00/00/0000'
-        Time = 42936.423708888890000000
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        TabOrder = 5
       end
       object BECodEmp: THButtonedEdit
         Left = 104
@@ -225,11 +215,11 @@ inherited F096PTO: TF096PTO
         Required = False
       end
       object BECodPai: THButtonedEdit
-        Left = 104
-        Top = 109
+        Left = 341
+        Top = 30
         Width = 121
         Height = 21
-        TabOrder = 4
+        TabOrder = 5
         Table = 'E006PAI'
         Lookup = True
         Field = 'CodPai'
@@ -240,10 +230,84 @@ inherited F096PTO: TF096PTO
         OpenDialog = False
         Required = False
       end
+      object BECodGfi: THButtonedEdit
+        Left = 341
+        Top = 3
+        Width = 121
+        Height = 21
+        TabOrder = 4
+        Table = 'USU_T097GFI'
+        Lookup = True
+        Field = 'USU_CODGFI'
+        AvoidSelections = False
+        isNumber = False
+        isAlfa = True
+        isFloat = False
+        OpenDialog = False
+        DataBaseTable = 'USU_T095FIM'
+        DataBaseField = 'USU_CodGfi'
+        Required = False
+      end
+      object RadioGroup1: TRadioGroup
+        Left = 468
+        Top = 0
+        Width = 331
+        Height = 108
+        Caption = 'Processos de Previs'#227'o:'
+        TabOrder = 6
+      end
+      object CBTitulo: TCheckBox
+        Left = 479
+        Top = 17
+        Width = 107
+        Height = 17
+        Caption = '&1 - T'#237'tulo(s)'
+        TabOrder = 7
+      end
+      object CBImposto: TCheckBox
+        Left = 479
+        Top = 37
+        Width = 120
+        Height = 17
+        Caption = '&2 - Imposto(s)'
+        TabOrder = 8
+      end
+      object CBCalGru: TCheckBox
+        Left = 479
+        Top = 60
+        Width = 134
+        Height = 17
+        Caption = '&3 - Calular por Grupo(s)'
+        TabOrder = 9
+      end
+      object CBContainer: TCheckBox
+        Left = 479
+        Top = 83
+        Width = 97
+        Height = 17
+        Caption = '&4 - Container'
+        TabOrder = 10
+      end
+      object DDatBas: THDateTimePicker
+        Left = 677
+        Top = 13
+        Width = 112
+        Height = 21
+        Date = 42936.423708888890000000
+        Format = '00/00/0000'
+        Time = 42936.423708888890000000
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+        TabOrder = 11
+      end
     end
     object Panel3: TPanel
       Left = 1
-      Top = 136
+      Top = 112
       Width = 975
       Height = 149
       Align = alTop
@@ -289,7 +353,7 @@ inherited F096PTO: TF096PTO
     end
     object Panel4: TPanel
       Left = 1
-      Top = 288
+      Top = 264
       Width = 975
       Height = 244
       Align = alTop
@@ -342,9 +406,9 @@ inherited F096PTO: TF096PTO
     end
     object Panel5: TPanel
       Left = 1
-      Top = 535
+      Top = 511
       Width = 975
-      Height = 178
+      Height = 202
       Align = alClient
       Caption = 'Panel5'
       TabOrder = 3
@@ -367,7 +431,7 @@ inherited F096PTO: TF096PTO
         Left = 1
         Top = 17
         Width = 973
-        Height = 124
+        Height = 148
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -385,7 +449,7 @@ inherited F096PTO: TF096PTO
       end
       object Panel11: TPanel
         Left = 1
-        Top = 141
+        Top = 165
         Width = 973
         Height = 36
         Align = alBottom

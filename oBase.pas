@@ -21,7 +21,7 @@ type
                   cmKeyDown, cmBeforeDelete, cmLookupGridPress, cmInsert,
                   cmUpdate, cmDelete);
 
-  tTitulo = (tTContasPagar, tTContasReceber);
+  TModulo = (moContasPagar, moContasReceber, moTesouraria, moPlanoFinanceiro);
   tTableType = (ttUsuario, ttPadrao);
   tDayOfWeek = (dwNone, dwDomingo, dwSegundaFeira, dwTercaFeira, dwQuartaFeira,
                 dwQuintaFeira, dwSextaFeira, dwSabado);
@@ -43,6 +43,7 @@ type
 
   TArrayOfIndex = array of TIteratorINDEX;
   TArrayOfString = array of string;
+  TArrayOfInteger = array of Integer;
 
   TStringArrayList = class
   private
@@ -63,14 +64,12 @@ type
   TTable = class(TInterfacedPersistent)
   private
     FCheck: Byte;
-    FField: string;
     FQuery: THQuery;
     FTabela: string;
     FState: TState;
     FCondicao: string;
     FInsertValue: string;
     FTables: string;
-    FUseParam: Boolean;
     FSetFields: Boolean;
     FFields: array of string;
     FRepeatParam: string;
@@ -150,8 +149,8 @@ type
     procedure BlockProperty(const pField: array of string);
     procedure SetAutoSelect(const pFields: array of string);
     procedure Assign(APersistent: TPersistent) ; override;
-    procedure AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
-    procedure PropertyForSelect(const pField: array of string; const pAND: Boolean = False);
+    procedure AddToCommand(const command: string);
+    procedure PropertyForSelect(const pField: array of string);
 
     function ExecSql(): Boolean;
     procedure Insert();
@@ -172,15 +171,14 @@ type
     function MonthsBetween(const pInicial: TDate; const pFinal: string): Word; overload;
     function AssignedQueryExecute(): Boolean;
 
-    property Field: string read FField write FField;
     property Check: Byte read GetCheck write SetCheck;
     property FieldForMax: string read FMaxField write FMaxField;
-    property FieldForCount: string read FCountField write FCountField;
     property FieldForSum: string read FSumField write FSumField;
-    property Between[const pName: string]: TDate read GetBetween write SetBetween;
     property SetFields: Boolean read FSetFields write FSetFields;
-    property Select: TStateSelectProp read FStateSelect write SetSelect default [ssSelect];
     property doForeignKey: Boolean read FForeignKey write FForeignKey;
+    property FieldForCount: string read FCountField write FCountField;
+    property Between[const pName: string]: TDate read GetBetween write SetBetween;
+    property Select: TStateSelectProp read FStateSelect write SetSelect default [ssSelect];
   end;
 
   TTabelaPadrao = class(TTable)
@@ -237,6 +235,7 @@ type
     destructor Destroy(); override;
 
     procedure Add(const Obj: TObject);
+    procedure Clear(); Reintroduce;
 
     function Selecionados(): Boolean;
     function Exists(const pItem: Integer): Boolean;
@@ -329,6 +328,7 @@ var
   FLogEmp: Integer;
   FLogFil: Integer;
   FLogUsu: Integer;
+  FMensagem: string;
 
 implementation
 
@@ -343,7 +343,8 @@ end;
 
 procedure Commit();
 begin
-  FOracleConnection.CommitTrans;
+  if (FOracleConnection.InTransaction) then
+    FOracleConnection.CommitTrans;
 end;
 
 procedure RollBack;
@@ -606,7 +607,7 @@ begin
   if (System.ParamCount > 0) then
     xBASE := ParamStr(1)
   else
-    xBASE := 'SENIOR52';
+    xBASE := 'SENIOR53';
 
   FOracleConnection := TConnectionBase.CreateBase();
   FOracleConnection.Conexao(xBASE);
@@ -619,10 +620,9 @@ end;
 
 { TTable }
 
-procedure TTable.AddToCommand(const pValue: string; const pDontUseParam: Boolean = True);
+procedure TTable.AddToCommand(const command: string);
 begin
-  FUseParam := iff(pDontUseParam, False, True);
-  FCondicao := FCondicao + EmptyStr + pValue;
+  FCondicao := FCondicao + EmptyStr + command;
 end;
 
 procedure TTable.AtribuirValoresSelect;
@@ -681,7 +681,6 @@ begin
   inherited Create();
 
   FTabela := pTabela;
-  FUseParam := True;
   FSetFields := False;
   FCondicao := EmptyStr;
   FOrdenation := EmptyStr;
@@ -737,8 +736,7 @@ begin
     FQuery.Close;
 end;
 
-procedure TTable.PropertyForSelect(const pField: array of string;
-  const pAND: Boolean = False);
+procedure TTable.PropertyForSelect(const pField: array of string);
 var
   i, j: Integer;
 begin
@@ -749,9 +747,7 @@ begin
     SetLength(FFields, j);
     FFields[pred(j)] := pField[i];
 
-    FCondicao := FCondicao + FTabela + '.' + pField[i] +
-      Format(iff(FUseParam, ' = :%s', ' = %s'), [pField[i]]) +
-      iff(pAND, ' AND ', ',');
+    FCondicao := FCondicao + FTabela + '.' + pField[i] + Format(' = :%s AND ', [pField[i]]);
 
     if (FSetFields) then
     begin
@@ -759,24 +755,15 @@ begin
       Inc(j);
       SetLength(FFields, j);
       FFields[pred(j)] := 'R' + pField[i];
-
-      FRepeatParam := FRepeatParam + pField[i] +
-        Format(iff(FUseParam, ' = :R%s', ' = %s'), [pField[i]]) +
-        iff(pAND, ' AND ', ',');
+      FRepeatParam := FRepeatParam + pField[i] + Format(' = :R%s AND ', [pField[i]]);
     end;
   end;
 
   if (Length(pField) > 0) then
-    if (pAND) then
-    begin
-      UltimoCaracter(FCondicao, 'AND ', True, 4);
-      UltimoCaracter(FRepeatParam, 'AND ', True, 4);
-    end
-    else
-    begin
-      UltimoCaracter(FCondicao, ',');
-      UltimoCaracter(FRepeatParam, ',');
-    end;
+  begin
+    UltimoCaracter(FCondicao, 'AND ', True, 4);
+    UltimoCaracter(FRepeatParam, 'AND ', True, 4);
+  end;
 end;
 
 procedure TTable.DefinirParametros;
@@ -895,10 +882,6 @@ begin
   FQuery := THQuery.CreatePersonalizado;
   try
     FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
-
-    if (FUseParam) then
-      DefinirParametros();
-
     FQuery.ExecSQL();
     FQuery.Close;
   finally
@@ -992,9 +975,7 @@ end;
 
 procedure TTable.ExecutarMesesEntre;
 begin
-  if (FUseParam) then
-    DefinirParametros;
-
+  DefinirParametros;
   FQuery.Prepared := True;
   FQuery.Open;
 end;
@@ -1075,6 +1056,7 @@ begin
 
   FOrdenation := EmptyStr;
   FCondicao := EmptyStr;
+  Select := [ssSelect];
 end;
 
 procedure TTable.Insert;
@@ -1293,9 +1275,7 @@ begin
   try
     xType := xContext.GetType(Self.ClassType);
 
-    if (FUseParam) then
-      DefinirParametros();
-
+    DefinirParametros();
     try
       FQuery.Prepared := True;
       FQuery.Open;
@@ -1386,7 +1366,7 @@ begin
     if (not(FAutoSelectPKS) and (FAutoSelectFKS)) or (FPrimaryAndForeignKeys) then
       Self.SetAutoSelect(FForeignKeys);
 
-    Self.PropertyForSelect(FSelectProps, True);
+    Self.PropertyForSelect(FSelectProps);
     FAutoSelect := True;
   end;
 end;
@@ -1494,9 +1474,7 @@ begin
       end;
     end;
 
-    if (FUseParam) then
-      DefinirParametros();
-
+    DefinirParametros();
     FQuery.ExecSQL();
     Self.Clean;
   finally
@@ -1727,6 +1705,8 @@ begin
 
     if (FSetFields) then
     begin
+      xMax := Format('SELECT '+ xMax + ' FROM %s ', [FTabela]);
+
       xContext := TRttiContext.Create;
       try
         xType := xContext.GetType(Self.ClassType);
@@ -1747,7 +1727,7 @@ begin
           if not(IsNull(FCondicao)) then
             xMaior := Format('%s WHERE %s', [xMaior, FRepeatParam]);
 
-          xMaior := xMaior + ' AND ' + FField + ' = (' + xMax + ')';
+          xMaior := xMaior + ' AND ' + FMaxField + ' = (' + xMax + ')';
           xMax := xMaior;
         end;
 
@@ -1900,6 +1880,13 @@ var
 begin
   for i := 0 to pred(Self.Count) do
     TTable(Self[i]).Check := value;
+end;
+
+procedure TIterador.Clear;
+begin
+ inherited Clear;
+
+ FillChar(FIndex, sizeOf(FIndex), 0);
 end;
 
 constructor TIterador.Create(const pBaseClass: TClass = nil);

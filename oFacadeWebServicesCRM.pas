@@ -20,7 +20,6 @@ type
 
     procedure SetCodEmp(Value: Integer);
     function GetRegistros: produtosRecebe;
-    //procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -53,38 +52,6 @@ begin
 
   FProdutos[FID] := produtosRecebe.Create;
 end;
-
-//Carrega o xml para consulta
-{
-procedure TFacadeWebServicesCRM.BeforeExecute(const MethodName: string;
-  SOAPRequest: TStream);
-var
-  xTemp : TStringList;
-  xBegin,xEnd: TStringList;
-  i: Integer;
-  xMensagem: string;
-begin
-  xBegin := TStringList.Create();
-  xEnd := TStringList.Create();
-  xTemp := TStringList.Create();
-
-  SOAPRequest.Position := 0;
-
-  xTemp.LoadFromStream(SOAPRequest);
-  xBegin.Text := StringReplace(xTemp.Text,'&lt;','<',[RfReplaceAll]);
-  xEnd.Text := StringReplace(xBegin.Text,'&gt;','>',[RfReplaceAll]);
-  SOAPRequest.Position := 0;
-  SOAPRequest.Size := 0;
-  xEnd.SaveToStream(SOAPRequest);
-  SOAPRequest.Position := 0;
-
-  xMensagem := '';
-  for i := 0 to pred(xEnd.Count) do
-    xMensagem := xMensagem + xEnd[i];
-
-  //gambi para remover hint
-  //BeforeExecute('', nil);
-end;  }
 
 function TFacadeWebServicesCRM.ConsumirCompromisso: compromissoRetornoDados;
 begin

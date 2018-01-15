@@ -290,7 +290,7 @@ begin
         if (x510CON.Check = 1) then
         begin
           x501TCP.Init;
-          x501TCP.AddToCommand(Format(' USU_IDTIT = %s', [IntToStr(x510CON.USU_ID)]), False);
+          x501TCP.AddToCommand(Format(' USU_IDTIT = %d', [x510CON.USU_ID]));
           x501TCP.Open(False);
 
           if not(x501TCP.IsEmpty) then
@@ -308,11 +308,18 @@ function T510CON.BuscarArmazenados(const pCondicao: string): Boolean;
 var
   x501TCP: T510TIT;
   x510TIT: TTituloDebitoDiretoAutorizado;
+
+  function Command: String;
+  begin
+    Result := Format(' USU_IDARM = %d', [Self.USU_ID]);
+
+    if not(IsNull(pCondicao)) then
+      Result := Result + ' AND ' + pCondicao;
+  end;
+
 begin
   x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado(True);
-  x510TIT.USU_IdArm := Self.USU_ID;
-  x510TIT.PropertyForSelect(['USU_IDARM'], True);
-  x510TIT.AddToCommand(pCondicao, False);
+  x510TIT.AddToCommand(Command);
   x510TIT.Open();
 
   Result := not(x510TIT.IsEmpty);

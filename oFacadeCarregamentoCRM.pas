@@ -71,7 +71,9 @@ begin
     for i := 0 to pred(FPendencias.Count) do
     begin
       x120pen := T120PEN(FPendencias[i]);
-      x120pen.Update();
+
+      if (x120pen.USU_NumCom > 0) then
+        x120pen.Update();
     end;
 
     Commit;
@@ -115,7 +117,7 @@ begin
       F120IPD.NumPed := F120PED.NumPed;
 
       F120IPD.AddTable(['E075PRO']);
-      F120IPD.AddToCommand(' AND E075PRO.INDKIT = ''N'' AND E075PRO.CODEMP = E120IPD.CODEMP AND E075PRO.CODPRO = E120IPD.CODPRO', False);
+      F120IPD.AddToCommand(' AND E075PRO.INDKIT = ''N'' AND E075PRO.CODEMP = E120IPD.CODEMP AND E075PRO.CODPRO = E120IPD.CODPRO');
       F120IPD.Open();
       FPedidoComItens := not(F120IPD.IsEmpty);
 
@@ -148,13 +150,13 @@ var
   x120pen: T120PEN;
 begin
   x120pen := T120PEN.Create;
-  x120pen.USU_SitMov := 'A';
-  x120pen.PropertyForSelect(['USU_SitMov']);
-  x120pen.AddToCommand(' AND USU_NUMCOM = 0 AND NOT EXISTS(SELECT 1 FROM E120PED WHERE '+
-                                                           'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
-                                                           'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
-                                                           'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
-                                                           'E120PED.SITPED = 1)', False);
+  x120pen.AddToCommand(' USU_NUMCOM = 0 AND '+
+                       'USU_SITMOV = ''A'' AND '+
+                       'NOT EXISTS(SELECT 1 FROM E120PED WHERE '+
+                       'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
+                       'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
+                       'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
+                       'E120PED.SITPED = 1)');
   x120pen.Open(False);
 
   while (x120pen.Next) do
@@ -322,7 +324,7 @@ function TFacedeCarregamentoCRM.TipoExecucao: TTipoExecucao;
 begin
   Result := teOportunidade;
 
-  if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
+  //if not(IsNull(ParamStr(6))) and (AnsiSameText(ParamStr(6), 'Compromisso')) then
     Result := teCompromisso;
 end;
 

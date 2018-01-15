@@ -53,14 +53,5 @@ begin
   FGridLay.ReadOnly('USU_TamCol', False);
   Registrar('T510AGE' , 'USU_T510AGE');
 end;
-initialization
-  RegisterClasses([T510AGE]);
-  RegisterClasses([T510LAY]);
-  RegisterClasses([TF510LAY]);
-
-finalization
-  UnRegisterClasses([T510AGE]);
-  UnRegisterClasses([T510LAY]);
-  UnRegisterClasses([TF510LAY]);
 
 end.

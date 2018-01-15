@@ -167,6 +167,7 @@ type
     function FindField(const pFieldName: string): TField;
     function Selected(const pField: string): Variant;
     function GridTitleClick(): Boolean;
+    function CheckValue(const field: string; const value: Variant): Boolean;
     function CellRect(ACol,Arow : Longint):TRect; Reintroduce;
 
     procedure Disconnect;
@@ -1092,6 +1093,26 @@ begin
       xProcedure(Sender, Key, Shift);
     end;
   end;
+end;
+
+function TDataSetGrid.CheckValue(const field: string;
+  const value: Variant): Boolean;
+begin
+  Result := False;
+  Disconnect;
+  First;
+
+  while not(Eof) do
+  begin
+    if (FindField(field).Value = value) then
+    begin
+      Result := True;
+      Break;
+    end;
+
+    Next;
+  end;
+  Connect;
 end;
 
 procedure TDataSetGrid.Clear;

@@ -15,6 +15,7 @@ type
     FUSU_CifFob: Char;
     FUSU_TipDes: Char;
     FUSU_CodMoe: string;
+    FUSU_CodGfi: string;
 
     FUSU_IdeFimOLD: Integer;
     FUSU_DesForOLD: string;
@@ -22,6 +23,7 @@ type
     FUSU_CifFobOLD: Char;
     FUSU_TipDesOLD: Char;
     FUSU_CodMoeOLD: string;
+    FUSU_CodGfiOLD: string;
 
     function GetUSU_IdeFim: Integer;
     procedure SetUSU_IdeFim(const pUSU_IdeFim: Integer);
@@ -35,6 +37,8 @@ type
     procedure SetUSU_TipDes(const pUSU_TipDes: Char);
     function GetUSU_CodMoe: string;
     procedure SetUSU_CodMoe(const pUSU_CodMoe: string);
+    function GetUSU_CodGfi: string;
+    procedure SetUSU_CodGfi(const pUSU_CodGfi: string);
 
     function GetUSU_IdeFimOld: Integer;
     procedure SetUSU_IdeFimOld(const pUSU_IdeFim: Integer);
@@ -48,6 +52,8 @@ type
     procedure SetUSU_TipDesOld(const pUSU_TipDes: Char);
     function GetUSU_CodMoeOld: string;
     procedure SetUSU_CodMoeOld(const pUSU_CodMoe: string);
+    function GetUSU_CodGfiOld: string;
+    procedure SetUSU_CodGfiOld(const pUSU_CodGfi: string);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -61,6 +67,7 @@ type
     property USU_CifFob: Char read GetUSU_CifFob write SetUSU_CifFob;
     property USU_TipDes: Char read GetUSU_TipDes write SetUSU_TipDes;
     property USU_CodMoe: string read GetUSU_CodMoe write SetUSU_CodMoe;
+    property USU_CodGfi: string read GetUSU_CodGfi write SetUSU_CodGfi;
 
     property OLD_USU_IdeFim: Integer read GetUSU_IdeFimOLD write SetUSU_IdeFimOLD;
     property OLD_USU_DesFor: string read GetUSU_DesForOLD write SetUSU_DesForOLD;
@@ -68,6 +75,7 @@ type
     property OLD_USU_CifFob: Char read GetUSU_CifFobOLD write SetUSU_CifFobOLD;
     property OLD_USU_TipDes: Char read GetUSU_TipDesOLD write SetUSU_TipDesOLD;
     property OLD_USU_CodMoe: string read GetUSU_CodMoeOLD write SetUSU_CodMoeOLD;
+    property OLD_USU_CodGfi: string read GetUSU_CodGfiOLD write SetUSU_CodGfiOLD;
   end;
 
 implementation
@@ -159,6 +167,18 @@ begin
   CheckField('USU_CodMoe');
 end;
 
+function T096DEI.GetUSU_CodGfi: string;
+begin
+  Result := FUSU_CodGfi;
+end;
+
+procedure T096DEI.SetUSU_CodGfi(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfi := pUSU_CodGfi;
+
+  CheckField('USU_CodGfi');
+end;
+
 function T096DEI.GetUSU_IdeFimOLD: Integer;
 begin
   Result := FUSU_IdeFimOLD;
@@ -219,6 +239,16 @@ begin
   FUSU_CodMoeOLD := pUSU_CodMoe;
 end;
 
+function T096DEI.GetUSU_CodGfiOLD: string;
+begin
+  Result := FUSU_CodGfiOLD;
+end;
+
+procedure T096DEI.SetUSU_CodGfiOLD(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfiOLD := pUSU_CodGfi;
+end;
+
 procedure T096DEI.Registros_OLD();
 begin
   FUSU_IdeFimOLD := FUSU_IdeFim;
@@ -227,6 +257,7 @@ begin
   FUSU_CifFobOLD := FUSU_CifFob;
   FUSU_TipDesOLD := FUSU_TipDes;
   FUSU_CodMoeOLD := FUSU_CodMoe;
+  FUSU_CodGfiOLD := FUSU_CodGfi;
 
   inherited;
 end;
@@ -239,6 +270,7 @@ begin
   FUSU_CifFob := FUSU_CifFobOLD;
   FUSU_TipDes := FUSU_TipDesOLD;
   FUSU_CodMoe := FUSU_CodMoeOLD;
+  FUSU_CodGfi := FUSU_CodGfiOLD;
 
   inherited;
 end;

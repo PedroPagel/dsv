@@ -35,18 +35,18 @@ requires
   bdertl;
 
 contains
+  uMenu in 'uMenu.pas' {FMENU},
   u000bas in 'u000bas.pas' {FORMBASE},
-  u096pto in 'u096pto.pas' {F096PTO},
-  o000for in 'o000for.pas',
   u000crm in 'u000crm.pas' {F000CRM},
-  u310CLP in 'u310CLP.pas' {F310CLP},
-  u510ARM in 'u510ARM.pas' {F510ARM},
-  u510CON in 'u510CON.pas' {F510CON},
-  u510lte in 'u510lte.pas' {F510LTE},
-  u510lay in 'u510lay.pas' {F510LAY},
   u000isc in 'u000isc.pas' {F000ISC},
   u050dic in 'u050dic.pas' {F050DIC},
   u095fim in 'u095fim.pas' {F095FIM},
-  uMenu in 'uMenu.pas' {FMENU};
-
+  u096pto in 'u096pto.pas' {F096PTO},
+  u097gfi in 'u097gfi.pas' {F097GFI},
+  u310CLP in 'u310CLP.pas' {F310CLP},
+  u510ARM in 'u510ARM.pas' {F510ARM},
+  u510CON in 'u510CON.pas' {F510CON},
+  u510lay in 'u510lay.pas' {F510LAY},
+  u510lte in 'u510lte.pas' {F510LTE},
+  o000for in 'o000for.pas';
 end.

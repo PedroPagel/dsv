@@ -93,11 +93,4 @@ begin
   BEMetCub.Enabled := False;
 end;
 
-initialization
-  RegisterClasses([T050DIC]);
-  RegisterClasses([TF050DIC]);
-
-finalization
-  UnRegisterClasses([T050DIC]);
-  UnRegisterClasses([TF050DIC]);
 end.

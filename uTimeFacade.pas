@@ -46,7 +46,7 @@ begin
   F420OCP.CodFil := StrToInt(pSubFacadeImport.CodFil);
   F420OCP.NumOcp := StrToInt(pSubFacadeImport.NumOcp);
   F420OCP.SitOcp := 1;
-  F420OCP.PropertyForSelect(['CODEMP','CODFIL','NUMOCP', 'SITOCP'], True);
+  F420OCP.PropertyForSelect(['CODEMP','CODFIL','NUMOCP', 'SITOCP']);
   FTimer := 0;
   Self.ExecuteFacade;
 end;

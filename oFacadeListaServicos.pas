@@ -3,7 +3,7 @@ unit oFacadeListaServicos;
 interface
 
 uses
-  oFacadeBaseCRM, WConnect_WSDL, oBase, o000isc;
+  oFacadeBaseCRM, WConnect_WSDL, oBase, o000isc, System.Classes;
 
 type
   TFacadeListaServico = class
@@ -15,6 +15,8 @@ type
     FAgedamento: compromisso;
     FRegistros: produtosRecebeArray;
     FFechamentoCompromisso: concluiCompromisso;
+
+    procedure BeforeExecute(const MethodName: string; SOAPRequest: TStream);
   public
     constructor Create(const integracao: T000ISC);
     destructor Destroy(); override;
@@ -40,13 +42,43 @@ begin
   Result := FAgedamento;
 end;
 
+procedure TFacadeListaServico.BeforeExecute(const MethodName: string;
+  SOAPRequest: TStream);
+var
+  xTemp : TStringList;
+  xBegin,xEnd: TStringList;
+  i: Integer;
+begin
+  xBegin := TStringList.Create();
+  xEnd := TStringList.Create();
+  xTemp := TStringList.Create();
+
+  SOAPRequest.Position := 0;
+
+  xTemp.LoadFromStream(SOAPRequest);
+  xBegin.Text := StringReplace(xTemp.Text,'&lt;','<',[RfReplaceAll]);
+  xEnd.Text := StringReplace(xBegin.Text,'&gt;','>',[RfReplaceAll]);
+  SOAPRequest.Position := 0;
+  SOAPRequest.Size := 0;
+  xEnd.SaveToStream(SOAPRequest);
+  SOAPRequest.Position := 0;
+
+  FMensagem := '';
+  for i := 0 to pred(xEnd.Count) do
+    FMensagem := FMensagem + xEnd[i];
+
+  //gambi para remover hint
+  //BeforeExecute('', nil);
+end;
+
 constructor TFacadeListaServico.Create(const integracao: T000ISC);
 var
   xRIO: THTTPRIO;
 begin
   inherited Create;
 
-  xRIO := nil;
+  //xRIO := nil;
+  xRIO := THTTPRIO.Create(nil);
 
   if not(AnsiSameText(ParamStr(6), 'Compromisso')) then
   begin
@@ -57,9 +89,11 @@ begin
     xRIO.HTTPWebNode.UseUTF8InHeader := False;
     xRIO.Converter.Encoding := 'ISO-8859-1';
     xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
+
   end;
 
   FServico := GetWConnect_CRM_SeniorPortType(False, integracao.USU_UrlCrm, xRIO);
+  xRio.OnBeforeExecute := BeforeExecute;
 
   FDados := oportunidade.Create;
   FDados.UsuarioLogin := integracao.USU_UsuCrm;

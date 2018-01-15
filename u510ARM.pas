@@ -30,14 +30,15 @@ procedure TF510ARM.FormCreate(Sender: TObject);
 var
   xArmazenamento: TArmazenamento;
 begin
-  FLogEmp := StrToInt(ParamStr(3));
+  Application.ShowMainForm := False;
+
+  FLogEmp := 1; //StrToInt(ParamStr(3));
   StartTransaction;
   try
-    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
+    xArmazenamento := TArmazenamento.Create(2764); //StrToInt(ParamStr(4)));
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();
-
       xArmazenamento.AtualizarArmazenamento();
     finally
       FreeAndNil(xArmazenamento);
@@ -49,11 +50,5 @@ begin
       RollBack;
   end;
 end;
-
-initialization
-  RegisterClasses([TF510ARM]);
-
-finalization
-  UnRegisterClasses([TF510ARM]);
 
 end.

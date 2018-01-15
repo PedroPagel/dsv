@@ -224,7 +224,7 @@ begin
       xArquivo := BEDirFil.Text + '\' + ENomUni.Text + '.pas';
 
     AssignFile(FTextFile, xArquivo);
-    if not(FileExists(xArquivo)) then
+    if (FileExists(xArquivo)) then
       Rewrite(FTextFile)
     else
       Append(FTextFile);

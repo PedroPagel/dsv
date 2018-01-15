@@ -34,7 +34,7 @@ type
 
     function Closed: Boolean;
 
-    procedure Close;
+    procedure Close(const forceclose: Boolean = False);
     procedure ShowEnum(const pComponent: TButtonedEdit);
     procedure ShowGridEnum(const pRect: TRect);
     procedure AddRow(const pName, pValue: string);
@@ -52,7 +52,7 @@ procedure Register;
 implementation
 
 uses
-  oBase, oButtonedEdit, oPanel, u000cad, System.Rtti, oDataSetGrid;
+  oBase, oButtonedEdit, oPanel, System.Rtti, oDataSetGrid;
 
 procedure Register;
 begin
@@ -66,7 +66,7 @@ begin
   Self.InsertRow(pName, pValue, True)
 end;
 
-procedure THValueListEditor.Close;
+procedure THValueListEditor.Close(const forceclose: Boolean = False);
 begin
   if (FNoEnter) then
     FCanClose := True;
@@ -81,6 +81,9 @@ begin
       THButtonedEdit(FButton).ButtonClicked := False;
     end;
   end;
+
+  if (forceclose) then
+    Self.Visible := False;
 
   FClosed := True;
 end;

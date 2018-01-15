@@ -152,7 +152,7 @@ var
 implementation
 
 uses
-  o998fld, o998tbl, oQuery, System.Contnrs, oGeral;
+  o998fld, o998tbl, oQuery, System.Contnrs, oGeral, oValueListEditor;
 
 {$R *.dfm}
 
@@ -669,7 +669,7 @@ begin
 
       FTable.Init;
       FTable.Close;
-      FTable.PropertyForSelect(MontarCampos, True);
+      FTable.PropertyForSelect(MontarCampos);
       FTable.Open(False);
 
       if not(FTable.IsEmpty) then
@@ -762,9 +762,6 @@ begin
   if (FTable.Count > 0) then
     FTable.Next;
 
-  if (FTable.Count > 0) then
-    CarregarRegistros(FTable);
-
   FPosicaoRotina := psChave;
   IniciarCabecalhoChave(True);
 
@@ -839,12 +836,9 @@ begin
 
     tkFloat:
       if (AnsiSameText('TDate', pProperty.PropertyType.Name)) then
-        AdicionarParaComponente(pPosicao,
-          DateToStr(DataNull(FloatToDateTime(pProperty.GetValue(pTable)
-          .AsExtended))))
+        AdicionarParaComponente(pPosicao, DateToStr(DataNull(FloatToDateTime(pProperty.GetValue(pTable).AsExtended))))
       else
-        AdicionarParaComponente(pPosicao, FormatFloat('#,0.00',
-          pProperty.GetValue(pTable).AsExtended));
+        AdicionarParaComponente(pPosicao, FormatFloat('#,0.00', pProperty.GetValue(pTable).AsExtended));
 
     tkWChar, tkChar:
       begin
@@ -904,10 +898,8 @@ begin
       Inc(i);
       SetLength(FRelacionamentos, i);
       FRelacionamentos[pred(i)].Chave := xQuery.FindField('RELNAM').AsString;
-      FRelacionamentos[pred(i)].Relacionado := xQuery.FindField('FORFLD')
-        .AsString; // tabela pai
-      FRelacionamentos[pred(i)].Referenciado := xQuery.FindField('REFFLD')
-        .AsString; // ligada
+      FRelacionamentos[pred(i)].Relacionado := xQuery.FindField('FORFLD').AsString; // tabela pai
+      FRelacionamentos[pred(i)].Referenciado := xQuery.FindField('REFFLD').AsString; // ligada
 
       xQuery.Next;
     end;
@@ -1218,6 +1210,9 @@ begin
 
     if (xLimpar) then
     begin
+      if (Self.Components[pPos].ClassType = THButtonedEdit) then
+        THButtonedEdit(Self.Components[pPos]).CheckForValueList;
+
       xType := xContext.GetType(pTable.ClassType);
 
       for xProperty in xType.GetProperties do

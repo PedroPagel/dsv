@@ -18,6 +18,4 @@ begin
   Application.MainFormOnTaskbar := True;
 
   o000for.TVisualForm.OpenForm();
-
-  Application.Terminate;
 end.

@@ -424,7 +424,7 @@ begin
   FGridAss.Enabled := True;
 
   FControle.Init;
-  FControle.AddToCommand(FiltroPortadorArmazenamento, False);
+  FControle.AddToCommand(FiltroPortadorArmazenamento);
   FControle.Consultar(MontaCondicaoTitulos);
 
   FGridArm.Disconnect;
@@ -643,11 +643,5 @@ procedure TF510CON.FormShow(Sender: TObject);
 begin
   CancelarClick(Self);
 end;
-
-initialization
-  RegisterClasses([TF510CON]);
-
-finalization
-  UnRegisterClasses([TF510CON]);
 
 end.

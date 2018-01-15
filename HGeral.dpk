@@ -42,16 +42,19 @@ requires
   HComponente;
 
 contains
-  oArmazenamento in 'oArmazenamento.pas',
-  oConsulta in 'oConsulta.pas',
   WConnect_WSDL in 'WConnect_WSDL.pas',
   oFacadeCarregamentoCRM in 'oFacadeCarregamentoCRM.pas',
   oFacadeBaseCRM in 'oFacadeBaseCRM.pas',
   oFacadeControladoraCRM in 'oFacadeControladoraCRM.pas',
   oFacadeWebServicesCRM in 'oFacadeWebServicesCRM.pas',
   oFacadeOperadora in 'oFacadeOperadora.pas',
-  o310clp in 'o310clp.pas',
   oFacadeListaServicos in 'oFacadeListaServicos.pas',
-  o096pto in 'o096pto.pas';
+  oArmazenamento in 'oArmazenamento.pas',
+  oConsulta in 'oConsulta.pas',
+  o097bas in 'o097bas.pas',
+  o096ger in 'o096ger.pas',
+  o096ite in 'o096ite.pas',
+  o096pto in 'o096pto.pas',
+  o310clp in 'o310clp.pas';
 
 end.

@@ -678,6 +678,10 @@ object F310CLP: TF310CLP
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel6: TPanel
           Left = 0
           Top = 0
@@ -912,6 +916,10 @@ object F310CLP: TF310CLP
       object Despesa: TTabSheet
         Caption = ' Liga'#231#227'o Contrato(s) x Despesas '
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Panel11: TPanel
           Left = 0
           Top = 0

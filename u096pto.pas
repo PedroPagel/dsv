@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, u000bas, Vcl.StdCtrls, Vcl.ExtCtrls,
   oPanel, oButtonedEdit, Vcl.ComCtrls, oDateTimePicker, Vcl.Grids, Vcl.DBGrids,
-  oDataSetGrid, o096pto;
+  oDataSetGrid, o096pto, Vcl.CheckLst;
 
 type
   TF096PTO = class(TFORMBASE)
@@ -15,8 +15,6 @@ type
     Label11: TLabel;
     Label1: TLabel;
     Label3: TLabel;
-    Label4: TLabel;
-    DDatBas: THDateTimePicker;
     BECodEmp: THButtonedEdit;
     BECodFil: THButtonedEdit;
     BECodFor: THButtonedEdit;
@@ -35,6 +33,15 @@ type
     Panel8: TPanel;
     FGridIpo: TDataSetGrid;
     Panel11: TPanel;
+    BECodGfi: THButtonedEdit;
+    Label5: TLabel;
+    RadioGroup1: TRadioGroup;
+    CBTitulo: TCheckBox;
+    CBImposto: TCheckBox;
+    CBCalGru: TCheckBox;
+    CBContainer: TCheckBox;
+    DDatBas: THDateTimePicker;
+    Label4: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure MostrarClick(Sender: TObject);
     procedure ProcessarClick(Sender: TObject);
@@ -81,6 +88,11 @@ begin
   BENumOcp.Text := EmptyStr;
   BECodFor.Text := EmptyStr;
   BECodPai.Text := EmptyStr;
+  BECodGfi.Text := EmptyStr;
+
+  CBCalGru.Checked := True;
+  CBImposto.Checked := True;
+  CBTitulo.Checked := True;
 
   DDatBas.Init;
   BECodEmp.SetFocus;
@@ -171,6 +183,9 @@ begin
   inherited;
 
   Excluir.Visible := False;
+  CBCalGru.Checked := True;
+  CBImposto.Checked := True;
+  CBTitulo.Checked := True;
 
   FLogEmp := 1;
   FLogFil := 1;
@@ -276,7 +291,6 @@ begin
 
   FIteradorPrevisao.DadosFornecedor := MontaSelecaoFornecedor;
   FIteradorPrevisao.DadosOrdem := MontaSelecaoOrdem;
-  FIteradorPrevisao.DataBase := DDatBas.Date;
   FIteradorPrevisao.Carregar;
 
   if (FIteradorPrevisao.QtdFornecedor = 0) then
@@ -297,26 +311,37 @@ end;
 
 procedure TF096PTO.ProcessarClick(Sender: TObject);
 begin
+  if not(FGridFor.CheckValue('Check', 1)) then
+    CMessage('Não há registro(s) selecionado(s)!', mtErrorInform);
+
   StartTransaction;
   try
-    FIteradorPrevisao.Processar;
-    Commit;
+    try
+      FIteradorPrevisao.DataBase := DDatBas.Date;
+      FIteradorPrevisao.Grupo := BECodGfi.Text;
+      FIteradorPrevisao.CalcularGrupo := CBCalGru.Checked;
+      FIteradorPrevisao.Imposto := CBImposto.Checked;
+      FIteradorPrevisao.Titulo := CBTitulo.Checked;
+      FIteradorPrevisao.Container := CBContainer.Checked;
+      FIteradorPrevisao.Processar;
 
-    CMessage('Processado com sucesso!', mtInformation);
-    Cancelar.Click;
-  except
-    on e: Exception do
-    begin
-      CMessage('Erro(s) ao processar, consulte o botão detalhe(s)', mtWarning, True, e.Message);
-      RollBack;
+      if (FIteradorPrevisao.Processado) then
+      begin
+        CMessage('Processado com sucesso!', mtInformation);
+        Cancelar.Click;
+      end
+      else
+        CMessage('Não houve registro(s) processado(s)!', mtInformation);
+    except
+      on e: Exception do
+      begin
+        CMessage('Erro(s) ao processar, consulte o botão detalhe(s)', mtExceptError, True, e.Message);
+        RollBack;
+      end;
     end;
+  finally
+    Commit;
   end;
 end;
-
-initialization
-  RegisterClasses([TF096PTO]);
-
-finalization
-  UnRegisterClasses([TF096PTO]);
 
 end.

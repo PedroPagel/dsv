@@ -32,12 +32,14 @@ procedure TF000CRM.FormCreate(Sender: TObject);
 var
   x000log: T000LOG;
 begin
+  Application.ShowMainForm := False;
+
   FFacadeControladoraCRM := TFacadeControladoraCRM.Create;
   try
     try
-      FFacadeControladoraCRM.CodEmp := StrToInt(ParamStr(3));
-      FFacadeControladoraCRM.CodFil := StrToInt(ParamStr(4));
-      FFacadeControladoraCRM.NumPed := StrToInt(ParamStr(5));
+      FFacadeControladoraCRM.CodEmp := 0; //StrToInt(ParamStr(3));
+      FFacadeControladoraCRM.CodFil := 0; //StrToInt(ParamStr(4));
+      FFacadeControladoraCRM.NumPed := 0; //StrToInt(ParamStr(5));
       FFacadeControladoraCRM.Executar;
     except
       on E: exception do
@@ -68,11 +70,5 @@ begin
     Self.Close;
   end;
 end;
-
-initialization
-  RegisterClasses([TF000CRM]);
-
-finalization
-  UnRegisterClasses([TF000CRM]);
 
 end.

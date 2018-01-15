@@ -154,9 +154,7 @@ begin
     x510tit := TTituloDebitoDiretoAutorizado.CreateCarregado();
     try
       x510tit.Init;
-      x510tit.USU_IdArm := Self.USU_ID;
-      x510tit.PropertyForSelect(['USU_IDARM'], True);
-      x510tit.AddToCommand(' AND USU_SITARM <>  ''S''', False);
+      x510tit.AddToCommand(Format(' USU_SITARM <>  ''S'' AND USU_IDARM = %d', [Self.USU_ID]));
       x510tit.Open(False);
 
       while (x510tit.Next) do
@@ -274,7 +272,7 @@ begin
     xTitulo.VctOri := x510Tit.USU_VctOri;
     xTitulo.VlrOri := x510Tit.USU_VlrOri;
     xTitulo.CodPor := Self.Agendamento.USU_CodPor;
-    xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR'], True);
+    xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR']);
 
     if (IsNull(xTitulo.CodTpt)) then
     begin
@@ -293,8 +291,8 @@ begin
       if not(IsNull(xRaiz)) then
       begin
         xTitulo.Init;
-        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ', False);
-        xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI'], True);
+        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ');
+        xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI']);
         xTitulo.Open(False);
 
         if (xTitulo.IsEmpty) then
@@ -341,7 +339,7 @@ begin
     x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado;
     x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
     x510TIT.USU_SitArm := 'N';
-    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
+    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM']);
     x510TIT.Open(False);
 
     if (x510TIT.IsEmpty) then
@@ -378,7 +376,7 @@ begin
   Self.USU_CodPor := Self.Agendamento.USU_CodPor;
   Self.USU_NomArq := pNome;
   Self.USU_DatGer := Date;
-  Self.PropertyForSelect(['USU_NOMARQ'], True);
+  Self.PropertyForSelect(['USU_NOMARQ']);
   Self.Open(False);
 
   FArquivoExiste := not(Self.IsEmpty);

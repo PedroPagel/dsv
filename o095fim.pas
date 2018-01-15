@@ -16,6 +16,9 @@ type
     FUSU_PerOrd: Char;
     FUSU_DatAlt: TDate;
     FUSU_ObsFor: string;
+    FUSU_CodGfi: string;
+    FUSU_PerDes: Double;
+    FUSU_DiaReg: Integer;
 
     FUSU_CodForOLD: Integer;
     FUSU_UsuGerOLD: Integer;
@@ -24,6 +27,9 @@ type
     FUSU_PerOrdOLD: Char;
     FUSU_DatAltOLD: TDate;
     FUSU_ObsForOLD: string;
+    FUSU_CodGfiOLD: string;
+    FUSU_PerDesOLD: Double;
+    FUSU_DiaRegOLD: Integer;
 
     function GetUSU_CodFor: Integer;
     procedure SetUSU_CodFor(const pUSU_CodFor: Integer);
@@ -39,6 +45,12 @@ type
     procedure SetUSU_DatAlt(const pUSU_DatAlt: TDate);
     function GetUSU_ObsFor: string;
     procedure SetUSU_ObsFor(const pUSU_ObsFor: string);
+    function GetUSU_CodGfi: string;
+    procedure SetUSU_CodGfi(const pUSU_CodGfi: string);
+    function GetUSU_PerDes: Double;
+    procedure SetUSU_PerDes(const pUSU_PerDes: Double);
+    function GetUSU_DiaReg: Integer;
+    procedure SetUSU_DiaReg(const pUSU_DiaReg: Integer);
 
     function GetUSU_CodForOld: Integer;
     procedure SetUSU_CodForOld(const pUSU_CodFor: Integer);
@@ -54,6 +66,12 @@ type
     procedure SetUSU_DatAltOld(const pUSU_DatAlt: TDate);
     function GetUSU_ObsForOld: string;
     procedure SetUSU_ObsForOld(const pUSU_ObsFor: string);
+    function GetUSU_CodGfiOld: string;
+    procedure SetUSU_CodGfiOld(const pUSU_CodGfi: string);
+    function GetUSU_PerDesOld: Double;
+    procedure SetUSU_PerDesOld(const pUSU_PerDes: Double);
+    function GetUSU_DiaRegOld: Integer;
+    procedure SetUSU_DiaRegOld(const pUSU_DiaReg: Integer);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -68,6 +86,9 @@ type
     property USU_PerOrd: Char read GetUSU_PerOrd write SetUSU_PerOrd;
     property USU_DatAlt: TDate read GetUSU_DatAlt write SetUSU_DatAlt;
     property USU_ObsFor: string read GetUSU_ObsFor write SetUSU_ObsFor;
+    property USU_CodGfi: string read GetUSU_CodGfi write SetUSU_CodGfi;
+    property USU_PerDes: Double read GetUSU_PerDes write SetUSU_PerDes;
+    property USU_DiaReg: Integer read GetUSU_DiaReg write SetUSU_DiaReg;
 
     property OLD_USU_CodFor: Integer read GetUSU_CodForOLD write SetUSU_CodForOLD;
     property OLD_USU_UsuGer: Integer read GetUSU_UsuGerOLD write SetUSU_UsuGerOLD;
@@ -76,6 +97,9 @@ type
     property OLD_USU_PerOrd: Char read GetUSU_PerOrdOLD write SetUSU_PerOrdOLD;
     property OLD_USU_DatAlt: TDate read GetUSU_DatAltOLD write SetUSU_DatAltOLD;
     property OLD_USU_ObsFor: string read GetUSU_ObsForOLD write SetUSU_ObsForOLD;
+    property OLD_USU_CodGfi: string read GetUSU_CodGfiOLD write SetUSU_CodGfiOLD;
+    property OLD_USU_PerDes: Double read GetUSU_PerDesOLD write SetUSU_PerDesOLD;
+    property OLD_USU_DiaReg: Integer read GetUSU_DiaRegOLD write SetUSU_DiaRegOLD;
   end;
 
 implementation
@@ -179,6 +203,42 @@ begin
   CheckField('USU_ObsFor');
 end;
 
+function T095FIM.GetUSU_CodGfi: string;
+begin
+  Result := FUSU_CodGfi;
+end;
+
+procedure T095FIM.SetUSU_CodGfi(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfi := pUSU_CodGfi;
+
+  CheckField('USU_CodGfi');
+end;
+
+function T095FIM.GetUSU_PerDes: Double;
+begin
+  Result := FUSU_PerDes;
+end;
+
+procedure T095FIM.SetUSU_PerDes(const pUSU_PerDes: Double);
+begin
+  FUSU_PerDes := pUSU_PerDes;
+
+  CheckField('USU_PerDes');
+end;
+
+function T095FIM.GetUSU_DiaReg: Integer;
+begin
+  Result := FUSU_DiaReg;
+end;
+
+procedure T095FIM.SetUSU_DiaReg(const pUSU_DiaReg: Integer);
+begin
+  FUSU_DiaReg := pUSU_DiaReg;
+
+  CheckField('USU_DiaReg');
+end;
+
 function T095FIM.GetUSU_CodForOLD: Integer;
 begin
   Result := FUSU_CodForOLD;
@@ -249,6 +309,36 @@ begin
   FUSU_ObsForOLD := pUSU_ObsFor;
 end;
 
+function T095FIM.GetUSU_CodGfiOLD: string;
+begin
+  Result := FUSU_CodGfiOLD;
+end;
+
+procedure T095FIM.SetUSU_CodGfiOLD(const pUSU_CodGfi: string);
+begin
+  FUSU_CodGfiOLD := pUSU_CodGfi;
+end;
+
+function T095FIM.GetUSU_PerDesOLD: Double;
+begin
+  Result := FUSU_PerDesOLD;
+end;
+
+procedure T095FIM.SetUSU_PerDesOLD(const pUSU_PerDes: Double);
+begin
+  FUSU_PerDesOLD := pUSU_PerDes;
+end;
+
+function T095FIM.GetUSU_DiaRegOLD: Integer;
+begin
+  Result := FUSU_DiaRegOLD;
+end;
+
+procedure T095FIM.SetUSU_DiaRegOLD(const pUSU_DiaReg: Integer);
+begin
+  FUSU_DiaRegOLD := pUSU_DiaReg;
+end;
+
 procedure T095FIM.Registros_OLD();
 begin
   FUSU_CodForOLD := FUSU_CodFor;
@@ -258,6 +348,9 @@ begin
   FUSU_PerOrdOLD := FUSU_PerOrd;
   FUSU_DatAltOLD := FUSU_DatAlt;
   FUSU_ObsForOLD := FUSU_ObsFor;
+  FUSU_CodGfiOLD := FUSU_CodGfi;
+  FUSU_PerDesOLD := FUSU_PerDes;
+  FUSU_DiaRegOLD := FUSU_DiaReg;
 
   inherited;
 end;
@@ -271,6 +364,9 @@ begin
   FUSU_PerOrd := FUSU_PerOrdOLD;
   FUSU_DatAlt := FUSU_DatAltOLD;
   FUSU_ObsFor := FUSU_ObsForOLD;
+  FUSU_CodGfi := FUSU_CodGfiOLD;
+  FUSU_PerDes := FUSU_PerDesOLD;
+  FUSU_DiaReg := FUSU_DiaRegOLD;
 
   inherited;
 end;

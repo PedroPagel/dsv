@@ -1,5 +1,6 @@
-inherited F000ISC: TF000ISC
-  Caption = 'F000ISC - Cadastro de Integra'#231#227'o de Servi'#231'os do CRM'
+inherited F097GFI: TF097GFI
+  Caption = 'F097GFI - Cadastro de Grupo(s) de Fornecedores de Imorta'#231#227'o'
+  OnDestroy = FormDestroy
   ExplicitWidth = 634
   ExplicitHeight = 732
   PixelsPerInch = 96
@@ -12,21 +13,22 @@ inherited F000ISC: TF000ISC
     end
     inherited Panel4: TPanel
       inherited Cabecalho: THPanel
-        Height = 48
-        DataBaseTable = 'USU_T000ISC'
-        ExplicitHeight = 48
+        Height = 50
+        DataBaseTable = 'USU_T097GFI'
+        ExplicitHeight = 50
         object Label2: TLabel
-          Left = 85
+          Left = 97
           Top = 21
-          Width = 45
+          Width = 33
           Height = 13
-          Caption = 'Empresa:'
+          Caption = 'Grupo:'
         end
-        object BECodEmp: THButtonedEdit
+        object BECodGfi: THButtonedEdit
           Left = 136
           Top = 18
           Width = 121
           Height = 21
+          Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -36,76 +38,76 @@ inherited F000ISC: TF000ISC
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 0
-          Table = 'E070EMP'
+          Table = 'USU_T097GFI'
           Lookup = True
-          Field = 'CODEMP'
+          Field = 'USU_CODGFI'
           AvoidSelections = True
           isNumber = False
           isAlfa = True
           isFloat = False
           OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
-          DataBaseField = 'USU_CODEMP'
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_CODGFI'
           Required = True
         end
       end
       inherited Geral: THPanel
-        Top = 49
-        Height = 642
-        ExplicitTop = 49
-        ExplicitHeight = 642
+        Top = 51
+        Height = 640
+        ExplicitTop = 51
+        ExplicitHeight = 640
         object Label6: TLabel
-          Left = 48
-          Top = 95
+          Left = 47
+          Top = 262
           Width = 83
           Height = 13
           Caption = 'Usu'#225'rio Gera'#231#227'o:'
         end
         object Label7: TLabel
-          Left = 61
-          Top = 121
+          Left = 60
+          Top = 288
           Width = 70
           Height = 13
           Caption = 'Data Gera'#231#227'o:'
         end
         object Label8: TLabel
-          Left = 42
-          Top = 149
+          Left = 41
+          Top = 316
           Width = 89
           Height = 13
           Caption = 'Usu'#225'rio Altera'#231#227'o:'
         end
         object Label9: TLabel
-          Left = 55
-          Top = 175
+          Left = 54
+          Top = 342
           Width = 76
           Height = 13
           Caption = 'Data Altera'#231#227'o:'
         end
         object Label3: TLabel
-          Left = 91
+          Left = 81
           Top = 14
-          Width = 40
+          Width = 50
           Height = 13
-          Caption = 'Usu'#225'rio:'
+          Caption = 'Descri'#231#227'o:'
         end
-        object Label4: TLabel
-          Left = 97
+        object Label14: TLabel
+          Left = 86
           Top = 41
-          Width = 34
+          Width = 45
           Height = 13
-          Caption = 'Senha:'
+          Caption = 'Situa'#231#227'o:'
         end
-        object Label5: TLabel
-          Left = 108
+        object Label1: TLabel
+          Left = 69
           Top = 68
-          Width = 23
+          Width = 62
           Height = 13
-          Caption = 'URL:'
+          Caption = 'Observa'#231#227'o:'
         end
         object BEUsuGer: THButtonedEdit
-          Left = 136
-          Top = 92
+          Left = 135
+          Top = 259
           Width = 121
           Height = 21
           TabOrder = 3
@@ -115,13 +117,13 @@ inherited F000ISC: TF000ISC
           isAlfa = False
           isFloat = False
           OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
+          DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_USUGER'
           Required = False
         end
         object BEUsuAlt: THButtonedEdit
-          Left = 136
-          Top = 146
+          Left = 135
+          Top = 313
           Width = 121
           Height = 21
           TabOrder = 5
@@ -131,36 +133,36 @@ inherited F000ISC: TF000ISC
           isAlfa = False
           isFloat = False
           OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
+          DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_USUALT'
           Required = False
         end
         object DTDatGer: THDateTimePicker
-          Left = 136
-          Top = 119
+          Left = 135
+          Top = 286
           Width = 121
           Height = 21
           Date = 43000.498434016200000000
           Time = 43000.498434016200000000
           TabOrder = 4
-          DataBaseTable = 'USU_T000ISC'
+          DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_DATGER'
         end
         object DTDatAlt: THDateTimePicker
-          Left = 136
-          Top = 173
+          Left = 135
+          Top = 340
           Width = 121
           Height = 21
           Date = 43000.498434016200000000
           Time = 43000.498434016200000000
           TabOrder = 6
-          DataBaseTable = 'USU_T000ISC'
+          DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_DATALT'
         end
-        object BEUsuCrm: THButtonedEdit
+        object BEDesGfi: THButtonedEdit
           Left = 136
           Top = 11
-          Width = 121
+          Width = 241
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -171,21 +173,22 @@ inherited F000ISC: TF000ISC
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 0
-          Table = 'E039POR'
+          Table = 'USU_T097GFI'
           Lookup = False
+          Field = 'USU_DesCon'
           AvoidSelections = True
-          isNumber = True
-          isAlfa = False
+          isNumber = False
+          isAlfa = True
           isFloat = False
           OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
-          DataBaseField = 'USU_UsuCrm'
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_DesGfi'
           Required = True
         end
-        object BESenCrm: THButtonedEdit
+        object BESitReg: THButtonedEdit
           Left = 136
           Top = 38
-          Width = 121
+          Width = 57
           Height = 21
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -196,33 +199,80 @@ inherited F000ISC: TF000ISC
           RightButton.ImageIndex = 0
           RightButton.Visible = True
           TabOrder = 1
-          Table = 'E039POR'
-          Lookup = False
-          Field = 'CODPOR'
+          Table = 'E099USU'
+          Lookup = True
+          Field = 'USU_SitReg'
           AvoidSelections = True
-          isNumber = True
-          isAlfa = False
+          isNumber = False
+          isAlfa = True
           isFloat = False
           OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
-          DataBaseField = 'USU_SenCrm'
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_SitReg'
           Required = True
+          ENumerator = 'LSitReg'
         end
-        object BEUrlCrm: THButtonedEdit
+        object BEObsGfi: THMemo
           Left = 136
           Top = 65
-          Width = 353
-          Height = 21
+          Width = 257
+          Height = 188
+          Align = alCustom
           TabOrder = 2
-          Lookup = False
-          AvoidSelections = False
-          isNumber = True
-          isAlfa = False
-          isFloat = False
-          OpenDialog = False
-          DataBaseTable = 'USU_T000ISC'
-          DataBaseField = 'USU_UrlCrm'
-          Required = False
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_ObsGfi'
+        end
+        object HPanel1: THPanel
+          Left = 1
+          Top = 367
+          Width = 523
+          Height = 272
+          Align = alBottom
+          TabOrder = 7
+          object Panel2: TPanel
+            Left = 1
+            Top = 1
+            Width = 521
+            Height = 16
+            Align = alTop
+            Caption = 'Container(s)'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = [fsBold]
+            ParentFont = False
+            TabOrder = 0
+          end
+          object Panel3: TPanel
+            Left = 1
+            Top = 253
+            Width = 521
+            Height = 18
+            Align = alBottom
+            TabOrder = 1
+          end
+          object FGridCon: TDataSetGrid
+            Left = 1
+            Top = 17
+            Width = 521
+            Height = 236
+            Align = alClient
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
+            ParentFont = False
+            TabOrder = 2
+            TitleFont.Charset = DEFAULT_CHARSET
+            TitleFont.Color = clWindowText
+            TitleFont.Height = -11
+            TitleFont.Name = 'Tahoma'
+            TitleFont.Style = []
+            AllowNewLine = True
+          end
         end
       end
     end
