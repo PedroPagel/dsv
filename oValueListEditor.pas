@@ -7,6 +7,8 @@ uses
   Vcl.ExtCtrls, Winapi.Windows, Vcl.DBGrids;
 
 type
+  TEnumPress = procedure(Value: Variant) of Object;
+
   THValueListEditor = class(TValueListEditor)
   private
     { Private declarations }
@@ -16,6 +18,7 @@ type
     FButton: TComponent;
     FNoEnter: Boolean;
     FForm: TForm;
+    FEnumPress: TEnumPress;
 
     procedure EnumClick(Sender: TObject);
     procedure EnumEnter(Sender: TObject);
@@ -31,7 +34,7 @@ type
 
     function Closed: Boolean;
 
-    procedure Close;
+    procedure Close(const forceclose: Boolean = False);
     procedure ShowEnum(const pComponent: TButtonedEdit);
     procedure ShowGridEnum(const pRect: TRect);
     procedure AddRow(const pName, pValue: string);
@@ -39,6 +42,7 @@ type
     property CanClose: Boolean read FCanClose write FCanClose;
     property Form: TForm read FForm write FForm;
     property ButtonParent: string read FButtonParent write FButtonParent;
+    property OnEnumPres: TEnumPress read FEnumPress write FEnumPress;
   published
     { Published declarations }
   end;
@@ -48,7 +52,7 @@ procedure Register;
 implementation
 
 uses
-  oBase, oButtonedEdit, oPanel, u000cad, System.Rtti;
+  oBase, oButtonedEdit, oPanel, System.Rtti, oDataSetGrid;
 
 procedure Register;
 begin
@@ -62,7 +66,7 @@ begin
   Self.InsertRow(pName, pValue, True)
 end;
 
-procedure THValueListEditor.Close;
+procedure THValueListEditor.Close(const forceclose: Boolean = False);
 begin
   if (FNoEnter) then
     FCanClose := True;
@@ -70,9 +74,16 @@ begin
   if (FCanClose) then
   begin
     Self.Visible := False;
-    THButtonedEdit(FButton).SetFocus;
-    THButtonedEdit(FButton).ButtonClicked := False;
+
+    if (Self.GetParentComponent.ClassType <> TDataSetGrid) then
+    begin
+      THButtonedEdit(FButton).SetFocus;
+      THButtonedEdit(FButton).ButtonClicked := False;
+    end;
   end;
+
+  if (forceclose) then
+    Self.Visible := False;
 
   FClosed := True;
 end;
@@ -103,7 +114,7 @@ begin
   Self.OnDblClick := EnumDblClick;
 
   Self.Options := [goFixedVertLine,goFixedHorzLine,goVertLine,goHorzLine, goTabs, goDrawFocusSelected,
-  goColSizing,goAlwaysShowEditor,goThumbTracking, goRowSelect, goFixedColClick, goEditing];
+  goColSizing,goAlwaysShowEditor,goThumbTracking, goRowSelect, goFixedColClick];
 end;
 
 destructor THValueListEditor.Destroy;
@@ -119,10 +130,20 @@ end;
 
 procedure THValueListEditor.EnumDblClick(Sender: TObject);
 begin
-  THButtonedEdit(FButton).Text := Self.GetCell(0, Self.Row);
-  Self.Visible := False;
-  THButtonedEdit(FButton).SetFocus;
-  FClosed := True;
+  if (Self.GetParentComponent.ClassType <> TDataSetGrid) then
+  begin
+    THButtonedEdit(FButton).Text := Self.GetCell(0, Self.Row);
+    Self.Visible := False;
+    THButtonedEdit(FButton).SetFocus;
+    FClosed := True;
+  end
+  else
+  if Assigned(FEnumPress) then
+  begin
+    FEnumPress(Self.GetCell(0, Self.Row));
+    Self.Visible := False;
+    FClosed := True;
+  end;
 end;
 
 procedure THValueListEditor.EnumEnter(Sender: TObject);
@@ -150,9 +171,19 @@ begin
 
   if (Ord(key) = 13) then
   begin
-    THButtonedEdit(FButton).Text := Self.GetCell(0, Self.Row);
-    THButtonedEdit(FButton).SetFocus;
-    Self.Visible := False;
+    if (Self.GetParentComponent.ClassType <> TDataSetGrid) then
+    begin
+      THButtonedEdit(FButton).Text := Self.GetCell(0, Self.Row);
+      THButtonedEdit(FButton).SetFocus;
+      Self.Visible := False;
+    end
+    else
+    if Assigned(FEnumPress) then
+    begin
+      FEnumPress(Self.GetCell(0, Self.Row));
+      Self.Visible := False;
+      FClosed := True;
+    end;
   end;
 end;
 
@@ -175,7 +206,7 @@ end;
 procedure THValueListEditor.ShowGridEnum(const pRect: TRect);
 begin
   Self.Height := (Self.RowCount * 20);
-  Self.Top := pRect.Top + 17;
+  Self.Top := pRect.Top + 18;
   Self.Left := pRect.Left;
   Self.Visible := iff(Self.Visible, False, True);
   Self.BringToFront;
@@ -185,6 +216,8 @@ begin
 
   FCanClose := True;
   FNoEnter := True;
+
+  Self.Row := 1;
 end;
 
 end.

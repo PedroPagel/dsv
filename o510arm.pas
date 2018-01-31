@@ -221,7 +221,6 @@ begin
   begin
     Self.USU_SitArm := 'S';
     Self.USU_DatFin := Date;
-    Self.PropertyForSelect(['USU_ID']);
     Self.Update();
   end;
 

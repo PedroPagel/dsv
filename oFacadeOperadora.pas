@@ -30,6 +30,7 @@ begin
   begin
     pDados.ConsumirCompromisso;
     pDados.AtualizarPendencias;
+    pDados.FecharCompromissosAbertos;
   end;
 end;
 

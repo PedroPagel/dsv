@@ -424,7 +424,7 @@ begin
   FGridAss.Enabled := True;
 
   FControle.Init;
-  FControle.AddToCommand(FiltroPortadorArmazenamento, False);
+  FControle.AddToCommand(FiltroPortadorArmazenamento);
   FControle.Consultar(MontaCondicaoTitulos);
 
   FGridArm.Disconnect;

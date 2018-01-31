@@ -9,7 +9,7 @@
 // (29/03/2017 14:57:40 - - $Rev: 56641 $)
 // ************************************************************************ //
 
-unit wsCRAlterar;
+unit webserviceContasReceber;
 
 interface
 

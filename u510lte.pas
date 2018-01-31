@@ -61,12 +61,4 @@ begin
   Registrar('T510LTE' , 'USU_T510LTE');
 end;
 
-initialization
-  RegisterClasses([T510LTE]);
-  RegisterClasses([T510MLE]);
-
-finalization
-  UnRegisterClasses([T510LTE]);
-  UnRegisterClasses([T510MLE]);
-
 end.

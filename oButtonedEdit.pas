@@ -8,7 +8,6 @@ uses
   oValueListEditor;
 
 type
-  TCheckMethod = (cmNone, cmExit, cmChange, cmEnter, cmClick);
   TRightClick = procedure(Sender: TObject; const pObjectName: string) of Object;
   TProcedure = procedure() of Object;
 
@@ -71,6 +70,7 @@ type
 
     procedure CheckEnum();
     procedure CreateLookup();
+    procedure CheckForValueList();
     procedure ExitButton(Sender: TObject);
     procedure SetFormForEdit(const pForm: TForm);
     procedure AddLeftTableForm(const pForm: TForm);
@@ -104,7 +104,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Graphics, Vcl.Imaging.pngimage, System.Variants, System.Contnrs, oMensagem,
-  System.SysUtils, Vcl.FileCtrl, u000cad, o998lsf, oQuery, Data.DB;
+  System.SysUtils, Vcl.FileCtrl, o998lsf, oQuery, Data.DB;
 
 procedure Register;
 begin
@@ -116,7 +116,13 @@ end;
 procedure THButtonedEdit.CheckEnum;
 begin
   if (Assigned(FValueList)) then
-   FValueList.Close;
+    FValueList.Close;
+end;
+
+procedure THButtonedEdit.CheckForValueList();
+begin
+  if Assigned(FValueList) then
+    FValueList.Close(True);
 end;
 
 procedure THButtonedEdit.CheckMethod(const pCheckMethod: TCheckMethod);

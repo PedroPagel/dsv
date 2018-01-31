@@ -3,7 +3,7 @@ unit oFacadeCarregamentoCRM;
 interface
 
 uses
-  oFacadeBaseCRM, oFacadeWebServicesCRM, oBase, o120ped, o120ipd;
+  oFacadeBaseCRM, oFacadeWebServicesCRM, oBase, o120ped, o120ipd, o120pxp;
 
 type
   TTipoExecucao = (teCompromisso, teOportunidade);
@@ -21,6 +21,8 @@ type
     procedure ConsumirFechamentoCompromisso();
     procedure CarregaPendencias();
     procedure CarregaPedido(const pDados: TFacadeBaseCRM);
+    procedure FecharPorCompromisso();
+    procedure FecharPorOrcamento();
   public
     constructor Create();
     destructor Destroy(); override;
@@ -31,6 +33,7 @@ type
     procedure AtualizarPedido();
     procedure ConsumirCompromisso();
     procedure AtualizarPendencias();
+    procedure FecharCompromissosAbertos();
 
     function PermiteAtualizar: Boolean;
     function TipoExecucao: TTipoExecucao;
@@ -71,7 +74,9 @@ begin
     for i := 0 to pred(FPendencias.Count) do
     begin
       x120pen := T120PEN(FPendencias[i]);
-      x120pen.Update();
+
+      if (x120pen.USU_NumCom > 0) then
+        x120pen.Update();
     end;
 
     Commit;
@@ -90,7 +95,6 @@ begin
   if not(F120PED.IsEmpty) then
   begin
     FWebservice.CodEmp := pDados.CodEmp;
-
     FWebservice.Dados.oportunidadeContaId := F120PED.CodCli;
     FWebservice.Dados.oportunidadeNumeroPedido := IntToStr(F120PED.CodEmp) + '-' +
       IntToStr(F120PED.CodFil) + '-' + IntToStr(F120PED.NumPed);
@@ -102,11 +106,11 @@ begin
     FWebservice.Dados.oportunidadeModalidadeNegocioId := 1;
     FWebservice.Dados.oportunidadeUsuarioIdERP := F120PED.CodVen;
     FWebservice.Dados.oportunidadeProbabilidade := 100;
-
-    FWebservice.Dados.oportunidadeDataPrevistaFechamento := FormatDateTime('YYYY-MM-DD', F120PED.DatEmi);
+    FWebservice.Dados.oportunidadeDataPrevistaFechamento := FormatDateTime('YYYY-MM-DD', F120PED.DatPrv);
     FWebservice.Dados.oportunidadeValorPrevisto := StringReplace(FloatToStr(F120PED.VlrOri), ',', '.', [rfReplaceAll]);
 
-    if (F120PED.SitPed = 1) then
+    //veio do fechamento
+    if (F120PED.SitPed in [1,2,4]) then
     begin
       //fechado
       FWebservice.Dados.oportunidadeEstagioId := 1;
@@ -115,7 +119,7 @@ begin
       F120IPD.NumPed := F120PED.NumPed;
 
       F120IPD.AddTable(['E075PRO']);
-      F120IPD.AddToCommand(' AND E075PRO.INDKIT = ''N'' AND E075PRO.CODEMP = E120IPD.CODEMP AND E075PRO.CODPRO = E120IPD.CODPRO', False);
+      F120IPD.AddToCommand(' E075PRO.INDKIT = ''N'' AND E075PRO.CODEMP = E120IPD.CODEMP AND E075PRO.CODPRO = E120IPD.CODPRO AND ');
       F120IPD.Open();
       FPedidoComItens := not(F120IPD.IsEmpty);
 
@@ -134,11 +138,11 @@ begin
       end;
     end
     else
-    if (F120PED.SitPed = 9) then
+    if (F120PED.SitPed = 9) or (F120PED.SitPed = 5) then
     begin
       //reabrir
-      FWebservice.Dados.oportunidadeEstagioId := 6;
-      FWebservice.Dados.oportunidadeMotivoFechamentoId := 1;
+      FWebservice.Dados.oportunidadeEstagioId := iff(F120PED.USU_NumOptCRM > 0, 6, 2);
+      FWebservice.Dados.oportunidadeMotivoFechamentoId := iff(F120PED.USU_NumOptCRM > 0, 1, 0);
     end;
   end;
 end;
@@ -148,13 +152,13 @@ var
   x120pen: T120PEN;
 begin
   x120pen := T120PEN.Create;
-  x120pen.USU_SitMov := 'A';
-  x120pen.PropertyForSelect(['USU_SitMov']);
-  x120pen.AddToCommand(' AND USU_NUMCOM = 0 AND NOT EXISTS(SELECT 1 FROM E120PED WHERE '+
-                                                           'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
-                                                           'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
-                                                           'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
-                                                           'E120PED.SITPED = 1)', False);
+  x120pen.AddToCommand(' USU_NUMCOM = 0 AND '+
+                       'USU_SITMOV = ''A'' AND '+
+                       'EXISTS(SELECT 1 FROM E120PED WHERE '+
+                       'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
+                       'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
+                       'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
+                       'E120PED.SITPED = 9)');
   x120pen.Open(False);
 
   while (x120pen.Next) do
@@ -193,7 +197,7 @@ begin
     x085cli := nil;
     try
       xData := TData.Create(x120pen.USU_DatPrv);
-      xData.DiaDaSemana := True;
+      xData.DiaUtil := True;
       xData.IncDays(5);
 
       x085cli := T085CLI.Create;
@@ -215,13 +219,11 @@ begin
         FWebservice.Agedamento.compromissoStatus := 3;
         FWebservice.Agedamento.compromissoContaTipo := 3;
         FWebservice.Agedamento.compromissoUsuarioAgendador := x120pen.USU_UsuGer;
-
         FWebservice.Agedamento.compromissoHora := '08:00';
         FWebservice.Agedamento.compromissoData := FormatDateTime('YYYY-MM-DD', xData.Data);
         FWebservice.Agedamento.compromissoDia := VerificarZero(xData.Dia);
         FWebservice.Agedamento.compromissoMes := VerificarZero(xData.Mes);
         FWebservice.Agedamento.compromissoAno := xData.Ano;
-
         FWebservice.Agedamento.compromissoDescricao := Format('Processo criado na integração CRM x Sapiens pelo '+
           'Orçamento/Pedido: %s', [IntToStr(x120pen.USU_NumPed)]);
 
@@ -237,29 +239,51 @@ end;
 procedure TFacedeCarregamentoCRM.ConsumirFechamentoCompromisso;
 var
   x120pen: T120PEN;
+  xUpdate: T120PEN;
+  x120pxp: T120PXP;
 begin
   StartTransaction;
   try
     x120pen := T120PEN.Create;
+    x120pxp := T120PXP.Create;
     try
-      x120pen.USU_CodEmp := F120PED.CodEmp;
-      x120pen.USU_CodFil := F120PED.CodFil;
-      x120pen.USU_NumPed := F120PED.NumPed;
-      x120pen.Open();
+      x120pxp.CodEmp := F120PED.CodEmp;
+      x120pxp.CodFil := F120PED.CodFil;
+      x120pxp.NumPed := F120PED.NumPed;
+      x120pxp.Open();
 
-      if not(x120pen.IsEmpty) then
+      if not(x120pxp.IsEmpty) then
       begin
-        //compromisso pode ainda nao existir
-        if (x120pen.USU_NumCom > 0) then
-          FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
+        x120pen.USU_CodEmp := x120pxp.CodEmp;
+        x120pen.USU_CodFil := x120pxp.CodFil;
+        x120pen.USU_NumPed := x120pxp.NumPdp;
+        x120pen.Open();
 
-        //Finaliza no banco
-        x120pen.Init;
-        x120pen.USU_SitMov := 'I';
-        x120pen.Update();
+        if not(x120pen.IsEmpty) then
+        begin
+          //compromisso pode ainda nao existir
+          if (x120pen.USU_NumCom > 0) then
+          begin
+            FWebservice.CodEmp := x120pen.USU_CodEmp;
+            FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
+
+            //Finaliza no banco
+            xUpdate := T120PEN.Create;
+            try
+              xUpdate.Assign(x120pen);
+
+              xUpdate.Init;
+              xUpdate.USU_SitMov := 'I';
+              xUpdate.Update();
+            finally
+              FreeAndNil(xUpdate);
+            end;
+          end;
+        end;
       end;
     finally
       FreeAndNil(x120pen);
+      FreeAndNil(x120pxp);
     end;
 
     Commit;
@@ -272,16 +296,12 @@ procedure TFacedeCarregamentoCRM.ConsumirOportunidade;
 var
   xOportunidadeRetornoDados: oportunidadeRetornoDados;
 begin
-  if (F120PED.SitPed = 1) or (F120PED.SitPed = 9) then
-  begin
-    xOportunidadeRetornoDados := FWebservice.ConsumirOportunidade;
-    F120PED.USU_NumOptCRM := xOportunidadeRetornoDados.id_oportunidade;
+  xOportunidadeRetornoDados := FWebservice.ConsumirOportunidade;
+  F120PED.USU_NumOptCRM := xOportunidadeRetornoDados.id_oportunidade;
 
-    FPedidoExiste := True;
-    FOportunidadeAtualizada := (AnsiSameText('2', xOportunidadeRetornoDados.tipo));
-
-    ConsumirFechamentoCompromisso();
-  end;
+  FPedidoExiste := True;
+  FOportunidadeAtualizada := (AnsiSameText('2', xOportunidadeRetornoDados.tipo));
+  ConsumirFechamentoCompromisso();
 end;
 
 procedure TFacedeCarregamentoCRM.ConsumirProdutos;
@@ -310,6 +330,106 @@ begin
   FreeAndNil(F120PED);
   FreeAndNil(F120IPD);
   FreeAndNil(FPendencias);
+end;
+
+procedure TFacedeCarregamentoCRM.FecharCompromissosAbertos;
+begin
+  try
+    StartTransaction;
+    try
+      FecharPorCompromisso;
+      FecharPorOrcamento;
+    finally
+      Commit;
+    end;
+  except
+    RollBack;
+  end;
+end;
+
+procedure TFacedeCarregamentoCRM.FecharPorCompromisso;
+var
+  x120pen: T120PEN;
+  xUpdate: T120PEN;
+begin
+  x120pen := T120PEN.Create;
+  try
+    x120pen.AddToCommand(' USU_NUMCOM > 0 AND '+
+                          'USU_SITMOV = ''A'' AND '+
+                          'EXISTS(SELECT 1 FROM E120PED WHERE '+
+                          'E120PED.CODEMP = USU_T120PEN.USU_CODEMP AND '+
+                          'E120PED.CODFIL = USU_T120PEN.USU_CODFIL AND '+
+                          'E120PED.NUMPED = USU_T120PEN.USU_NUMPED AND '+
+                          '(E120PED.SITPED IN (4,5)))');
+
+    x120pen.Open(False);
+    while (x120pen.Next) do
+    begin
+      if (x120pen.USU_NumCom > 0) then
+      begin
+        FWebservice.CodEmp := x120pen.USU_CodEmp;
+        FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
+      end;
+
+      //Finaliza no banco
+      xUpdate := T120PEN.Create;
+      try
+        xUpdate.Assign(x120pen);
+
+        xUpdate.Init;
+        xUpdate.USU_SitMov := 'I';
+        xUpdate.Update();
+      finally
+        FreeAndNil(xUpdate);
+      end;
+    end;
+  finally
+    FreeAndNil(x120pen);
+  end;
+end;
+
+procedure TFacedeCarregamentoCRM.FecharPorOrcamento;
+var
+  x120pen: T120PEN;
+  xUpdate: T120PEN;
+begin
+  x120pen := T120PEN.Create;
+  try
+    x120pen.AddToCommand(' USU_SITMOV = ''A'' AND '+
+                         'EXISTS(SELECT 1 FROM E120PXP, E120PED WHERE '+
+                         'E120PXP.CODEMP = USU_T120PEN.USU_CODEMP AND '+
+                         'E120PXP.CODFIL = USU_T120PEN.USU_CODFIL AND '+
+                         'E120PXP.NUMPDP = USU_T120PEN.USU_NUMPED AND '+
+                         'E120PXP.SEQIPD = 1 AND '+
+                         'E120PED.CODEMP = E120PXP.CODEMP AND '+
+                         'E120PED.CODFIL = E120PXP.CODFIL AND '+
+                         'E120PED.NUMPED = E120PXP.NUMPED AND '+
+                         'E120PED.SITPED IN (4,5))');
+
+    x120pen.Open(False);
+    while (x120pen.Next) do
+    begin
+      if (x120pen.USU_NumCom > 0) then
+      begin
+        FWebservice.CodEmp := x120pen.USU_CodEmp;
+        FWebservice.ConsumirFechamentoCompromisso(x120pen.USU_NumCom);
+      end;
+
+      //Finaliza no banco
+      xUpdate := T120PEN.Create;
+      try
+        xUpdate.Assign(x120pen);
+
+        xUpdate.Init;
+        xUpdate.USU_SitMov := 'I';
+        xUpdate.Update();
+      finally
+        FreeAndNil(xUpdate);
+      end;
+    end;
+  finally
+    FreeAndNil(x120pen);
+  end;
 end;
 
 //Se a oportunidade foi criada/atualizada  ou a oportunidade nao existe.

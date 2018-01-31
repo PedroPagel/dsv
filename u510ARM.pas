@@ -30,6 +30,8 @@ procedure TF510ARM.FormCreate(Sender: TObject);
 var
   xArmazenamento: TArmazenamento;
 begin
+  Application.ShowMainForm := False;
+
   FLogEmp := StrToInt(ParamStr(3));
   StartTransaction;
   try
@@ -37,7 +39,6 @@ begin
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();
-
       xArmazenamento.AtualizarArmazenamento();
     finally
       FreeAndNil(xArmazenamento);

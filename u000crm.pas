@@ -32,6 +32,8 @@ procedure TF000CRM.FormCreate(Sender: TObject);
 var
   x000log: T000LOG;
 begin
+  Application.ShowMainForm := False;
+
   FFacadeControladoraCRM := TFacadeControladoraCRM.Create;
   try
     try

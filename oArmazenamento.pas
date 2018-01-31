@@ -10,9 +10,25 @@ type
   TIteradorAtualizarTitulos = class;
   TIteradorEspecieTitulo = class;
 
+  TTitulosAssociacao = class(TSubTituloDebitoDiretoAutorizado)
+  private
+    FTitulos: string;
+  public
+    property Titulos: string read FTitulos write FTitulos;
+  end;
+
+  TIteradorAssociacao = class(TIterador)
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Adicionar(const titulo: TSubTituloDebitoDiretoAutorizado);
+    function consistir(const titulo: TSubTituloDebitoDiretoAutorizado): string;
+  end;
+
   TArmazenamento = class(T510ARM)
   private
-    FIterador: TIterador;
+    FListaAssociados: TIteradorAssociacao;
     FListaTituloGeral: TIterador;
     FListaArmazenamento: TIterador;
     F510TIT: TTituloDebitoDiretoAutorizado;
@@ -154,9 +170,7 @@ begin
     x510tit := TTituloDebitoDiretoAutorizado.CreateCarregado();
     try
       x510tit.Init;
-      x510tit.USU_IdArm := Self.USU_ID;
-      x510tit.PropertyForSelect(['USU_IDARM'], True);
-      x510tit.AddToCommand(' AND USU_SITARM <>  ''S''', False);
+      x510tit.AddToCommand(Format(' USU_SITARM <>  ''S'' AND USU_IDARM = %d', [Self.USU_ID]));
       x510tit.Open(False);
 
       while (x510tit.Next) do
@@ -216,9 +230,9 @@ begin
   FListaTituloGeral := TIterador.Create;
   FListaTituloBanco := TIteradorAtualizarTitulos.Create;
   FListaFilial := TListaFilial.Create;
-  FIterador := TIterador.Create;
   F510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado(True);
   F095FOR := TFornecedor.Create();
+  FListaAssociados := TIteradorAssociacao.Create();
 
   FListaEspecieTitulo := TIteradorEspecieTitulo.Create(Self.Agendamento);
   FLayout := TLayout.Create(Self.Agendamento.USU_ID, 'USU_T510TIT');
@@ -229,29 +243,30 @@ end;
 procedure TArmazenamento.Processar;
 var
   i: Integer;
-  x510Tit: TTituloDebitoDiretoAutorizado;
   xRaiz: string;
+  xTitulos: string;
+  x510Tit: TTituloDebitoDiretoAutorizado;
   xTitulo: TSubTituloDebitoDiretoAutorizado;
-
-  procedure Associar();
-  begin
-    xTitulo.Init;
-    xTitulo.USU_IDTIT := x510tit.USU_ID;
-    xTitulo.CodBar := x510tit.USU_CodBar;
-    xTitulo.Update();
-
-    x510tit.USU_CodEmp := xTitulo.CodEmp;
-    x510tit.USU_CodFil := xTitulo.CodFil;
-    x510tit.USU_CodFor := xTitulo.CodFor;
-    x510tit.USU_SitTit := xTitulo.SitTit;
-    x510tit.USU_SitArm := 'S';
-    x510tit.Update();
-  end;
 
   procedure GerarLogTitulo(const pLog: string);
   begin
-    if AnsiSameText(x510tit.USU_LogTit, 'OK') then
-      Associar()
+    if AnsiSameText(UpperCase(pLog), 'OK') then
+    begin
+      xTitulo.Init;
+      xTitulo.USU_IDTIT := x510tit.USU_ID;
+      xTitulo.CodBar := x510tit.USU_CodBar;
+      xTitulo.Update();
+
+      x510tit.USU_CodEmp := xTitulo.CodEmp;
+      x510tit.USU_CodFil := xTitulo.CodFil;
+      x510tit.USU_CodFor := xTitulo.CodFor;
+      x510tit.USU_SitTit := xTitulo.SitTit;
+      x510tit.USU_LogTit := pLog;
+      x510tit.USU_SitArm := 'S';
+      x510tit.Update();
+
+      FListaAssociados.Adicionar(xTitulo);
+    end
     else
     begin
       x510Tit.USU_LogTit := pLog;
@@ -274,13 +289,18 @@ begin
     xTitulo.VctOri := x510Tit.USU_VctOri;
     xTitulo.VlrOri := x510Tit.USU_VlrOri;
     xTitulo.CodPor := Self.Agendamento.USU_CodPor;
-    xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR'], True);
+    xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR']);
 
     if (IsNull(xTitulo.CodTpt)) then
     begin
       GerarLogTitulo(Format('Espécie bancária "%s" não localizada!', [x510Tit.USU_CodTpt]));
       Continue;
     end;
+
+    xTitulos := FListaAssociados.consistir(xTitulo);
+
+    if not(IsNull(xTitulos)) then
+      xTitulo.AddToCommand(Format(' AND NOT(%s)', [xTitulos]));
 
     xTitulo.Open(False);
 
@@ -293,8 +313,12 @@ begin
       if not(IsNull(xRaiz)) then
       begin
         xTitulo.Init;
-        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ', False);
-        xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI'], True);
+
+        if not(IsNull(xTitulos)) then
+          xTitulo.AddToCommand(Format(' AND NOT(%s)', [xTitulos]));
+
+        xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ');
+        xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI']);
         xTitulo.Open(False);
 
         if (xTitulo.IsEmpty) then
@@ -341,7 +365,7 @@ begin
     x510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado;
     x510TIT.USU_IdArm := T510ARM(FListaArmazenamento[i]).USU_ID;
     x510TIT.USU_SitArm := 'N';
-    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM'], True);
+    x510TIT.PropertyForSelect(['USU_IDARM','USU_SITARM']);
     x510TIT.Open(False);
 
     if (x510TIT.IsEmpty) then
@@ -365,7 +389,7 @@ begin
   FreeAndNil(FListaFilial);
   FreeAndNil(FListaEspecieTitulo);
   FreeAndNil(F510AGE);
-  FreeAndNil(FIterador);
+  FreeAndNil(FListaAssociados);
 
   inherited;
 end;
@@ -378,7 +402,7 @@ begin
   Self.USU_CodPor := Self.Agendamento.USU_CodPor;
   Self.USU_NomArq := pNome;
   Self.USU_DatGer := Date;
-  Self.PropertyForSelect(['USU_NOMARQ'], True);
+  Self.PropertyForSelect(['USU_NOMARQ']);
   Self.Open(False);
 
   FArquivoExiste := not(Self.IsEmpty);
@@ -492,6 +516,57 @@ end;
 procedure TIteradorEspecieTitulo.SetCodBan(const pCodBan: string);
 begin
   FCodBan := pCodBan;
+end;
+
+{ TIteradorAssociacao }
+
+procedure TIteradorAssociacao.Adicionar(
+  const titulo: TSubTituloDebitoDiretoAutorizado);
+var
+  i: Integer;
+  xTitulo: TTitulosAssociacao;
+begin
+  xTitulo := TTitulosAssociacao.Create;
+  xTitulo.Assign(titulo);
+
+  i := Self.IndexOfFields(xTitulo);
+
+  if (i > -1) then
+    TTitulosAssociacao(Self[i]).Titulos := TTitulosAssociacao(Self[i]).Titulos + ' OR (NUMTIT = ''' + titulo.NumTit + ''')'
+  else
+  begin
+    xTitulo.Titulos := '(NUMTIT = ''' + titulo.NumTit + ''')';
+    Self.Add(xTitulo);
+  end;
+end;
+
+function TIteradorAssociacao.consistir(
+  const titulo: TSubTituloDebitoDiretoAutorizado): string;
+var
+  i: Integer;
+  xTitulo: TTitulosAssociacao;
+begin
+  xTitulo := TTitulosAssociacao.Create;
+  xTitulo.Assign(titulo);
+  Result := emptyStr;
+
+  i := Self.IndexOfFields(xTitulo);
+
+  if (i > -1) then
+    Result := TTitulosAssociacao(Self[i]).Titulos
+end;
+
+constructor TIteradorAssociacao.Create;
+begin
+  inherited Create;
+
+  Self.indexed := True;
+  Self.IndexFields(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR']);
+end;
+
+destructor TIteradorAssociacao.Destroy;
+begin
+  inherited;
 end;
 
 end.

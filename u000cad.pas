@@ -4,12 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Vcl.StdCtrls,
-  Vcl.DBCtrls, oButtonedEdit, Datasnap.DBClient, Data.DB, oBase, oDataSetGrid,
-  oDateTimePicker, oMensagem, System.Rtti, System.TypInfo, oMemo, oPanel,
-  Vcl.AppEvnts;
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.DBCtrls, oButtonedEdit,
+  Datasnap.DBClient, Data.DB, oBase, oDataSetGrid, oDateTimePicker, oMensagem,
+  System.Rtti, System.TypInfo, oMemo, oPanel, Vcl.AppEvnts, Vcl.Grids,
+  Vcl.DBGrids;
 
 type
   tEstadoRotina = (erIniciar, erAtualizar, erInserir, erSelecao, erCancelar,
@@ -92,6 +91,7 @@ type
     procedure ApplicationEvents1Hint(Sender: TObject);
     procedure GeralEnter(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FCamposSelect: array of string;
@@ -107,6 +107,7 @@ type
     FEstado: tEstadoRotina;
     FSair: Boolean;
     FCancelar: Boolean;
+    FBlockEnter: Boolean;
     FPosicaoRotina: tPosicao;
     FUltimoComponente: string;
     FButtonEdit: string;
@@ -119,6 +120,7 @@ type
     procedure CarregarValoresCamposPadrao(const pValor: tEstadoRotina);
     procedure LookupClick(Sender: TObject; const pObjectName: string);
     procedure IniciarCabecalhoChave(const pFocus: Boolean = False);
+    procedure CheckMethod(const pCheckMethod: TCheckMethod);
     procedure PerformLastControlFocused(Sender: TObject);
     procedure CarregarRegistros(const pTable: TTable);
     procedure CRUD_Grid(const pState: TState);
@@ -142,6 +144,7 @@ type
     procedure Registrar(const pClasse: string; const pTabela: string); virtual;
     procedure ExitButton(Sender: TObject);
   published
+    procedure BlockEnter();
     procedure AutomaticMethod(const pCheck: TCheckMethod;
       const pGrid: TDataSetGrid; const pField: string);
   end;
@@ -152,7 +155,7 @@ var
 implementation
 
 uses
-  o998fld, o998tbl, oQuery, System.Contnrs, oGeral;
+  o998fld, o998tbl, oQuery, System.Contnrs, oGeral, oValueListEditor;
 
 {$R *.dfm}
 
@@ -346,18 +349,17 @@ begin
     end
     else if (Self.Components[i].ClassType = TDataSetGrid) then
     begin
-      xGridListClass := TGridListClass.Create;
-      xGridListClass.Table := TDataSetGrid(Self.Components[i]).Table;
-      xGridListClass.ClassTable := TDataSetGrid(Self.Components[i]).ClassTable;
-      xGridListClass.GridName := TDataSetGrid(Self.Components[i]).Name;
+      if (TDataSetGrid(Self.Components[i]).AllowRegister) then
+      begin
+        xGridListClass := TGridListClass.Create;
+        xGridListClass.Table := TDataSetGrid(Self.Components[i]).Table;
+        xGridListClass.ClassTable := TDataSetGrid(Self.Components[i]).ClassTable;
+        xGridListClass.GridName := TDataSetGrid(Self.Components[i]).Name;
 
-      FList.Add(xGridListClass);
+        FList.Add(xGridListClass);
+      end;
     end;
   end;
-
-  IniciarCabecalhoChave();
-  CarregarRegistros(FTable);
-  FPosicaoRotina := psChave;
 end;
 
 procedure TF000CAD.AdicionarParaComponente(const pPosicao: Integer;
@@ -389,7 +391,10 @@ begin
     FTable.Update();
 
     CRUD_Grid(aoUpdate);
+    CheckMethod(cmUpdate);
+
     Commit;
+    //CabecalhoExit(Self);
   except
     on E: Exception do
     begin
@@ -557,10 +562,6 @@ begin
             case xProperty.PropertyType.TypeKind of
               tkInteger, tkFloat:
                 xProperty.SetValue(xTable, TValue.FromVariant(pGrid.Selected(pField)));
-
-              tkWChar, tkChar:
-                if (Length(xProperty.GetValue(xTable).AsString) > 0) then
-                  xProperty.SetValue(xTable, TValue.FromVariant(pGrid.Selected(xProperty.Name).AsString[1]));
             else
               xProperty.SetValue(xTable, TValue.FromVariant(StringReplace(pGrid.Selected(xProperty.Name), Chr(39), '', [rfReplaceAll])));
             end;
@@ -582,6 +583,11 @@ begin
         end;
       end;
   end;
+end;
+
+procedure TF000CAD.BlockEnter;
+begin
+  FBlockEnter := True;
 end;
 
 procedure TF000CAD.BotoesEnter(Sender: TObject);
@@ -657,76 +663,72 @@ var
   end;
 
 begin
-  try
-    if not(FEstado = erCancelar) then
+  if not(FEstado = erCancelar) then
+  begin
+    Cancelar.Enabled := True;
+
+    if AnsiSameText(THPanel(Sender).DataBaseTable, FTabela) then
     begin
-      Cancelar.Enabled := True;
+      if not(FEstado = erCancelar) then
+        VerificarCampos();
 
-      if AnsiSameText(THPanel(Sender).DataBaseTable, FTabela) then
+      FTable.Init;
+      FTable.Close;
+      FTable.PropertyForSelect(MontarCampos);
+      FTable.Open(False);
+
+      if not(FTable.IsEmpty) then
       begin
-        if not(FEstado = erCancelar) then
-          VerificarCampos();
+        CarregarRegistros(FTable);
 
-        FTable.Init;
-        FTable.Close;
-        FTable.PropertyForSelect(MontarCampos, True);
-        FTable.Open(False);
+        Inserir.Enabled := False;
+        DBNavigator.Enabled := False;
+        Alterar.Enabled := True;
 
-        if not(FTable.IsEmpty) then
+        FEstado := erAtualizar;
+
+        CabecalhoAtivo(False, FTabela);
+      end
+      else
+      begin
+        FEstado := erInserir;
+        ClearTable();
+
+        Excluir.Enabled := False;
+        Alterar.Enabled := False;
+        Inserir.Enabled := True;
+
+        CabecalhoAtivo(False, FTabela);
+
+        for i := 0 to High(FCamposGerais) do
+          LimparComponentes(FCamposGerais[i].Posicao, FTable);
+
+        xType := xContext.GetType(FTable.ClassType);
+
+        for xProperty in xType.GetProperties do
         begin
-          CarregarRegistros(FTable);
+          xChave := False;
 
-          Inserir.Enabled := False;
-          DBNavigator.Enabled := False;
-          Alterar.Enabled := True;
-
-          FEstado := erAtualizar;
-
-          CabecalhoAtivo(False, FTabela);
-        end
-        else
-        begin
-          FEstado := erInserir;
-          ClearTable();
-
-          Excluir.Enabled := False;
-          Alterar.Enabled := False;
-          Inserir.Enabled := True;
-
-          CabecalhoAtivo(False, FTabela);
-
-          for i := 0 to High(FCamposGerais) do
-            LimparComponentes(FCamposGerais[i].Posicao, FTable);
-
-          xType := xContext.GetType(FTable.ClassType);
-
-          for xProperty in xType.GetProperties do
+          for i := 0 to High(FCamposChave) do
           begin
-            xChave := False;
-
-            for i := 0 to High(FCamposChave) do
+            if (AnsiSameText(xProperty.Name, FCamposChave[i].Nome)) then
             begin
-              if (AnsiSameText(xProperty.Name, FCamposChave[i].Nome)) then
-              begin
-                xChave := True;
-                Break;
-              end;
+              xChave := True;
+              Break;
             end;
-
-            if not(xChave) then
-              xProperty.SetValue(FTable, nil);
           end;
 
-          for i := 0 to pred(Self.ComponentCount) do
-          begin
-            if (Self.Components[i].ClassType = THDateTimePicker) then
-              THDateTimePicker(Self.Components[i]).DateTime := Date;
-          end;
+          if not(xChave) then
+            xProperty.SetValue(FTable, nil);
+        end;
+
+        for i := 0 to pred(Self.ComponentCount) do
+        begin
+          if (Self.Components[i].ClassType = THDateTimePicker) then
+            THDateTimePicker(Self.Components[i]).DateTime := Date;
         end;
       end;
     end;
-  except
-    raise;
   end;
 end;
 
@@ -764,9 +766,6 @@ begin
 
   if (FTable.Count > 0) then
     FTable.Next;
-
-  if (FTable.Count > 0) then
-    CarregarRegistros(FTable);
 
   FPosicaoRotina := psChave;
   IniciarCabecalhoChave(True);
@@ -842,12 +841,9 @@ begin
 
     tkFloat:
       if (AnsiSameText('TDate', pProperty.PropertyType.Name)) then
-        AdicionarParaComponente(pPosicao,
-          DateToStr(DataNull(FloatToDateTime(pProperty.GetValue(pTable)
-          .AsExtended))))
+        AdicionarParaComponente(pPosicao, DateToStr(DataNull(FloatToDateTime(pProperty.GetValue(pTable).AsExtended))))
       else
-        AdicionarParaComponente(pPosicao, FormatFloat('#,0.00',
-          pProperty.GetValue(pTable).AsExtended));
+        AdicionarParaComponente(pPosicao, FormatFloat('#,0.00', pProperty.GetValue(pTable).AsExtended));
 
     tkWChar, tkChar:
       begin
@@ -907,10 +903,8 @@ begin
       Inc(i);
       SetLength(FRelacionamentos, i);
       FRelacionamentos[pred(i)].Chave := xQuery.FindField('RELNAM').AsString;
-      FRelacionamentos[pred(i)].Relacionado := xQuery.FindField('FORFLD')
-        .AsString; // tabela pai
-      FRelacionamentos[pred(i)].Referenciado := xQuery.FindField('REFFLD')
-        .AsString; // ligada
+      FRelacionamentos[pred(i)].Relacionado := xQuery.FindField('FORFLD').AsString; // tabela pai
+      FRelacionamentos[pred(i)].Referenciado := xQuery.FindField('REFFLD').AsString; // ligada
 
       xQuery.Next;
     end;
@@ -956,6 +950,30 @@ begin
   end;
 end;
 
+procedure TF000CAD.CheckMethod(const pCheckMethod: TCheckMethod);
+var
+  xType: TRttiType;
+  xMethod: TMethod;
+  xProcedure: TProcedure;
+  xRttiMethod: TRttiMethod;
+  xContext: TRttiContext;
+begin
+  xType := xContext.GetType(Self.ClassType);
+  xRttiMethod :=  xType.GetMethod(Self.Name + GetMethod(pCheckMethod));
+
+  if Assigned(xRttiMethod) then
+  begin
+    xMethod.Data := Pointer(Self);
+    xMethod.Code := Self.MethodAddress(xRttiMethod.Name);
+
+    if Assigned(xMethod.Code) then
+    begin
+      xProcedure := TProcedure(xMethod);
+      xProcedure;
+    end;
+  end;
+end;
+
 procedure TF000CAD.DBNavigatorClick(Sender: TObject; Button: TNavigateBtn);
 begin
   FEstado := erNavegar;
@@ -970,9 +988,9 @@ procedure TF000CAD.ExcluirClick(Sender: TObject);
 begin
   StartTransaction;
   try
-    if (CMessage('Deseja realmente excluir o registro?', mtConfirmationYesNo))
-    then
+    if (CMessage('Deseja realmente excluir o registro?', mtConfirmationYesNo)) then
     begin
+      CheckMethod(cmDelete);
       CRUD_Grid(aoDelete);
 
       FTable.Init;
@@ -1032,6 +1050,9 @@ begin
   FButtonEdit := EmptyStr;
 
   FList := TIterador.Create;
+  F000CAD := TF000CAD(Sender);
+
+  inherited;
 end;
 
 procedure TF000CAD.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1039,11 +1060,17 @@ procedure TF000CAD.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   if (Key = 27) then
     Cancelar.Click;
+
+  if (Key = VK_F3) then
+    FBlockEnter := True;
 end;
 
 procedure TF000CAD.FormMouseActivate(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y, HitTest: Integer;
   var MouseActivate: TMouseActivate);
+var
+  i: Integer;
+  xGrid: TDataSetGrid;
 begin
   if ((Button = mbLeft) and (FSair)) then
     Close;
@@ -1052,6 +1079,31 @@ begin
     ((AnsiSameText(FButtonEdit, ActiveControl.Name)) or
     (AnsiSameText(FUltimoComponente, ActiveControl.Name))) then
     THButtonedEdit(Self.FindComponent(FButtonEdit)).CheckEnum;
+
+  if Assigned(ActiveControl) then
+  begin
+    for i := 0 to pred(Self.ComponentCount) do
+    begin
+      if (TDataSetGrid = Self.Components[i].ClassType) then
+      begin
+        xGrid := TDataSetGrid(Self.FindComponent(Self.Components[i].Name));
+
+        if AnsiSameText(xGrid.LookupGridClick, ActiveControl.Name) then
+        begin
+          xGrid.CheckEnum(ActiveControl.Name);
+          FBlockEnter := True;
+          Break;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TF000CAD.FormShow(Sender: TObject);
+begin
+  IniciarCabecalhoChave(True);
+  CarregarRegistros(FTable);
+  FPosicaoRotina := psChave;
 end;
 
 procedure TF000CAD.GeralEnter(Sender: TObject);
@@ -1060,28 +1112,39 @@ var
   xGrid: TDataSetGrid;
   xTable: TTable;
 begin
-  CarregarValoresCamposPadrao(FEstado);
-  FPosicaoRotina := psGeral;
-  LimparGrids();
-
-  for i := 0 to pred(FList.Count) do
+  if not(FBlockEnter) then
   begin
-    xTable := CreateTable(TGridListClass(FList[i]).ClassTable);
-    xTable.SetForeignKeyValue(FTable);
-    xTable.Open();
+    CarregarValoresCamposPadrao(FEstado);
+    FPosicaoRotina := psGeral;
+    LimparGrids();
 
-    xGrid := TDataSetGrid(Self.FindComponent(TGridListClass(FList[i]).GridName));
-    xGrid.Clear;
-    xGrid.Disconnect;
-    while (xTable.Next) do
+    for i := 0 to pred(FList.Count) do
     begin
-      TGridListClass(FList[i]).ClassList.AddByClass(xTable);
-      xGrid.Add(xTable);
+      xTable := CreateTable(TGridListClass(FList[i]).ClassTable);
+      xTable.SetForeignKeyValue(FTable);
+      xTable.Open();
+
+      xGrid := TDataSetGrid(Self.FindComponent(TGridListClass(FList[i]).GridName));
+      xGrid.Clear;
+      xGrid.Disconnect;
+      while (xTable.Next) do
+      begin
+        TGridListClass(FList[i]).ClassList.AddByClass(xTable);
+        xGrid.Add(xTable);
+      end;
+
+      xTable.Close;
+      xGrid.Connect;
+      xGrid.First;
     end;
 
-    xTable.Close;
-    xGrid.Connect;
-    xGrid.First;
+    CheckMethod(cmEnter);
+  end;
+
+  if (FBlockEnter) then
+  begin
+    FBlockEnter := False;
+    Abort;
   end;
 end;
 
@@ -1093,8 +1156,7 @@ var
 begin
   for i := 0 to High(FCamposChave) do
   begin
-    xProperty := xContext.GetType(FTable.ClassType)
-      .GetProperty(FCamposChave[i].Nome);
+    xProperty := xContext.GetType(FTable.ClassType).GetProperty(FCamposChave[i].Nome);
     CarregarCaseProperty(FCamposChave[i].Posicao, xProperty, FTable);
 
     if (pFocus) then
@@ -1120,6 +1182,7 @@ begin
     end;
 
     CRUD_Grid(aoInsert);
+    CheckMethod(cmInsert);
     Commit;
 
     FOldValues.Assign(FTable);
@@ -1166,6 +1229,9 @@ begin
 
     if (xLimpar) then
     begin
+      if (Self.Components[pPos].ClassType = THButtonedEdit) then
+        THButtonedEdit(Self.Components[pPos]).CheckForValueList;
+
       xType := xContext.GetType(pTable.ClassType);
 
       for xProperty in xType.GetProperties do
@@ -1207,9 +1273,11 @@ begin
 
   if (pComp.ClassType = THButtonedEdit) then
     Result := THButtonedEdit(pComp).DataBaseField
-  else if (pComp.ClassType = THDateTimePicker) then
+  else
+  if (pComp.ClassType = THDateTimePicker) then
     Result := THDateTimePicker(pComp).DataBaseField
-  else if (pComp.ClassType = THMemo) then
+  else
+  if (pComp.ClassType = THMemo) then
     Result := THMemo(pComp).DataBaseField;
 end;
 
@@ -1233,11 +1301,11 @@ begin
 
   if not(AnsiSameText('Botoes', xRefComponent.Name)) then
   begin
-    if (xComponent.ClassType = THMemo) then
+  {  if (xComponent.ClassType = THMemo) then
       THMemo(xComponent).OnExit(Sender);
 
     if (xComponent.ClassType = THDateTimePicker) then
-      THDateTimePicker(xComponent).OnExit(Sender);
+      THDateTimePicker(xComponent).OnExit(Sender);   }
 
     if (xComponent.ClassType = THButtonedEdit) then
       THButtonedEdit(xComponent).OnExit(xComponent);
@@ -1371,7 +1439,7 @@ begin
                       THButtonedEdit(Self.Components[j]).Text := EmptyStr;
                   end;
               else
-                xProperty.SetValue(FTable, StringReplace(pGrid.Selected(xProperty.Name).AsString, Chr(39), '',[rfReplaceAll]));
+                xProperty.SetValue(FTable, StringReplace(pGrid.Selected(xProperty.Name), Chr(39), '',[rfReplaceAll]));
                 THButtonedEdit(Self.Components[j]).Text := xProperty.GetValue(FTable).AsString;
               end;
 
@@ -1384,7 +1452,7 @@ begin
     end;
   end;
 
-  CabecalhoExit(Self);
+  //CabecalhoExit(Self);
 end;
 
 procedure TF000CAD.VerificarCampos;

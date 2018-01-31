@@ -49,11 +49,4 @@ begin
   Registrar('T000ISC' , 'USU_T000ISC');
 end;
 
-initialization
-  RegisterClasses([T000ISC]);
-  RegisterClasses([T000ISC]);
-
-finalization
-  UnRegisterClasses([T000ISC]);
-  UnRegisterClasses([T000ISC]);
 end.

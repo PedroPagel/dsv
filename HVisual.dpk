@@ -1,0 +1,50 @@
+package HVisual;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  HGeral,
+  HComponente,
+  HBase,
+  bdertl;
+
+contains
+  u000bas in 'u000bas.pas' {FORMBASE},
+  u000crm in 'u000crm.pas' {F000CRM},
+  u096pto in 'u096pto.pas' {F096PTO},
+  u310CLP in 'u310CLP.pas' {F310CLP},
+  u510ARM in 'u510ARM.pas' {F510ARM},
+  u510CON in 'u510CON.pas' {F510CON},
+  u510lay in 'u510lay.pas' {F510LAY},
+  u510lte in 'u510lte.pas' {F510LTE},
+  o000for in 'o000for.pas';
+
+end.
+
+

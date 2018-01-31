@@ -52,8 +52,8 @@ inherited F000ISC: TF000ISC
       inherited Geral: THPanel
         Top = 49
         Height = 642
-        ExplicitTop = 79
-        ExplicitHeight = 612
+        ExplicitTop = 49
+        ExplicitHeight = 642
         object Label6: TLabel
           Left = 48
           Top = 95

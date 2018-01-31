@@ -95,15 +95,15 @@ type
     FIndexTit: Integer;
     FValorIndice: Double;
     FRemoverCalculos: Boolean;
-    FTitulo: tTitulo;
+    FTitulo: TModulo;
     FFiltraContrato: string;
     FFiltraTitulo: string;
     FListaDespesas: TIterador;
 
     procedure InserirContrato(const pResultado: string);
     procedure RemoverContrato();
-    function GetTitulo: tTitulo;
-    procedure SetTitulo(const Value: tTitulo);
+    function GetTitulo: TModulo;
+    procedure SetTitulo(const Value: TModulo);
     procedure AdicionarTitulosDespesas();
     function GetDespesas: TIterador;
     procedure SetDespesas(const Value: TIterador);
@@ -134,7 +134,7 @@ type
     property FiltraContrato: string write FFiltraContrato;
     property FiltraTitulo: string write FFiltraTitulo;
     property Despesas: TIterador read GetDespesas write SetDespesas;
-    property Titulo: tTitulo read GetTitulo write SetTitulo;
+    property Titulo: TModulo read GetTitulo write SetTitulo;
     property IndexCtr: Integer read FIndexCtr write FIndexCtr;
     property IndexTit: Integer  read FIndexTit write FIndexTit;
     property RemoverCalculos: Boolean read FRemoverCalculos write FRemoverCalculos;
@@ -204,7 +204,7 @@ type
 implementation
 
 uses
-  wsCRAlterar, oMensagem;
+  webserviceContasReceber, oMensagem;
 
 function SituacaoTitulo(const pSitTit: string): Boolean;
 begin
@@ -230,18 +230,18 @@ begin
     x160MOV.USU_CodTpt := p160MOV.USU_CodTpt;
 
     x160MOV.SetFields := True;
-    x160MOV.Field := 'USU_SEQMOV';
-    x160MOV.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    x160MOV.Select := ssMax;
+    x160MOV.FieldForMax := 'USU_SEQMOV';
+    x160MOV.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT']);
+    x160MOV.Select := [ssMax];
     x160MOV.Open(False);
 
-    xQueryMov.Field := 'USU_VLRBON';
+    xQueryMov.FieldForSum := 'USU_VLRBON';
     xQueryMov.USU_CodEmp := x160MOV.USU_CodEmp;
     xQueryMov.USU_CodFil := x160MOV.USU_CodFil;
     xQueryMov.USU_NumTit := x160MOV.USU_NumTit;
     xQueryMov.USU_CodTpt := x160MOV.USU_CodTpt;
-    xQueryMov.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT'], True);
-    xQueryMov.Select := ssSum;
+    xQueryMov.PropertyForSelect(['USU_CODEMP','USU_CODFIL','USU_NUMTIT','USU_CODTPT']);
+    xQueryMov.Select := [ssSum];
     xQueryMov.Open(False);
 
     if not(xQueryMov.IsEmpty) then
@@ -265,7 +265,7 @@ begin
   xQueryTitulo := T501TCP.Create();
   try
     xQueryTitulo.USU_IDCLP := Self.USU_ID;
-    xQueryTitulo.PropertyForSelect(['USU_IDCLP'], True);
+    xQueryTitulo.PropertyForSelect(['USU_IDCLP']);
     xQueryTitulo.Open(False);
 
     while (xQueryTitulo.Next) do
@@ -286,7 +286,7 @@ begin
     xQueryMovimento := T160MOV.Create();
     xQueryMovimento.USU_IDCLP := Self.USU_ID;
     xQueryMovimento.USU_SeqMov := 1;
-    xQueryMovimento.PropertyForSelect(['USU_IDCLP','USU_SEQMOV'], True);
+    xQueryMovimento.PropertyForSelect(['USU_IDCLP','USU_SEQMOV']);
     xQueryMovimento.Open(False);
 
     while (xQueryMovimento.Next) do
@@ -341,11 +341,11 @@ begin
 
   x000dbc := T000dbc.Create;
   x000dbc.USU_CodDbc := F090IND.USU_CodDbc;
-  x000dbc.Field := 'USU_VLRDBC';
+  x000dbc.FieldForSum := 'USU_VLRDBC';
   x000dbc.Between['USU_DATIND'] := PeriodicidadeInicial(StartOfTheMonth(x160ctr.IniVig));
   x000dbc.Between['USU_DATIND'] := Date;
   x000dbc.PropertyForSelect(['USU_CODDBC']);
-  x000dbc.Select := ssSum;
+  x000dbc.Select := [ssSum];
   x000dbc.Open(False);
 
   Self.VlrInd := x000dbc.USU_VlrDbc;
@@ -530,7 +530,7 @@ begin
       xControle := TControle.Create();
       xControle.Assign(xQueryReajuste);
 
-      if (FTitulo = tTContasReceber) then
+      if (FTitulo = moContasReceber) then
         xControle.AdicionarTitulosReajuste()
       else
         xControle.AdicionarTitulosLigados();
@@ -538,7 +538,7 @@ begin
       Self.Add(xControle);
     end;
 
-    if (FTitulo = tTContasPagar) then
+    if (FTitulo = moContasPagar) then
       Self.AdicionarTitulosDespesas();
   finally
     FreeAndNil(xQueryReajuste);
@@ -549,7 +549,7 @@ constructor TIteradorControle.Create;
 begin
   inherited Create();
 
-  FTitulo := tTContasReceber;
+  FTitulo := moContasReceber;
   FListaDespesas := TIterador.Create;
 end;
 
@@ -605,7 +605,7 @@ begin
   Result := FListaDespesas;
 end;
 
-function TIteradorControle.GetTitulo: tTitulo;
+function TIteradorControle.GetTitulo: TModulo;
 begin
   Result := FTitulo;
 end;
@@ -966,7 +966,7 @@ begin
   FListaDespesas := Value;
 end;
 
-procedure TIteradorControle.SetTitulo(const Value: tTitulo);
+procedure TIteradorControle.SetTitulo(const Value: TModulo);
 begin
   FTitulo := Value;
 end;
@@ -1381,7 +1381,7 @@ begin
       x670BEM.CodEmp := x670LIB.USU_CodEmp;
       x670BEM.CodBem := x670LIB.USU_CodBem;
       x670BEM.USU_BemClp := 'S';
-      x670BEM.PropertyForSelect(['CODEMP','CODBEM','USU_BEMCLP'], True);
+      x670BEM.PropertyForSelect(['CODEMP','CODBEM','USU_BEMCLP']);
       x670BEM.Open(False);
 
       FListaBLG.AddByClass(x670BEM);
