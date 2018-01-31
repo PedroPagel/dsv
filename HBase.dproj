@@ -173,10 +173,12 @@
         <DCCReference Include="webserviceContasPagar.pas"/>
         <DCCReference Include="o420ipo.pas"/>
         <DCCReference Include="o097dem.pas"/>
-        <DCCReference Include="o096mdo.pas"/>
         <DCCReference Include="o078ult.pas"/>
         <DCCReference Include="o031imo.pas"/>
         <DCCReference Include="o097gfi.pas"/>
+        <DCCReference Include="o501pfi.pas"/>
+        <DCCReference Include="o096mto.pas"/>
+        <DCCReference Include="o120pxp.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

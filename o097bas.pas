@@ -34,10 +34,7 @@ procedure TLigacaoContainer.CarregarGrid();
 var
   x050dic: T050DIC;
   x096lfc: T096LFC;
-  i: Integer;
 begin
-  i := 0;
-
   x096lfc := nil;
   try
     x096lfc := T096LFC.Create;
@@ -83,12 +80,10 @@ begin
         FGrid.FindField('VlrFrt').AsFloat :=  x096lfc.USU_VlrFrt;
       end;
 
-      FGrid.FindField('id').AsInteger := i;
       FLista.AddByClass(x096lfc);
 
       x096lfc.Close;
       x096lfc.ClearFields;
-      Inc(i);
     end;
 
     FGrid.Connect;
@@ -135,7 +130,7 @@ begin
     FGrid.First;
     while not(FGrid.Eof) do
     begin
-      x096lfc := T096LFC(FLista[FGrid.FindField('id').AsInteger]);
+      x096lfc := T096LFC(FLista[pred(FGrid.Line)]);
       x096lfc.USU_LigCon := StrToChar(FGrid.FindField('SitCon').AsString);
       x096lfc.USU_VlrFrt := FGrid.FindField('VlrFrt').AsFloat;
 

@@ -10,7 +10,8 @@ uses
 
 type
   TProcedure = procedure() of Object;
-
+  TEnumProcedure = procedure(var value: string) of Object;
+  TEnumClick = (ekBrowse, ekOpen, ekClose, ekNull);
   TTableState = (estInsert, estUpdate, estDelete, etSelect, etNone, etExists, etWrite);
   TState = (aoInsert, aoUpdate, aoDelete, aoSelect, aoExists);
   TStateSelect = (ssSelect, ssMax, ssMin, ssCount, ssSum);
@@ -607,7 +608,7 @@ begin
   if (System.ParamCount > 0) then
     xBASE := ParamStr(1)
   else
-    xBASE := 'SENIOR53';
+    xBASE := 'SENIOR52';
 
   FOracleConnection := TConnectionBase.CreateBase();
   FOracleConnection.Conexao(xBASE);

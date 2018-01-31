@@ -117,7 +117,6 @@ type
     FUSU_CodMoe: string;
     FUSU_RegExp: string;
     FUSU_CodTip: string;
-    FUSU_VenAva: TDate;
 
     FCodForOLD: Integer;
     FNomForOLD: string;
@@ -227,7 +226,6 @@ type
     FUSU_CodMoeOLD: string;
     FUSU_RegExpOLD: string;
     FUSU_CodTipOLD: string;
-    FUSU_VenAvaOLD: TDate;
 
     function GetCodFor: Integer;
     procedure SetCodFor(const pCodFor: Integer);
@@ -445,8 +443,6 @@ type
     procedure SetUSU_RegExp(const pUSU_RegExp: string);
     function GetUSU_CodTip: string;
     procedure SetUSU_CodTip(const pUSU_CodTip: string);
-    function GetUSU_VenAva: TDate;
-    procedure SetUSU_VenAva(const pUSU_VenAva: TDate);
 
     function GetCodForOld: Integer;
     procedure SetCodForOld(const pCodFor: Integer);
@@ -664,8 +660,6 @@ type
     procedure SetUSU_RegExpOld(const pUSU_RegExp: string);
     function GetUSU_CodTipOld: string;
     procedure SetUSU_CodTipOld(const pUSU_CodTip: string);
-    function GetUSU_VenAvaOld: TDate;
-    procedure SetUSU_VenAvaOld(const pUSU_VenAva: TDate);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -781,7 +775,6 @@ type
     property USU_CodMoe: string read GetUSU_CodMoe write SetUSU_CodMoe;
     property USU_RegExp: string read GetUSU_RegExp write SetUSU_RegExp;
     property USU_CodTip: string read GetUSU_CodTip write SetUSU_CodTip;
-    //property USU_VenAva: TDate read GetUSU_VenAva write SetUSU_VenAva;
 
     property OLD_CodFor: Integer read GetCodForOLD write SetCodForOLD;
     property OLD_NomFor: string read GetNomForOLD write SetNomForOLD;
@@ -891,7 +884,6 @@ type
     property OLD_USU_CodMoe: string read GetUSU_CodMoeOLD write SetUSU_CodMoeOLD;
     property OLD_USU_RegExp: string read GetUSU_RegExpOLD write SetUSU_RegExpOLD;
     property OLD_USU_CodTip: string read GetUSU_CodTipOLD write SetUSU_CodTipOLD;
-    //property OLD_USU_VenAva: TDate read GetUSU_VenAvaOLD write SetUSU_VenAvaOLD;
   end;
 
 implementation
@@ -2206,18 +2198,6 @@ begin
   CheckField('USU_CodTip');
 end;
 
-function T095FOR.GetUSU_VenAva: TDate;
-begin
-  Result := FUSU_VenAva;
-end;
-
-procedure T095FOR.SetUSU_VenAva(const pUSU_VenAva: TDate);
-begin
-  FUSU_VenAva := pUSU_VenAva;
-
-  CheckField('USU_VenAva');
-end;
-
 function T095FOR.GetCodForOLD: Integer;
 begin
   Result := FCodForOLD;
@@ -3298,16 +3278,6 @@ begin
   FUSU_CodTipOLD := pUSU_CodTip;
 end;
 
-function T095FOR.GetUSU_VenAvaOLD: TDate;
-begin
-  Result := FUSU_VenAvaOLD;
-end;
-
-procedure T095FOR.SetUSU_VenAvaOLD(const pUSU_VenAva: TDate);
-begin
-  FUSU_VenAvaOLD := pUSU_VenAva;
-end;
-
 procedure T095FOR.Registros_OLD();
 begin
   FCodForOLD := FCodFor;
@@ -3418,7 +3388,6 @@ begin
   FUSU_CodMoeOLD := FUSU_CodMoe;
   FUSU_RegExpOLD := FUSU_RegExp;
   FUSU_CodTipOLD := FUSU_CodTip;
-  FUSU_VenAvaOLD := FUSU_VenAva;
 
   inherited;
 end;
@@ -3533,7 +3502,6 @@ begin
   FUSU_CodMoe := FUSU_CodMoeOLD;
   FUSU_RegExp := FUSU_RegExpOLD;
   FUSU_CodTip := FUSU_CodTipOLD;
-  FUSU_VenAva := FUSU_VenAvaOLD;
 end;
 
 end.

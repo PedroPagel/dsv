@@ -17,6 +17,8 @@ type
     FUSU_UsuAlt: Integer;
     FUSU_DatAlt: TDate;
     FUSU_ObsGfi: string;
+    FUSU_PerDes: Double;
+    FUSU_DiaReg: Integer;
 
     FUSU_CodGfiOLD: string;
     FUSU_DesGfiOLD: string;
@@ -26,6 +28,8 @@ type
     FUSU_UsuAltOLD: Integer;
     FUSU_DatAltOLD: TDate;
     FUSU_ObsGfiOLD: string;
+    FUSU_PerDesOLD: Double;
+    FUSU_DiaRegOLD: Integer;
 
     function GetUSU_CodGfi: string;
     procedure SetUSU_CodGfi(const pUSU_CodGfi: string);
@@ -43,6 +47,10 @@ type
     procedure SetUSU_DatAlt(const pUSU_DatAlt: TDate);
     function GetUSU_ObsGfi: string;
     procedure SetUSU_ObsGfi(const pUSU_ObsGfi: string);
+    function GetUSU_PerDes: Double;
+    procedure SetUSU_PerDes(const pUSU_PerDes: Double);
+    function GetUSU_DiaReg: Integer;
+    procedure SetUSU_DiaReg(const pUSU_DiaReg: Integer);
 
     function GetUSU_CodGfiOld: string;
     procedure SetUSU_CodGfiOld(const pUSU_CodGfi: string);
@@ -60,6 +68,10 @@ type
     procedure SetUSU_DatAltOld(const pUSU_DatAlt: TDate);
     function GetUSU_ObsGfiOld: string;
     procedure SetUSU_ObsGfiOld(const pUSU_ObsGfi: string);
+    function GetUSU_PerDesOld: Double;
+    procedure SetUSU_PerDesOld(const pUSU_PerDes: Double);
+    function GetUSU_DiaRegOld: Integer;
+    procedure SetUSU_DiaRegOld(const pUSU_DiaReg: Integer);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -75,6 +87,8 @@ type
     property USU_UsuAlt: Integer read GetUSU_UsuAlt write SetUSU_UsuAlt;
     property USU_DatAlt: TDate read GetUSU_DatAlt write SetUSU_DatAlt;
     property USU_ObsGfi: string read GetUSU_ObsGfi write SetUSU_ObsGfi;
+    property USU_PerDes: Double read GetUSU_PerDes write SetUSU_PerDes;
+    property USU_DiaReg: Integer read GetUSU_DiaReg write SetUSU_DiaReg;
 
     property OLD_USU_CodGfi: string read GetUSU_CodGfiOLD write SetUSU_CodGfiOLD;
     property OLD_USU_DesGfi: string read GetUSU_DesGfiOLD write SetUSU_DesGfiOLD;
@@ -84,6 +98,8 @@ type
     property OLD_USU_UsuAlt: Integer read GetUSU_UsuAltOLD write SetUSU_UsuAltOLD;
     property OLD_USU_DatAlt: TDate read GetUSU_DatAltOLD write SetUSU_DatAltOLD;
     property OLD_USU_ObsGfi: string read GetUSU_ObsGfiOLD write SetUSU_ObsGfiOLD;
+    property OLD_USU_PerDes: Double read GetUSU_PerDesOLD write SetUSU_PerDesOLD;
+    property OLD_USU_DiaReg: Integer read GetUSU_DiaRegOLD write SetUSU_DiaRegOLD;
   end;
 
 implementation
@@ -198,6 +214,30 @@ begin
   CheckField('USU_ObsGfi');
 end;
 
+function T097GFI.GetUSU_PerDes: Double;
+begin
+  Result := FUSU_PerDes;
+end;
+
+procedure T097GFI.SetUSU_PerDes(const pUSU_PerDes: Double);
+begin
+  FUSU_PerDes := pUSU_PerDes;
+
+  CheckField('USU_PerDes');
+end;
+
+function T097GFI.GetUSU_DiaReg: Integer;
+begin
+  Result := FUSU_DiaReg;
+end;
+
+procedure T097GFI.SetUSU_DiaReg(const pUSU_DiaReg: Integer);
+begin
+  FUSU_DiaReg := pUSU_DiaReg;
+
+  CheckField('USU_DiaReg');
+end;
+
 function T097GFI.GetUSU_CodGfiOLD: string;
 begin
   Result := FUSU_CodGfiOLD;
@@ -278,6 +318,26 @@ begin
   FUSU_ObsGfiOLD := pUSU_ObsGfi;
 end;
 
+function T097GFI.GetUSU_PerDesOLD: Double;
+begin
+  Result := FUSU_PerDesOLD;
+end;
+
+procedure T097GFI.SetUSU_PerDesOLD(const pUSU_PerDes: Double);
+begin
+  FUSU_PerDesOLD := pUSU_PerDes;
+end;
+
+function T097GFI.GetUSU_DiaRegOLD: Integer;
+begin
+  Result := FUSU_DiaRegOLD;
+end;
+
+procedure T097GFI.SetUSU_DiaRegOLD(const pUSU_DiaReg: Integer);
+begin
+  FUSU_DiaRegOLD := pUSU_DiaReg;
+end;
+
 procedure T097GFI.Registros_OLD();
 begin
   FUSU_CodGfiOLD := FUSU_CodGfi;
@@ -288,6 +348,8 @@ begin
   FUSU_UsuAltOLD := FUSU_UsuAlt;
   FUSU_DatAltOLD := FUSU_DatAlt;
   FUSU_ObsGfiOLD := FUSU_ObsGfi;
+  FUSU_PerDesOLD := FUSU_PerDes;
+  FUSU_DiaRegOLD := FUSU_DiaReg;
 
   inherited;
 end;
@@ -302,6 +364,8 @@ begin
   FUSU_UsuAlt := FUSU_UsuAltOLD;
   FUSU_DatAlt := FUSU_DatAltOLD;
   FUSU_ObsGfi := FUSU_ObsGfiOLD;
+  FUSU_PerDes := FUSU_PerDesOLD;
+  FUSU_DiaReg := FUSU_DiaRegOLD;
 
   inherited;
 end;

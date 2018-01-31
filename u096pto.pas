@@ -39,7 +39,6 @@ type
     CBTitulo: TCheckBox;
     CBImposto: TCheckBox;
     CBCalGru: TCheckBox;
-    CBContainer: TCheckBox;
     DDatBas: THDateTimePicker;
     Label4: TLabel;
     procedure FormCreate(Sender: TObject);
@@ -322,20 +321,17 @@ begin
       FIteradorPrevisao.CalcularGrupo := CBCalGru.Checked;
       FIteradorPrevisao.Imposto := CBImposto.Checked;
       FIteradorPrevisao.Titulo := CBTitulo.Checked;
-      FIteradorPrevisao.Container := CBContainer.Checked;
       FIteradorPrevisao.Processar;
 
       if (FIteradorPrevisao.Processado) then
       begin
         CMessage('Processado com sucesso!', mtInformation);
         Cancelar.Click;
-      end
-      else
-        CMessage('Não houve registro(s) processado(s)!', mtInformation);
+      end;
     except
-      on e: Exception do
+      on E: Exception do
       begin
-        CMessage('Erro(s) ao processar, consulte o botão detalhe(s)', mtExceptError, True, e.Message);
+        CMessage('Erro(s) ao processar, consulte o botão detalhe(s)', mtExceptError, True, E.Message);
         RollBack;
       end;
     end;

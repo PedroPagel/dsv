@@ -206,7 +206,7 @@ end;
 procedure THValueListEditor.ShowGridEnum(const pRect: TRect);
 begin
   Self.Height := (Self.RowCount * 20);
-  Self.Top := pRect.Top + 35;
+  Self.Top := pRect.Top + 18;
   Self.Left := pRect.Left;
   Self.Visible := iff(Self.Visible, False, True);
   Self.BringToFront;

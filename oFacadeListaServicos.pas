@@ -42,6 +42,7 @@ begin
   Result := FAgedamento;
 end;
 
+//Gera xml para o CRM caso seja necessario, vai cair no except e basta consultar o FMensagem
 procedure TFacadeListaServico.BeforeExecute(const MethodName: string;
   SOAPRequest: TStream);
 var
@@ -89,7 +90,6 @@ begin
     xRIO.HTTPWebNode.UseUTF8InHeader := False;
     xRIO.Converter.Encoding := 'ISO-8859-1';
     xRIO.Converter.Options := [soSendMultiRefObj,soTryAllSchema,soRootRefNodesToBody,soCacheMimeResponse];
-
   end;
 
   FServico := GetWConnect_CRM_SeniorPortType(False, integracao.USU_UrlCrm, xRIO);

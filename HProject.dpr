@@ -5,7 +5,6 @@ program HProject;
 uses
   Vcl.Forms,
   midaslib,
-  uMenu,
   o000for,
   System.SysUtils,
   Vcl.Themes,

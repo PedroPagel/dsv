@@ -314,7 +314,7 @@ var
     Result := Format(' USU_IDARM = %d', [Self.USU_ID]);
 
     if not(IsNull(pCondicao)) then
-      Result := Result + ' AND ' + pCondicao;
+      Result := Result + ' ' + pCondicao;
   end;
 
 begin

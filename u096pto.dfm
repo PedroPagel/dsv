@@ -118,7 +118,7 @@ inherited F096PTO: TF096PTO
       inherited HPanel3: THPanel
         Left = 805
         Height = 109
-        TabOrder = 12
+        TabOrder = 11
         ExplicitLeft = 805
         ExplicitHeight = 109
         inherited Mostrar: TButton
@@ -280,14 +280,6 @@ inherited F096PTO: TF096PTO
         Caption = '&3 - Calular por Grupo(s)'
         TabOrder = 9
       end
-      object CBContainer: TCheckBox
-        Left = 479
-        Top = 83
-        Width = 97
-        Height = 17
-        Caption = '&4 - Container'
-        TabOrder = 10
-      end
       object DDatBas: THDateTimePicker
         Left = 677
         Top = 13
@@ -302,7 +294,7 @@ inherited F096PTO: TF096PTO
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
-        TabOrder = 11
+        TabOrder = 10
       end
     end
     object Panel3: TPanel

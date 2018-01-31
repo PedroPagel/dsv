@@ -1,4 +1,4 @@
-unit o096mdo;
+unit o096mto;
 
 interface
 
@@ -7,7 +7,7 @@ uses
 
 type
 
-  T096MDO = class(TTabelaUsuario)
+  T096MTO = class(TTabelaUsuario)
   private
     FUSU_CodEmp: Integer;
     FUSU_CodFil: Integer;
@@ -88,197 +88,198 @@ type
 
 implementation
 
-{ T096MDO }
+{ T096MTO }
 
-constructor T096MDO.Create();
+constructor T096MTO.Create();
 begin
+  AddForeignKeys(['USU_EmpOcp','USU_FilOcp','USU_NumOcp'], ['CodEmp','CodFil','NumOcp']);
   AddPrimaryKeys('USU_Id');
 
-  inherited Create('USU_T096MDO');
+  inherited Create('USU_T096MTO');
 end;
 
-destructor T096MDO.Destroy();
+destructor T096MTO.Destroy();
 begin
   inherited;
 end;
 
-function T096MDO.GetUSU_CodEmp: Integer;
+function T096MTO.GetUSU_CodEmp: Integer;
 begin
   Result := FUSU_CodEmp;
 end;
 
-procedure T096MDO.SetUSU_CodEmp(const pUSU_CodEmp: Integer);
+procedure T096MTO.SetUSU_CodEmp(const pUSU_CodEmp: Integer);
 begin
   FUSU_CodEmp := pUSU_CodEmp;
 
   CheckField('USU_CodEmp');
 end;
 
-function T096MDO.GetUSU_CodFil: Integer;
+function T096MTO.GetUSU_CodFil: Integer;
 begin
   Result := FUSU_CodFil;
 end;
 
-procedure T096MDO.SetUSU_CodFil(const pUSU_CodFil: Integer);
+procedure T096MTO.SetUSU_CodFil(const pUSU_CodFil: Integer);
 begin
   FUSU_CodFil := pUSU_CodFil;
 
   CheckField('USU_CodFil');
 end;
 
-function T096MDO.GetUSU_NumTit: string;
+function T096MTO.GetUSU_NumTit: string;
 begin
   Result := FUSU_NumTit;
 end;
 
-procedure T096MDO.SetUSU_NumTit(const pUSU_NumTit: string);
+procedure T096MTO.SetUSU_NumTit(const pUSU_NumTit: string);
 begin
   FUSU_NumTit := pUSU_NumTit;
 
   CheckField('USU_NumTit');
 end;
 
-function T096MDO.GetUSU_CodFor: Integer;
+function T096MTO.GetUSU_CodFor: Integer;
 begin
   Result := FUSU_CodFor;
 end;
 
-procedure T096MDO.SetUSU_CodFor(const pUSU_CodFor: Integer);
+procedure T096MTO.SetUSU_CodFor(const pUSU_CodFor: Integer);
 begin
   FUSU_CodFor := pUSU_CodFor;
 
   CheckField('USU_CodFor');
 end;
 
-function T096MDO.GetUSU_CodTpt: string;
+function T096MTO.GetUSU_CodTpt: string;
 begin
   Result := FUSU_CodTpt;
 end;
 
-procedure T096MDO.SetUSU_CodTpt(const pUSU_CodTpt: string);
+procedure T096MTO.SetUSU_CodTpt(const pUSU_CodTpt: string);
 begin
   FUSU_CodTpt := pUSU_CodTpt;
 
   CheckField('USU_CodTpt');
 end;
 
-function T096MDO.GetUSU_EmpOcp: Integer;
+function T096MTO.GetUSU_EmpOcp: Integer;
 begin
   Result := FUSU_EmpOcp;
 end;
 
-procedure T096MDO.SetUSU_EmpOcp(const pUSU_EmpOcp: Integer);
+procedure T096MTO.SetUSU_EmpOcp(const pUSU_EmpOcp: Integer);
 begin
   FUSU_EmpOcp := pUSU_EmpOcp;
 
   CheckField('USU_EmpOcp');
 end;
 
-function T096MDO.GetUSU_FilOcp: Integer;
+function T096MTO.GetUSU_FilOcp: Integer;
 begin
   Result := FUSU_FilOcp;
 end;
 
-procedure T096MDO.SetUSU_FilOcp(const pUSU_FilOcp: Integer);
+procedure T096MTO.SetUSU_FilOcp(const pUSU_FilOcp: Integer);
 begin
   FUSU_FilOcp := pUSU_FilOcp;
 
   CheckField('USU_FilOcp');
 end;
 
-function T096MDO.GetUSU_NumOcp: Integer;
+function T096MTO.GetUSU_NumOcp: Integer;
 begin
   Result := FUSU_NumOcp;
 end;
 
-procedure T096MDO.SetUSU_NumOcp(const pUSU_NumOcp: Integer);
+procedure T096MTO.SetUSU_NumOcp(const pUSU_NumOcp: Integer);
 begin
   FUSU_NumOcp := pUSU_NumOcp;
 
   CheckField('USU_NumOcp');
 end;
 
-function T096MDO.GetUSU_CodEmpOLD: Integer;
+function T096MTO.GetUSU_CodEmpOLD: Integer;
 begin
   Result := FUSU_CodEmpOLD;
 end;
 
-procedure T096MDO.SetUSU_CodEmpOLD(const pUSU_CodEmp: Integer);
+procedure T096MTO.SetUSU_CodEmpOLD(const pUSU_CodEmp: Integer);
 begin
   FUSU_CodEmpOLD := pUSU_CodEmp;
 end;
 
-function T096MDO.GetUSU_CodFilOLD: Integer;
+function T096MTO.GetUSU_CodFilOLD: Integer;
 begin
   Result := FUSU_CodFilOLD;
 end;
 
-procedure T096MDO.SetUSU_CodFilOLD(const pUSU_CodFil: Integer);
+procedure T096MTO.SetUSU_CodFilOLD(const pUSU_CodFil: Integer);
 begin
   FUSU_CodFilOLD := pUSU_CodFil;
 end;
 
-function T096MDO.GetUSU_NumTitOLD: string;
+function T096MTO.GetUSU_NumTitOLD: string;
 begin
   Result := FUSU_NumTitOLD;
 end;
 
-procedure T096MDO.SetUSU_NumTitOLD(const pUSU_NumTit: string);
+procedure T096MTO.SetUSU_NumTitOLD(const pUSU_NumTit: string);
 begin
   FUSU_NumTitOLD := pUSU_NumTit;
 end;
 
-function T096MDO.GetUSU_CodForOLD: Integer;
+function T096MTO.GetUSU_CodForOLD: Integer;
 begin
   Result := FUSU_CodForOLD;
 end;
 
-procedure T096MDO.SetUSU_CodForOLD(const pUSU_CodFor: Integer);
+procedure T096MTO.SetUSU_CodForOLD(const pUSU_CodFor: Integer);
 begin
   FUSU_CodForOLD := pUSU_CodFor;
 end;
 
-function T096MDO.GetUSU_CodTptOLD: string;
+function T096MTO.GetUSU_CodTptOLD: string;
 begin
   Result := FUSU_CodTptOLD;
 end;
 
-procedure T096MDO.SetUSU_CodTptOLD(const pUSU_CodTpt: string);
+procedure T096MTO.SetUSU_CodTptOLD(const pUSU_CodTpt: string);
 begin
   FUSU_CodTptOLD := pUSU_CodTpt;
 end;
 
-function T096MDO.GetUSU_EmpOcpOLD: Integer;
+function T096MTO.GetUSU_EmpOcpOLD: Integer;
 begin
   Result := FUSU_EmpOcpOLD;
 end;
 
-procedure T096MDO.SetUSU_EmpOcpOLD(const pUSU_EmpOcp: Integer);
+procedure T096MTO.SetUSU_EmpOcpOLD(const pUSU_EmpOcp: Integer);
 begin
   FUSU_EmpOcpOLD := pUSU_EmpOcp;
 end;
 
-function T096MDO.GetUSU_FilOcpOLD: Integer;
+function T096MTO.GetUSU_FilOcpOLD: Integer;
 begin
   Result := FUSU_FilOcpOLD;
 end;
 
-procedure T096MDO.SetUSU_FilOcpOLD(const pUSU_FilOcp: Integer);
+procedure T096MTO.SetUSU_FilOcpOLD(const pUSU_FilOcp: Integer);
 begin
   FUSU_FilOcpOLD := pUSU_FilOcp;
 end;
 
-function T096MDO.GetUSU_NumOcpOLD: Integer;
+function T096MTO.GetUSU_NumOcpOLD: Integer;
 begin
   Result := FUSU_NumOcpOLD;
 end;
 
-procedure T096MDO.SetUSU_NumOcpOLD(const pUSU_NumOcp: Integer);
+procedure T096MTO.SetUSU_NumOcpOLD(const pUSU_NumOcp: Integer);
 begin
   FUSU_NumOcpOLD := pUSU_NumOcp;
 end;
 
-procedure T096MDO.Registros_OLD();
+procedure T096MTO.Registros_OLD();
 begin
   FUSU_CodEmpOLD := FUSU_CodEmp;
   FUSU_CodFilOLD := FUSU_CodFil;
@@ -292,7 +293,7 @@ begin
   inherited;
 end;
 
-procedure T096MDO.RetornarValores();
+procedure T096MTO.RetornarValores();
 begin
   FUSU_CodEmp := FUSU_CodEmpOLD;
   FUSU_CodFil := FUSU_CodFilOLD;

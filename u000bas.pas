@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, oPanel,
-  Vcl.StdCtrls, oMemo, oButtonedEdit, oDateTimePicker, oBase;
+  Vcl.StdCtrls, oMemo, oButtonedEdit, oDateTimePicker, oBase, oDataSetGrid;
 
 type
   TFORMBASE = class(TForm)
@@ -65,11 +65,31 @@ end;
 procedure TFORMBASE.FormMouseActivate(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y, HitTest: Integer;
   var MouseActivate: TMouseActivate);
+var
+  i: Integer;
+  xGrid: TDataSetGrid;
 begin
   if Assigned(ActiveControl) and not(IsNull(FButtonEdit)) and
     ((AnsiSameText(FButtonEdit, ActiveControl.Name)) or
     (AnsiSameText(FUltimoComponente, ActiveControl.Name))) then
     THButtonedEdit(Self.FindComponent(FButtonEdit)).CheckEnum;
+
+  if Assigned(ActiveControl) then
+  begin
+    for i := 0 to pred(Self.ComponentCount) do
+    begin
+      if (TDataSetGrid = Self.Components[i].ClassType) then
+      begin
+        xGrid := TDataSetGrid(Self.FindComponent(Self.Components[i].Name));
+
+        if AnsiSameText(xGrid.LookupGridClick, ActiveControl.Name) then
+        begin
+          xGrid.CheckEnum(ActiveControl.Name);
+          Break;
+        end;
+      end;
+    end;
+  end;
 end;
 
 procedure TFORMBASE.LookupClick(Sender: TObject; const pObjectName: string);
@@ -84,3 +104,4 @@ begin
 end;
 
 end.
+

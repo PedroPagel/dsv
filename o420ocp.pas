@@ -168,7 +168,7 @@ type
     FUSU_DatEnt: TDate;
     FUSU_ObsOa: string;
     FUSU_OrdCon: string;
-    FUSU_IdeMdo: Integer;
+    FUSU_TitImp: Char;
 
     FCodEmpOLD: Integer;
     FCodFilOLD: Integer;
@@ -329,7 +329,7 @@ type
     FUSU_DatEntOLD: TDate;
     FUSU_ObsOaOLD: string;
     FUSU_OrdConOLD: string;
-    FUSU_IdeMdoOLD: Integer;
+    FUSU_TitImpOLD: Char;
 
     function GetCodEmp: Integer;
     procedure SetCodEmp(const pCodEmp: Integer);
@@ -649,8 +649,8 @@ type
     procedure SetUSU_ObsOa(const pUSU_ObsOa: string);
     function GetUSU_OrdCon: string;
     procedure SetUSU_OrdCon(const pUSU_OrdCon: string);
-    function GetUSU_IdeMdo: Integer;
-    procedure SetUSU_IdeMdo(const pUSU_IdeMdo: Integer);
+    function GetUSU_TitImp: Char;
+    procedure SetUSU_TitImp(const pUSU_TitImp: Char);
 
     function GetCodEmpOld: Integer;
     procedure SetCodEmpOld(const pCodEmp: Integer);
@@ -970,8 +970,8 @@ type
     procedure SetUSU_ObsOaOld(const pUSU_ObsOa: string);
     function GetUSU_OrdConOld: string;
     procedure SetUSU_OrdConOld(const pUSU_OrdCon: string);
-    function GetUSU_IdeMdoOld: Integer;
-    procedure SetUSU_IdeMdoOld(const pUSU_IdeMdo: Integer);
+    function GetUSU_TitImpOld: Char;
+    procedure SetUSU_TitImpOld(const pUSU_TitImp: Char);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -1138,7 +1138,7 @@ type
     property USU_DatEnt: TDate read GetUSU_DatEnt write SetUSU_DatEnt;
     property USU_ObsOa: string read GetUSU_ObsOa write SetUSU_ObsOa;
     property USU_OrdCon: string read GetUSU_OrdCon write SetUSU_OrdCon;
-    property USU_IdeMdo: Integer read GetUSU_IdeMdo write SetUSU_IdeMdo;
+    property USU_TitImp: Char read GetUSU_TitImp write SetUSU_TitImp;
 
     property OLD_CodEmp: Integer read GetCodEmpOLD write SetCodEmpOLD;
     property OLD_CodFil: Integer read GetCodFilOLD write SetCodFilOLD;
@@ -1299,7 +1299,7 @@ type
     property OLD_USU_DatEnt: TDate read GetUSU_DatEntOLD write SetUSU_DatEntOLD;
     property OLD_USU_ObsOa: string read GetUSU_ObsOaOLD write SetUSU_ObsOaOLD;
     property OLD_USU_OrdCon: string read GetUSU_OrdConOLD write SetUSU_OrdConOLD;
-    property OLD_USU_IdeMdo: Integer read GetUSU_IdeMdoOLD write SetUSU_IdeMdoOLD;
+    property OLD_USU_TitImp: Char read GetUSU_TitImpOLD write SetUSU_TitImpOLD;
   end;
 
 implementation
@@ -3227,16 +3227,16 @@ begin
   CheckField('USU_OrdCon');
 end;
 
-function T420OCP.GetUSU_IdeMdo: Integer;
+function T420OCP.GetUSU_TitImp: Char;
 begin
-  Result := FUSU_IdeMdo;
+  Result := FUSU_TitImp;
 end;
 
-procedure T420OCP.SetUSU_IdeMdo(const pUSU_IdeMdo: Integer);
+procedure T420OCP.SetUSU_TitImp(const pUSU_TitImp: Char);
 begin
-  FUSU_IdeMdo := pUSU_IdeMdo;
+  FUSU_TitImp := pUSU_TitImp;
 
-  CheckField('USU_IdeMdo');
+  CheckField('USU_TitImp');
 end;
 
 function T420OCP.GetCodEmpOLD: Integer;
@@ -4829,14 +4829,14 @@ begin
   FUSU_OrdConOLD := pUSU_OrdCon;
 end;
 
-function T420OCP.GetUSU_IdeMdoOLD: Integer;
+function T420OCP.GetUSU_TitImpOLD: Char;
 begin
-  Result := FUSU_IdeMdoOLD;
+  Result := FUSU_TitImpOLD;
 end;
 
-procedure T420OCP.SetUSU_IdeMdoOLD(const pUSU_IdeMdo: Integer);
+procedure T420OCP.SetUSU_TitImpOLD(const pUSU_TitImp: Char);
 begin
-  FUSU_IdeMdoOLD := pUSU_IdeMdo;
+  FUSU_TitImpOLD := pUSU_TitImp;
 end;
 
 procedure T420OCP.Registros_OLD();
@@ -5000,7 +5000,7 @@ begin
   FUSU_DatEntOLD := FUSU_DatEnt;
   FUSU_ObsOaOLD := FUSU_ObsOa;
   FUSU_OrdConOLD := FUSU_OrdCon;
-  FUSU_IdeMdoOLD := FUSU_IdeMdo;
+  FUSU_TitImpOLD := FUSU_TitImp;
 
   inherited;
 end;
@@ -5166,7 +5166,7 @@ begin
   FUSU_DatEnt := FUSU_DatEntOLD;
   FUSU_ObsOa := FUSU_ObsOaOLD;
   FUSU_OrdCon := FUSU_OrdConOLD;
-  FUSU_IdeMdo := FUSU_IdeMdoOLD;
+  FUSU_TitImp := FUSU_TitImpOLD;
 
   inherited;
 end;

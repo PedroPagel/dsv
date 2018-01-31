@@ -1,17 +1,24 @@
 inherited F097GFI: TF097GFI
   Caption = 'F097GFI - Cadastro de Grupo(s) de Fornecedores de Imorta'#231#227'o'
+  ClientHeight = 747
   OnDestroy = FormDestroy
   ExplicitWidth = 634
-  ExplicitHeight = 732
+  ExplicitHeight = 785
   PixelsPerInch = 96
   TextHeight = 13
   inherited Panel1: TPanel
+    Height = 747
+    ExplicitHeight = 747
     inherited Botoes: TPanel
+      Height = 745
+      ExplicitHeight = 745
       inherited DBNavigator: TDBNavigator
         Hints.Strings = ()
       end
     end
     inherited Panel4: TPanel
+      Height = 745
+      ExplicitHeight = 745
       inherited Cabecalho: THPanel
         Height = 50
         DataBaseTable = 'USU_T097GFI'
@@ -53,33 +60,33 @@ inherited F097GFI: TF097GFI
       end
       inherited Geral: THPanel
         Top = 51
-        Height = 640
+        Height = 693
         ExplicitTop = 51
-        ExplicitHeight = 640
+        ExplicitHeight = 693
         object Label6: TLabel
           Left = 47
-          Top = 262
+          Top = 316
           Width = 83
           Height = 13
           Caption = 'Usu'#225'rio Gera'#231#227'o:'
         end
         object Label7: TLabel
           Left = 60
-          Top = 288
+          Top = 342
           Width = 70
           Height = 13
           Caption = 'Data Gera'#231#227'o:'
         end
         object Label8: TLabel
           Left = 41
-          Top = 316
+          Top = 370
           Width = 89
           Height = 13
           Caption = 'Usu'#225'rio Altera'#231#227'o:'
         end
         object Label9: TLabel
           Left = 54
-          Top = 342
+          Top = 396
           Width = 76
           Height = 13
           Caption = 'Data Altera'#231#227'o:'
@@ -105,23 +112,21 @@ inherited F097GFI: TF097GFI
           Height = 13
           Caption = 'Observa'#231#227'o:'
         end
-        object BEUsuGer: THButtonedEdit
-          Left = 135
-          Top = 259
-          Width = 121
-          Height = 21
-          TabOrder = 3
-          Lookup = False
-          AvoidSelections = False
-          isNumber = True
-          isAlfa = False
-          isFloat = False
-          OpenDialog = False
-          DataBaseTable = 'USU_T097GFI'
-          DataBaseField = 'USU_USUGER'
-          Required = False
+        object Label5: TLabel
+          Left = 16
+          Top = 262
+          Width = 114
+          Height = 13
+          Caption = 'Percentual de Despesa:'
         end
-        object BEUsuAlt: THButtonedEdit
+        object Label4: TLabel
+          Left = 31
+          Top = 289
+          Width = 100
+          Height = 13
+          Caption = 'Dia(s) para Registro:'
+        end
+        object BEUsuGer: THButtonedEdit
           Left = 135
           Top = 313
           Width = 121
@@ -134,21 +139,26 @@ inherited F097GFI: TF097GFI
           isFloat = False
           OpenDialog = False
           DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_USUGER'
+          Required = False
+        end
+        object BEUsuAlt: THButtonedEdit
+          Left = 135
+          Top = 367
+          Width = 121
+          Height = 21
+          TabOrder = 7
+          Lookup = False
+          AvoidSelections = False
+          isNumber = True
+          isAlfa = False
+          isFloat = False
+          OpenDialog = False
+          DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_USUALT'
           Required = False
         end
         object DTDatGer: THDateTimePicker
-          Left = 135
-          Top = 286
-          Width = 121
-          Height = 21
-          Date = 43000.498434016200000000
-          Time = 43000.498434016200000000
-          TabOrder = 4
-          DataBaseTable = 'USU_T097GFI'
-          DataBaseField = 'USU_DATGER'
-        end
-        object DTDatAlt: THDateTimePicker
           Left = 135
           Top = 340
           Width = 121
@@ -156,6 +166,17 @@ inherited F097GFI: TF097GFI
           Date = 43000.498434016200000000
           Time = 43000.498434016200000000
           TabOrder = 6
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_DATGER'
+        end
+        object DTDatAlt: THDateTimePicker
+          Left = 135
+          Top = 394
+          Width = 121
+          Height = 21
+          Date = 43000.498434016200000000
+          Time = 43000.498434016200000000
+          TabOrder = 8
           DataBaseTable = 'USU_T097GFI'
           DataBaseField = 'USU_DATALT'
         end
@@ -224,11 +245,11 @@ inherited F097GFI: TF097GFI
         end
         object HPanel1: THPanel
           Left = 1
-          Top = 367
+          Top = 420
           Width = 523
           Height = 272
           Align = alBottom
-          TabOrder = 7
+          TabOrder = 9
           object Panel2: TPanel
             Left = 1
             Top = 1
@@ -273,6 +294,42 @@ inherited F097GFI: TF097GFI
             TitleFont.Style = []
             AllowNewLine = True
           end
+        end
+        object BEPerDes: THButtonedEdit
+          Left = 135
+          Top = 259
+          Width = 121
+          Height = 21
+          TabOrder = 3
+          Table = 'USU_T095FIM'
+          Lookup = False
+          Field = 'USU_PerDes'
+          AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
+          OpenDialog = False
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_PerDes'
+          Required = False
+        end
+        object BEDiaReg: THButtonedEdit
+          Left = 136
+          Top = 286
+          Width = 121
+          Height = 21
+          TabOrder = 4
+          Table = 'USU_T095FIM'
+          Lookup = False
+          Field = 'USU_DiaReg'
+          AvoidSelections = False
+          isNumber = False
+          isAlfa = False
+          isFloat = False
+          OpenDialog = False
+          DataBaseTable = 'USU_T097GFI'
+          DataBaseField = 'USU_DiaReg'
+          Required = False
         end
       end
     end

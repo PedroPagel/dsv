@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, oBase, System.SysUtils, System.Contnrs, o096ite,
   o095for, oGeral, o096dei, o096lfc, o095fim, o420ocp, o420ipo, webserviceContasPagar,
-  o075pro, o096mdo, o031imo, o050dic, o097dem, o501tcp;
+  o075pro, o096mto, o031imo, o050dic, o097dem, o501tcp, o097gfi, o501pfi;
 
 type
 
@@ -16,63 +16,45 @@ type
     property MedCot: Double read FMedCot write FMedCot;
   end;
 
+  TIteradorParametros = class(TIterador)
+  private
+    procedure Carregar();
+    function GetParametro(index: Integer): T501PFI;
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    property Parametro[index: Integer]: T501PFI read GetParametro;
+  end;
+
   TBase = class(T501TCP)
   private
     FListaMoedas: TIterador;
     FCalcularGrupo: Boolean;
-    FContainer: Boolean;
     FImposto: Boolean;
     FTitulo: Boolean;
     F031IMO: T031IMO;
     FData: TDate;
+    F501PFI: T501PFI;
 
-    FGeradorTitulo: TGeradorTitulo;
+    function GetParametros: T501PFI;
+    procedure SetParametros(const Value: T501PFI);
+    procedure IncluirTitulo(const criaTituloCP: TGeradorTitulo; const fornecedor: TIteradorFornecedor = nil); virtual;
   public
     constructor Create();
     destructor Destroy(); override;
 
     function DataPrevisao: TDate;
-    function GeradorTitulo: TGeradorTitulo;
     function CalcularMoeda(const moeda: string): Double;
+
+    procedure AtribuirParametros(); virtual; abstract;
+    procedure AlterarData(const dias: Integer);
 
     property Data: TDate read FData write FData;
     property Titulo: Boolean read FTitulo write FTitulo;
     property Imposto: Boolean read FImposto write FImposto;
-    property Container: Boolean read FContainer write FContainer;
+    property Parametros: T501PFI read GetParametros write SetParametros;
     property CalcularGrupo: Boolean read FCalcularGrupo write FCalcularGrupo;
-  end;
-
-  TGerenciadorContainer = class(TBase)
-  private
-    FIteradorPesoOrdem: TIteradorPesoOrdem;
-    FIteradorContainer: TIteradorContainer;
-    FListaDespesas: TIterador;
-    F096MDO: T096MDO;
-
-    FSobra: Integer;
-    FIdeFor: Integer;
-    FValor: Double;
-    FQtdTitulos: Integer;
-    FTotalGastos: Double;
-
-    function BuscarContainer(const total: Double): Boolean;
-
-    procedure CarregarDespesas();
-    procedure CarregarDespesaGrupo(const grupo: string);
-    procedure AtualizarOrdemCompra(const iterador: TIterador);
-    procedure GerarMovimentos(const gerador: TGeradorTitulo);
-    procedure GerarTitulo(const iterador: TIterador; const fornecedor: Integer);
-  public
-    constructor Create();
-    destructor Destroy(); override;
-
-    procedure IncluirItem(const produto: T420IPO; const ordem: T420OCP);
-    procedure Carregar(const fornecedor: Integer; const grupo: string = '');
-    procedure Executar(const iterador: TIterador; const fornecedor: Integer);
-
-    function ValorContainer: Double;
-    function IdentificadorFornecedor: Integer;
-    function Gastos: Double;
   end;
 
   TGerenciardorTitulo = class(TBase)
@@ -81,9 +63,10 @@ type
 
     function GetVlrFin: Double;
     procedure SetVlrFin(const Value: Double);
+    procedure IncluirTitulo(const criaTituloCP: TGeradorTitulo; const fornecedor: TIteradorFornecedor = nil); override;
   public
-    procedure Executar();
-    procedure Adicionar(const produto: T420IPO; const ordem: T420OCP);
+    procedure IncluirProduto(const produto: T420IPO; const ordem: T420OCP);
+    procedure AtribuirParametros(); override;
 
     property VlrFin: Double read GetVlrFin write SetVlrFin;
   end;
@@ -91,18 +74,85 @@ type
   TGeradorImposto = class(TBase)
   private
     FVlrImp: Double;
+
     function GetVlrImp: Double;
     procedure SetVlrImp(const Value: Double);
+    procedure IncluirTitulo(const criaTituloCP: TGeradorTitulo; const fornecedor: TIteradorFornecedor = nil); override;
   public
-    procedure Executar();
-    procedure Adicionar(const produto: T420IPO; const ordem: T420OCP);
+    procedure AtribuirParametros(); override;
+    procedure IncluirProduto(const produto: T420IPO; const ordem: T420OCP; const fornecedor: TIteradorFornecedor);
 
     property VlrImp: Double read GetVlrImp write SetVlrImp;
+  end;
+
+  TGerenciadorDespesas = class(TBase)
+  private
+    FVlrDes: Double;
+    FListaGrupos: TIterador;
+    FListaFornecedores: TIterador;
+
+    function GetVlrDes: Double;
+    procedure SetVlrDes(const Value: Double);
+    procedure IncluirTitulo(const criaTituloCP: TGeradorTitulo; const fornecedor: TIteradorFornecedor = nil); override;
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    procedure AtribuirParametros(); override;
+    procedure Carregar(const fornecedor: Integer; const grupo: string = '');
+    procedure IncluirProduto(const imposto: Double; const produto: T420IPO; const ordem: T420OCP; const grupo: string = '');
+
+    property VlrDes: Double read GetVlrDes write SetVlrDes;
+  end;
+
+  TGerenciador = class(TIterador)
+  private
+    FErro: string;
+    FListaTitulos: TIterador;
+    FGeradorTitulo: TGeradorTitulo;
+    FExcluirTitulo: TExcluirTitulo;
+    FGerenciadorImposto: TGeradorImposto;
+    FIteradorParametros: TIteradorParametros;
+    FGerenciardorTitulo: TGerenciardorTitulo;
+    FGerenciadorDespesas: TGerenciadorDespesas;
+
+    function GetDespesas: TGerenciadorDespesas;
+    function GetTitulo: TGerenciardorTitulo;
+    function GetImposto: TGeradorImposto;
+
+    procedure AdicionarTitulos();
+    procedure AtualizarOrdemCompra();
+  public
+    constructor Create();
+    destructor Destroy; override;
+
+    function Erro: string;
+    function Processado: Boolean;
+
+    procedure Init();
+    procedure Executar();
+    procedure Add(const ordem: T420OCP); overload;
+    procedure TituloImposto(const fornecedor: TIteradorFornecedor);
+    procedure TituloDespesas(const fornecedor: TIteradorFornecedor);
+    procedure TituloFornecedor(const fornecedor: TIteradorFornecedor);
+
+    property GerenciarImposto: TGeradorImposto read GetImposto;
+    property GerenciarTitulo: TGerenciardorTitulo read GetTitulo;
+    property GerenciarDespesas: TGerenciadorDespesas read GetDespesas;
   end;
 
 implementation
 
 { TBase }
+
+procedure TBase.AlterarData(const dias: Integer);
+var
+  xDia: TData;
+begin
+  xDia := TData.Create(FData);
+  xDia.IncDays(dias);
+  FData := xDia.Data;
+end;
 
 function TBase.CalcularMoeda(const moeda: string): Double;
 var
@@ -142,11 +192,11 @@ begin
     Result := TCotacao(FListaMoedas[i]).MedCot;
 end;
 
-constructor TBase.Create;
+constructor TBase.Create();
 begin
   inherited Create;
 
-  FGeradorTitulo := TGeradorTitulo.Create;
+  F501PFI := T501PFI.Create;
   F031IMO := T031IMO.Create;
 
   FListaMoedas := TIterador.Create();
@@ -161,439 +211,40 @@ end;
 
 destructor TBase.Destroy;
 begin
-  FreeAndNil(FGeradorTitulo);
+  FreeAndNil(F501PFI);
   FreeAndNil(F031IMO);
   FreeAndNil(FListaMoedas);
 
   inherited;
 end;
 
-function TBase.GeradorTitulo: TGeradorTitulo;
+function TBase.GetParametros: T501PFI;
 begin
-  Result := FGeradorTitulo;
+  Result := F501PFI;
 end;
 
-{ TGerenciadorContainer }
-
-procedure TGerenciadorContainer.Carregar(const fornecedor: Integer; const grupo: string = '');
-var
-  x050dic: T050DIC;
-  x096lfc: T096LFC;
-  xGrupo: string;
-  xContainer: TContainer;
+procedure TBase.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
+  const fornecedor: TIteradorFornecedor);
 begin
-  FSobra := 0;
-  FValor := 0;
-  xGrupo := EmptyStr;
-  FIteradorContainer.Clear;
-  FListaDespesas.Clear;
+  AtribuirParametros();
 
-  x096lfc := T096LFC.Create;
-  try
-    x050dic := T050DIC.Create;
-
-    x096lfc.USU_CodFor := fornecedor;
-    x096lfc.USU_CodGfi := grupo;
-    x096lfc.USU_LigCon := 'A';
-
-    if not(IsNull(grupo)) then
-      x096lfc.PropertyForSelect(['USU_CODGFI', 'USU_LIGCON'])
-    else
-      x096lfc.PropertyForSelect(['USU_CODFOR', 'USU_LIGCON']);
-
-    x096lfc.Open(False);
-    if not(x096lfc.IsEmpty) then
-      FIdeFor := x096lfc.USU_IdeFor;
-
-    while (x096lfc.Next) do
-    begin
-      x050dic.Init;
-      x050dic.USU_ID := x096lfc.USU_IdeCon;
-      x050dic.Open;
-
-      xContainer := TContainer.Create;
-      xContainer.Valor := x096lfc.USU_VlrFrt;
-      xContainer.Peso := x050dic.USU_CapCar;
-      xContainer.Limite := x050dic.USU_LimCon;
-      xContainer.CargaMinima := x050dic.USU_LimMin;
-
-      FIteradorContainer.Add(xContainer);
-    end;
-  finally
-    FreeAndNil(x050dic);
-    FreeAndNil(x096lfc);
-  end;
+  criaTituloCP.CodEmp := FLogEmp;
+  criaTituloCP.CodFil := FLogFil;
+  criaTituloCP.CodFor := CodFor;
+  criaTituloCP.CodCrt := CodCrt;
+  criaTituloCP.CodPor := CodPor;
+  criaTituloCP.CodTpt := CodTpt;
+  criaTituloCP.CodTns := CodTns;
 end;
 
-procedure TGerenciadorContainer.CarregarDespesaGrupo(const grupo: string);
-var
-  x096dei: T096DEI;
-  x097dem: T097DEM;
-  xDespesa: Double;
+procedure TBase.SetParametros(const Value: T501PFI);
 begin
-  FTotalGastos := FTotalGastos + Self.ValorContainer;
-
-  x096dei := T096DEI.Create;
-  try
-    x096dei.USU_CodGfi := grupo;
-    x096dei.PropertyForSelect(['USU_CODGFI']);
-    x096dei.Open(False);
-
-    while (x096dei.Next) do
-    begin
-      xDespesa := (x096dei.USU_VlrDes * (CalcularMoeda(x096dei.USU_CodMoe)));
-
-      FTotalGastos := FTotalGastos + xDespesa;
-
-      x097dem := T097DEM.Create;
-      x097dem.USU_DesFor := x096dei.USU_DesFor;
-      x097dem.USU_VlrDes := xDespesa;
-
-      FListaDespesas.Add(x097dem);
-    end;
-  finally
-    FreeAndNil(x096dei);
-  end;
-end;
-
-procedure TGerenciadorContainer.CarregarDespesas();
-var
-  x096dei: T096DEI;
-  x097dem: T097DEM;
-  xDespesa: Double;
-begin
-  FTotalGastos := FTotalGastos + Self.ValorContainer;
-
-  x096dei := T096DEI.Create;
-  try
-    x096dei.USU_IdeFim := Self.IdentificadorFornecedor;
-    x096dei.doForeignKey := True;
-    x096dei.Open();
-
-    while (x096dei.Next) do
-    begin
-      xDespesa := (x096dei.USU_VlrDes * (CalcularMoeda(x096dei.USU_CodMoe)));
-
-      FTotalGastos := FTotalGastos + xDespesa;
-
-      x097dem := T097DEM.Create;
-      x097dem.USU_DesFor := x096dei.USU_DesFor;
-      x097dem.USU_VlrDes := xDespesa;
-
-      FListaDespesas.Add(x097dem);
-    end;
-  finally
-    FreeAndNil(x096dei);
-  end;
-end;
-
-constructor TGerenciadorContainer.Create;
-begin
-  inherited Create;
-
-  FIteradorContainer := TIteradorContainer.Create();
-  F096MDO := T096MDO.Create;
-
-  FListaDespesas := TIterador.Create;
-  FIteradorPesoOrdem := TIteradorPesoOrdem.Create();
-end;
-
-destructor TGerenciadorContainer.Destroy;
-begin
-  FreeAndNil(FIteradorContainer);
-  FreeAndNil(F096MDO);
-  FreeAndNil(FListaDespesas);
-  FreeAndNil(FIteradorPesoOrdem);
-
-  inherited;
-end;
-
-procedure TGerenciadorContainer.Executar(const iterador: TIterador; const fornecedor: Integer);
-var
-  xRegistro: TRegistroOrdem;
-  xContinuar: Boolean;
-  xTotal: Double;
-  i: Integer;
-  xSobras: array of Integer;
-
-  function Sobra(const id: Integer): Boolean;
-  var
-    i: Integer;
-  begin
-    Result := False;
-
-    for i := 0 to High(xSobras) do
-    begin
-      if (xSobras[i] = id) then
-      begin
-        Result := True;
-        Break;
-      end;
-    end;
-  end;
-
-  procedure RemoverOrdem();
-  var
-    xRegistro: TRegistroOrdem;
-    xMenor: Integer;
-    xPeso: Double;
-    i: Integer;
-  begin
-    xMenor := 0;
-    xPeso := 0;
-
-    for i := 0 to pred(FIteradorPesoOrdem.Count) do
-    begin
-      xRegistro := TRegistroOrdem(FIteradorPesoOrdem[i]);
-
-      if ((xRegistro.PesoTotal < xPeso) and not(Sobra(i))) or (xPeso = 0) then
-      begin
-        xMenor := i;
-        xPeso := xRegistro.PesoTotal
-      end;
-    end;
-
-    i := Length(xSobras);
-    Inc(i);
-    SetLength(xSobras, i);
-    xSobras[pred(i)] := xMenor;
-
-    for i := 0 to pred(FIteradorPesoOrdem.Count) do
-    begin
-      xRegistro := TRegistroOrdem(FIteradorPesoOrdem[i]);
-
-      if not(Sobra(i)) then
-        xTotal := xTotal + xRegistro.PesoTotal;
-    end;
-  end;
-
-begin
-  xTotal := 0;
-  xContinuar := False;
-
-  for i := 0 to pred(FIteradorPesoOrdem.Count) do
-  begin
-    xRegistro := TRegistroOrdem(FIteradorPesoOrdem[i]);
-    xTotal := xTotal + xRegistro.PesoTotal;
-  end;
-
-  if not(BuscarContainer(xTotal)) then
-  begin
-    xTotal := 0;
-
-    //se falhou em passar o total para os containers, diminui do menor
-    while not(xContinuar) do
-    begin
-      RemoverOrdem;
-      xContinuar := BuscarContainer(xTotal);
-    end;
-
-    if (Length(xSobras) > 0) then
-    begin
-      xTotal := 0;
-
-      for i := 0 to High(xSobras) do
-      begin
-        xRegistro := TRegistroOrdem(FIteradorPesoOrdem[xSobras[i]]);
-        xTotal := xTotal + xRegistro.PesoTotal;
-      end;
-
-      BuscarContainer(xTotal)
-    end;
-  end;
-
-  FIteradorPesoOrdem.Clear;
-
-  if (FIteradorContainer.Movimentos > 0) then
-  begin
-    Self.CarregarDespesas();
-    Self.GerarTitulo(iterador, fornecedor);
-  end;
-end;
-
-procedure TGerenciadorContainer.AtualizarOrdemCompra(const iterador: TIterador);
-var
-  i: Integer;
-  x420ocp: T420OCP;
-begin
-  for i := 0 to pred(iterador.Count) do
-  begin
-    x420ocp := T420OCP(iterador[i]);
-    x420ocp.USU_IdeMdo := F096MDO.USU_ID;
-    x420ocp.Update;
-  end;
-end;
-
-function TGerenciadorContainer.BuscarContainer(const total: Double): Boolean;
-var
-  xContainer: TContainer;
-  xManipularPeso: Double;
-
-  function AlterarContainer(const peso: Double): Integer;
-  var
-    xContainer: TContainer;
-    xProximo: Double;
-    xAnterior: Double;
-    i,j: Integer;
-  begin
-    Result := -1;
-    j := 0;
-    xProximo := 0;
-    xAnterior := 0;
-
-    for i := 0 to pred(FIteradorContainer.Count) do
-    begin
-      xContainer := TContainer(FIteradorContainer[i]);
-
-      if (xContainer.Limite < xProximo) or (xProximo = 0) then
-      begin
-        xProximo := xContainer.Limite;
-        Result := i;
-
-        if (xProximo <= peso) then
-        begin
-          xProximo := xAnterior;
-          Result := j;
-        end;
-      end;
-
-      j := i;
-      xAnterior := xContainer.Limite;
-    end;
-  end;
-
-begin
-  if (FIteradorContainer.Count > 0) then
-  begin
-    FIteradorContainer.Primeiro;
-    xContainer := FIteradorContainer.Registro;
-
-    xManipularPeso := 0;
-    Result := False;
-
-    if (total >= (xContainer.CargaMinima * 1000)) then
-    begin
-      //testa pelo peso total
-      while not(FIteradorContainer.Eof) do
-      begin
-        xContainer := FIteradorContainer.Registro;
-
-        if (total >= (xContainer.CargaMinima * 1000)) and (total <= (xContainer.Limite * 1000)) then
-        begin
-          FIteradorContainer.MovimentarContainer;
-          Result := True;
-          Break;
-        end;
-
-        FIteradorContainer.Proximo;
-      end;
-
-      //tenta diminuir do total para os containers
-      if not(Result) then
-      begin
-        xManipularPeso := total;
-
-        FIteradorContainer.Ultimo;
-        xContainer := FIteradorContainer.Registro;
-        xManipularPeso := xManipularPeso - (xContainer.Limite * 1000);
-
-        FIteradorContainer.MovimentarContainer;
-        Result := BuscarContainer(xManipularPeso);
-      end;
-
-      if (xManipularPeso > 0) then
-        Result := False;
-    end
-    else
-      Result := True;
-  end
-  else
-     Result := True;
-end;
-
-function TGerenciadorContainer.Gastos: Double;
-begin
-  Result := FTotalGastos;
-end;
-
-procedure TGerenciadorContainer.GerarMovimentos(const gerador: TGeradorTitulo);
-var
-  i: Integer;
-  x097dem: T097DEM;
-begin
-  F096MDO.USU_CodEmp := gerador.CodEmp;
-  F096MDO.USU_CodFil := gerador.CodFil;
-  F096MDO.USU_CodFor := gerador.CodFor;
-  F096MDO.USU_CodTpt := gerador.CodTpt;
-  F096MDO.USU_NumTit := gerador.NumTit;
-  F096MDO.Insert;
-
-  for i := 0 to pred(FListaDespesas.Count) do
-  begin
-    x097dem := T097DEM(FListaDespesas[i]);
-    x097dem.USU_IdeMdo := F096MDO.USU_ID;
-    x097dem.Insert;
-  end;
-end;
-
-procedure TGerenciadorContainer.GerarTitulo(const iterador: TIterador; const fornecedor: Integer);
-begin
-  GeradorTitulo.CodEmp := FLogEmp;
-  GeradorTitulo.CodFil := FLogFil;
-  GeradorTitulo.CodFor := fornecedor;
-  GeradorTitulo.VctOri := Self.DataPrevisao;
-  GeradorTitulo.DatPpt := Self.DataPrevisao;
-  GeradorTitulo.VlrOri := FTotalGastos;
-  GeradorTitulo.DatEmi := Date;
-  GeradorTitulo.DatEnt := Date;
-  GeradorTitulo.Titulo := toPrevisto;
-  GeradorTitulo.ObsTcp := ObsTcp;
-  GeradorTitulo.Add;
-
-  GeradorTitulo.Executar;
-
-  if (GeradorTitulo.Processado) then
-  begin
-    Self.GerarMovimentos(GeradorTitulo);
-    Self.AtualizarOrdemCompra(iterador);
-    Inc(FQtdTitulos);
-  end;
-end;
-
-function TGerenciadorContainer.IdentificadorFornecedor: Integer;
-begin
-  Result := FIdeFor;
-end;
-
-procedure TGerenciadorContainer.IncluirItem(const produto: T420IPO;
-  const ordem: T420OCP);
-var
-  x075pro: T075PRO;
-begin
-  x075pro := T075PRO.Create;
-  try
-    x075pro.Init;
-    x075pro.CodEmp := produto.CodEmp;
-    x075pro.CodPro := produto.CodPro;
-    x075pro.Open();
-
-    if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
-      Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
-
-    FIteradorPesoOrdem.Adicionar(ordem, (x075pro.PesBru * produto.QtdPed));
-  finally
-    FreeAndNil(x075pro);
-  end;
-end;
-
-function TGerenciadorContainer.ValorContainer: Double;
-begin
-  Result := FIteradorContainer.Movimentos;
+  F501PFI := Value;
 end;
 
 { TGerenciardorTitulo }
 
-procedure TGerenciardorTitulo.Adicionar(const produto: T420IPO;
+procedure TGerenciardorTitulo.IncluirProduto(const produto: T420IPO;
   const ordem: T420OCP);
 begin
   if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
@@ -608,21 +259,29 @@ begin
   VlrFin := VlrFin + ordem.VlrFin;
 end;
 
-procedure TGerenciardorTitulo.Executar;
+procedure TGerenciardorTitulo.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
+  const fornecedor: TIteradorFornecedor);
 begin
-  GeradorTitulo.CodEmp := FLogEmp;
-  GeradorTitulo.CodFil := FLogFil;
-  GeradorTitulo.CodFor := CodFor;
-  GeradorTitulo.VctOri := Self.DataPrevisao;
-  GeradorTitulo.DatPpt := Self.DataPrevisao;
-  GeradorTitulo.VlrOri := (VlrFin * (CalcularMoeda(CodMoe)));
-  GeradorTitulo.DatEmi := Date;
-  GeradorTitulo.DatEnt := Date;
-  GeradorTitulo.Titulo := toPrevisto;
-  GeradorTitulo.ObsTcp := ObsTcp;
-  GeradorTitulo.Add;
+  inherited;
 
-  GeradorTitulo.Executar;
+  AlterarData(fornecedor.DiasRegistro);
+
+  criaTituloCP.VctOri := Self.DataPrevisao;
+  criaTituloCP.DatPpt := Self.DataPrevisao;
+  criaTituloCP.VlrOri := (VlrFin * (CalcularMoeda(CodMoe)));
+  criaTituloCP.DatEmi := Date;
+  criaTituloCP.DatEnt := Date;
+  criaTituloCP.Titulo := toPrevisto;
+  criaTituloCP.ObsTcp := ObsTcp;
+  criaTituloCP.Add;
+end;
+
+procedure TGerenciardorTitulo.AtribuirParametros();
+begin
+  CodCrt := parametros.USU_CodCrt;
+  CodPor := parametros.USU_CodPor;
+  CodTpt := parametros.USU_TptTit;
+  CodTns := parametros.USU_TnsTit;
 end;
 
 function TGerenciardorTitulo.GetVlrFin: Double;
@@ -637,8 +296,15 @@ end;
 
 { TGeradorImposto }
 
-procedure TGeradorImposto.Adicionar(const produto: T420IPO;
-  const ordem: T420OCP);
+procedure TGeradorImposto.IncluirProduto(const produto: T420IPO;
+  const ordem: T420OCP; const fornecedor: TIteradorFornecedor);
+
+  procedure SomaBase(const value: Double);
+  begin
+    if (value > 0) then
+      VlrImp := VlrImp + ((value / 100) * produto.VlrBru);
+  end;
+
 begin
   if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
     Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
@@ -649,25 +315,37 @@ begin
   if IsNull(CodMoe) then
     CodMoe := ordem.CodMoe;
 
-  //IPI / COFINS / PIS / Importação
-  VlrImp := VlrImp + (produto.VlrPis + produto.VlrCrt + produto.VlrIim + produto.VlrIpi);
+  SomaBase(produto.PerIim);
+  SomaBase(produto.PerIpi);
+  SomaBase(fornecedor.PerPid + fornecedor.PerCod);
 end;
 
-procedure TGeradorImposto.Executar;
+procedure TGeradorImposto.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
+  const fornecedor: TIteradorFornecedor);
 begin
-  GeradorTitulo.CodEmp := FLogEmp;
-  GeradorTitulo.CodFil := FLogFil;
-  GeradorTitulo.CodFor := CodFor;
-  GeradorTitulo.VctOri := Self.DataPrevisao;
-  GeradorTitulo.DatPpt := Self.DataPrevisao;
-  GeradorTitulo.VlrOri := (VlrImp * (CalcularMoeda(CodMoe)));
-  GeradorTitulo.DatEmi := Date;
-  GeradorTitulo.DatEnt := Date;
-  GeradorTitulo.Titulo := toPrevisto;
-  GeradorTitulo.ObsTcp := ObsTcp;
-  GeradorTitulo.Add;
+  inherited;
 
-  GeradorTitulo.Executar;
+  AlterarData(fornecedor.DiasRegistro);
+
+  criaTituloCP.CodEmp := FLogEmp;
+  criaTituloCP.CodFil := FLogFil;
+  criaTituloCP.CodFor := CodFor;
+  criaTituloCP.VctOri := Self.DataPrevisao;
+  criaTituloCP.DatPpt := Self.DataPrevisao;
+  criaTituloCP.VlrOri := (VlrImp * (CalcularMoeda(CodMoe)));
+  criaTituloCP.DatEmi := Date;
+  criaTituloCP.DatEnt := Date;
+  criaTituloCP.Titulo := toPrevisto;
+  criaTituloCP.ObsTcp := ObsTcp;
+  criaTituloCP.Add;
+end;
+
+procedure TGeradorImposto.AtribuirParametros;
+begin
+  CodCrt := parametros.USU_CodCrt;
+  CodPor := parametros.USU_CodPor;
+  CodTpt := parametros.USU_TptImp;
+  CodTns := parametros.USU_TnsImp;
 end;
 
 function TGeradorImposto.GetVlrImp: Double;
@@ -678,6 +356,380 @@ end;
 procedure TGeradorImposto.SetVlrImp(const Value: Double);
 begin
   FVlrImp := Value;
+end;
+
+{ TGerenciadorDespesas }
+
+procedure TGerenciadorDespesas.IncluirProduto(const imposto: Double; const produto: T420IPO;
+  const ordem: T420OCP; const grupo: string = '');
+var
+  i: Integer;
+  x095fim: T095FIM;
+  x097gfi: T097GFI;
+begin
+  if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
+    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
+
+  if (CodFor = 0) then
+    CodFor := ordem.CodFor;
+
+  if IsNull(CodMoe) then
+    CodMoe := ordem.CodMoe;
+
+  if (FListaGrupos.Count > 0) and not(IsNull(grupo)) then
+  begin
+    x097gfi := T097GFI.Create;
+    x097gfi.USU_CodGfi := grupo;
+
+    i := FListaGrupos.IndexOfFields(x097gfi);
+
+    if (i >= 0) then
+    begin
+      x097gfi := T097GFI(FListaGrupos[i]);
+      FVlrDes := FVlrDes + ((x097gfi.USU_PerDes / 100) * (ordem.VlrOri + imposto));
+      AlterarData(x097gfi.USU_DiaReg);
+    end;
+  end;
+
+  if (FListaFornecedores.Count > 0) then
+  begin
+    x095fim := T095FIM.Create;
+    x095fim.USU_CodFor := ordem.CodFor;
+
+    i := FListaFornecedores.IndexOfFields(x095fim);
+
+    if (i >= 0) then
+    begin
+      x095fim := T095FIM(FListaFornecedores[i]);
+      FVlrDes := FVlrDes + ((x095fim.USU_PerDes / 100) * (ordem.VlrOri + imposto));
+      AlterarData(x095fim.USU_DiaReg);
+    end;
+  end;
+end;
+
+procedure TGerenciadorDespesas.AtribuirParametros;
+begin
+  CodCrt := parametros.USU_CodCrt;
+  CodPor := parametros.USU_CodPor;
+  CodTpt := parametros.USU_TptDes;
+  CodTns := parametros.USU_TnsDes;
+end;
+
+procedure TGerenciadorDespesas.Carregar(const fornecedor: Integer;
+  const grupo: string = '');
+var
+  x095fim: T095FIM;
+  x097gfi: T097GFI;
+begin
+  x095fim := nil;
+  x097gfi := nil;
+  try
+    if not(IsNull(grupo)) then
+    begin
+      x097gfi := T097GFI.Create;
+      x097gfi.USU_CodGfi := grupo;
+      x097gfi.USU_SitReg := 'A';
+      x097gfi.PropertyForSelect(['USU_CODGFI','USU_SITREG']);
+      x097gfi.Open(False);
+
+      if not(x097gfi.IsEmpty) then
+        FListaGrupos.AddByClass(x097gfi);
+    end
+    else
+    begin
+      x095fim := T095FIM.Create;
+      x095fim.USU_CodFor := fornecedor;
+      x095fim.PropertyForSelect(['USU_CODFOR']);
+      x095fim.Open(False);
+
+      if not(x095fim.IsEmpty) then
+        FListaFornecedores.AddByClass(x095fim);
+    end;
+  finally
+    FreeAndNil(x097gfi);
+    FreeAndNil(x095fim);
+  end;
+end;
+
+constructor TGerenciadorDespesas.Create();
+begin
+  inherited Create();
+
+  FListaGrupos := TIterador.Create();
+  FListaGrupos.indexed := True;
+  FListaGrupos.IndexFields(['USU_CODGFI']);
+
+  FListaFornecedores := TIterador.Create();
+  FListaFornecedores.indexed := True;
+  FListaFornecedores.IndexFields(['USU_CODFOR']);
+end;
+
+destructor TGerenciadorDespesas.Destroy;
+begin
+  FreeAndNil(FListaGrupos);
+  FreeAndNil(FListaFornecedores);
+
+  inherited;
+end;
+
+procedure TGerenciadorDespesas.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
+  const fornecedor: TIteradorFornecedor = nil);
+begin
+  inherited;
+
+  criaTituloCP.CodEmp := FLogEmp;
+  criaTituloCP.CodFil := FLogFil;
+  criaTituloCP.CodFor := CodFor;
+  criaTituloCP.VctOri := Self.DataPrevisao;
+  criaTituloCP.DatPpt := Self.DataPrevisao;
+  criaTituloCP.VlrOri := (VlrDes * (CalcularMoeda(CodMoe)));
+  criaTituloCP.DatEmi := Date;
+  criaTituloCP.DatEnt := Date;
+  criaTituloCP.Titulo := toPrevisto;
+  criaTituloCP.ObsTcp := ObsTcp;
+  criaTituloCP.Add;
+end;
+
+function TGerenciadorDespesas.GetVlrDes: Double;
+begin
+  Result := FVlrDes;
+end;
+
+procedure TGerenciadorDespesas.SetVlrDes(const Value: Double);
+begin
+  FVlrDes := Value;
+end;
+
+{ TIteradorParametros }
+
+procedure TIteradorParametros.Carregar;
+var
+  x501pfi: T501PFI;
+begin
+  x501pfi := T501PFI.Create;
+  try
+    x501pfi.Open();
+
+    while (x501pfi.Next) do
+      Self.AddByClass(x501pfi);
+  finally
+    FreeAndNil(x501pfi);
+  end;
+end;
+
+constructor TIteradorParametros.Create;
+begin
+  inherited Create;
+
+  Self.indexed := True;
+  Self.IndexFields(['USU_CodEmp']);
+
+  Carregar();
+end;
+
+destructor TIteradorParametros.Destroy;
+begin
+  Self.Clear;
+
+  inherited;
+end;
+
+function TIteradorParametros.GetParametro(index: Integer): T501PFI;
+begin
+  Result := T501PFI(Self[Self.IndexOf(IntToStr(index))]);
+end;
+
+{ TGerenciador }
+
+procedure TGerenciador.Add(const ordem: T420OCP);
+begin
+  Self.AddByClass(ordem);
+end;
+
+procedure TGerenciador.AdicionarTitulos;
+var
+  x501tcp: T501TCP;
+begin
+  x501tcp := T501TCP.Create;
+  x501tcp.CodEmp := FGeradorTitulo.CodEmp;
+  x501tcp.CodFil := FGeradorTitulo.CodFil;
+  x501tcp.CodTpt := FGeradorTitulo.CodTpt;
+  x501tcp.CodFor := FGeradorTitulo.CodFor;
+  x501tcp.NumTit := FGeradorTitulo.NumTit;
+  x501tcp.NumOcp := T420OCP(Self[pred(Self.Count)]).NumOcp;
+  FListaTitulos.Add(x501tcp);
+end;
+
+procedure TGerenciador.AtualizarOrdemCompra();
+var
+  x096mto: T096MTO;
+  x420ocp: T420OCP;
+  x501tcp: T501TCP;
+  i: Integer;
+begin
+  for i := 0 to pred(FListaTitulos.Count) do
+  begin
+    x501tcp := T501TCP(FListaTitulos[i]);
+
+    x420ocp := T420OCP.Create;
+    x420ocp.CodEmp := x501tcp.CodEmp;
+    x420ocp.CodFil := x501tcp.CodFil;
+    x420ocp.NumOcp := x501tcp.NumOcp;
+
+    x420ocp := T420OCP(Self[Self.IndexOfFields(x420ocp)]);
+    x420ocp.USU_TitImp := 'S';
+    x420ocp.Update;
+
+    x096mto := T096MTO.Create;
+    try
+      x096mto.USU_CodEmp := x501tcp.CodEmp;
+      x096mto.USU_CodFil := x501tcp.CodFil;
+      x096mto.USU_NumTit := x501tcp.NumTit;
+      x096mto.USU_CodFor := x501tcp.CodFor;
+      x096mto.USU_CodTpt := x501tcp.CodTpt;
+      x096mto.USU_EmpOcp := x420ocp.CodEmp;
+      x096mto.USU_FilOcp := x420ocp.CodFil;
+      x096mto.USU_NumOcp := x420ocp.NumOcp;
+      x096mto.Insert;
+    finally
+      FreeAndNil(x096mto);
+    end;
+  end;
+end;
+
+constructor TGerenciador.Create;
+begin
+  inherited Create();
+
+  FGerenciadorImposto := TGeradorImposto.Create;
+  FGerenciardorTitulo := TGerenciardorTitulo.Create;
+  FGerenciadorDespesas := TGerenciadorDespesas.Create;
+  FIteradorParametros := TIteradorParametros.Create;
+  FGeradorTitulo := TGeradorTitulo.Create;
+  FExcluirTitulo := TExcluirTitulo.Create;
+  FListaTitulos := TIterador.Create();
+
+  indexed := True;
+  IndexFields(['CodEmp', 'CodFil', 'NumOcp']);
+end;
+
+destructor TGerenciador.Destroy;
+begin
+  FreeAndNil(FListaTitulos);
+  FreeAndNil(FGeradorTitulo);
+  FreeAndNil(FExcluirTitulo);
+  FreeAndNil(FIteradorParametros);
+  FreeAndNil(FGerenciadorImposto);
+  FreeAndNil(FGerenciardorTitulo);
+  FreeAndNil(FGerenciadorDespesas);
+
+  inherited;
+end;
+
+function TGerenciador.Erro: string;
+begin
+  Result := FErro;
+end;
+
+procedure TGerenciador.Executar;
+var
+  xTitulosOut: Array_Of_titulosGravarTitulosCPOutResultado;
+  i: Integer;
+begin
+  xTitulosOut := FGeradorTitulo.Executar();
+
+  if not(FGeradorTitulo.Processado) then
+  begin
+    for i := 0 to High(xTitulosOut) do
+    begin
+      if not(AnsiSameText(xTitulosOut[i].resultado, 'Ok')) then
+        FErro := FErro + Format('Erro ao gerar o título: %s, motivo: %s', [xTitulosOut[i].numTit, xTitulosOut[i].resultado])
+      else
+      begin
+        FExcluirTitulo.CodEmp := xTitulosOut[i].codEmp;
+        FExcluirTitulo.CodFil := StrToInt(xTitulosOut[i].codFil);
+        FExcluirTitulo.CodFor := StrToInt(xTitulosOut[i].codFor);
+        FExcluirTitulo.CodTpt := xTitulosOut[i].codTpt;
+        FExcluirTitulo.NumTit := xTitulosOut[i].numTit;
+        FExcluirTitulo.Add;
+      end;
+    end;
+
+    FExcluirTitulo.Executar;
+  end
+  else
+    AtualizarOrdemCompra;
+end;
+
+function TGerenciador.GetDespesas: TGerenciadorDespesas;
+begin
+  Result := FGerenciadorDespesas;
+end;
+
+function TGerenciador.GetImposto: TGeradorImposto;
+begin
+  Result := FGerenciadorImposto;
+end;
+
+function TGerenciador.GetTitulo: TGerenciardorTitulo;
+begin
+  Result := FGerenciardorTitulo;
+end;
+
+procedure TGerenciador.Init;
+begin
+  FGeradorTitulo.Init;
+  FErro := EmptyStr;
+end;
+
+function TGerenciador.Processado: Boolean;
+begin
+  Result := FGeradorTitulo.Processado;
+end;
+
+procedure TGerenciador.TituloDespesas(const fornecedor: TIteradorFornecedor);
+var
+  i: Integer;
+begin
+  i := FIteradorParametros.IndexOf(IntToStr(FLogEmp));
+
+  if (i > -1) then
+  begin
+    FGerenciadorDespesas.Parametros := T501PFI(FIteradorParametros[i]);
+    FGerenciadorDespesas.IncluirTitulo(FGeradorTitulo, fornecedor);
+
+    Self.AdicionarTitulos();
+  end;
+end;
+
+procedure TGerenciador.TituloFornecedor(const fornecedor: TIteradorFornecedor);
+var
+  i: Integer;
+begin
+  i := FIteradorParametros.IndexOf(IntToStr(FLogEmp));
+
+  if (i > -1) then
+  begin
+    FGerenciardorTitulo.Parametros := T501PFI(FIteradorParametros[i]);
+    FGerenciardorTitulo.IncluirTitulo(FGeradorTitulo, fornecedor);
+
+    Self.AdicionarTitulos();
+  end;
+end;
+
+procedure TGerenciador.TituloImposto(const fornecedor: TIteradorFornecedor);
+var
+  i: Integer;
+begin
+  i := FIteradorParametros.IndexOf(IntToStr(FLogEmp));
+
+  if (i > -1) then
+  begin
+    FGerenciadorImposto.Parametros := T501PFI(FIteradorParametros[i]);
+    FGerenciadorImposto.IncluirTitulo(FGeradorTitulo, fornecedor);
+
+    Self.AdicionarTitulos();
+  end;
 end;
 
 end.

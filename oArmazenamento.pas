@@ -10,9 +10,25 @@ type
   TIteradorAtualizarTitulos = class;
   TIteradorEspecieTitulo = class;
 
+  TTitulosAssociacao = class(TSubTituloDebitoDiretoAutorizado)
+  private
+    FTitulos: string;
+  public
+    property Titulos: string read FTitulos write FTitulos;
+  end;
+
+  TIteradorAssociacao = class(TIterador)
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    procedure Adicionar(const titulo: TSubTituloDebitoDiretoAutorizado);
+    function consistir(const titulo: TSubTituloDebitoDiretoAutorizado): string;
+  end;
+
   TArmazenamento = class(T510ARM)
   private
-    FIterador: TIterador;
+    FListaAssociados: TIteradorAssociacao;
     FListaTituloGeral: TIterador;
     FListaArmazenamento: TIterador;
     F510TIT: TTituloDebitoDiretoAutorizado;
@@ -214,9 +230,9 @@ begin
   FListaTituloGeral := TIterador.Create;
   FListaTituloBanco := TIteradorAtualizarTitulos.Create;
   FListaFilial := TListaFilial.Create;
-  FIterador := TIterador.Create;
   F510TIT := TTituloDebitoDiretoAutorizado.CreateCarregado(True);
   F095FOR := TFornecedor.Create();
+  FListaAssociados := TIteradorAssociacao.Create();
 
   FListaEspecieTitulo := TIteradorEspecieTitulo.Create(Self.Agendamento);
   FLayout := TLayout.Create(Self.Agendamento.USU_ID, 'USU_T510TIT');
@@ -227,29 +243,30 @@ end;
 procedure TArmazenamento.Processar;
 var
   i: Integer;
-  x510Tit: TTituloDebitoDiretoAutorizado;
   xRaiz: string;
+  xTitulos: string;
+  x510Tit: TTituloDebitoDiretoAutorizado;
   xTitulo: TSubTituloDebitoDiretoAutorizado;
-
-  procedure Associar();
-  begin
-    xTitulo.Init;
-    xTitulo.USU_IDTIT := x510tit.USU_ID;
-    xTitulo.CodBar := x510tit.USU_CodBar;
-    xTitulo.Update();
-
-    x510tit.USU_CodEmp := xTitulo.CodEmp;
-    x510tit.USU_CodFil := xTitulo.CodFil;
-    x510tit.USU_CodFor := xTitulo.CodFor;
-    x510tit.USU_SitTit := xTitulo.SitTit;
-    x510tit.USU_SitArm := 'S';
-    x510tit.Update();
-  end;
 
   procedure GerarLogTitulo(const pLog: string);
   begin
-    if AnsiSameText(x510tit.USU_LogTit, 'OK') then
-      Associar()
+    if AnsiSameText(UpperCase(pLog), 'OK') then
+    begin
+      xTitulo.Init;
+      xTitulo.USU_IDTIT := x510tit.USU_ID;
+      xTitulo.CodBar := x510tit.USU_CodBar;
+      xTitulo.Update();
+
+      x510tit.USU_CodEmp := xTitulo.CodEmp;
+      x510tit.USU_CodFil := xTitulo.CodFil;
+      x510tit.USU_CodFor := xTitulo.CodFor;
+      x510tit.USU_SitTit := xTitulo.SitTit;
+      x510tit.USU_LogTit := pLog;
+      x510tit.USU_SitArm := 'S';
+      x510tit.Update();
+
+      FListaAssociados.Adicionar(xTitulo);
+    end
     else
     begin
       x510Tit.USU_LogTit := pLog;
@@ -280,6 +297,11 @@ begin
       Continue;
     end;
 
+    xTitulos := FListaAssociados.consistir(xTitulo);
+
+    if not(IsNull(xTitulos)) then
+      xTitulo.AddToCommand(Format(' AND NOT(%s)', [xTitulos]));
+
     xTitulo.Open(False);
 
     if not(xTitulo.IsEmpty) then
@@ -291,6 +313,10 @@ begin
       if not(IsNull(xRaiz)) then
       begin
         xTitulo.Init;
+
+        if not(IsNull(xTitulos)) then
+          xTitulo.AddToCommand(Format(' AND NOT(%s)', [xTitulos]));
+
         xTitulo.AddToCommand('E501TCP.CODFOR IN ('+ xRaiz + ') AND ');
         xTitulo.PropertyForSelect(['CODEMP','CODFIL','CODTPT', 'VLRORI','VCTORI']);
         xTitulo.Open(False);
@@ -363,7 +389,7 @@ begin
   FreeAndNil(FListaFilial);
   FreeAndNil(FListaEspecieTitulo);
   FreeAndNil(F510AGE);
-  FreeAndNil(FIterador);
+  FreeAndNil(FListaAssociados);
 
   inherited;
 end;
@@ -490,6 +516,57 @@ end;
 procedure TIteradorEspecieTitulo.SetCodBan(const pCodBan: string);
 begin
   FCodBan := pCodBan;
+end;
+
+{ TIteradorAssociacao }
+
+procedure TIteradorAssociacao.Adicionar(
+  const titulo: TSubTituloDebitoDiretoAutorizado);
+var
+  i: Integer;
+  xTitulo: TTitulosAssociacao;
+begin
+  xTitulo := TTitulosAssociacao.Create;
+  xTitulo.Assign(titulo);
+
+  i := Self.IndexOfFields(xTitulo);
+
+  if (i > -1) then
+    TTitulosAssociacao(Self[i]).Titulos := TTitulosAssociacao(Self[i]).Titulos + ' OR (NUMTIT = ''' + titulo.NumTit + ''')'
+  else
+  begin
+    xTitulo.Titulos := '(NUMTIT = ''' + titulo.NumTit + ''')';
+    Self.Add(xTitulo);
+  end;
+end;
+
+function TIteradorAssociacao.consistir(
+  const titulo: TSubTituloDebitoDiretoAutorizado): string;
+var
+  i: Integer;
+  xTitulo: TTitulosAssociacao;
+begin
+  xTitulo := TTitulosAssociacao.Create;
+  xTitulo.Assign(titulo);
+  Result := emptyStr;
+
+  i := Self.IndexOfFields(xTitulo);
+
+  if (i > -1) then
+    Result := TTitulosAssociacao(Self[i]).Titulos
+end;
+
+constructor TIteradorAssociacao.Create;
+begin
+  inherited Create;
+
+  Self.indexed := True;
+  Self.IndexFields(['CODEMP','CODFIL','CODTPT','VLRORI','VCTORI','CODFOR']);
+end;
+
+destructor TIteradorAssociacao.Destroy;
+begin
+  inherited;
 end;
 
 end.

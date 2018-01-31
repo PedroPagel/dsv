@@ -14,9 +14,9 @@ type
 implementation
 
 uses
- system.Rtti, oBase, u310clp, u000crm, u000isc, u050dic, u510con, u510arm,
- u510lte, u510lay, u095fim, u096pto, u097gfi, u000bas, o510lay, o510lte,
- o510age, o510mle, o097gfi, o095fim, o097dem, o050dic, o096dei, o000isc;
+ system.Rtti, oBase, u310clp, u000crm, u510con, u510arm,
+ u510lte, u510lay, u096pto, u000bas, o510lay, o510lte, o510age,
+ o510mle, o097gfi, o095fim, o097dem, o050dic, o096dei, uEnumForm;
 
 { TVisualForm }
 
@@ -28,7 +28,7 @@ begin
   TConexao.Execute();
   try
     try
-      xComp := TComponentClass(GetClass('TF095FIM'));
+      xComp := TComponentClass(GetClass(ParamStr(2)));
 
       Application.ShowMainForm := True;
       Application.CreateForm(xComp, xForm);
@@ -59,16 +59,12 @@ initialization
   RegisterClasses([TF510ARM]);
   RegisterClasses([TF310CLP]);
   RegisterClasses([T097GFI]);
-  RegisterClasses([TF097GFI]);
   RegisterClasses([TF096PTO]);
   RegisterClasses([T095FIM]);
   RegisterClasses([T096DEI]);
-  RegisterClasses([TF095FIM]);
   RegisterClasses([T050DIC]);
-  RegisterClasses([TF050DIC]);
-  RegisterClasses([T000ISC]);
-  RegisterClasses([TF000ISC]);
   RegisterClasses([TF000CRM]);
+  RegisterClasses([TFEnumForm]);
 
 finalization
   UnRegisterClasses([T510LTE]);
@@ -81,15 +77,11 @@ finalization
   UnRegisterClasses([TF510ARM]);
   UnRegisterClasses([TF310CLP]);
   UnRegisterClasses([T097GFI]);
-  UnRegisterClasses([TF097GFI]);
   UnRegisterClasses([TF096PTO]);
   UnRegisterClasses([T095FIM]);
   UnRegisterClasses([T096DEI]);
-  UnRegisterClasses([TF095FIM]);
   UnRegisterClasses([T050DIC]);
-  UnRegisterClasses([TF050DIC]);
-  UnRegisterClasses([T000ISC]);
-  UnRegisterClasses([TF000ISC]);
   UnRegisterClasses([TF000CRM]);
+  UnRegisterClasses([TFEnumForm]);
 
 end.

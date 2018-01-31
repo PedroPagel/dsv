@@ -132,7 +132,7 @@ type
   TGeradorTitulo = class(T501TCP)
   private
     FServico: sapiens_Synccom_senior_g5_co_mfi_cpa_titulos;
-    FEntrada: titulosGravarTitulosCPIn;
+    FGravar: titulosGravarTitulosCPIn;
 
     FGeradorNumeroTitulo: TGeradorNumeroTitulo;
 
@@ -143,11 +143,26 @@ type
     destructor Destroy; override;
 
     procedure Add;
-    procedure Executar();
+    procedure Init();
 
     function Processado: Boolean;
+    function Executar(): Array_Of_titulosGravarTitulosCPOutResultado;
 
     property Titulo: TTitulo read FTitulo write FTitulo;
+  end;
+
+  TExcluirTitulo = class(T501TCP)
+  private
+    FServico: sapiens_Synccom_senior_g5_co_mfi_cpa_titulos;
+    FExcluir: titulosExcluirTitulosCPIn;
+  public
+    constructor Create();
+    destructor Destroy; override;
+
+    procedure Add;
+    procedure Init();
+
+    function Executar(): Array_Of_titulosExcluirTitulosCPOutResultado;
   end;
 
 var
@@ -288,7 +303,6 @@ end;
 procedure TFornecedor.CarregarFornecedores;
 var
   xQuery: THQuery;
-  xRaiz: Integer;
 begin
   xQuery := THQuery.CreatePersonalizado();
   try
@@ -302,12 +316,14 @@ begin
     while not(xQuery.Eof) do
     begin
       if (xQuery.FindField('ORIGINAL').AsInteger > 0) then
-        CodFor := xQuery.FindField('ORIGINAL').AsInteger;
+        CodFor := xQuery.FindField('ORIGINAL').AsInteger
+      else
+      begin
+        CodFor := xQuery.FindField('RAIZ').AsInteger;
 
-      xRaiz := xQuery.FindField('RAIZ').AsInteger;
-
-      if ((FLista.IndexOf(IntToStr(xRaiz)) = -1) and (xRaiz > 0)) then
-        FLista.Add(IntToStr(xRaiz));
+        if ((FLista.IndexOf(IntToStr(CodFor)) = -1) and (CodFor > 0)) then
+          FLista.Add(IntToStr(CodFor));
+      end;
 
       xQuery.Next;
     end;
@@ -689,7 +705,6 @@ end;
 
 procedure TTituloDebitoDiretoAutorizado.Alterar;
 begin
-  FTituloDebitoDiretoAutorizado.PropertyForSelect(['USU_IDTIT']);
   FTituloDebitoDiretoAutorizado.Update();
 end;
 
@@ -733,6 +748,7 @@ var
   xTitulo: Array_Of_titulosGravarTitulosCPInTitulos;
   i: Integer;
 begin
+  xTitulo := FGravar.titulos;
   i := Length(xTitulo);
   Inc(i);
   SetLength(xTitulo, i);
@@ -740,8 +756,6 @@ begin
   FGeradorNumeroTitulo.CodFil := CodFil;
   FGeradorNumeroTitulo.CodFor := CodFor;
   NumTit := FGeradorNumeroTitulo.GerarNumero;
-  CodTpt := 'PRV';
-  CodTns := '90535';
 
   xTitulo[pred(i)] := titulosGravarTitulosCPInTitulos.Create;
   xTitulo[pred(i)].codEmp := IntToStr(CodEmp);
@@ -754,12 +768,12 @@ begin
 
   xTitulo[pred(i)].datEnt := DateToStr(DatEnt);
   xTitulo[pred(i)].datEmi := DateToStr(DatEmi);
-  xTitulo[pred(i)].CodPor := '9999';
-  xTitulo[pred(i)].codCrt := '99';
+  xTitulo[pred(i)].CodPor := CodPor;
+  xTitulo[pred(i)].codCrt := CodCrt;
   xTitulo[pred(i)].VctOri := DateToStr(VctOri);
   xTitulo[pred(i)].datPpt := DateToStr(DatPpt);
   xTitulo[pred(i)].obsTcp := ObsTcp;
-  FEntrada.titulos := xTitulo;
+  FGravar.titulos := xTitulo;
 end;
 
 constructor TGeradorTitulo.Create;
@@ -767,7 +781,7 @@ begin
   inherited Create;
 
   FServico := Getsapiens_Synccom_senior_g5_co_mfi_cpa_titulos();
-  FEntrada := titulosGravarTitulosCPIn.Create;
+  FGravar := titulosGravarTitulosCPIn.Create;
   FGeradorNumeroTitulo := TGeradorNumeroTitulo.Create;
 end;
 
@@ -778,12 +792,26 @@ begin
   inherited;
 end;
 
-procedure TGeradorTitulo.Executar;
+function TGeradorTitulo.Executar: Array_Of_titulosGravarTitulosCPOutResultado;
 var
   xSaida: titulosGravarTitulosCPOut;
 begin
-  xSaida := FServico.GravarTitulosCP('sapiensweb','sapiensweb', 0, FEntrada);
-  FProcessado := AnsiSameText(xSaida.tipoRetorno, '1');
+  Result := nil;
+  FProcessado := False;
+
+  if (Length(FGravar.titulos) > 0) then
+  begin
+    xSaida := FServico.GravarTitulosCP('sapiensweb','sapiensweb', 0, FGravar);
+    FProcessado := AnsiSameText(xSaida.tipoRetorno, '1');
+
+    Result := xSaida.resultado;
+  end;
+end;
+
+procedure TGeradorTitulo.Init;
+begin
+  FProcessado := False;
+  FGravar.titulos := nil;
 end;
 
 function TGeradorTitulo.Processado: Boolean;
@@ -856,6 +884,56 @@ begin
   end;
 
   Result := FNumTit;
+end;
+
+{ TExcluirTitulo }
+
+procedure TExcluirTitulo.Add;
+var
+  xTitulo: Array_Of_titulosExcluirTitulosCPInTitulos;
+  i: Integer;
+begin
+  xTitulo := FExcluir.titulos;
+  i := Length(xTitulo);
+  Inc(i);
+  SetLength(xTitulo, i);
+
+  xTitulo[pred(i)] := titulosExcluirTitulosCPInTitulos.Create;
+  xTitulo[pred(i)].codEmp := IntToStr(CodEmp);
+  xTitulo[pred(i)].codFil := IntToStr(CodFil);
+  xTitulo[pred(i)].codFor := IntToStr(CodFor);
+  xTitulo[pred(i)].codTpt := CodTpt;
+  xTitulo[pred(i)].NumTit := NumTit;
+  FExcluir.titulos := xTitulo;
+end;
+
+constructor TExcluirTitulo.Create;
+begin
+  FServico := Getsapiens_Synccom_senior_g5_co_mfi_cpa_titulos();
+  FExcluir := titulosExcluirTitulosCPIn.Create;
+end;
+
+destructor TExcluirTitulo.Destroy;
+begin
+  inherited;
+end;
+
+function TExcluirTitulo.Executar: Array_Of_titulosExcluirTitulosCPOutResultado;
+var
+  xSaida: titulosExcluirTitulosCPOut;
+begin
+  Result := nil;
+
+  if (Length(FExcluir.titulos) > 0) then
+  begin
+    xSaida := FServico.ExcluirTitulosCP('sapiensweb','sapiensweb', 0, FExcluir);
+    Result := xSaida.resultado;
+  end;
+end;
+
+procedure TExcluirTitulo.Init;
+begin
+  FExcluir.titulos := nil;
 end;
 
 end.

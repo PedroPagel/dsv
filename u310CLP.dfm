@@ -678,10 +678,6 @@ object F310CLP: TF310CLP
         Font.Name = 'Tahoma'
         Font.Style = [fsBold]
         ParentFont = False
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object Panel6: TPanel
           Left = 0
           Top = 0

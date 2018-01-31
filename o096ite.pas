@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, oBase, System.SysUtils, System.Contnrs,
   o095for, oGeral, o096dei, o096lfc, o095fim, o420ocp, o420ipo,
-  o075pro, o096mdo, o031imo;
+  o075pro, o031imo;
 
 type
   TRegistroOrdem = class(T420OCP)
@@ -70,6 +70,7 @@ type
   private
     FGrupo: string;
     FPeriodo: Char;
+    FDiasRegistro: Integer;
     FIteradorOrdemCompra: TIterador;
   public
     constructor Create();
@@ -77,6 +78,7 @@ type
 
     property Grupo: string read FGrupo write FGrupo;
     property Periodo: Char read FPeriodo write FPeriodo;
+    property DiasRegistro: Integer read FDiasRegistro write FDiasRegistro;
     property IteradorOrdemCompra: TIterador read FIteradorOrdemCompra write FIteradorOrdemCompra;
   end;
 

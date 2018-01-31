@@ -5,7 +5,7 @@
         <ProjectVersion>14.6</ProjectVersion>
         <FrameworkType>FMX</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Package</AppType>
@@ -121,7 +121,6 @@
         <DCCReference Include="DBXOracleDriver.dcp"/>
         <DCCReference Include="HBase.dcp"/>
         <DCCReference Include="HComponente.dcp"/>
-        <DCCReference Include="WConnect_WSDL.pas"/>
         <DCCReference Include="oFacadeCarregamentoCRM.pas"/>
         <DCCReference Include="oFacadeBaseCRM.pas"/>
         <DCCReference Include="oFacadeControladoraCRM.pas"/>
@@ -135,6 +134,7 @@
         <DCCReference Include="o096ite.pas"/>
         <DCCReference Include="o096pto.pas"/>
         <DCCReference Include="o310clp.pas"/>
+        <DCCReference Include="WConnect_WSDL.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

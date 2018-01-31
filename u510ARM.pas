@@ -32,10 +32,10 @@ var
 begin
   Application.ShowMainForm := False;
 
-  FLogEmp := 1; //StrToInt(ParamStr(3));
+  FLogEmp := StrToInt(ParamStr(3));
   StartTransaction;
   try
-    xArmazenamento := TArmazenamento.Create(2764); //StrToInt(ParamStr(4)));
+    xArmazenamento := TArmazenamento.Create(StrToInt(ParamStr(4)));
     try
       xArmazenamento.CarregarArquivos();
       xArmazenamento.Processar();

@@ -340,6 +340,10 @@ begin
   FGridLig.Enabled := False;
   FGridDes.Enabled := False;
   FGridClp.Enabled := False;
+  FGridBlg.Enabled := False;
+  FGridBnl.Enabled := False;
+  FGridBem.Enabled := False;
+
   Ligar.Enabled := False;
   Remover.Enabled := False;
   Marcar.Enabled := False;
@@ -582,8 +586,8 @@ begin
   else
     CMessage('Não houve informações a listar!', mtErrorInform);
 
-  FGridBlg.Enabled := (FGridBlg.Count > 0);
-  FGridBnl.Enabled := (FGridBnl.Count > 0);
+  FGridBlg.Enabled := (FGridBem.Count > 0);
+  FGridBnl.Enabled := (FGridBem.Count > 0);
   FGridBem.Enabled := (FGridBem.Count > 0);
 end;
 

@@ -7,7 +7,8 @@ uses
   System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.DBCtrls, oButtonedEdit,
   Datasnap.DBClient, Data.DB, oBase, oDataSetGrid, oDateTimePicker, oMensagem,
-  System.Rtti, System.TypInfo, oMemo, oPanel, Vcl.AppEvnts;
+  System.Rtti, System.TypInfo, oMemo, oPanel, Vcl.AppEvnts, Vcl.Grids,
+  Vcl.DBGrids;
 
 type
   tEstadoRotina = (erIniciar, erAtualizar, erInserir, erSelecao, erCancelar,
@@ -90,6 +91,7 @@ type
     procedure ApplicationEvents1Hint(Sender: TObject);
     procedure GeralEnter(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FCamposSelect: array of string;
@@ -142,6 +144,7 @@ type
     procedure Registrar(const pClasse: string; const pTabela: string); virtual;
     procedure ExitButton(Sender: TObject);
   published
+    procedure BlockEnter();
     procedure AutomaticMethod(const pCheck: TCheckMethod;
       const pGrid: TDataSetGrid; const pField: string);
   end;
@@ -357,10 +360,6 @@ begin
       end;
     end;
   end;
-
-  IniciarCabecalhoChave();
-  CarregarRegistros(FTable);
-  FPosicaoRotina := psChave;
 end;
 
 procedure TF000CAD.AdicionarParaComponente(const pPosicao: Integer;
@@ -395,6 +394,7 @@ begin
     CheckMethod(cmUpdate);
 
     Commit;
+    //CabecalhoExit(Self);
   except
     on E: Exception do
     begin
@@ -583,6 +583,11 @@ begin
         end;
       end;
   end;
+end;
+
+procedure TF000CAD.BlockEnter;
+begin
+  FBlockEnter := True;
 end;
 
 procedure TF000CAD.BotoesEnter(Sender: TObject);
@@ -1077,18 +1082,28 @@ begin
 
   if Assigned(ActiveControl) then
   begin
-    for i := 0 to pred(FList.Count) do
+    for i := 0 to pred(Self.ComponentCount) do
     begin
-      xGrid := TDataSetGrid(Self.FindComponent(TGridListClass(FList[i]).GridName));
-
-      if AnsiSameText(xGrid.LookupGridClick, ActiveControl.Name) then
+      if (TDataSetGrid = Self.Components[i].ClassType) then
       begin
-        xGrid.CheckEnum(ActiveControl.Name);
-        FBlockEnter := True;
-        Break;
+        xGrid := TDataSetGrid(Self.FindComponent(Self.Components[i].Name));
+
+        if AnsiSameText(xGrid.LookupGridClick, ActiveControl.Name) then
+        begin
+          xGrid.CheckEnum(ActiveControl.Name);
+          FBlockEnter := True;
+          Break;
+        end;
       end;
     end;
   end;
+end;
+
+procedure TF000CAD.FormShow(Sender: TObject);
+begin
+  IniciarCabecalhoChave(True);
+  CarregarRegistros(FTable);
+  FPosicaoRotina := psChave;
 end;
 
 procedure TF000CAD.GeralEnter(Sender: TObject);
@@ -1126,7 +1141,11 @@ begin
     CheckMethod(cmEnter);
   end;
 
-  FBlockEnter := False;
+  if (FBlockEnter) then
+  begin
+    FBlockEnter := False;
+    Abort;
+  end;
 end;
 
 procedure TF000CAD.IniciarCabecalhoChave(const pFocus: Boolean = False);

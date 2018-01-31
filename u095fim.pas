@@ -140,7 +140,6 @@ begin
   FGridDes.Visible('USU_CodGfi', False);
 
   FGridCon.Init('USU_T050DIC', Self);
-  FGridCon.AddColumn('id', 'id', ftInteger);
   FGridCon.AddColumn('SitCon', 'Situação', ftString, 2);
   FGridCon.AddColumn('VlrFrt', 'Custo por Container', ftFloat);
   FGridCon.SetFieldAsEnumerator('SitCon', 'LSitReg');
@@ -149,7 +148,6 @@ begin
   FGridCon.CreateDataSet;
   FGridCon.ReadOnly('SitCon', False);
   FGridCon.ReadOnly('VlrFrt', False);
-  FGridCon.Visible('id', False);
 
   Registrar('T095FIM' , 'USU_T095FIM');
   BECodFor.Filter := ' SITFOR = ''A'' AND (CODPAI <> ''1058'')';

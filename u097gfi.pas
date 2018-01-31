@@ -30,6 +30,10 @@ type
     Panel2: TPanel;
     Panel3: TPanel;
     FGridCon: TDataSetGrid;
+    Label5: TLabel;
+    BEPerDes: THButtonedEdit;
+    Label4: TLabel;
+    BEDiaReg: THButtonedEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure GeralEnter(Sender: TObject);
@@ -86,7 +90,6 @@ begin
   Registrar('T097GFI', 'USU_T097GFI');
 
   FGridCon.Init('USU_T050DIC', Self);
-  FGridCon.AddColumn('id', 'id', ftInteger);
   FGridCon.AddColumn('SitCon', 'Situação', ftString, 2);
   FGridCon.AddColumn('VlrFrt', 'Custo por Container', ftFloat);
   FGridCon.SetFieldAsEnumerator('SitCon', 'LSitReg');
@@ -95,7 +98,6 @@ begin
   FGridCon.CreateDataSet;
   FGridCon.ReadOnly('SitCon', False);
   FGridCon.ReadOnly('VlrFrt', False);
-  FGridCon.Visible('id', False);
 
   FLigacaoContainer := TLigacaoContainer.Create;
   FLigacaoContainer.Grid := FGridCon;

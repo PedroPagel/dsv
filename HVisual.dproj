@@ -116,10 +116,6 @@
         <DCCReference Include="HComponente.dcp"/>
         <DCCReference Include="HBase.dcp"/>
         <DCCReference Include="bdertl.dcp"/>
-        <DCCReference Include="uMenu.pas">
-            <Form>FMENU</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="u000bas.pas">
             <Form>FORMBASE</Form>
             <FormType>dfm</FormType>
@@ -128,24 +124,8 @@
             <Form>F000CRM</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="u000isc.pas">
-            <Form>F000ISC</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u050dic.pas">
-            <Form>F050DIC</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u095fim.pas">
-            <Form>F095FIM</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="u096pto.pas">
             <Form>F096PTO</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
-        <DCCReference Include="u097gfi.pas">
-            <Form>F097GFI</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="u310CLP.pas">

@@ -224,10 +224,7 @@ begin
       xArquivo := BEDirFil.Text + '\' + ENomUni.Text + '.pas';
 
     AssignFile(FTextFile, xArquivo);
-    if (FileExists(xArquivo)) then
-      Rewrite(FTextFile)
-    else
-      Append(FTextFile);
+    Rewrite(FTextFile);
 
     xQuery := THQuery.CreatePersonalizado();
     xQuery.Command := 'SELECT R998FLD.TBLNAM, R998FLD.FLDNAM, R998FLD.FLDORD,R998FLD.MSKFLD, '+
@@ -472,8 +469,11 @@ begin
 
     CloseFile(FTextFile);
   except
-    CMessage('Não foi possível gerar a classe!', mtExceptError);
-    Exit;
+    on e: Exception do
+    begin
+      CMessage('Não foi possível gerar a classe!', mtExceptError);
+      Exit;
+    end;
   end;
 
   BENomTab.Text := '';

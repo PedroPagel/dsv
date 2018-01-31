@@ -171,6 +171,9 @@ type
     FProFab: string;
     FSubPro: Char;
     FTipCur: Integer;
+    FPerPim: Double;
+    FPerCim: Double;
+
     FUSU_DatCon: TDate;
     FUSU_UsuMod: Integer;
     FUSU_DatMod: TDate;
@@ -1080,6 +1083,10 @@ type
     procedure SetUSU_NumReqOld(const pUSU_NumReq: Integer);
     function GetUSU_SeqReqOld: Integer;
     procedure SetUSU_SeqReqOld(const pUSU_SeqReq: Integer);
+    function GetPerCim: Double;
+    function GetPerPim: Double;
+    procedure SetPerCim(const Value: Double);
+    procedure SetPerPim(const Value: Double);
   protected
     procedure Registros_OLD(); override;
     procedure RetornarValores(); override;
@@ -1249,6 +1256,8 @@ type
     property ProFab: string read GetProFab write SetProFab;
     property SubPro: Char read GetSubPro write SetSubPro;
     property TipCur: Integer read GetTipCur write SetTipCur;
+    property PerPim: Double read GetPerPim  write SetPerPim;
+    property PerCim: Double read GetPerCim  write SetPerCim;
     property USU_DatCon: TDate read GetUSU_DatCon write SetUSU_DatCon;
     property USU_UsuMod: Integer read GetUSU_UsuMod write SetUSU_UsuMod;
     property USU_DatMod: TDate read GetUSU_DatMod write SetUSU_DatMod;
@@ -2735,9 +2744,19 @@ begin
   CheckField('IdxGrd');
 end;
 
+function T420IPO.GetPerPim: Double;
+begin
+  Result := FPerPim;
+end;
+
 function T420IPO.GetPerPit: Double;
 begin
   Result := FPerPit;
+end;
+
+procedure T420IPO.SetPerPim(const Value: Double);
+begin
+  FPerPim := Value;
 end;
 
 procedure T420IPO.SetPerPit(const pPerPit: Double);
@@ -2771,9 +2790,19 @@ begin
   CheckField('VlrPit');
 end;
 
+function T420IPO.GetPerCim: Double;
+begin
+  Result := FPerCim;
+end;
+
 function T420IPO.GetPerCrt: Double;
 begin
   Result := FPerCrt;
+end;
+
+procedure T420IPO.SetPerCim(const Value: Double);
+begin
+  FPerCim := Value;
 end;
 
 procedure T420IPO.SetPerCrt(const pPerCrt: Double);
