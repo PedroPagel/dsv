@@ -883,6 +883,8 @@ begin
   FQuery := THQuery.CreatePersonalizado;
   try
     FQuery.Command := 'DELETE FROM ' + FTabela + ' WHERE ' + FCondicao;
+
+    DefinirParametros();
     FQuery.ExecSQL();
     FQuery.Close;
   finally

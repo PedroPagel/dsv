@@ -149,6 +149,10 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="o000for.pas"/>
+        <DCCReference Include="u000pfc.pas">
+            <Form>F000PFC</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -5,31 +5,13 @@ interface
 uses
   System.Classes, oBase, System.SysUtils, System.Contnrs,
   o095for, o095fim, o420ocp, o420ipo, webserviceContasPagar,
-  o075pro, o096ite, o096ger, o501pfi;
+  o075pro, o096ite, o096ger, o501pfi, o096mto;
 
 type
-  TGrupos = class
-  private
-    FLista: TIterador;
-    FGrupo: string;
-    FPosicao: TArrayOfInteger;
-  public
-    constructor Create();
-    destructor Destroy(); override;
-
-    property Grupo: string read FGrupo write FGrupo;
-    property Posicao: TArrayOfInteger read FPosicao write FPosicao;
-
-    function QtdGrupos: Integer;
-    function SetGrupo(const posicao: Integer): TArrayOfInteger;
-    procedure Aumentar(const position: Integer);
-    procedure Adicionar(const posicao: Integer; const grupo: string);
-  end;
 
   TIteradorPrevisao = class(TBase)
   private
     FLista: TIterador;
-    FListaGrupos: TGrupos;
     FGerenciador: TGerenciador;
 
     F095FOR: T095FOR;
@@ -41,8 +23,8 @@ type
     FTotalGastos: Double;
     FPosFornecedor: Integer;
     FQtdTitulos: Integer;
+    FProcessoAutomatico: Boolean;
 
-    FGrupo: string;
     FDadosOrdem: string;
     FDadosFornecedor: string;
 
@@ -52,6 +34,9 @@ type
     procedure Executar();
 
     procedure MontaPeriodo();
+    procedure VerificarPrevisoes();
+    procedure CarregarInvoices();
+    procedure SetProcessoAutomatico(const Value: Boolean);
   public
     constructor Create();
     destructor Destroy(); override;
@@ -75,13 +60,13 @@ type
     property DadosFornecedor: string write FDadosFornecedor;
     property DadosOrdem: string write FDadosOrdem;
     property DataBase: TDate read FDataBase write FDataBase;
-    property Grupo: string read FGrupo write FGrupo;
+    property ProcessoAutomatico: Boolean write SetProcessoAutomatico;
   end;
 
 implementation
 
 uses
-  oMensagem;
+  oMensagem, oQuery;
 
 { TIteradorPrevisaoBase }
 
@@ -90,7 +75,109 @@ begin
   //nada
 end;
 
-procedure TIteradorPrevisao.Carregar();
+procedure TIteradorPrevisao.CarregarInvoices();
+var
+  xIteradorOrdem: TIteradorOrdem;
+  xIteradorFornecedor: TIteradorFornecedor;
+begin
+  FLista.Clear;
+  Titulo := True;
+  CalcularGrupo := True;
+  Imposto := True;
+
+  F095FOR.Init;
+  F095FOR.AddToCommand('E095FOR.TIPMER = ''E'' AND '+
+                      'EXISTS(SELECT 1 FROM E440NFC, USU_TITENSFAT WHERE '+
+                      'USU_TITENSFAT.USU_CODEMP = E440NFC.CODEMP AND '+
+                      'USU_TITENSFAT.USU_CODFIL = E440NFC.CODFIL AND '+
+                      'USU_TITENSFAT.USU_NUMNFC = E440NFC.NUMNFC AND '+
+                      'E095FOR.CODFOR = E440NFC.CODFOR AND '+
+                      'E440NFC.CODFOR IN (SELECT USU_CODFOR FROM USU_T095FIM) AND '+
+                      '(E440NFC.CODSNF = ''INV'') AND '+
+                      'E440NFC.DATGER = TO_DATE('''+ DateToStr(Now) +''',''DD/MM/YYYY''))');
+
+  F095FOR.Open(False);
+  F095FOR.First;
+  while (F095FOR.Next) do
+  begin
+    F095FOR.Check := 1;
+
+    xIteradorFornecedor := TIteradorFornecedor.Create;
+    xIteradorFornecedor.Assign(F095FOR);
+
+    F420OCP.Init;
+    F420OCP.CodFor := F095FOR.CodFor;
+    F420OCP.PropertyForSelect(['CODFOR']);
+    F420OCP.AddToCommand(' AND EXISTS(SELECT 1 FROM E440NFC, USU_TITENSFAT WHERE '+
+                         'USU_TITENSFAT.USU_CODEMP = E440NFC.CODEMP AND '+
+                         'USU_TITENSFAT.USU_CODFIL = E440NFC.CODFIL AND '+
+                         'USU_TITENSFAT.USU_NUMNFC = E440NFC.NUMNFC AND '+
+                         'USU_TITENSFAT.USU_CODFOR = E420OCP.CODFOR AND '+
+                         'E440NFC.CODFOR = E420OCP.CODFOR AND '+
+                         'E420OCP.CODEMP = USU_TITENSFAT.USU_CODEMP AND '+
+                         'E420OCP.CODFIL = USU_TITENSFAT.USU_CODFIL AND '+
+                         'E420OCP.NUMOCP = USU_TITENSFAT.USU_NUMOCP AND '+
+                         'E440NFC.DATGER = TO_DATE('''+ DateToStr(Now) +''',''DD/MM/YYYY'')) AND '+
+                         'NOT EXISTS(SELECT 1 FROM E440IPC, E440NFC WHERE E440IPC.CODEMP = E420OCP.CODEMP AND '+
+                         'E440IPC.CODFIL = E420OCP.CODFIL AND '+
+                         'E440IPC.USU_OCPFAT = E420OCP.NUMOCP AND '+
+                         'E440NFC.CODEMP = E440IPC.CODEMP AND '+
+                         'E440NFC.CODFIL = E440IPC.CODFIL AND '+
+                         'E440NFC.CODFOR = E440IPC.CODFOR AND '+
+                         'E440NFC.NUMNFC = E440IPC.NUMNFC AND '+
+                         'E440NFC.CODSNF = E440IPC.CODSNF AND '+
+                         'E440NFC.CODSNF = ''55'')');
+
+    MontaPeriodo();
+    F420OCP.Open(False);
+    if not(F420OCP.IsEmpty) then
+    begin
+      xIteradorFornecedor.Check := 1;
+      xIteradorFornecedor.Periodo := F095FIM.USU_PerOrd;
+      xIteradorFornecedor.Grupo := F095FIM.USU_CodGfi;
+      xIteradorFornecedor.DiasRegistro := F095FIM.USU_DiaReg;
+      FLista.Add(xIteradorFornecedor);
+    end;
+
+    while (F420OCP.Next) do
+    begin
+      F420OCP.Check := 1;
+
+      xIteradorOrdem := TIteradorOrdem.Create;
+      xIteradorOrdem.Assign(F420OCP);
+
+      F420IPO.Init;
+      F420IPO.CodEmp := xIteradorOrdem.CodEmp;
+      F420IPO.CodFil := xIteradorOrdem.CodFil;
+      F420IPO.NumOcp := xIteradorOrdem.NumOcp;
+      F420IPO.PropertyForSelect(['CODEMP','CODFIL','NUMOCP']);
+      F420IPO.AddToCommand(' AND EXISTS(SELECT 1 FROM E440NFC, USU_TITENSFAT WHERE '+
+                           'USU_TITENSFAT.USU_CODEMP = E440NFC.CODEMP AND '+
+                           'USU_TITENSFAT.USU_CODFIL = E440NFC.CODFIL AND '+
+                           'USU_TITENSFAT.USU_NUMNFC = E440NFC.NUMNFC AND '+
+                           'E420IPO.CODEMP = USU_TITENSFAT.USU_CODEMP AND '+
+                           'E420IPO.CODFIL = USU_TITENSFAT.USU_CODFIL AND '+
+                           'E420IPO.NUMOCP = USU_TITENSFAT.USU_NUMOCP AND '+
+                           'E420IPO.SEQIPO IN (USU_TITENSFAT.USU_SEQIPO) AND '+
+                           'E440NFC.DATGER = TO_DATE('''+ DateToStr(Now) +''',''DD/MM/YYYY''))');
+      F420IPO.Open(False);
+      while (F420IPO.Next) do
+        xIteradorOrdem.IteradorProduto.AddByClass(F420IPO);
+
+      xIteradorFornecedor.IteradorOrdemCompra.Add(xIteradorOrdem);
+    end;
+
+    F420IPO.ClearFields;
+    F420IPO.Close;
+    F420OCP.Close;
+  end;
+  F095FOR.Close;
+
+  //Remove o que foi gerado pela tela de privisões
+  VerificarPrevisoes();
+end;
+
+procedure TIteradorPrevisao.Carregar;
 var
   xOrdem: string;
   xFornecedor: string;
@@ -99,12 +186,7 @@ var
 begin
   FLista.Clear;
 
-  xFornecedor := ' CODFOR IN (SELECT USU_CODFOR FROM USU_T095FIM ';
-
-  if not(IsNull(FGrupo)) then
-    xFornecedor := xFornecedor + Format(' WHERE USU_CODGFI IN (%s)', [FGrupo]);
-
-  xFornecedor := xFornecedor + ')';
+  xFornecedor := ' CODFOR IN (SELECT USU_CODFOR FROM USU_T095FIM) ';
 
   if not(IsNull(FDadosFornecedor)) then
     xFornecedor := xFornecedor + ' AND ' + FDadosFornecedor;
@@ -173,13 +255,15 @@ end;
 
 procedure TIteradorPrevisao.Processar;
 var
-  i,j,y,t: Integer;
+  i,j,y: Integer;
   x420ipo: T420IPO;
   xIteradorOrdem: TIteradorOrdem;
-  xListaOrdem: TIterador;
   xIteradorFornecedor: TIteradorFornecedor;
 begin
   FQtdTitulos := 0;
+
+  if (FProcessoAutomatico) then
+    CarregarInvoices();
 
   for i := 0 to pred(FLista.Count) do
   begin
@@ -187,60 +271,30 @@ begin
     xIteradorFornecedor := TIteradorFornecedor(FLista[i]);
 
     if (xIteradorFornecedor.Check = 1) then
-      if (IsNull(xIteradorFornecedor.Grupo) and (CalcularGrupo)) or not(CalcularGrupo) then
-      begin
-        CarregarGerenciadores(xIteradorFornecedor);
-
-        for j := 0 to pred(xIteradorFornecedor.IteradorOrdemCompra.Count) do
-        begin
-          if (T420OCP(xIteradorFornecedor.IteradorOrdemCompra[j]).Check = 1) then
-          begin
-            xIteradorOrdem := TIteradorOrdem(TIteradorFornecedor(xIteradorFornecedor.IteradorOrdemCompra[j]));
-
-            for y := 0 to pred(xIteradorOrdem.IteradorProduto.Count) do
-            begin
-              x420ipo := T420IPO(xIteradorOrdem.IteradorProduto[y]);
-              IncluirGerenciadores(xIteradorFornecedor, x420ipo, xIteradorOrdem);
-            end;
-
-            IncluirTitulos(T420OCP(xIteradorOrdem), xIteradorFornecedor);
-          end;
-        end;
-      end
-      else
-        FListaGrupos.Adicionar(i, xIteradorFornecedor.Grupo);
-  end;
-
-  if (CalcularGrupo) and (FListaGrupos.QtdGrupos > 0) then
-  begin
-    xListaOrdem := TIterador.Create();
-
-    for i := 0 to pred(FListaGrupos.QtdGrupos) do
     begin
-      xListaOrdem.Clear;
+      CarregarGerenciadores(xIteradorFornecedor);
 
-      for y := 0 to High(FListaGrupos.SetGrupo(i)) do
+      for j := 0 to pred(xIteradorFornecedor.IteradorOrdemCompra.Count) do
       begin
-        xIteradorFornecedor := TIteradorFornecedor(FLista[FListaGrupos.SetGrupo(i)[y]]);
-        CarregarGerenciadores(xIteradorFornecedor, xIteradorFornecedor.Grupo);
-
-        for j := 0 to pred(xIteradorFornecedor.IteradorOrdemCompra.Count) do
+        if (T420OCP(xIteradorFornecedor.IteradorOrdemCompra[j]).Check = 1) then
         begin
-          if (T420OCP(xIteradorFornecedor.IteradorOrdemCompra[j]).Check = 1) then
+          xIteradorOrdem := TIteradorOrdem(TIteradorFornecedor(xIteradorFornecedor.IteradorOrdemCompra[j]));
+
+          for y := 0 to pred(xIteradorOrdem.IteradorProduto.Count) do
           begin
-            xIteradorOrdem := TIteradorOrdem(TIteradorFornecedor(xIteradorFornecedor.IteradorOrdemCompra[j]));
-
-            for t := 0 to pred(xIteradorOrdem.IteradorProduto.Count) do
-            begin
-              x420ipo := T420IPO(xIteradorOrdem.IteradorProduto[t]);
-              IncluirGerenciadores(xIteradorFornecedor, x420ipo, xIteradorOrdem);
-            end;
-
-            xListaOrdem.AddByClass(xIteradorOrdem);
-            IncluirTitulos(T420OCP(xListaOrdem), xIteradorFornecedor);
+            x420ipo := T420IPO(xIteradorOrdem.IteradorProduto[y]);
+            IncluirGerenciadores(xIteradorFornecedor, x420ipo, xIteradorOrdem);
           end;
+
+          if not(FProcessoAutomatico) then
+            IncluirTitulos(T420OCP(xIteradorOrdem), xIteradorFornecedor)
+          else
+            FGerenciador.Add(T420OCP(xIteradorOrdem));
         end;
       end;
+
+      if (FProcessoAutomatico) then
+        IncluirTitulos(nil, xIteradorFornecedor);
     end;
   end;
 
@@ -275,20 +329,20 @@ constructor TIteradorPrevisao.Create;
 begin
   inherited Create;
 
+  FProcessoAutomatico := False;
+
   F420OCP := T420OCP.Create;
   F420IPO := T420IPO.Create;
   F095FOR := T095FOR.Create;
   F095FIM := T095FIM.Create;
 
   FGerenciador := TGerenciador.Create;
-  FListaGrupos := TGrupos.Create;
   FLista := TIterador.Create;
 end;
 
 destructor TIteradorPrevisao.Destroy;
 begin
   FreeAndNil(FLista);
-  FreeAndNil(FListaGrupos);
   FreeAndNil(FGerenciador);
 
   FreeAndNil(F420OCP);
@@ -303,16 +357,24 @@ procedure TIteradorPrevisao.Executar;
 begin
   FGerenciador.Executar();
 
-  if not(FGerenciador.Processado) then
-    CMessage('Problemas ao gerar o(s) título(s), motivo no botão detalhe(s)!', mtExceptError, True, FGerenciador.Erro)
-  else
-    Inc(FQtdTitulos);
+  if not(FProcessoAutomatico) then
+  begin
+    if not(FGerenciador.Processado) then
+      CMessage('Problemas ao gerar o(s) título(s), motivo no botão detalhe(s)!', mtExceptError, True, FGerenciador.Erro)
+    else
+      Inc(FQtdTitulos);
+  end;
+
+  //Verifica alguma nota foi gerada por invoice
+  if (FProcessoAutomatico) then
+    FGerenciador.VerificarNotas;
 end;
 
 procedure TIteradorPrevisao.IncluirTitulos(const ordem: T420OCP;
   const fornecedor: TIteradorFornecedor);
 begin
-  FGerenciador.Add(ordem);
+  if Assigned(ordem) then
+    FGerenciador.Add(ordem);
 
   if (Titulo) then
     FGerenciador.TituloFornecedor(fornecedor);
@@ -409,64 +471,32 @@ begin
   Result := TIteradorOrdem(TIteradorFornecedor(FLista[FPosFornecedor]).IteradorOrdemCompra[idOrd]).IteradorProduto.Count;
 end;
 
-{ TGrupos }
+procedure TIteradorPrevisao.SetProcessoAutomatico(const Value: Boolean);
+begin
+  FGerenciador.ProcessoAutomatico := Value;
+  FProcessoAutomatico := Value;
+end;
 
-procedure TGrupos.Adicionar(const posicao: Integer; const grupo: string);
+procedure TIteradorPrevisao.VerificarPrevisoes;
 var
-  i,y: Integer;
-  xGrupo: TGrupos;
-
-  procedure AumentaPosicao();
+  i,j: Integer;
+  xIteradorOrdem: TIteradorOrdem;
+  xIteradorFornecedor: TIteradorFornecedor;
+begin
+  for i := 0 to pred(FLista.Count) do
   begin
-    y := Length(xGrupo.Posicao);
-    Inc(y);
+    xIteradorFornecedor := TIteradorFornecedor(FLista[i]);
 
-    xGrupo.Aumentar(y);
-    xGrupo.Posicao[pred(y)] := posicao;
+    for j := 0 to pred(xIteradorFornecedor.IteradorOrdemCompra.Count) do
+    begin
+      xIteradorOrdem := TIteradorOrdem(TIteradorFornecedor(xIteradorFornecedor.IteradorOrdemCompra[j]));
+
+      if AnsiSameText(xIteradorOrdem.USU_TitImp, 'S') then
+        FGerenciador.AdicionarExclusao(xIteradorOrdem);
+    end;
   end;
 
-begin
-  xGrupo := TGrupos.Create;
-  xGrupo.Grupo := grupo;
-  i := FLista.IndexOfFields(xGrupo);
-
-  if (i > -1) then
-    xGrupo := TGrupos(FLista[i])
-  else
-    FLista.Add(xGrupo);
-
-  AumentaPosicao();
-end;
-
-constructor TGrupos.Create;
-begin
-  inherited Create;
-
-  FLista := TIterador.Create();
-  FLista.indexed := True;
-  FLista.IndexFields(['Grupo']);
-end;
-
-destructor TGrupos.Destroy;
-begin
-  FreeAndNil(FLista);
-
-  inherited;
-end;
-
-function TGrupos.QtdGrupos: Integer;
-begin
-  Result := FLista.Count;
-end;
-
-function TGrupos.SetGrupo(const posicao: Integer): TArrayOfInteger;
-begin
-  Result := TGrupos(FLista[posicao]).Posicao;
-end;
-
-procedure TGrupos.Aumentar(const position: Integer);
-begin
-  SetLength(FPosicao, position);
+  FGerenciador.ExcluirPrevisoes;
 end;
 
 end.

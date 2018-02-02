@@ -43,7 +43,8 @@ contains
   u510CON in 'u510CON.pas' {F510CON},
   u510lay in 'u510lay.pas' {F510LAY},
   u510lte in 'u510lte.pas' {F510LTE},
-  o000for in 'o000for.pas';
+  o000for in 'o000for.pas',
+  u000pfc in 'u000pfc.pas' {F000PFC};
 
 end.
 
