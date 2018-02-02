@@ -14,7 +14,7 @@ type
 implementation
 
 uses
- system.Rtti, oBase, u310clp, u000crm, u510con, u510arm,
+ system.Rtti, oBase, u310clp, u000crm, u510con, u510arm, u000pfc,
  u510lte, u510lay, u096pto, u000bas, o510lay, o510lte, o510age,
  o510mle, o097gfi, o095fim, o097dem, o050dic, o096dei, uEnumForm;
 
@@ -64,6 +64,7 @@ initialization
   RegisterClasses([T096DEI]);
   RegisterClasses([T050DIC]);
   RegisterClasses([TF000CRM]);
+  RegisterClasses([TF000PFC]);
   RegisterClasses([TFEnumForm]);
 
 finalization
@@ -82,6 +83,7 @@ finalization
   UnRegisterClasses([T096DEI]);
   UnRegisterClasses([T050DIC]);
   UnRegisterClasses([TF000CRM]);
+  UnRegisterClasses([TF000PFC]);
   UnRegisterClasses([TFEnumForm]);
 
 end.

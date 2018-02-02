@@ -36,6 +36,7 @@ type
     F031IMO: T031IMO;
     FData: TDate;
     F501PFI: T501PFI;
+    FProcessoAutomatico: Boolean;
 
     function GetParametros: T501PFI;
     procedure SetParametros(const Value: T501PFI);
@@ -49,12 +50,14 @@ type
 
     procedure AtribuirParametros(); virtual; abstract;
     procedure AlterarData(const dias: Integer);
+    procedure CarregarDatasNota(const produto: T420IPO; const tituloFornecedor: Boolean = False);
 
     property Data: TDate read FData write FData;
     property Titulo: Boolean read FTitulo write FTitulo;
     property Imposto: Boolean read FImposto write FImposto;
     property Parametros: T501PFI read GetParametros write SetParametros;
     property CalcularGrupo: Boolean read FCalcularGrupo write FCalcularGrupo;
+    property ProcessoAutomatico: Boolean read FProcessoAutomatico write FProcessoAutomatico;
   end;
 
   TGerenciardorTitulo = class(TBase)
@@ -115,6 +118,7 @@ type
     FIteradorParametros: TIteradorParametros;
     FGerenciardorTitulo: TGerenciardorTitulo;
     FGerenciadorDespesas: TGerenciadorDespesas;
+    FProcessoAutomatico: Boolean;
 
     function GetDespesas: TGerenciadorDespesas;
     function GetTitulo: TGerenciardorTitulo;
@@ -122,6 +126,7 @@ type
 
     procedure AdicionarTitulos();
     procedure AtualizarOrdemCompra();
+    procedure SetProcessoAutomatico(const Value: Boolean);
   public
     constructor Create();
     destructor Destroy; override;
@@ -132,6 +137,9 @@ type
     procedure Init();
     procedure Executar();
     procedure Add(const ordem: T420OCP); overload;
+    procedure AdicionarExclusao(const ordem: T420OCP);
+    procedure ExcluirPrevisoes();
+    procedure VerificarNotas();
     procedure TituloImposto(const fornecedor: TIteradorFornecedor);
     procedure TituloDespesas(const fornecedor: TIteradorFornecedor);
     procedure TituloFornecedor(const fornecedor: TIteradorFornecedor);
@@ -139,9 +147,13 @@ type
     property GerenciarImposto: TGeradorImposto read GetImposto;
     property GerenciarTitulo: TGerenciardorTitulo read GetTitulo;
     property GerenciarDespesas: TGerenciadorDespesas read GetDespesas;
+    property ProcessoAutomatico: Boolean read FProcessoAutomatico write SetProcessoAutomatico;
   end;
 
 implementation
+
+uses
+  oQuery, Data.DB;
 
 { TBase }
 
@@ -150,8 +162,12 @@ var
   xDia: TData;
 begin
   xDia := TData.Create(FData);
-  xDia.IncDays(dias);
-  FData := xDia.Data;
+  try
+    xDia.IncDays(dias);
+    FData := xDia.Data;
+  finally
+    FreeAndNil(xDia);
+  end;
 end;
 
 function TBase.CalcularMoeda(const moeda: string): Double;
@@ -179,8 +195,12 @@ begin
 
       xIteradorCotacao := TCotacao.Create;
       xIteradorCotacao.Assign(F031IMO);
-      xIteradorCotacao.MedCot := (F031IMO.VlrCot / F031IMO.CountField);
-      FListaMoedas.Add(xIteradorCotacao);
+
+      if (F031IMO.VlrCot > 0) then
+      begin
+        xIteradorCotacao.MedCot := (F031IMO.VlrCot / F031IMO.CountField);
+        FListaMoedas.Add(xIteradorCotacao);
+      end;
 
       Result := xIteradorCotacao.MedCot;
     finally
@@ -192,6 +212,48 @@ begin
     Result := TCotacao(FListaMoedas[i]).MedCot;
 end;
 
+procedure TBase.CarregarDatasNota(const produto: T420IPO; const tituloFornecedor: Boolean = False);
+var
+  xNota: THQuery;
+begin
+  xNota := THQuery.CreatePersonalizado();
+  try
+    xNota.Command := 'SELECT E440NFC.USU_DATFAT, E440NFC.USU_DATREC FROM E440NFC, E440IPC '+
+                    'WHERE '+
+                    'E440IPC.CODEMP = :CODEMP AND '+
+                    'E440IPC.FILOCP = :CODFIL AND '+
+                    'E440IPC.NUMOCP = :NUMOCP AND '+
+                    'E440IPC.SEQIPO = :SEQIPO AND '+
+                    'E440IPC.CODEMP = E440NFC.CODEMP AND '+
+                    'E440IPC.CODFIL = E440NFC.CODFIL AND '+
+                    'E440IPC.CODFOR = E440NFC.CODFOR AND '+
+                    'E440IPC.NUMNFC = E440NFC.NUMNFC AND '+
+                    'E440IPC.CODSNF = E440NFC.CODSNF ';
+
+    xNota.ParamByName('CODEMP').Value := produto.CodEmp;
+    xNota.ParamByName('CODFIL').Value := produto.CodFil;
+    xNota.ParamByName('NUMOCP').Value := produto.NumOcp;
+    xNota.ParamByName('SEQIPO').Value := produto.SeqIpo;
+    xNota.Open;
+    if not(xNota.IsEmpty) then
+    begin
+      if ((Data < xNota.FindField('USU_DATFAT').AsDateTime) or (Data < xNota.FindField('USU_DATREC').AsDateTime)) then
+        if (tituloFornecedor) then
+          Data := xNota.FindField('USU_DATFAT').AsDateTime
+        else
+          Data := xNota.FindField('USU_DATREC').AsDateTime;
+    end;
+
+    if (Data = 0) or (Data = StrToDate('31/12/1900')) then
+    begin
+      Data := Now;
+      AlterarData(30);
+    end;
+  finally
+    FreeAndNil(xNota);
+  end;
+end;
+
 constructor TBase.Create();
 begin
   inherited Create;
@@ -199,6 +261,7 @@ begin
   F501PFI := T501PFI.Create;
   F031IMO := T031IMO.Create;
 
+  FProcessoAutomatico := False;
   FListaMoedas := TIterador.Create();
   FListaMoedas.indexed := True;
   FListaMoedas.IndexFields(['CodMoe']);
@@ -211,7 +274,6 @@ end;
 
 destructor TBase.Destroy;
 begin
-  FreeAndNil(F501PFI);
   FreeAndNil(F031IMO);
   FreeAndNil(FListaMoedas);
 
@@ -230,7 +292,6 @@ begin
 
   criaTituloCP.CodEmp := FLogEmp;
   criaTituloCP.CodFil := FLogFil;
-  criaTituloCP.CodFor := CodFor;
   criaTituloCP.CodCrt := CodCrt;
   criaTituloCP.CodPor := CodPor;
   criaTituloCP.CodTpt := CodTpt;
@@ -247,8 +308,11 @@ end;
 procedure TGerenciardorTitulo.IncluirProduto(const produto: T420IPO;
   const ordem: T420OCP);
 begin
-  if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
-    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
+  if ((Data < produto.DatEnt) or (Data < produto.USU_DatCon)) and not(FProcessoAutomatico) then
+    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt)
+  else
+  if (FProcessoAutomatico) then
+    CarregarDatasNota(produto, True);
 
   if (CodFor = 0) then
     CodFor := ordem.CodFor;
@@ -256,7 +320,7 @@ begin
   if IsNull(CodMoe) then
     CodMoe := ordem.CodMoe;
 
-  VlrFin := VlrFin + ordem.VlrFin;
+  VlrFin := VlrFin + (produto.QtdPed * produto.PreUni);
 end;
 
 procedure TGerenciardorTitulo.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
@@ -264,8 +328,9 @@ procedure TGerenciardorTitulo.IncluirTitulo(const criaTituloCP: TGeradorTitulo;
 begin
   inherited;
 
-  AlterarData(fornecedor.DiasRegistro);
+  AlterarData(iff(ProcessoAutomatico, 1, fornecedor.DiasRegistro));
 
+  criaTituloCP.CodFor := fornecedor.CodFor;
   criaTituloCP.VctOri := Self.DataPrevisao;
   criaTituloCP.DatPpt := Self.DataPrevisao;
   criaTituloCP.VlrOri := (VlrFin * (CalcularMoeda(CodMoe)));
@@ -306,8 +371,11 @@ procedure TGeradorImposto.IncluirProduto(const produto: T420IPO;
   end;
 
 begin
-  if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
-    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
+  if ((Data < produto.DatEnt) or (Data < produto.USU_DatCon)) and not(FProcessoAutomatico) then
+    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt)
+  else
+  if (FProcessoAutomatico) then
+    CarregarDatasNota(produto);
 
   if (CodFor = 0) then
     CodFor := ordem.CodFor;
@@ -329,7 +397,7 @@ begin
 
   criaTituloCP.CodEmp := FLogEmp;
   criaTituloCP.CodFil := FLogFil;
-  criaTituloCP.CodFor := CodFor;
+  criaTituloCP.CodFor := fornecedor.CodFor;
   criaTituloCP.VctOri := Self.DataPrevisao;
   criaTituloCP.DatPpt := Self.DataPrevisao;
   criaTituloCP.VlrOri := (VlrImp * (CalcularMoeda(CodMoe)));
@@ -367,8 +435,11 @@ var
   x095fim: T095FIM;
   x097gfi: T097GFI;
 begin
-  if (Data < produto.DatEnt) or (Data < produto.USU_DatCon) then
-    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt);
+  if ((Data < produto.DatEnt) or (Data < produto.USU_DatCon)) and not(FProcessoAutomatico) then
+    Data := iff(produto.USU_DatCon > produto.DatEnt, produto.USU_DatCon, produto.DatEnt)
+  else
+  if (FProcessoAutomatico) then
+    CarregarDatasNota(produto);
 
   if (CodFor = 0) then
     CodFor := ordem.CodFor;
@@ -479,7 +550,7 @@ begin
 
   criaTituloCP.CodEmp := FLogEmp;
   criaTituloCP.CodFil := FLogFil;
-  criaTituloCP.CodFor := CodFor;
+  criaTituloCP.CodFor := fornecedor.CodFor;
   criaTituloCP.VctOri := Self.DataPrevisao;
   criaTituloCP.DatPpt := Self.DataPrevisao;
   criaTituloCP.VlrOri := (VlrDes * (CalcularMoeda(CodMoe)));
@@ -546,6 +617,39 @@ begin
   Self.AddByClass(ordem);
 end;
 
+procedure TGerenciador.AdicionarExclusao(const ordem: T420OCP);
+var
+  x096mto: T096MTO;
+  xDelete: T096MTO;
+begin
+  xDelete := nil;
+  x096mto := T096MTO.Create;
+  try
+    x096mto.USU_EmpOcp := ordem.CodEmp;
+    x096mto.USU_FilOcp := ordem.CodFil;
+    x096mto.USU_NumOcp := ordem.NumOcp;
+    x096mto.doForeignKey := True;
+    x096mto.Open();
+
+    while x096mto.Next do
+    begin
+      FExcluirTitulo.CodEmp := x096mto.USU_CodEmp;
+      FExcluirTitulo.CodFil := x096mto.USU_CodFil;
+      FExcluirTitulo.CodFor := x096mto.USU_CodFor;
+      FExcluirTitulo.NumTit := x096mto.USU_NumTit;
+      FExcluirTitulo.CodTpt := x096mto.USU_CodTpt;
+      FExcluirTitulo.Add;
+
+      xDelete := T096MTO.Create;
+      xDelete.Assign(x096mto);
+      xDelete.Delete;
+    end;
+  finally
+    FreeAndNil(x096mto);
+    FreeAndNil(xDelete);
+  end;
+end;
+
 procedure TGerenciador.AdicionarTitulos;
 var
   x501tcp: T501TCP;
@@ -565,20 +669,24 @@ var
   x096mto: T096MTO;
   x420ocp: T420OCP;
   x501tcp: T501TCP;
+  xUpdate: T501TCP;
   i: Integer;
 begin
   for i := 0 to pred(FListaTitulos.Count) do
   begin
     x501tcp := T501TCP(FListaTitulos[i]);
 
-    x420ocp := T420OCP.Create;
-    x420ocp.CodEmp := x501tcp.CodEmp;
-    x420ocp.CodFil := x501tcp.CodFil;
-    x420ocp.NumOcp := x501tcp.NumOcp;
+    if not(ProcessoAutomatico) then
+    begin
+      x420ocp := T420OCP.Create;
+      x420ocp.CodEmp := x501tcp.CodEmp;
+      x420ocp.CodFil := x501tcp.CodFil;
+      x420ocp.NumOcp := x501tcp.NumOcp;
 
-    x420ocp := T420OCP(Self[Self.IndexOfFields(x420ocp)]);
-    x420ocp.USU_TitImp := 'S';
-    x420ocp.Update;
+      x420ocp := T420OCP(Self[Self.IndexOfFields(x420ocp)]);
+      x420ocp.USU_TitImp := 'S';
+      x420ocp.Update;
+    end;
 
     x096mto := T096MTO.Create;
     try
@@ -587,12 +695,34 @@ begin
       x096mto.USU_NumTit := x501tcp.NumTit;
       x096mto.USU_CodFor := x501tcp.CodFor;
       x096mto.USU_CodTpt := x501tcp.CodTpt;
-      x096mto.USU_EmpOcp := x420ocp.CodEmp;
-      x096mto.USU_FilOcp := x420ocp.CodFil;
-      x096mto.USU_NumOcp := x420ocp.NumOcp;
+      x096mto.USU_EmpOcp := x501tcp.CodEmp;
+      x096mto.USU_FilOcp := x501tcp.CodFil;
+      x096mto.USU_NumOcp := x501tcp.NumOcp;
       x096mto.Insert;
+
+      xUpdate := T501TCP.Create;
+      xUpdate.Assign(x501tcp);
+      xUpdate.Open();
+
+      if not(xUpdate.IsEmpty) then
+      begin
+        xUpdate.ObsTcp := Format('Título de Previsão, criado pela ordem de compra: %d, empresa: %d e filial: %d',
+          [x501tcp.NumOcp, x501tcp.CodEmp, x501tcp.CodFil]);
+        xUpdate.Update;
+      end;
     finally
       FreeAndNil(x096mto);
+      FreeAndNil(xUpdate);
+    end;
+  end;
+
+  if (ProcessoAutomatico) then
+  begin
+    for i := 0 to pred(Self.Count) do
+    begin
+      x420ocp := T420OCP(Self[i]);
+      x420ocp.USU_TitImp := 'S';
+      x420ocp.Update;
     end;
   end;
 end;
@@ -629,6 +759,11 @@ end;
 function TGerenciador.Erro: string;
 begin
   Result := FErro;
+end;
+
+procedure TGerenciador.ExcluirPrevisoes;
+begin
+  FExcluirTitulo.Executar;
 end;
 
 procedure TGerenciador.Executar;
@@ -687,6 +822,15 @@ begin
   Result := FGeradorTitulo.Processado;
 end;
 
+procedure TGerenciador.SetProcessoAutomatico(const Value: Boolean);
+begin
+  FProcessoAutomatico := Value;
+
+  FGerenciadorImposto.ProcessoAutomatico := Value;
+  FGerenciardorTitulo.ProcessoAutomatico := Value;
+  FGerenciadorDespesas.ProcessoAutomatico := Value;
+end;
+
 procedure TGerenciador.TituloDespesas(const fornecedor: TIteradorFornecedor);
 var
   i: Integer;
@@ -730,6 +874,52 @@ begin
 
     Self.AdicionarTitulos();
   end;
+end;
+
+procedure TGerenciador.VerificarNotas;
+var
+  x096mto: T096MTO;
+  xDelete: T096MTO;
+begin
+  xDelete := nil;
+  x096mto := T096MTO.Create;
+  try
+    x096mto.AddToCommand('EXISTS(SELECT 1 FROM E420OCP, E440IPC, E440NFC '+
+                         'WHERE '+
+                         'E440IPC.CODEMP = E420OCP.CODEMP AND '+
+                         'E440IPC.CODFIL = E420OCP.CODFIL AND '+
+                         'E440IPC.USU_OCPFAT = E420OCP.NUMOCP AND '+
+                         'E440NFC.CODEMP = E440IPC.CODEMP AND '+
+                         'E440NFC.CODFIL = E440IPC.CODFIL AND '+
+                         'E440NFC.CODFOR = E440IPC.CODFOR AND '+
+                         'E440NFC.NUMNFC = E440IPC.NUMNFC AND '+
+                         'E440NFC.CODSNF = E440IPC.CODSNF AND '+
+                         'E440NFC.CODSNF = ''55'' AND '+
+                         'E440NFC.DATGER = TO_DATE('''+ DateToStr(Now) +''',''DD/MM/YYYY'') AND '+
+                         'USU_T096MTO.USU_EMPOCP = E420OCP.CODEMP AND '+
+                         'USU_T096MTO.USU_FILOCP = E420OCP.CODFIL AND '+
+                         'USU_T096MTO.USU_NUMOCP = E420OCP.NUMOCP)');
+
+    x096mto.Open(False);
+    while (x096mto.Next) do
+    begin
+      FExcluirTitulo.CodEmp := x096mto.USU_CodEmp;
+      FExcluirTitulo.CodFil := x096mto.USU_CodFil;
+      FExcluirTitulo.CodFor := x096mto.USU_CodFor;
+      FExcluirTitulo.NumTit := x096mto.USU_NumTit;
+      FExcluirTitulo.CodTpt := x096mto.USU_CodTpt;
+      FExcluirTitulo.Add;
+
+      xDelete := T096MTO.Create;
+      xDelete.Assign(x096mto);
+      xDelete.Delete;
+    end;
+  finally
+    FreeAndNil(x096mto);
+    FreeAndNil(xDelete);
+  end;
+
+  FExcluirTitulo.Executar;
 end;
 
 end.

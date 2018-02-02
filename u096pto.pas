@@ -38,7 +38,6 @@ type
     RadioGroup1: TRadioGroup;
     CBTitulo: TCheckBox;
     CBImposto: TCheckBox;
-    CBCalGru: TCheckBox;
     DDatBas: THDateTimePicker;
     Label4: TLabel;
     procedure FormCreate(Sender: TObject);
@@ -89,7 +88,6 @@ begin
   BECodPai.Text := EmptyStr;
   BECodGfi.Text := EmptyStr;
 
-  CBCalGru.Checked := True;
   CBImposto.Checked := True;
   CBTitulo.Checked := True;
 
@@ -182,13 +180,21 @@ begin
   inherited;
 
   Excluir.Visible := False;
-  CBCalGru.Checked := True;
   CBImposto.Checked := True;
   CBTitulo.Checked := True;
 
-  FLogEmp := 1;
-  FLogFil := 1;
-  FLogUsu := 257;
+  if (ParamCount > 0) then
+  begin
+    FLogEmp := StrToInt(ParamStr(3));
+    FLogFil := StrToInt(ParamStr(4));
+    FLogUsu := StrToInt(ParamStr(5));
+  end
+  else
+  begin
+    FLogEmp := 1;
+    FLogFil := 1;
+    FLogUsu := 257;
+  end;
 
   BECodFil.AddFilterLookup(BECodEmp);
   BENumOcp.AddFilterLookup(BECodEmp);
@@ -317,8 +323,6 @@ begin
   try
     try
       FIteradorPrevisao.DataBase := DDatBas.Date;
-      FIteradorPrevisao.Grupo := BECodGfi.Text;
-      FIteradorPrevisao.CalcularGrupo := CBCalGru.Checked;
       FIteradorPrevisao.Imposto := CBImposto.Checked;
       FIteradorPrevisao.Titulo := CBTitulo.Checked;
       FIteradorPrevisao.Processar;

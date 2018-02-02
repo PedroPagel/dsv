@@ -155,6 +155,7 @@ type
   private
     FServico: sapiens_Synccom_senior_g5_co_mfi_cpa_titulos;
     FExcluir: titulosExcluirTitulosCPIn;
+    FProcessado: Boolean;
   public
     constructor Create();
     destructor Destroy; override;
@@ -162,6 +163,7 @@ type
     procedure Add;
     procedure Init();
 
+    function Processado: Boolean;
     function Executar(): Array_Of_titulosExcluirTitulosCPOutResultado;
   end;
 
@@ -841,7 +843,7 @@ var
   var
     x501tcp: T501TCP;
   begin
-    FNumTit := 'TITPRV' + IntToStr(id);
+    FNumTit := 'TITPREV' + IntToStr(id);
 
     x501tcp := T501TCP.Create;
     try
@@ -927,13 +929,21 @@ begin
   if (Length(FExcluir.titulos) > 0) then
   begin
     xSaida := FServico.ExcluirTitulosCP('sapiensweb','sapiensweb', 0, FExcluir);
+    FProcessado := AnsiSameText(xSaida.tipoRetorno, '1');
     Result := xSaida.resultado;
   end;
+
+  Init();
 end;
 
 procedure TExcluirTitulo.Init;
 begin
   FExcluir.titulos := nil;
+end;
+
+function TExcluirTitulo.Processado: Boolean;
+begin
+  Result := FProcessado;
 end;
 
 end.

@@ -97,6 +97,7 @@ contains
   o097gfi in 'o097gfi.pas',
   o501pfi in 'o501pfi.pas',
   o096mto in 'o096mto.pas',
-  o120pxp in 'o120pxp.pas';
+  o120pxp in 'o120pxp.pas',
+  o440ipc in 'o440ipc.pas';
 
 end.
